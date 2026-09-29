@@ -86,7 +86,7 @@ const POPULAR_COUNTRY_CODES = [
   { code: "+81", country: "JP", name: "Japan (+81)" },
 ];
 
-export function SupportUsPage() {
+function SupportUsPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [countryCode, setCountryCode] = useState("+91");

@@ -1,17 +1,17 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
-import en from "../public/locales/en/translation.json";
-import hi from "../public/locales/hi/translation.json";
-import bn from "../public/locales/bn/translation.json";
-import ta from "../public/locales/ta/translation.json";
-import te from "../public/locales/te/translation.json";
-import mr from "../public/locales/mr/translation.json";
-import gu from "../public/locales/gu/translation.json";
-import kn from "../public/locales/kn/translation.json";
-import es from "../public/locales/es/translation.json";
-import fr from "../public/locales/fr/translation.json";
-import de from "../public/locales/de/translation.json";
+import en from "./locales/en/translation.json";
+import hi from "./locales/hi/translation.json";
+import bn from "./locales/bn/translation.json";
+import ta from "./locales/ta/translation.json";
+import te from "./locales/te/translation.json";
+import mr from "./locales/mr/translation.json";
+import gu from "./locales/gu/translation.json";
+import kn from "./locales/kn/translation.json";
+import es from "./locales/es/translation.json";
+import fr from "./locales/fr/translation.json";
+import de from "./locales/de/translation.json";
 
 export const SUPPORTED_LANGUAGES = [
   { code: "en", label: "English", nativeLabel: "English", dir: "ltr" },

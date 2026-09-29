@@ -1435,6 +1435,27 @@ MIT License. See [LICENSE](LICENSE) for details.
 
 - 🐛 **DATABASE FIX**: Resolved `duplicate key value violates unique constraint "billing_settings_key_key"` by adding explicit `onConflict: "key"` in Supabase upsert calls.
 
+### v4.4.1 (September 2026) — Digital Products Marketplace, GEO Optimization & Build Stability
+
+- 🛍️ **DIGITAL PRODUCTS & ASSETS STORE OVERHAUL (`/store`)**:
+  - Replaced legacy dummy perks and fake avatars with a full-fledged dynamic Digital Products Marketplace.
+  - Added support for 5 digital asset categories: **Templates & Notion**, **Software & Code Products**, **Books & Guides**, **Website Designs**, and **Tools & Utilities**.
+  - Enabled direct 1-click downloads with live external preview/demo links.
+  - Added dedicated **"My Library & Downloads"** tab for instant access to all purchased digital items.
+  - Integrated dual purchase mechanisms: Learnify XP redemption or Wallet Cash (₹ INR).
+- ⚙️ **ADMIN STORE & CONTENT MANAGEMENT (`/admin/store`)**:
+  - Built comprehensive Digital Product CRUD with fields for Download URLs, Demo URLs, Format tags (`Next.js 15`, `PDF eBook`, `Figma UI Kit`), File Size, XP cost, Cash ₹ price, and active toggle.
+  - Integrated 1-click access directly inside Admin Content Manager (`/admin/content`).
+  - Added Orders & Downloads audit tracking tab with user details and revenue statistics.
+- ⚡ **BUILD & RUNTIME WARNING RESOLUTION**:
+  - Eliminated Vite public folder direct JS import warning (`Assets in public directory cannot be imported from JavaScript`) by relocating locales from `public/locales` to `src/locales` and standardizing `@/i18n.ts`.
+  - Resolved TanStack Router code-splitting warning in `support-us.tsx`.
+  - Full TypeScript type check passed with 0 errors (`tsc --noEmit --skipLibCheck`).
+- 🤖 **GENERATIVE ENGINE OPTIMIZATION (GEO) & AI DISCOVERABILITY**:
+  - Added comprehensive `public/llms.txt` and `public/llms-full.txt` specifications for AI models, Perplexity, ChatGPT, and Gemini Search.
+  - Added verified AI crawler access directives in `public/robots.txt` (GPTBot, ClaudeBot, PerplexityBot, Applebot, Google-Extended).
+  - Optimized blog metadata and structured schema for AI answers and top search placement.
+
 ### v4.1.0 (September 2026) — Master Production Architecture, Payments & Course Marketplace Sync
 
 - 💳 **UNIFIED PAYMENTS ARCHITECTURE & RAZORPAY PRIMARY**:

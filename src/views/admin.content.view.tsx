@@ -41,6 +41,7 @@ import {
   FolderTree,
   LayoutTemplate,
   Upload,
+  ShoppingCart,
 } from "lucide-react";
 import {
   CertificateRender,
@@ -266,6 +267,11 @@ const SECTION_TOURS: Record<string, { what: string; how: string; where: string }
     where:
       "Sections are reusable blocks that can appear on any WCMS page. Great for headers, CTAs, and recurring content patterns.",
   },
+  "store-products": {
+    what: "Manage digital downloadable products, software boilerplates, website designs, books, and code templates.",
+    how: "Add products with download URLs, demo links, format badges, and price in XP or Wallet Cash.",
+    where: "Products appear in the Digital Products & XP Marketplace at /store.",
+  },
 };
 
 const TAB_LABELS: Record<string, string> = {
@@ -289,6 +295,7 @@ const TAB_LABELS: Record<string, string> = {
   "wcms-menus": "Menus",
   "wcms-sections": "Sections",
   "promo-banner": "Promo Banner",
+  "store-products": "Digital Products & Store",
 };
 
 export default function AdminContentPage() {
@@ -341,6 +348,10 @@ export default function AdminContentPage() {
   const [activeDrafts, setActiveDrafts] = useState<Array<{ key: string; module: string; recordId: string; title: string; updatedAt: number }>>([]);
 
   const handleTabChange = useCallback((newTab: string) => {
+    if (newTab === "store-products") {
+      navigate({ to: "/admin/store" });
+      return;
+    }
     setTab(newTab);
     navigate({
       to: "/admin/content",
@@ -448,6 +459,7 @@ export default function AdminContentPage() {
                   <SelectContent>
                     <SelectItem value="events">Events</SelectItem>
                     <SelectItem value="jobs">Jobs</SelectItem>
+                    <SelectItem value="store-products">Digital Products & Store</SelectItem>
                     <SelectItem value="design-projects">Design Projects</SelectItem>
                     <SelectItem value="pricing">Pricing Tiers</SelectItem>
                     <SelectItem value="site">Site Settings</SelectItem>
@@ -483,6 +495,7 @@ export default function AdminContentPage() {
                     {[
                       { id: "events", label: "Events", icon: CalendarIcon },
                       { id: "jobs", label: "Jobs", icon: Briefcase },
+                      { id: "store-products", label: "Digital Store", icon: ShoppingCart },
                       { id: "design-projects", label: "Design Projects", icon: FolderTree },
                       { id: "faqs", label: "FAQs", icon: HelpCircle },
                       { id: "coupons", label: "Coupons", icon: Percent },

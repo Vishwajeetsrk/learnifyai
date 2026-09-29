@@ -1,0 +1,929 @@
+{
+  "nav": {
+    "features": "सुविधाएँ",
+    "aiTools": "AI टूल्स",
+    "creators": "क्रिएटर्स",
+    "coaches": "कोच",
+    "pricing": "मूल्य निर्धारण",
+    "blog": "ब्लॉग",
+    "dashboard": "ऐप खोलें",
+    "signIn": "साइन इन",
+    "getStarted": "शुरू करें",
+    "projects": "परियोजनाएं"
+  },
+  "hero": {
+    "badge": "AI-संचालित लर्निंग OS",
+    "title": "आपका AI-संचालित",
+    "titleHighlight": "लर्निंग OS",
+    "subtitle": "कोर्स, AI ट्यूटरिंग, करियर टूल्स, सर्टिफिकेट और कम्युनिटी — सब एक स्मार्ट प्लेटफॉर्म में।",
+    "cta": "मुफ्त में सीखना शुरू करें",
+    "secondary": "कोर्स देखें",
+    "stat1Value": "10,000+",
+    "stat1Label": "सक्रिय शिक्षार्थी",
+    "stat2Value": "500+",
+    "stat2Label": "AI पाठ",
+    "stat3Value": "50+",
+    "stat3Label": "कोर्स"
+  },
+  "features": {
+    "badge": "प्लेटफॉर्म सुविधाएँ",
+    "title": "सीखने और बढ़ने के लिए",
+    "titleHighlight": "सब कुछ मिलेगा",
+    "subtitle": "AI ट्यूटरिंग से लेकर करियर प्लेसमेंट तक — एक पूर्ण लर्निंग ऑपरेटिंग सिस्टम।",
+    "items": {
+      "aiTutor": {
+        "title": "AI ट्यूटर",
+        "desc": "1-ऑन-1 व्यक्तिगत AI ट्यूटरिंग जो आपकी सीखने की शैली के अनुकूल होती है।"
+      },
+      "courses": {
+        "title": "स्मार्ट कोर्स",
+        "desc": "ऑटो-नोट्स, क्विज़ और फ्लैशकार्ड के साथ इंटरैक्टिव वीडियो कोर्स।"
+      },
+      "certificates": {
+        "title": "सत्यापित प्रमाणपत्र",
+        "desc": "QR कोड और LinkedIn इंटीग्रेशन के साथ सत्यापित प्रमाणपत्र अर्जित करें।"
+      },
+      "career": {
+        "title": "करियर टूल्स",
+        "desc": "रिज़्यूमे बिल्डर, ATS चेकर, मॉक इंटरव्यू और करियर रोडमैप।"
+      },
+      "gamification": {
+        "title": "गेमिफिकेशन",
+        "desc": "आपको प्रेरित रखने के लिए XP, स्ट्रीक्स, लीडरबोर्ड और उपलब्धियाँ।"
+      },
+      "community": {
+        "title": "कम्युनिटी",
+        "desc": "शिक्षार्थियों से जुड़ें, प्रगति साझा करें और चुनौतियों में भाग लें।"
+      }
+    }
+  },
+  "pricing": {
+    "badge": "मूल्य निर्धारण",
+    "title": "सरल, पारदर्शी मूल्य निर्धारण",
+    "subtitle": "मुफ्त में शुरू करें, जब तैयार हों तब अपग्रेड करें। सभी प्लान में AI-संचालित लर्निंग टूल्स शामिल हैं।",
+    "trust": "10,000+ शिक्षार्थी Learnify AI पर भरोसा करते हैं",
+    "monthly": "मासिक",
+    "yearly": "वार्षिक",
+    "yearlySave": "17% बचाएं",
+    "free": "मुफ्त",
+    "perMonth": "/माह",
+    "perYear": "/वर्ष",
+    "plans": {
+      "starter": {
+        "name": "स्टार्टर",
+        "description": "AI-संचालित लर्निंग शुरू करने के लिए बिल्कुल सही।",
+        "cta": "मुफ्त में शुरू करें"
+      },
+      "pro": {
+        "name": "प्रो",
+        "description": "गंभीर शिक्षार्थियों और क्रिएटर्स के लिए जो असीमित पहुंच चाहते हैं।",
+        "cta": "प्रो शुरू करें",
+        "badge": "सबसे लोकप्रिय"
+      },
+      "careerPro": {
+        "name": "करियर प्रो",
+        "description": "नौकरी खोजने वालों और पेशेवरों के लिए पूर्ण करियर टूलकिट।",
+        "cta": "करियर के लिए तैयार",
+        "badge": "सर्वोत्तम मूल्य"
+      }
+    },
+    "faq": {
+      "title": "अक्सर पूछे जाने वाले प्रश्न",
+      "searchPlaceholder": "प्रश्न खोजें...",
+      "noResults": "कोई मेल खाते प्रश्न नहीं मिले।"
+    },
+    "testimonials": {
+      "title": "हमारे शिक्षार्थी क्या कहते हैं"
+    },
+    "cta": {
+      "title": "सीखना शुरू करने के लिए तैयार?",
+      "subtitle": "10,000+ शिक्षार्थी पहले से Learnify AI के साथ अपना करियर बना रहे हैं।",
+      "button": "मुफ्त में शुरू करें"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "वापसी पर स्वागत",
+      "subtitle": "अपने खाते में साइन इन करें",
+      "email": "ईमेल",
+      "password": "पासवर्ड",
+      "forgotPassword": "पासवर्ड भूल गए?",
+      "submit": "साइन इन",
+      "noAccount": "खाता नहीं है?",
+      "signup": "साइन अप"
+    },
+    "signup": {
+      "title": "अपना खाता बनाएं",
+      "subtitle": "अपनी सीखने की यात्रा शुरू करें",
+      "name": "पूरा नाम",
+      "email": "ईमेल",
+      "password": "पासवर्ड",
+      "submit": "शुरू करें",
+      "hasAccount": "पहले से खाता है?",
+      "signin": "साइन इन"
+    }
+  },
+  "footer": {
+    "description": "कोर्स, ट्यूटरिंग, करियर टूल्स और सर्टिफिकेट के साथ AI-संचालित लर्निंग प्लेटफॉर्म।",
+    "product": "उत्पाद",
+    "resources": "संसाधन",
+    "company": "कंपनी",
+    "legal": "कानूनी",
+    "copyright": "Learnify AI. सर्वाधिकार सुरक्षित।",
+    "madeWith": "AI और इंसानों द्वारा बनाया गया"
+  },
+  "courses": {
+    "title": "कोर्स देखें",
+    "subtitle": "नए कौशल में महारत हासिल करने के लिए डिज़ाइन किए गए कोर्स खोजें",
+    "search": "कोर्स खोजें...",
+    "enroll": "अभी एनरोल करें",
+    "enrolled": "एनरोल्ड",
+    "lessons": "पाठ",
+    "students": "छात्र",
+    "rating": "रेटिंग"
+  },
+  "verifiedCertificates": {
+    "title": "आपकी प्रमाणपत्र यात्रा",
+    "subtitle": "कोर्स पूरा करें, मूल्यांकन पास करें और एक सत्यापित प्रमाणपत्र अर्जित करें जिसे आप डाउनलोड, LinkedIn पर साझा कर सकते हैं और अपने पोर्टफोलियो में प्रदर्शित कर सकते हैं।",
+    "howItWorks": "यह कैसे काम करता है",
+    "howItWorksDesc": "एनरोलमेंट से प्रमाणन तक का आपका मार्ग 7 सरल चरणों में।",
+    "whyTitle": "Learnify प्रमाणपत्र क्यों महत्वपूर्ण हैं",
+    "whyDesc": "दरवाजे खोलने वाले उद्योग-मान्यता प्राप्त प्रमाणपत्र।",
+    "ctaTitle": "अपना अगला प्रमाणपत्र अर्जित करने के लिए तैयार?",
+    "ctaSubtitle": "अपना कोर्स पूरा करें और एक सत्यापित प्रमाणपत्र अनलॉक करें।",
+    "startLearning": "सीखना शुरू करें",
+    "viewPricing": "मूल्य देखें",
+    "scanToVerify": "सत्यापित करने के लिए स्कैन करें",
+    "uniqueQR": "हर प्रमाणपत्र पर अद्वितीय QR कोड",
+    "steps": {
+      "enroll": "कोर्स में एनरोल करें",
+      "enrollDesc": "ऐसा कोर्स चुनें जो आपके सीखने के लक्ष्यों से मेल खाता हो।",
+      "complete": "सभी पाठ पूरे करें",
+      "completeDesc": "वीडियो देखें, लर्निंग मटेरियल पढ़ें और हर मॉड्यूल पूरा करें।",
+      "pass": "क्विज़ और मूल्यांकन पास करें",
+      "passDesc": "क्विज़, असाइनमेंट और प्रैक्टिकल एक्सरसाइज़ पूरी करें।",
+      "done": "कोर्स पूरा",
+      "doneDesc": "सभी आवश्यकताएँ पूरी होने पर आपका कोर्स स्वचालित रूप से पूरा हो जाएगा।",
+      "generated": "प्रमाणपत्र जनरेटेड",
+      "generatedDesc": "Learnify AI तुरंत एक व्यक्तिगत प्रमाणपत्र जनरेट करता है।",
+      "download": "डाउनलोड और साझा करें",
+      "downloadDesc": "अपना प्रमाणपत्र PDF में डाउनलोड करें। LinkedIn पर साझा करें।",
+      "showcase": "अपनी उपलब्धि दिखाएं",
+      "showcaseDesc": "अपना रिज़्यूमे मजबूत करें, LinkedIn प्रोफाइल सुधारें।"
+    },
+    "benefits": {
+      "industry": "उद्योग-प्रासंगिक कौशल",
+      "industryDesc": "वह व्यावहारिक कौशल सीखें जो नियोक्ता वास्तव में चाहते हैं।",
+      "verified": "सत्यापित और सुरक्षित",
+      "verifiedDesc": "हर प्रमाणपत्र में एक अद्वितीय सत्यापन ID और QR कोड होता है।",
+      "career": "करियर विकास",
+      "careerDesc": "इंटर्नशिप, प्लेसमेंट और नौकरी के आवेदन के दौरान उपलब्धियाँ दिखाएं।",
+      "share": "कहीं भी साझा करें",
+      "shareDesc": "LinkedIn, रिज़्यूमे, पोर्टफोलियो में प्रमाणपत्र जोड़ें।"
+    }
+  },
+  "blog": {
+    "title": "ब्लॉग",
+    "subtitle": "Learnify AI टीम से अंतर्दृष्टि, ट्यूटोरियल और अपडेट।",
+    "readMore": "और पढ़ें",
+    "backToBlog": "ब्लॉग पर वापस",
+    "noPosts": "कोई पोस्ट नहीं मिली।"
+  },
+  "error": {
+    "notFound": {
+      "title": "पृष्ठ नहीं मिला",
+      "desc": "आप जो पृष्ठ खोज रहे हैं वह मौजूद नहीं है, स्थानांतरित हो गया है, या अस्थायी रूप से अनुपलब्ध है।",
+      "goHome": "घर जाएं",
+      "browseCourses": "कोर्स देखें",
+      "viewPlans": "प्लान देखें"
+    },
+    "somethingWrong": {
+      "title": "कुछ गलत हो गया",
+      "desc": "एक अप्रत्याशित त्रुटि हुई। आप पृष्ठ रीफ्रेश करने का प्रयास कर सकते हैं।",
+      "tryAgain": "पुनः प्रयास करें",
+      "goHome": "घर जाएं"
+    }
+  },
+  "home": {
+    "demo": {
+      "badge": "इसे काम करते देखें",
+      "title": "प्रोडक्ट आज़माएं। कोई साइनअप नहीं।",
+      "subtitle": "लाइव AI ट्यूटर चैट, क्विज़ जनरेट करें और ऑटो-मेड फ्लैशकार्ड देखें।"
+    },
+    "stats": {
+      "activeLearners": "सक्रिय शिक्षार्थी",
+      "creators": "क्रिएटर्स",
+      "aiSessions": "AI सत्र",
+      "completionLift": "पूर्णता वृद्धि"
+    },
+    "ecosystem": {
+      "badge": "सब कुछ एक OS में",
+      "title": "एक पारिस्थितिकी तंत्र, कोर्स कैटलॉग नहीं।",
+      "subtitle": "छह स्तंभ एक साथ काम करते हैं ताकि शिक्षार्थी, क्रिएटर और संस्थान सभी जीतें।",
+      "aiTutor": {
+        "title": "AI ट्यूटर",
+        "desc": "व्यक्तिगत 1-ऑन-1 ट्यूटरिंग जो आपकी सीखने की शैली के अनुकूल होती है।"
+      },
+      "smartNotes": {
+        "title": "स्मार्ट नोट्स और स्लाइड्स",
+        "desc": "किसी भी पाठ से फ्लैशकार्ड, सारांश और डेक बनाएं।"
+      },
+      "gamified": {
+        "title": "गेमिफाइड प्रगति",
+        "desc": "स्ट्रीक्स, XP, बैज और लीडरबोर्ड जो सीखने को लत बनाते हैं।"
+      },
+      "creatorEconomy": {
+        "title": "क्रिएटर इकोनॉमी",
+        "desc": "कोच और क्रिएटर कोर्स, कोहोर्ट और कम्युनिटी बनाते हैं।"
+      },
+      "wallet": {
+        "title": "बिल्ट-इन वॉलेट",
+        "desc": "कमाई, भुगतान और टिपिंग नेटिव रूप से हैंडल होती है।"
+      },
+      "career": {
+        "title": "करियर इंटेलिजेंस",
+        "desc": "AI-निर्देशित पाथ, रिज़्यूमे रिव्यू और स्किल ग्राफ।"
+      }
+    },
+    "community": {
+      "badge": "एक साथ पढ़ें",
+      "title": "एक लर्निंग कम्युनिटी से जुड़ें।",
+      "subtitle": "लाइव कोहोर्ट, स्टडी ग्रुप और WhatsApp और Discord चैनल।",
+      "browseGroups": "ग्रुप देखें",
+      "communityFeed": "कम्युनिटी फीड"
+    },
+    "creators": {
+      "badge": "क्रिएटर्स और कोच के लिए",
+      "title": "सिर्फ कोर्स नहीं, एक लर्निंग बिज़नेस बनाएं।",
+      "subtitle": "कोहोर्ट, कम्युनिटी, ड्रॉप्स और डिजिटल प्रोडक्ट — वॉलेट, एनालिटिक्स और AI को-पायलट के साथ।",
+      "payouts": "40+ देशों में नेटिव पेआउट",
+      "cohorts": "कोहोर्ट + 1-ऑन-1 + एसिंक, एक जगह",
+      "aiAssistant": "AI असिस्टेंट जो आपकी आवाज़ में पाठ बनाता है",
+      "communitySpaces": "रियलटाइम प्रेज़ेंस के साथ कम्युनिटी स्पेस",
+      "applyCta": "क्रिएटर प्रोग्राम के लिए आवेदन करें"
+    }
+  },
+  "common": {
+    "backToHome": "घर वापस",
+    "loading": "लोड हो रहा है...",
+    "search": "खोजें",
+    "close": "बंद करें",
+    "save": "सहेजें",
+    "cancel": "रद्द करें",
+    "delete": "हटाएं",
+    "edit": "संपादित करें",
+    "add": "जोड़ें",
+    "back": "वापस",
+    "next": "अगला",
+    "previous": "पिछला",
+    "verified": "सत्यापित",
+    "learnMore": "और जानें",
+    "startFree": "मुफ्त में सीखना शुरू करें",
+    "watchDemo": "डेमो देखें",
+    "or": "या",
+    "continueWithGoogle": "Google से जारी रखें",
+    "noCreditCard": "क्रेडिट कार्ड की आवश्यकता नहीं",
+    "cancelAnytime": "कभी भी रद्द करें",
+    "guarantee": "7-दिन की गारंटी",
+    "emailPlaceholder": "you@example.com",
+    "passwordMinLength": "कम से कम 8 अक्षर।",
+    "newHere": "यहाँ नए हैं?",
+    "createAccount": "खाता बनाएं",
+    "alreadyHaveAccount": "पहले से खाता है?",
+    "forgot": "भूल गए?",
+    "createFreeAccount": "मुफ्त खाता बनाएं",
+    "comparePlans": "प्लान की तुलना करें",
+    "everythingInOnePlatform": "सब कुछ एक प्लेटफॉर्म में",
+    "numbersThatSpeak": "बोलने वाले आंकड़े",
+    "programmingLanguages": "प्रोग्रामिंग भाषाएँ",
+    "executionProviders": "एग्ज़ीक्यूशन प्रोवाइडर",
+    "devTools": "डेव टूल्स",
+    "aiActionModes": "AI एक्शन मोड",
+    "readyToExperience": "सब कुछ अनुभव करने के लिए तैयार?",
+    "startFreeNoCredit": "मुफ्त में शुरू करें। क्रेडिट कार्ड की आवश्यकता नहीं। सभी टूल्स शामिल।",
+    "includedInEveryCertificate": "हर प्रमाणपत्र में शामिल",
+    "certificateOfCompletion": "पूर्णता प्रमाणपत्र",
+    "machineLearningFundamentals": "मशीन लर्निंग फंडामेंटल्स",
+    "issuedTo": "जारी किया गया",
+    "demoLearner": "डेमो शिक्षार्थी",
+    "certificatesIssued": "प्रमाणपत्र जारी",
+    "verificationRate": "सत्यापन दर",
+    "coursesAvailable": "उपलब्ध कोर्स",
+    "avgRating": "औसत रेटिंग"
+  },
+  "dashboard": {
+    "welcome": "वापसी पर स्वागत, {{name}}।",
+    "subtitle": "अपने कोर्स, परीक्षण और प्रमाणपत्र ट्रैक करें।",
+    "overview": "अवलोकन",
+    "myCourses": "मेरे कोर्स",
+    "continueLearning": "सीखना जारी रखें",
+    "recentActivity": "हालिया गतिविधि",
+    "streak": "स्ट्रीक",
+    "xp": "XP",
+    "level": "स्तर",
+    "rank": "रैंक",
+    "enrolled": "एनरोल्ड",
+    "completed": "पूर्ण",
+    "certificates": "प्रमाणपत्र",
+    "testAttempts": "परीक्षण प्रयास",
+    "enrolledCourses": "नामांकित कोर्स",
+    "completedCourses": "पूर्ण कोर्स",
+    "hoursLearned": "सीखे गए घंटे",
+    "noCourses": "अभी तक कोई कोर्स नहीं।",
+    "noCoursesDesc": "सीखना और प्रगति ट्रैक करना शुरू करने के लिए कोर्स में एनरोल करें।",
+    "exploreCourses": "कोर्स देखें",
+    "startBrowsing": "शुरू करने के लिए कोर्स देखें",
+    "viewAll": "सभी देखें",
+    "browseMore": "और देखें",
+    "dailyGoal": "दैनिक लक्ष्य",
+    "progress": "प्रगति",
+    "achievements": "उपलब्धियाँ",
+    "adminShortcuts": "एडमिन शॉर्टकट",
+    "contentManager": "कंटेंट मैनेजर",
+    "contentManagerDesc": "इवेंट, जॉब्स, मूल्य निर्धारण, FAQs",
+    "eventsJobs": "इवेंट्स और जॉब्स",
+    "eventsJobsDesc": "लिस्टिंग बनाएं, संपादित करें, हटाएं",
+    "certTemplates": "प्रमाणपत्र टेम्पलेट",
+    "certTemplatesDesc": "डिज़ाइन और प्रबंधित करें",
+    "courseBuilder": "कोर्स बिल्डर",
+    "courseBuilderDesc": "पाठ और मॉड्यूल जोड़ें",
+    "myLearning": "मेरी लर्निंग",
+    "certified": "सत्यापित",
+    "done": "पूर्ण",
+    "complete": "% पूर्ण",
+    "testAttempt": " परीक्षण प्रयास",
+    "testAttemptsPlural": " परीक्षण प्रयास",
+    "bestScore": " · सर्वोत्तम ",
+    "playground": "प्लेग्राउंड",
+    "yourCertificates": "आपके प्रमाणपत्र",
+    "certificate": "प्रमाणपत्र",
+    "courseFallback": "कोर्स",
+    "mySubmissions": "मेरे सबमिशन",
+    "mySubmissionsDesc": "अपने असाइनमेंट वर्क पर स्थिति और फीडबैक देखें।",
+    "aiToolsHistory": "AI टूल्स इतिहास",
+    "aiToolsDesc": "पिछले क्विज़, फ्लैशकार्ड और स्टडी ब्रीफ का पुन: उपयोग करें।",
+    "upgradeToPro": "प्रो में अपग्रेड करें",
+    "upgradeDesc": "असीमित AI सत्र, प्रीमियम कोर्स, क्रिएटर टूल्स और प्राथमिकता सहायता अनलॉक करें। आज ही अपनी लर्निंग यात्रा बेहतर बनाएं।",
+    "viewPricing": "मूल्य देखें और अपग्रेड करें",
+    "yourCommunity": "आपकी कम्युनिटी",
+    "joinGroupChat": "ग्रुप चैट में शामिल हों"
+  },
+  "leaderboard": {
+    "title": "लीडरबोर्ड",
+    "subtitle": "प्रतिस्पर्धा करें और शीर्ष पर पहुँचें",
+    "weekly": "साप्ताहिक",
+    "allTime": "सभी समय",
+    "yourRank": "आपकी रैंक",
+    "of": "में से",
+    "users": "उपयोगकर्ता",
+    "noActivity": "इस सप्ताह अभी तक कोई गतिविधि नहीं। XP कमाने के लिए सीखना शुरू करें!",
+    "noUsers": "अभी तक कोई उपयोगकर्ता नहीं।",
+    "browseCourses": "कोर्स देखें",
+    "earnXP": "पाठ पूरे करके, परीक्षा पास करके, चुनौतियों को हल करके और स्ट्रीक बनाकर XP कमाएँ।",
+    "streak": "स्ट्रीक"
+  },
+  "settings": {
+    "page": {
+      "heading": "सेटिंग्स",
+      "title": "आपका खाता",
+      "subtitle": "प्रोफ़ाइल, भुगतान, सूचनाएं और सुरक्षा।"
+    },
+    "tabs": {
+      "profile": "प्रोफ़ाइल",
+      "billing": "भुगतान",
+      "notifications": "सूचनाएं",
+      "settings": "सेटिंग्स",
+      "branding": "ब्रांडिंग"
+    },
+    "profile": {
+      "heading": "प्रोफ़ाइल सेटिंग्स",
+      "viewPublicProfile": "सार्वजनिक प्रोफ़ाइल देखें",
+      "saveChanges": "बदलाव सहेजें",
+      "avatar": {
+        "uploadPhoto": "फ़ोटो अपलोड करें",
+        "customizeCharacter": "कैरेक्टर कस्टमाइज़ करें",
+        "remove": "हटाएं",
+        "recommendation": "अनुशंसित 1:1 अनुपात < 5 MB",
+        "borderStyle": "प्रोफ़ाइल बॉर्डर शैली",
+        "borderPlaceholder": "बॉर्डर चुनें",
+        "randomizeBorder": "बॉर्डर रैंडमाइज़ करें",
+        "border": {
+          "none": "कोई नहीं",
+          "solid": "सॉलिड",
+          "double": "डबल",
+          "dashed": "डैश्ड",
+          "dotted": "डॉटेड",
+          "glow": "ग्लो",
+          "neon": "नियॉन",
+          "rainbow": "इंद्रधनुष",
+          "gradient": "ग्रेडिएंट",
+          "shadow": "शैडो"
+        }
+      },
+      "banner": {
+        "heading": "कवर इमेज (बैनर)",
+        "empty": "कोई कवर इमेज नहीं",
+        "upload": "कवर अपलोड करें",
+        "remove": "हटाएं",
+        "showOnProfile": "प्रोफ़ाइल पर दिखाएं",
+        "recommendation": "अनुशंसित 3:1 अनुपात < 5 MB",
+        "alt": "कवर इमेज"
+      },
+      "mouseCursor": {
+        "label": "माउस कर्सर (एनिमेशन)"
+      },
+      "fields": {
+        "name": "नाम",
+        "username": "उपयोगकर्ता नाम *",
+        "email": "ईमेल",
+        "website": "वेबसाइट",
+        "location": "स्थान",
+        "work": "कार्य",
+        "education": "शिक्षा",
+        "bio": "जीवनी",
+        "skills": "कौशल"
+      },
+      "placeholders": {
+        "website": "https://",
+        "location": "भारत",
+        "work": "ड्रीमसिंक",
+        "education": "BCA",
+        "bio": "फ्रंटएंड डेवलपर | UI उत्साही...",
+        "addCustomSkill": "कस्टम कौशल जोड़ें..."
+      },
+      "username": {
+        "available": "उपयोगकर्ता नाम उपलब्ध है",
+        "taken": "उपयोगकर्ता नाम लिया गया"
+      },
+      "skills": {
+        "add": "जोड़ें",
+        "option": {
+          "html": "HTML",
+          "css": "CSS",
+          "javascript": "JavaScript",
+          "python": "Python",
+          "java": "Java",
+          "cpp": "C++",
+          "sql": "SQL",
+          "commandLine": "कमांड लाइन",
+          "react": "React",
+          "git": "Git और GitHub",
+          "numpy": "NumPy",
+          "typescript": "TypeScript",
+          "nodejs": "Node.js",
+          "nextjs": "Next.js",
+          "tailwind": "Tailwind CSS",
+          "docker": "Docker",
+          "aws": "AWS",
+          "mongodb": "MongoDB",
+          "postgresql": "PostgreSQL",
+          "graphql": "GraphQL",
+          "figma": "Figma",
+          "uiux": "UI/UX",
+          "apiDesign": "API डिज़ाइन"
+        }
+      },
+      "social": {
+        "heading": "सोशल मीडिया",
+        "github": "GitHub",
+        "twitter": "X (Twitter)",
+        "linkedin": "LinkedIn",
+        "instagram": "Instagram",
+        "youtube": "YouTube",
+        "twitch": "Twitch",
+        "tiktok": "TikTok",
+        "placeholder": "https://example.com"
+      }
+    },
+    "character": {
+      "dialog": {
+        "title": "अपना कैरेक्टर कस्टमाइज़ करें",
+        "description": "अपना खुद का कार्टून अवतार डिज़ाइन करें। शैलियाँ, रंग, लिंग, अभिव्यक्तियाँ और कपड़े बदलें!"
+      },
+      "artStyle": "कला शैली",
+      "avatarPreviewAlt": "अवतार पूर्वावलोकन",
+      "seed": {
+        "label": "बेस सीड",
+        "placeholder": "बेस फीचर्स रैंडमाइज़ करने के लिए कुछ टाइप करें...",
+        "randomize": "रैंडमाइज़ करें"
+      },
+      "tab": {
+        "faceHair": "चेहरा और बाल",
+        "expression": "अभिव्यक्ति",
+        "clothing": "कपड़े",
+        "background": "पृष्ठभूमि"
+      },
+      "skinColor": "त्वचा का रंग",
+      "skin": {
+        "veryLight": "बहुत हल्का",
+        "light": "हल्का",
+        "tan": "साँवला",
+        "olive": "जैतून",
+        "brown": "भूरा",
+        "dark": "गहरा"
+      },
+      "hair": {
+        "style": "बालों की शैली",
+        "robotStyle": "रोबोट हेड शैली",
+        "maleShort": "पुरुष / छोटे",
+        "femaleLong": "महिला / लंबे",
+        "antennaBulb": "एंटीना / बल्ब",
+        "radarHorn": "रडार / हॉर्न",
+        "male": {
+          "caesarCut": "सीज़र कट",
+          "shortFlat": "शॉर्ट फ्लैट",
+          "shortRound": "शॉर्ट राउंड",
+          "shortWavy": "शॉर्ट वेवी",
+          "shortCurly": "शॉर्ट कर्ली",
+          "mullet": "मुलेट",
+          "bald": "गंजा",
+          "antenna": "एंटीना",
+          "bulb": "बल्ब",
+          "horn": "हॉर्न",
+          "radar": "रडार",
+          "pyramid": "पिरामिड"
+        },
+        "female": {
+          "longStraight": "लंबे सीधे",
+          "straightParted": "सीधे पार्टेड",
+          "longCurly": "लंबे कर्ली",
+          "longCurvy": "लंबे कर्वी",
+          "bobCut": "बॉब कट",
+          "miaCut": "मिया कट",
+          "hairBun": "हेयर बन",
+          "dreads": "ड्रेड्स",
+          "bigHair": "बिग हेयर",
+          "antenna": "एंटीना",
+          "bulb": "बल्ब",
+          "horn": "हॉर्न",
+          "radar": "रडार",
+          "pyramid": "पिरामिड"
+        }
+      },
+      "hairColor": "बालों का रंग",
+      "hairColorOptions": {
+        "black": "काला",
+        "darkBrown": "गहरा भूरा",
+        "lightBrown": "हल्का भूरा",
+        "blonde": "गोरा",
+        "auburn": "लाल भूरा",
+        "platinum": "प्लैटिनम",
+        "pink": "गुलाबी"
+      },
+      "eyebrows": "भौहें",
+      "eyebrowOptions": {
+        "default": "डिफ़ॉल्ट",
+        "angry": "गुस्सा",
+        "flat": "सपाट",
+        "raised": "उठी हुई",
+        "sad": "उदास",
+        "unibrow": "यूनीब्रो",
+        "up": "ऊपर"
+      },
+      "eyes": "आँखों की अभिव्यक्ति",
+      "eyeOptions": {
+        "default": "डिफ़ॉल्ट",
+        "happy": "खुश",
+        "wink": "आँख मारना",
+        "surprised": "हैरान",
+        "squint": "भेंगा",
+        "sideEye": "तिरछी नज़र",
+        "hearts": "दिल",
+        "closed": "बंद"
+      },
+      "nose": "नाक",
+      "noseOptions": {
+        "default": "डिफ़ॉल्ट",
+        "variant2": "वेरिएंट 2",
+        "variant3": "वेरिएंट 3",
+        "variant4": "वेरिएंट 4",
+        "variant5": "वेरिएंट 5",
+        "variant6": "वेरिएंट 6"
+      },
+      "mouth": "मुँह की अभिव्यक्ति",
+      "mouthOptions": {
+        "default": "डिफ़ॉल्ट",
+        "smile": "मुस्कान",
+        "sad": "उदास",
+        "concerned": "चिंतित",
+        "disbelief": "अविश्वास",
+        "grimace": "मुँह बनाना",
+        "scream": "चीख",
+        "tongue": "जीभ"
+      },
+      "accessories": "एक्सेसरीज़",
+      "robotSide": "रोबोट साइड अटैचमेंट",
+      "accessoryOptions": {
+        "none": "कोई नहीं",
+        "regular": "रेगुलर",
+        "round": "गोल",
+        "sunglasses": "सनग्लासेस",
+        "wayfarer": "वेफ़रर",
+        "kurt": "कर्ट",
+        "antenna": "एंटीना",
+        "earphones": "इयरफ़ोन",
+        "cables": "केबल"
+      },
+      "clothing": {
+        "style": "कपड़ों की शैली",
+        "crewNeck": "क्रू नेक",
+        "vNeck": "V-नेक",
+        "openShirt": "खुली शर्ट",
+        "hoodie": "हूडी",
+        "sweater": "स्वेटर",
+        "blazer": "ब्लेज़र",
+        "overalls": "ओवरऑल्स",
+        "graphicTee": "ग्राफ़िक टी",
+        "color": "कपड़ों का रंग",
+        "robotMetal": "रोबोट धातु रंग",
+        "emojiBg": "पृष्ठभूमि रंग"
+      },
+      "clothingColors": {
+        "navy": "नौसेना",
+        "blue": "नीला",
+        "teal": "टील",
+        "green": "हरा",
+        "red": "लाल",
+        "orange": "नारंगी",
+        "purple": "बैंगनी",
+        "pink": "गुलाबी",
+        "gray": "ग्रे"
+      },
+      "background": {
+        "label": "कैरेक्टर पृष्ठभूमि रंग",
+        "transparent": "पारदर्शी",
+        "skyBlue": "आसमानी नीला",
+        "lavender": "लैवेंडर",
+        "pastelIndigo": "पेस्टल इंडिगो",
+        "pastelPink": "पेस्टल गुलाबी",
+        "peach": "आड़ू",
+        "mintGreen": "पुदीना हरा",
+        "lightGray": "हल्का ग्रे",
+        "yellow": "पीला"
+      },
+      "randomizeAll": "सब रैंडमाइज़ करें",
+      "cancel": "रद्द करें",
+      "useAvatar": "कैरेक्टर अवतार का उपयोग करें"
+    },
+    "billing": {
+      "subscription": {
+        "heading": "सदस्यता",
+        "plan": "योजना",
+        "start": "शुरू",
+        "end": "समाप्त",
+        "free": "मुफ़्त",
+        "noActive": "कोई सक्रिय सदस्यता नहीं।",
+        "viewPlans": "योजनाएं देखें"
+      },
+      "wallet": {
+        "heading": "वॉलेट",
+        "availableBalance": "उपलब्ध शेष",
+        "topUp": "टॉप अप",
+        "topUpDialog": {
+          "title": "वॉलेट में पैसे जोड़ें",
+          "description": "Cashfree के माध्यम से टॉप अप (कार्ड/UPI/नेटबैंकिंग)।",
+          "amount": "राशि (INR)",
+          "securePayment": "Cashfree के माध्यम से सुरक्षित भुगतान",
+          "cancel": "रद्द करें",
+          "proceed": "भुगतान करें"
+        },
+        "table": {
+          "when": "कब",
+          "type": "प्रकार",
+          "description": "विवरण",
+          "amount": "राशि",
+          "empty": "अभी तक कोई लेन-देन नहीं।"
+        }
+      },
+      "withdrawals": {
+        "heading": "क्रिएटर निकासी",
+        "description": "Cashfree के माध्यम से कमाई निकालें।",
+        "pendingCount": "{{count}} लंबित",
+        "totalCount": "{{count}} कुल",
+        "debitNotice": "Cashfree Payouts के माध्यम से वॉलेट से डेबिट",
+        "request": "निकासी का अनुरोध करें",
+        "dialog": {
+          "title": "पैसे निकालें",
+          "available": "उपलब्ध: {{balance}}",
+          "amount": "राशि (INR)",
+          "method": "तरीका",
+          "methodUpi": "UPI",
+          "methodBank": "बैंक ट्रांसफर",
+          "upiId": "UPI ID",
+          "accountDetails": "खाता विवरण (नाम, नंबर, IFSC)",
+          "detailsPlaceholder": "विवरण दर्ज करें",
+          "withdraw": "निकालें"
+        },
+        "confirmDelete": "क्या आप इस निकासी रिकॉर्ड को हटाना चाहते हैं?",
+        "deleteAriaLabel": "निकासी हटाएं",
+        "empty": "अभी तक कोई निकासी नहीं।",
+        "status": {
+          "paid": "भुगतान किया",
+          "pending": "लंबित",
+          "rejected": "अस्वीकृत"
+        }
+      }
+    },
+    "notifications": {
+      "heading": "सूचना प्राथमिकताएँ",
+      "description": "चुनें कि आप कौन सी सूचनाएं प्राप्त करना चाहते हैं।",
+      "newSubscriber": "नया सब्सक्राइबर",
+      "newComment": "पाठ पर नई टिप्पणी",
+      "newSale": "नई कोर्स बिक्री",
+      "email": "ईमेल सूचनाएं",
+      "inApp": "इन-ऐप सूचनाएं",
+      "save": "प्राथमिकताएं सहेजें"
+    },
+    "security": {
+      "changePassword": {
+        "heading": "पासवर्ड बदलें",
+        "currentPassword": "वर्तमान पासवर्ड",
+        "newPassword": "नया पासवर्ड",
+        "confirmPassword": "नया पासवर्ड पुष्टि करें",
+        "update": "पासवर्ड अपडेट करें"
+      },
+      "payout": {
+        "heading": "भुगतान विधि",
+        "method": "विधि",
+        "upi": "UPI",
+        "bankTransfer": "बैंक ट्रांसफर",
+        "upiId": "UPI ID",
+        "upiPlaceholder": "name@bank",
+        "accountHolder": "खाता धारक",
+        "ifsc": "IFSC",
+        "accountNumber": "खाता नंबर"
+      },
+      "defaults": {
+        "heading": "नए कोर्स डिफ़ॉल्ट",
+        "defaultPrice": "डिफ़ॉल्ट मूल्य (₹)",
+        "category": "श्रेणी",
+        "level": "स्तर",
+        "categoryOptions": {
+          "general": "सामान्य",
+          "development": "डेवलपमेंट",
+          "design": "डिज़ाइन",
+          "marketing": "मार्केटिंग",
+          "aiData": "AI और डेटा",
+          "business": "व्यवसाय",
+          "personalGrowth": "व्यक्तिगत विकास"
+        },
+        "levelOptions": {
+          "beginner": "शुरुआती",
+          "intermediate": "मध्यवर्ती",
+          "advanced": "उन्नत"
+        }
+      },
+      "saveSettings": "सेटिंग्स सहेजें"
+    },
+    "branding": {
+      "organization": {
+        "heading": "संगठन ब्रांडिंग",
+        "description": "अपने प्रमाणपत्र और चालान को कस्टमाइज़ करें। परिवर्तन आपके द्वारा जारी सभी प्रमाणपत्रों पर लागू होंगे।",
+        "orgName": "संगठन का नाम",
+        "orgNamePlaceholder": "आपकी कंपनी",
+        "logoUrl": "संगठन लोगो URL",
+        "logoUrlPlaceholder": "https://example.com/logo.png",
+        "brandColor": "ब्रांड रंग"
+      },
+      "invoice": {
+        "heading": "चालान कस्टमाइज़ेशन",
+        "description": "अपने संगठन के लिए कस्टम चालान ब्रांडिंग। ये वैश्विक चालान डिफ़ॉल्ट को ओवरराइड करते हैं।",
+        "companyName": "चालान कंपनी का नाम",
+        "companyNamePlaceholder": "आपकी कंपनी",
+        "legalName": "चालान कानूनी नाम",
+        "legalNamePlaceholder": "आपकी कंपनी प्रा. लि.",
+        "gstin": "GSTIN",
+        "gstinPlaceholder": "29XXXXX1234X1Z5",
+        "prefix": "चालान उपसर्ग",
+        "prefixPlaceholder": "INV",
+        "logoUrl": "चालान लोगो URL",
+        "logoUrlPlaceholder": "https://example.com/invoice-logo.png",
+        "contact": "संपर्क (ईमेल/फ़ोन)",
+        "contactPlaceholder": "hello@company.com",
+        "footer": "चालान फुटर",
+        "footerPlaceholder": "आपके व्यवसाय के लिए धन्यवाद!"
+      },
+      "save": "ब्रांडिंग सहेजें"
+    },
+    "style": {
+      "avataaars": "कैज़ुअल कैरेक्टर",
+      "adventurer": "साहसी",
+      "bottts": "रोबोट",
+      "pixelArt": "पिक्सेल आर्ट",
+      "funEmoji": "फन इमोजी",
+      "lorelei": "लोरेली"
+    },
+    "toast": {
+      "profile": {
+        "saved": "प्रोफ़ाइल सहेजी गई",
+        "imageTooLarge": "इमेज 5MB से कम होनी चाहिए",
+        "pickImageFile": "एक इमेज फ़ाइल चुनें",
+        "nameRequired": "नाम खाली नहीं हो सकता",
+        "photoUpdated": "फ़ोटो अपडेट की गई",
+        "photoRemoved": "फ़ोटो हटा दी गई",
+        "failedSavePhoto": "फ़ोटो सहेजने में विफल",
+        "failedRemovePhoto": "फ़ोटो हटाने में विफल",
+        "coverUpdated": "कवर इमेज अपडेट की गई",
+        "coverRemoved": "कवर इमेज हटा दी गई",
+        "failedRemoveCover": "कवर इमेज हटाने में विफल",
+        "coverToggled": "कवर इमेज दृश्यता टॉगल की गई",
+        "mouseCursorToggled": "माउस कर्सर एनिमेशन टॉगल किया गया"
+      },
+      "character": {
+        "updated": "कैरेक्टर अवतार अपडेट हो गया!",
+        "failedSave": "अवतार सहेजने में विफल",
+        "randomized": "सभी फीचर्स रैंडमाइज़ हो गए!",
+        "borderUpdated": "प्रोफ़ाइल बॉर्डर अपडेट हो गया!",
+        "borderRandomized": "प्रोफ़ाइल बॉर्डर रैंडमाइज़ हो गया!",
+        "failedBorder": "बॉर्डर अपडेट करने में विफल",
+        "failedRandomizeBorder": "बॉर्डर रैंडमाइज़ करने में विफल"
+      },
+      "password": {
+        "tooShort": "पासवर्ड कम से कम 8 अक्षर का होना चाहिए",
+        "mismatch": "पासवर्ड मेल नहीं खाते",
+        "incorrectCurrent": "वर्तमान पासवर्ड गलत है",
+        "updated": "पासवर्ड अपडेट हो गया"
+      },
+      "notifications": {
+        "saved": "सूचना प्राथमिकताएं सहेजी गईं",
+        "failedSave": "सूचना प्राथमिकताएं सहेजने में विफल"
+      },
+      "wallet": {
+        "topUpRangeError": "₹50 और ₹100,000 के बीच राशि",
+        "topUpSuccess": "वॉलेट में ₹{{amount}} जोड़े गए",
+        "topUpFailed": "टॉप अप विफल",
+        "minWithdrawal": "न्यूनतम निकासी ₹100 है",
+        "insufficientBalance": "अपर्याप्त शेष",
+        "destinationRequired": "गंतव्य आवश्यक है",
+        "withdrawalProcessed": "निकासी संसाधित हो गई",
+        "withdrawalFailed": "निकासी विफल",
+        "withdrawalDeleted": "हटा दिया गया"
+      },
+      "settings": {
+        "saved": "सेटिंग्स सहेजी गईं"
+      },
+      "branding": {
+        "saved": "ब्रांडिंग सहेजी गई"
+      }
+    }
+  },
+  "interview": {
+    "title": "इंटरव्यू तैयारी",
+    "subtitle": "AI फीडबैक के साथ मॉक इंटरव्यू का अभ्यास करें",
+    "startInterview": "इंटरव्यू शुरू करें",
+    "selectRole": "जॉब रोल चुनें",
+    "selectMode": "मोड चुनें",
+    "voiceMode": "वॉइस",
+    "chatMode": "चैट",
+    "videoMode": "वीडियो",
+    "difficulty": "कठिनाई",
+    "easy": "आसान",
+    "medium": "मध्यम",
+    "hard": "कठिन",
+    "score": "स्कोर",
+    "feedback": "फीडबैक",
+    "nextQuestion": "अगला सवाल",
+    "endInterview": "इंटरव्यू समाप्त करें",
+    "interviewComplete": "इंटरव्यू पूरा",
+    "yourScore": "आपका स्कोर",
+    "detailedFeedback": "विस्तृत फीडबैक",
+    "tryAgain": "फिर से कोशिश करें",
+    "noInterviews": "अभी तक कोई इंटरव्यू नहीं",
+    "startPracticing": "अपने कौशल में सुधार के लिए अभ्यास शुरू करें",
+    "roles": {
+      "frontend": "फ्रंटएंड डेवलपर",
+      "backend": "बैकएंड डेवलपर",
+      "fullstack": "फुल-स्टैक डेवलपर",
+      "dataScience": "डेटा साइंटिस्ट",
+      "devops": "DevOps इंजीनियर",
+      "mobile": "मोबाइल डेवलपर",
+      "pm": "प्रोडक्ट मैनेजर",
+      "designer": "UI/UX डिज़ाइनर"
+    }
+  },
+  "challenges": {
+    "title": "कोडिंग चुनौतियाँ",
+    "subtitle": "अपने कौशल को तेज करने के लिए दैनिक कोडिंग चुनौतियाँ",
+    "dailyChallenge": "दैनिक चुनौती",
+    "allChallenges": "सभी चुनौतियाँ",
+    "easy": "आसान",
+    "medium": "मध्यम",
+    "hard": "कठिन",
+    "points": "अंक",
+    "solved": "हल किया",
+    "attempt": "प्रयास",
+    "solve": "हल करें",
+    "submissions": "सबमिशन",
+    "noChallenges": "अभी तक कोई चुनौती उपलब्ध नहीं",
+    "startSolving": "अंक कमाने के लिए हल करना शुरू करें",
+    "leaderboard": "चुनौती लीडरबोर्ड",
+    "categories": {
+      "algorithms": "एल्गोरिदम",
+      "dataStructures": "डेटा स्ट्रक्चर",
+      "javascript": "JavaScript",
+      "python": "Python",
+      "sql": "SQL",
+      "systemDesign": "सिस्टम डिज़ाइन"
+    }
+  }
+}

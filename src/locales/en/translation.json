@@ -1,0 +1,934 @@
+{
+  "nav": {
+    "features": "Features",
+    "aiTools": "AI Tools",
+    "creators": "Creators",
+    "coaches": "Coaches",
+    "pricing": "Pricing",
+    "blog": "Blog",
+    "dashboard": "Open app",
+    "signIn": "Sign in",
+    "getStarted": "Get started",
+    "projects": "Projects"
+  },
+  "hero": {
+    "badge": "AI-Powered Learning OS",
+    "title": "Your AI-Powered",
+    "titleHighlight": "Learning OS",
+    "subtitle": "Courses, AI tutoring, career tools, certificates, and community — all in one intelligent platform.",
+    "cta": "Start Learning Free",
+    "secondary": "Explore Courses",
+    "stat1Value": "10,000+",
+    "stat1Label": "Active Learners",
+    "stat2Value": "500+",
+    "stat2Label": "AI Lessons",
+    "stat3Value": "50+",
+    "stat3Label": "Courses"
+  },
+  "features": {
+    "badge": "Platform Features",
+    "title": "Everything you need to",
+    "titleHighlight": "learn & grow",
+    "subtitle": "From AI tutoring to career placement — a complete learning operating system.",
+    "items": {
+      "aiTutor": {
+        "title": "AI Tutor",
+        "desc": "1-on-1 personalized AI tutoring that adapts to your learning style."
+      },
+      "courses": {
+        "title": "Smart Courses",
+        "desc": "Interactive video courses with auto-notes, quizzes, and flashcards."
+      },
+      "certificates": {
+        "title": "Verified Certificates",
+        "desc": "Earn verified certificates with QR codes and LinkedIn integration."
+      },
+      "career": {
+        "title": "Career Tools",
+        "desc": "Resume builder, ATS checker, mock interviews, and career roadmap."
+      },
+      "gamification": {
+        "title": "Gamification",
+        "desc": "XP, streaks, leaderboards, and achievements to keep you motivated."
+      },
+      "community": {
+        "title": "Community",
+        "desc": "Connect with learners, share progress, and join challenges."
+      }
+    }
+  },
+  "pricing": {
+    "badge": "Pricing",
+    "title": "Simple, transparent pricing",
+    "subtitle": "Start free, upgrade when you're ready. All plans include AI-powered learning tools.",
+    "trust": "10,000+ learners trust Learnify AI",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "yearlySave": "Save 17%",
+    "free": "Free",
+    "perMonth": "/month",
+    "perYear": "/year",
+    "plans": {
+      "free": {
+        "name": "Free",
+        "description": "1–3 free courses, limited daily AI credits, community access.",
+        "cta": "Get started free"
+      },
+      "pro": {
+        "name": "Pro",
+        "description": "Casual learners — full course library, higher AI credit cap, notes & flashcards.",
+        "cta": "Start Pro",
+        "badge": "Most Popular"
+      },
+      "careerPro": {
+        "name": "Career Pro",
+        "description": "Job-seekers — everything in Pro + Resume / ATS / Interview Prep / Career Roadmap, verified certificates included.",
+        "cta": "Become Job Ready",
+        "badge": "Best Value"
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "description": "Colleges & companies — seats, SSO, admin reporting, custom branding.",
+        "cta": "Book Demo"
+      }
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "searchPlaceholder": "Search questions...",
+      "noResults": "No matching questions found."
+    },
+    "testimonials": {
+      "title": "What our learners say"
+    },
+    "cta": {
+      "title": "Ready to start learning?",
+      "subtitle": "Join 10,000+ learners already building their careers with Learnify AI.",
+      "button": "Get Started Free"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Welcome back",
+      "subtitle": "Sign in to your account",
+      "email": "Email",
+      "password": "Password",
+      "forgotPassword": "Forgot password?",
+      "submit": "Sign in",
+      "noAccount": "Don't have an account?",
+      "signup": "Sign up"
+    },
+    "signup": {
+      "title": "Create your account",
+      "subtitle": "Start your learning journey",
+      "name": "Full name",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Get started",
+      "hasAccount": "Already have an account?",
+      "signin": "Sign in"
+    }
+  },
+  "footer": {
+    "description": "AI-powered learning platform with courses, tutoring, career tools, and certificates.",
+    "product": "Product",
+    "resources": "Resources",
+    "company": "Company",
+    "legal": "Legal",
+    "copyright": "Learnify AI. All rights reserved.",
+    "madeWith": "Made with AI and humans"
+  },
+  "courses": {
+    "title": "Explore Courses",
+    "subtitle": "Discover courses designed to help you master new skills",
+    "search": "Search courses...",
+    "enroll": "Enroll Now",
+    "enrolled": "Enrolled",
+    "lessons": "Lessons",
+    "students": "Students",
+    "rating": "Rating"
+  },
+  "verifiedCertificates": {
+    "title": "Your Certificate Journey",
+    "subtitle": "Complete a course, pass assessments, and earn a verified certificate that you can download, share on LinkedIn, and showcase in your portfolio.",
+    "howItWorks": "How It Works",
+    "howItWorksDesc": "Your path from enrollment to certification in 7 simple steps.",
+    "whyTitle": "Why Learnify Certificates Matter",
+    "whyDesc": "Industry-recognized credentials that open doors.",
+    "ctaTitle": "Ready To Earn Your Next Certificate?",
+    "ctaSubtitle": "Complete your course and unlock a verified certificate that showcases your skills.",
+    "startLearning": "Start Learning",
+    "viewPricing": "View Pricing",
+    "scanToVerify": "Scan to verify",
+    "uniqueQR": "Unique QR code on every certificate",
+    "steps": {
+      "enroll": "Enroll in a Course",
+      "enrollDesc": "Choose a course that matches your learning goals and start your journey.",
+      "complete": "Complete All Lessons",
+      "completeDesc": "Watch videos, read learning materials, and finish every module.",
+      "pass": "Pass Quiz & Assessments",
+      "passDesc": "Complete quizzes, assignments, and practical exercises with the required score.",
+      "done": "Course Completed",
+      "doneDesc": "Once all requirements are met, your course will be marked as completed automatically.",
+      "generated": "Certificate Generated",
+      "generatedDesc": "Learnify AI instantly generates a personalized certificate with student name, course name, completion date, certificate ID, QR verification, and Learnify AI Seal.",
+      "download": "Download & Share",
+      "downloadDesc": "Download your certificate as PDF. Share instantly on LinkedIn, resume, portfolio, or personal website.",
+      "showcase": "Showcase Your Achievement",
+      "showcaseDesc": "Strengthen your resume, improve your LinkedIn profile, demonstrate new skills, and build professional credibility."
+    },
+    "benefits": {
+      "industry": "Industry-Relevant Skills",
+      "industryDesc": "Learn practical skills employers actually need.",
+      "verified": "Verified & Secure",
+      "verifiedDesc": "Every certificate includes a unique verification ID and QR code.",
+      "career": "Career Growth",
+      "careerDesc": "Showcase achievements during internships, placements, and job applications.",
+      "share": "Share Anywhere",
+      "shareDesc": "Add certificates to LinkedIn, resumes, portfolios, and professional profiles."
+    }
+  },
+  "blog": {
+    "title": "Blog",
+    "subtitle": "Insights, tutorials, and updates from the Learnify AI team.",
+    "readMore": "Read more",
+    "backToBlog": "Back to blog",
+    "noPosts": "No posts found."
+  },
+  "error": {
+    "notFound": {
+      "title": "Page not found",
+      "desc": "The page you're looking for doesn't exist, was moved, or is temporarily unavailable.",
+      "goHome": "Go home",
+      "browseCourses": "Browse courses",
+      "viewPlans": "View plans"
+    },
+    "somethingWrong": {
+      "title": "Something went wrong",
+      "desc": "An unexpected error occurred. You can try refreshing the page or head back home.",
+      "tryAgain": "Try again",
+      "goHome": "Go home"
+    }
+  },
+  "home": {
+    "demo": {
+      "badge": "See it in action",
+      "title": "Try the product. No signup.",
+      "subtitle": "Click through a live AI Tutor chat, generate a quiz, and flip through auto-made flashcards."
+    },
+    "stats": {
+      "activeLearners": "Active learners",
+      "creators": "Creators",
+      "aiSessions": "AI sessions",
+      "completionLift": "Completion lift"
+    },
+    "ecosystem": {
+      "badge": "Everything in one OS",
+      "title": "An ecosystem, not a course catalog.",
+      "subtitle": "Six pillars working together so learners, creators, and institutions all win.",
+      "aiTutor": {
+        "title": "AI Tutor",
+        "desc": "Personalized 1-on-1 tutoring that adapts to how you learn."
+      },
+      "smartNotes": {
+        "title": "Smart Notes & Slides",
+        "desc": "Generate flashcards, summaries, and decks from any lesson."
+      },
+      "gamified": {
+        "title": "Gamified Progress",
+        "desc": "Streaks, XP, badges, and leaderboards that make learning addictive."
+      },
+      "creatorEconomy": {
+        "title": "Creator Economy",
+        "desc": "Coaches and creators ship courses, cohorts, and communities."
+      },
+      "wallet": {
+        "title": "Built-in Wallet",
+        "desc": "Earnings, payouts, and tipping handled natively."
+      },
+      "career": {
+        "title": "Career Intelligence",
+        "desc": "AI-guided paths, resume reviews, and skill graphs."
+      }
+    },
+    "community": {
+      "badge": "Study together",
+      "title": "Join a learning community.",
+      "subtitle": "Live cohorts, study groups, and office hours with dedicated WhatsApp and Discord channels.",
+      "browseGroups": "Browse groups",
+      "communityFeed": "Community feed"
+    },
+    "creators": {
+      "badge": "For creators & coaches",
+      "title": "Build a learning business, not just a course.",
+      "subtitle": "Cohorts, communities, drops, and digital products — with a wallet, analytics, and AI co-pilot built in.",
+      "payouts": "Native payouts in 40+ countries",
+      "cohorts": "Cohort + 1-on-1 + async, in one place",
+      "aiAssistant": "AI assistant that drafts lessons with your voice",
+      "communitySpaces": "Community spaces with realtime presence",
+      "applyCta": "Apply to Creator Program"
+    }
+  },
+  "common": {
+    "backToHome": "Back to Home",
+    "loading": "Loading...",
+    "search": "Search",
+    "close": "Close",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "verified": "Verified",
+    "learnMore": "Learn more",
+    "startFree": "Start learning free",
+    "watchDemo": "Watch demo",
+    "or": "OR",
+    "continueWithGoogle": "Continue with Google",
+    "noCreditCard": "No credit card required",
+    "cancelAnytime": "Cancel anytime",
+    "guarantee": "7-day guarantee",
+    "emailPlaceholder": "you@example.com",
+    "passwordMinLength": "At least 8 characters.",
+    "newHere": "New here?",
+    "createAccount": "Create an account",
+    "alreadyHaveAccount": "Already have an account?",
+    "forgot": "Forgot?",
+    "createFreeAccount": "Create free account",
+    "comparePlans": "Compare plans",
+    "everythingInOnePlatform": "Everything in one platform",
+    "numbersThatSpeak": "Numbers that speak",
+    "programmingLanguages": "Programming Languages",
+    "executionProviders": "Execution Providers",
+    "devTools": "Dev Tools",
+    "aiActionModes": "AI Action Modes",
+    "readyToExperience": "Ready to experience it all?",
+    "startFreeNoCredit": "Start free. No credit card required. All tools included.",
+    "includedInEveryCertificate": "Included In Every Certificate",
+    "certificateOfCompletion": "Certificate of Completion",
+    "machineLearningFundamentals": "Machine Learning Fundamentals",
+    "issuedTo": "Issued to",
+    "demoLearner": "Demo Learner",
+    "certificatesIssued": "Certificates Issued",
+    "verificationRate": "Verification Rate",
+    "coursesAvailable": "Courses Available",
+    "avgRating": "Avg. Rating"
+  },
+  "dashboard": {
+    "welcome": "Welcome back, {{name}}.",
+    "subtitle": "Track your courses, tests, and certificates.",
+    "overview": "Overview",
+    "myCourses": "My Courses",
+    "continueLearning": "Continue Learning",
+    "recentActivity": "Recent Activity",
+    "streak": "Streak",
+    "xp": "XP",
+    "level": "Level",
+    "rank": "Rank",
+    "enrolled": "Enrolled",
+    "completed": "Completed",
+    "certificates": "Certificates",
+    "testAttempts": "Test attempts",
+    "enrolledCourses": "Enrolled Courses",
+    "completedCourses": "Completed Courses",
+    "hoursLearned": "Hours Learned",
+    "noCourses": "No courses yet.",
+    "noCoursesDesc": "Enroll in a course to start learning and tracking progress.",
+    "exploreCourses": "Explore courses",
+    "startBrowsing": "Browse courses to get started",
+    "viewAll": "View All",
+    "browseMore": "Browse more",
+    "dailyGoal": "Daily Goal",
+    "progress": "Progress",
+    "achievements": "Achievements",
+    "adminShortcuts": "Admin shortcuts",
+    "contentManager": "Content Manager",
+    "contentManagerDesc": "Events, jobs, pricing, FAQs",
+    "eventsJobs": "Events & Jobs",
+    "eventsJobsDesc": "Create, edit, delete listings",
+    "certTemplates": "Certificate Templates",
+    "certTemplatesDesc": "Design & manage templates",
+    "courseBuilder": "Course Builder",
+    "courseBuilderDesc": "Add lessons & modules",
+    "myLearning": "My Learning",
+    "certified": "Certified",
+    "done": "Done",
+    "complete": "% complete",
+    "testAttempt": " test attempt",
+    "testAttemptsPlural": " test attempts",
+    "bestScore": " · best ",
+    "playground": "Playground",
+    "yourCertificates": "Your Certificates",
+    "certificate": "Certificate",
+    "courseFallback": "Course",
+    "mySubmissions": "My Submissions",
+    "mySubmissionsDesc": "View status and feedback on your assignment work.",
+    "aiToolsHistory": "AI Tools History",
+    "aiToolsDesc": "Reuse past quizzes, flashcards, and study briefs.",
+    "upgradeToPro": "Upgrade to Pro",
+    "upgradeDesc": "Unlock unlimited AI sessions, premium courses, creator tools, and priority support. Elevate your learning journey today.",
+    "viewPricing": "View Pricing & Upgrade",
+    "yourCommunity": "Your Community",
+    "joinGroupChat": "Join group chat"
+  },
+  "leaderboard": {
+    "title": "Leaderboard",
+    "subtitle": "Compete and rise to the top",
+    "weekly": "Weekly",
+    "allTime": "All Time",
+    "yourRank": "Your Rank",
+    "of": "of",
+    "users": "users",
+    "noActivity": "No activity this week yet. Start learning to earn XP!",
+    "noUsers": "No users yet.",
+    "browseCourses": "Browse Courses",
+    "earnXP": "Earn XP by completing lessons, passing tests, solving challenges, and maintaining streaks.",
+    "streak": "streak"
+  },
+  "settings": {
+    "page": {
+      "heading": "Settings",
+      "title": "Your account",
+      "subtitle": "Profile, billing, notifications, and security."
+    },
+    "tabs": {
+      "profile": "Profile",
+      "billing": "Billing",
+      "notifications": "Notifications",
+      "settings": "Settings",
+      "branding": "Branding"
+    },
+    "profile": {
+      "heading": "Profile Settings",
+      "viewPublicProfile": "View Public Profile",
+      "saveChanges": "Save changes",
+      "avatar": {
+        "uploadPhoto": "Upload photo",
+        "customizeCharacter": "Customize Character",
+        "remove": "Remove",
+        "recommendation": "Recommended 1:1 ratio < 5 MB",
+        "borderStyle": "Profile Border Style",
+        "borderPlaceholder": "Select a border",
+        "randomizeBorder": "Randomize Border",
+        "border": {
+          "none": "None",
+          "solid": "Solid",
+          "double": "Double",
+          "dashed": "Dashed",
+          "dotted": "Dotted",
+          "glow": "Glow",
+          "neon": "Neon",
+          "rainbow": "Rainbow",
+          "gradient": "Gradient",
+          "shadow": "Shadow"
+        }
+      },
+      "banner": {
+        "heading": "Cover Image (Banner)",
+        "empty": "No cover image set",
+        "upload": "Upload cover",
+        "remove": "Remove",
+        "showOnProfile": "Show on profile",
+        "recommendation": "Recommended 3:1 ratio < 5 MB",
+        "alt": "Cover Image"
+      },
+      "mouseCursor": {
+        "label": "Mouse Cursor (Animation)"
+      },
+      "fields": {
+        "name": "Name",
+        "username": "Username *",
+        "email": "Email",
+        "website": "Website",
+        "location": "Location",
+        "work": "Work",
+        "education": "Education",
+        "bio": "Bio",
+        "skills": "Skills"
+      },
+      "placeholders": {
+        "website": "https://",
+        "location": "India",
+        "work": "DreamSync",
+        "education": "BCA",
+        "bio": "Frontend Developer | UI Enthusiast...",
+        "addCustomSkill": "Add custom skill..."
+      },
+      "username": {
+        "available": "Username is available",
+        "taken": "Username taken"
+      },
+      "skills": {
+        "add": "Add",
+        "option": {
+          "html": "HTML",
+          "css": "CSS",
+          "javascript": "JavaScript",
+          "python": "Python",
+          "java": "Java",
+          "cpp": "C++",
+          "sql": "SQL",
+          "commandLine": "Command Line",
+          "react": "React",
+          "git": "Git & GitHub",
+          "numpy": "NumPy",
+          "typescript": "TypeScript",
+          "nodejs": "Node.js",
+          "nextjs": "Next.js",
+          "tailwind": "Tailwind CSS",
+          "docker": "Docker",
+          "aws": "AWS",
+          "mongodb": "MongoDB",
+          "postgresql": "PostgreSQL",
+          "graphql": "GraphQL",
+          "figma": "Figma",
+          "uiux": "UI/UX",
+          "apiDesign": "API Design"
+        }
+      },
+      "social": {
+        "heading": "Social media",
+        "github": "GitHub",
+        "twitter": "X (Twitter)",
+        "linkedin": "LinkedIn",
+        "instagram": "Instagram",
+        "youtube": "YouTube",
+        "twitch": "Twitch",
+        "tiktok": "TikTok",
+        "placeholder": "https://example.com"
+      }
+    },
+    "character": {
+      "dialog": {
+        "title": "Customize Your Character",
+        "description": "Design your own custom cartoon avatar. Change styles, colors, gender, expressions, and clothing!"
+      },
+      "artStyle": "Art Style",
+      "avatarPreviewAlt": "Avatar Preview",
+      "seed": {
+        "label": "Base Seed",
+        "placeholder": "Type anything to randomize base features...",
+        "randomize": "Randomize"
+      },
+      "tab": {
+        "faceHair": "Face & Hair",
+        "expression": "Expression",
+        "clothing": "Clothing",
+        "background": "Background"
+      },
+      "skinColor": "Skin Color",
+      "skin": {
+        "veryLight": "Very Light",
+        "light": "Light",
+        "tan": "Tan",
+        "olive": "Olive",
+        "brown": "Brown",
+        "dark": "Dark"
+      },
+      "hair": {
+        "style": "Hair Style",
+        "robotStyle": "Robot Head Style",
+        "maleShort": "Male / Short",
+        "femaleLong": "Female / Long",
+        "antennaBulb": "Antenna / Bulb",
+        "radarHorn": "Radar / Horn",
+        "male": {
+          "caesarCut": "Caesar Cut",
+          "shortFlat": "Short Flat",
+          "shortRound": "Short Round",
+          "shortWavy": "Short Wavy",
+          "shortCurly": "Short Curly",
+          "mullet": "Mullet",
+          "bald": "Bald",
+          "antenna": "Antenna",
+          "bulb": "Bulb",
+          "horn": "Horn",
+          "radar": "Radar",
+          "pyramid": "Pyramid"
+        },
+        "female": {
+          "longStraight": "Long Straight",
+          "straightParted": "Straight Parted",
+          "longCurly": "Long Curly",
+          "longCurvy": "Long Curvy",
+          "bobCut": "Bob Cut",
+          "miaCut": "Mia Cut",
+          "hairBun": "Hair Bun",
+          "dreads": "Dreads",
+          "bigHair": "Big Hair",
+          "antenna": "Antenna",
+          "bulb": "Bulb",
+          "horn": "Horn",
+          "radar": "Radar",
+          "pyramid": "Pyramid"
+        }
+      },
+      "hairColor": "Hair Color",
+      "hairColorOptions": {
+        "black": "Black",
+        "darkBrown": "Dark Brown",
+        "lightBrown": "Light Brown",
+        "blonde": "Blonde",
+        "auburn": "Auburn",
+        "platinum": "Platinum",
+        "pink": "Pink"
+      },
+      "eyebrows": "Eyebrows",
+      "eyebrowOptions": {
+        "default": "Default",
+        "angry": "Angry",
+        "flat": "Flat",
+        "raised": "Raised",
+        "sad": "Sad",
+        "unibrow": "Unibrow",
+        "up": "Up"
+      },
+      "eyes": "Eyes Expression",
+      "eyeOptions": {
+        "default": "Default",
+        "happy": "Happy",
+        "wink": "Wink",
+        "surprised": "Surprised",
+        "squint": "Squint",
+        "sideEye": "Side Eye",
+        "hearts": "Hearts",
+        "closed": "Closed"
+      },
+      "nose": "Nose",
+      "noseOptions": {
+        "default": "Default",
+        "variant2": "Variant 2",
+        "variant3": "Variant 3",
+        "variant4": "Variant 4",
+        "variant5": "Variant 5",
+        "variant6": "Variant 6"
+      },
+      "mouth": "Mouth Expression",
+      "mouthOptions": {
+        "default": "Default",
+        "smile": "Smile",
+        "sad": "Sad",
+        "concerned": "Concerned",
+        "disbelief": "Disbelief",
+        "grimace": "Grimace",
+        "scream": "Scream",
+        "tongue": "Tongue"
+      },
+      "accessories": "Accessories",
+      "robotSide": "Robot Side Attachment",
+      "accessoryOptions": {
+        "none": "None",
+        "regular": "Regular",
+        "round": "Round",
+        "sunglasses": "Sunglasses",
+        "wayfarer": "Wayfarer",
+        "kurt": "Kurt",
+        "antenna": "Antenna",
+        "earphones": "Earphones",
+        "cables": "Cables"
+      },
+      "clothing": {
+        "style": "Clothing Style",
+        "crewNeck": "Crew Neck",
+        "vNeck": "V-Neck",
+        "openShirt": "Open Shirt",
+        "hoodie": "Hoodie",
+        "sweater": "Sweater",
+        "blazer": "Blazer",
+        "overalls": "Overalls",
+        "graphicTee": "Graphic Tee",
+        "color": "Clothing Color",
+        "robotMetal": "Robot Metal Color",
+        "emojiBg": "Background Color"
+      },
+      "clothingColors": {
+        "navy": "Navy",
+        "blue": "Blue",
+        "teal": "Teal",
+        "green": "Green",
+        "red": "Red",
+        "orange": "Orange",
+        "purple": "Purple",
+        "pink": "Pink",
+        "gray": "Gray"
+      },
+      "background": {
+        "label": "Character Background Color",
+        "transparent": "Transparent",
+        "skyBlue": "Sky Blue",
+        "lavender": "Lavender",
+        "pastelIndigo": "Pastel Indigo",
+        "pastelPink": "Pastel Pink",
+        "peach": "Peach",
+        "mintGreen": "Mint Green",
+        "lightGray": "Light Gray",
+        "yellow": "Yellow"
+      },
+      "randomizeAll": "Randomize All",
+      "cancel": "Cancel",
+      "useAvatar": "Use Character Avatar"
+    },
+    "billing": {
+      "subscription": {
+        "heading": "Subscription",
+        "plan": "Plan",
+        "start": "Start",
+        "end": "End",
+        "free": "Free",
+        "noActive": "No active subscription.",
+        "viewPlans": "View plans"
+      },
+      "wallet": {
+        "heading": "Wallet",
+        "availableBalance": "Available balance",
+        "topUp": "Top up",
+        "topUpDialog": {
+          "title": "Add money to wallet",
+          "description": "Top up via Cashfree (card/UPI/netbanking).",
+          "amount": "Amount (INR)",
+          "securePayment": "Secure payment via Cashfree",
+          "cancel": "Cancel",
+          "proceed": "Proceed to pay"
+        },
+        "table": {
+          "when": "When",
+          "type": "Type",
+          "description": "Description",
+          "amount": "Amount",
+          "empty": "No transactions yet."
+        }
+      },
+      "withdrawals": {
+        "heading": "Creator withdrawals",
+        "description": "Withdraw earnings via Cashfree.",
+        "pendingCount": "{{count}} pending",
+        "totalCount": "{{count}} total",
+        "debitNotice": "Wallet debited upfront via Cashfree Payouts",
+        "request": "Request withdrawal",
+        "dialog": {
+          "title": "Withdraw funds",
+          "available": "Available: {{balance}}",
+          "amount": "Amount (INR)",
+          "method": "Method",
+          "methodUpi": "UPI",
+          "methodBank": "Bank transfer",
+          "upiId": "UPI ID",
+          "accountDetails": "Account details (name, number, IFSC)",
+          "detailsPlaceholder": "Enter details",
+          "withdraw": "Withdraw"
+        },
+        "confirmDelete": "Delete this withdrawal record?",
+        "deleteAriaLabel": "Delete withdrawal",
+        "empty": "No withdrawals yet.",
+        "status": {
+          "paid": "Paid",
+          "pending": "Pending",
+          "rejected": "Rejected"
+        }
+      }
+    },
+    "notifications": {
+      "heading": "Notification preferences",
+      "description": "Choose what notifications you receive and how.",
+      "newSubscriber": "New subscriber",
+      "newComment": "New comment on a lesson",
+      "newSale": "New course sale",
+      "email": "Email notifications",
+      "inApp": "In-app notifications",
+      "save": "Save preferences"
+    },
+    "security": {
+      "changePassword": {
+        "heading": "Change password",
+        "currentPassword": "Current password",
+        "newPassword": "New password",
+        "confirmPassword": "Confirm new password",
+        "update": "Update password"
+      },
+      "payout": {
+        "heading": "Payout method",
+        "method": "Method",
+        "upi": "UPI",
+        "bankTransfer": "Bank transfer",
+        "upiId": "UPI ID",
+        "upiPlaceholder": "name@bank",
+        "accountHolder": "Account holder",
+        "ifsc": "IFSC",
+        "accountNumber": "Account number"
+      },
+      "defaults": {
+        "heading": "New-course defaults",
+        "defaultPrice": "Default price (₹)",
+        "category": "Category",
+        "level": "Level",
+        "categoryOptions": {
+          "general": "General",
+          "development": "Development",
+          "design": "Design",
+          "marketing": "Marketing",
+          "aiData": "AI & Data",
+          "business": "Business",
+          "personalGrowth": "Personal Growth"
+        },
+        "levelOptions": {
+          "beginner": "Beginner",
+          "intermediate": "Intermediate",
+          "advanced": "Advanced"
+        }
+      },
+      "saveSettings": "Save settings"
+    },
+    "branding": {
+      "organization": {
+        "heading": "Organization Branding",
+        "description": "Customize how your certificates and invoices appear. Changes apply to all certificates you issue.",
+        "orgName": "Organization Name",
+        "orgNamePlaceholder": "Your Company",
+        "logoUrl": "Organization Logo URL",
+        "logoUrlPlaceholder": "https://example.com/logo.png",
+        "brandColor": "Brand Color"
+      },
+      "invoice": {
+        "heading": "Invoice Customization",
+        "description": "Custom invoice branding for your organization. These override the global invoice defaults.",
+        "companyName": "Invoice company name",
+        "companyNamePlaceholder": "Your Company",
+        "legalName": "Invoice legal name",
+        "legalNamePlaceholder": "Your Company Pvt. Ltd.",
+        "gstin": "GSTIN",
+        "gstinPlaceholder": "29XXXXX1234X1Z5",
+        "prefix": "Invoice prefix",
+        "prefixPlaceholder": "INV",
+        "logoUrl": "Invoice logo URL",
+        "logoUrlPlaceholder": "https://example.com/invoice-logo.png",
+        "contact": "Contact (email/phone)",
+        "contactPlaceholder": "hello@company.com",
+        "footer": "Invoice footer",
+        "footerPlaceholder": "Thank you for your business!"
+      },
+      "save": "Save Branding"
+    },
+    "style": {
+      "avataaars": "Casual Character",
+      "adventurer": "Adventurer",
+      "bottts": "Robot",
+      "pixelArt": "Pixel Art",
+      "funEmoji": "Fun Emoji",
+      "lorelei": "Lorelei"
+    },
+    "toast": {
+      "profile": {
+        "saved": "Profile saved",
+        "imageTooLarge": "Image must be < 5MB",
+        "pickImageFile": "Pick an image file",
+        "nameRequired": "Name cannot be empty",
+        "photoUpdated": "Photo updated",
+        "photoRemoved": "Photo removed",
+        "failedSavePhoto": "Failed to save photo",
+        "failedRemovePhoto": "Failed to remove photo",
+        "coverUpdated": "Cover image updated",
+        "coverRemoved": "Cover image removed",
+        "failedRemoveCover": "Failed to remove cover image",
+        "coverToggled": "Cover image visibility toggled",
+        "mouseCursorToggled": "Mouse cursor animation toggled"
+      },
+      "character": {
+        "updated": "Character avatar updated!",
+        "failedSave": "Failed to save avatar",
+        "randomized": "Randomized all features!",
+        "borderUpdated": "Profile border updated!",
+        "borderRandomized": "Randomized profile border!",
+        "failedBorder": "Failed to update border",
+        "failedRandomizeBorder": "Failed to randomize border"
+      },
+      "password": {
+        "tooShort": "Password must be at least 8 characters",
+        "mismatch": "Passwords don't match",
+        "incorrectCurrent": "Current password is incorrect",
+        "updated": "Password updated"
+      },
+      "notifications": {
+        "saved": "Notification preferences saved",
+        "failedSave": "Failed to save notification preferences"
+      },
+      "wallet": {
+        "topUpRangeError": "Amount between ₹50 and ₹100,000",
+        "topUpSuccess": "₹{{amount}} added to wallet",
+        "topUpFailed": "Top-up failed",
+        "minWithdrawal": "Minimum withdrawal is ₹100",
+        "insufficientBalance": "Insufficient balance",
+        "destinationRequired": "Destination required",
+        "withdrawalProcessed": "Withdrawal processed",
+        "withdrawalFailed": "Withdrawal failed",
+        "withdrawalDeleted": "Deleted"
+      },
+      "settings": {
+        "saved": "Settings saved"
+      },
+      "branding": {
+        "saved": "Branding saved"
+      }
+    }
+  },
+  "interview": {
+    "title": "Interview Prep",
+    "subtitle": "Practice mock interviews with AI feedback",
+    "startInterview": "Start Interview",
+    "selectRole": "Select Job Role",
+    "selectMode": "Select Mode",
+    "voiceMode": "Voice",
+    "chatMode": "Chat",
+    "videoMode": "Video",
+    "difficulty": "Difficulty",
+    "easy": "Easy",
+    "medium": "Medium",
+    "hard": "Hard",
+    "score": "Score",
+    "feedback": "Feedback",
+    "nextQuestion": "Next Question",
+    "endInterview": "End Interview",
+    "interviewComplete": "Interview Complete",
+    "yourScore": "Your Score",
+    "detailedFeedback": "Detailed Feedback",
+    "tryAgain": "Try Again",
+    "noInterviews": "No interviews yet",
+    "startPracticing": "Start practicing to improve your skills",
+    "roles": {
+      "frontend": "Frontend Developer",
+      "backend": "Backend Developer",
+      "fullstack": "Full-Stack Developer",
+      "dataScience": "Data Scientist",
+      "devops": "DevOps Engineer",
+      "mobile": "Mobile Developer",
+      "pm": "Product Manager",
+      "designer": "UI/UX Designer"
+    }
+  },
+  "challenges": {
+    "title": "Coding Challenges",
+    "subtitle": "Daily coding challenges to sharpen your skills",
+    "dailyChallenge": "Daily Challenge",
+    "allChallenges": "All Challenges",
+    "easy": "Easy",
+    "medium": "Medium",
+    "hard": "Hard",
+    "points": "Points",
+    "solved": "Solved",
+    "attempt": "Attempt",
+    "solve": "Solve",
+    "submissions": "Submissions",
+    "noChallenges": "No challenges available yet",
+    "startSolving": "Start solving to earn points",
+    "leaderboard": "Challenge Leaderboard",
+    "categories": {
+      "algorithms": "Algorithms",
+      "dataStructures": "Data Structures",
+      "javascript": "JavaScript",
+      "python": "Python",
+      "sql": "SQL",
+      "systemDesign": "System Design"
+    }
+  }
+}
