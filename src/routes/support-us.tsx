@@ -556,7 +556,7 @@ export function SupportUsPage() {
                   type="submit"
                   size="lg"
                   disabled={isSubmitting}
-                  className="w-full bg-gradient-to-r from-indigo-600 to-primary hover:from-indigo-500 hover:to-primary/90 text-white font-bold text-sm shadow-md h-12 transition-all hover:scale-[1.01]"
+                  className="w-full bg-gradient-to-r from-indigo-600 to-primary hover:from-indigo-500 hover:to-primary/90 text-white font-bold text-sm shadow-md h-12 transition-[color,background-color,border-color,box-shadow,transform] hover:scale-[1.01]"
                 >
                   <Gift className="h-4 w-4 mr-2" />
                   Contribute Now ₹ {finalAmount.toLocaleString("en-IN")}.00
