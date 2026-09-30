@@ -21,6 +21,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { StaggerGroup, StaggerItem } from "@/components/Reveal";
 import { getRealHumanAvatar } from "@/lib/real-avatars";
+import { AppleCoachBookingModal } from "@/components/coaches/AppleCoachBookingModal";
 
 export const Route = createFileRoute("/coaches")({
   head: () => ({
@@ -77,6 +78,7 @@ const perks = [
 
 function CoachesPage() {
   const [selectedPerk, setSelectedPerk] = useState("scheduling");
+  const [bookingCoach, setBookingCoach] = useState<any>(null);
 
   // State for Smart Scheduling
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
@@ -699,19 +701,30 @@ function CoachesPage() {
                       <span className="text-xs font-normal text-muted-foreground">/ hr</span>
                     </span>
                   </div>
-                  <Button size="sm" asChild className="gap-1">
-                    <Link to="/apply-coach">Book Session ➔</Link>
-                  </Button>
+                    <Button
+                      size="sm"
+                      onClick={() => setBookingCoach(coach)}
+                      className="gap-1 rounded-xl text-xs font-semibold cursor-pointer shadow-sm hover:scale-[1.02] transition-transform"
+                    >
+                      Book Session ➔
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            ))
+              ))
           )}
         </div>
       </div>
 
+      {/* Apple-style Coach Booking Modal */}
+      <AppleCoachBookingModal
+        coach={bookingCoach}
+        open={Boolean(bookingCoach)}
+        onOpenChange={(open) => !open && setBookingCoach(null)}
+      />
+
       <div className="mt-14 text-center">
-        <Button asChild size="lg">
-          <Link to="/apply-coach">Apply to become a coach</Link>
+        <Button asChild size="lg" variant="outline" className="rounded-2xl">
+          <Link to="/apply-coach">Apply to become a verified mentor</Link>
         </Button>
       </div>
     </MarketingPage>

@@ -52,6 +52,8 @@ import {
   saveCoach,
   deleteCoach,
   type CoachRecord,
+  DEFAULT_BOOKING_SETTINGS,
+  DEFAULT_COACH_TIERS,
 } from "@/lib/coach-creator.functions";
 import { getRealHumanAvatar } from "@/lib/real-avatars";
 import {
@@ -59,6 +61,12 @@ import {
   AutosaveStatusBadge,
   DraftRecoveryBanner,
 } from "@/lib/admin-editor-workspace";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { User, Video, Layers, Mail, Calendar, Laptop } from "lucide-react";
+import {
+  CoachPluginsEditor,
+  CoachTiersEditor,
+} from "./CoachPluginsAndTiers";
 
 const EMPTY_COACH: CoachRecord = {
   id: "",
@@ -76,6 +84,8 @@ const EMPTY_COACH: CoachRecord = {
   featured: false,
   sort_order: 1,
   is_demo: false,
+  booking_settings: DEFAULT_BOOKING_SETTINGS,
+  service_tiers: DEFAULT_COACH_TIERS,
 };
 
 export default function CoachesManager() {
@@ -298,6 +308,35 @@ export default function CoachesManager() {
                         </>
                       )}
                     </div>
+
+                    <div className="flex items-center gap-1.5 pt-1 flex-wrap">
+                      <span className="text-[10px] text-muted-foreground mr-1">Plugins:</span>
+                      {coach.booking_settings?.plugins?.google_meet?.enabled !== false && (
+                        <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 border-emerald-500/30 text-emerald-600 bg-emerald-500/5">
+                          Google Meet
+                        </Badge>
+                      )}
+                      {coach.booking_settings?.plugins?.gmail?.enabled !== false && (
+                        <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 border-red-500/30 text-red-600 bg-red-500/5">
+                          Gmail
+                        </Badge>
+                      )}
+                      {coach.booking_settings?.plugins?.zoom?.enabled && (
+                        <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 border-blue-500/30 text-blue-600 bg-blue-500/5">
+                          Zoom
+                        </Badge>
+                      )}
+                      {coach.booking_settings?.plugins?.cal_com?.enabled && (
+                        <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 border-amber-500/30 text-amber-600 bg-amber-500/5">
+                          Cal.com
+                        </Badge>
+                      )}
+                      {coach.booking_settings?.plugins?.microsoft?.enabled && (
+                        <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 border-purple-500/30 text-purple-600 bg-purple-500/5">
+                          Teams
+                        </Badge>
+                      )}
+                    </div>
                   </div>
                 </div>
 
@@ -413,6 +452,8 @@ function CoachEditorDialog({
   onSave,
   isSaving,
 }: CoachEditorDialogProps) {
+  const [dialogTab, setDialogTab] = useState<"profile" | "tiers" | "plugins">("profile");
+
   const {
     formData,
     updateField,
@@ -441,16 +482,16 @@ function CoachEditorDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto border-border/80 bg-background/95 backdrop-blur-xl">
         <DialogHeader>
           <div className="flex items-center justify-between pr-6">
-            <DialogTitle>
-              {coach.id.startsWith("demo-") || coach.is_demo ? "Edit Demo Mentor" : coach.name ? "Edit Mentor Profile" : "Add Mentor Profile"}
+            <DialogTitle className="text-lg font-bold font-display tracking-tight">
+              {coach.id.startsWith("demo-") || coach.is_demo ? "Edit Demo Mentor" : coach.name ? `Configure Mentor: ${coach.name}` : "Add Mentor Profile"}
             </DialogTitle>
             <AutosaveStatusBadge status={status} lastSavedAt={lastSavedAt} isDirty={isDirty} />
           </div>
-          <DialogDescription className="text-xs">
-            Configure mentor credentials, pricing, bio, and visibility settings.
+          <DialogDescription className="text-xs text-muted-foreground">
+            Curate mentor credentials, service tiers, and 5 video/calendar plugins (Gmail, Google Meet, Zoom, Cal.com, Teams).
           </DialogDescription>
         </DialogHeader>
 
@@ -463,199 +504,239 @@ function CoachEditorDialog({
           />
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4 pt-2">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label className="text-xs font-semibold">Full Name *</Label>
-              <Input
-                value={formData.name}
-                onChange={(e) => updateField("name", e.target.value)}
-                placeholder="e.g. Priya Sharma"
-                className="text-xs"
-                required
-              />
-            </div>
+        <Tabs value={dialogTab} onValueChange={(v: any) => setDialogTab(v)} className="w-full pt-1">
+          <TabsList className="grid grid-cols-3 w-full h-10 p-1 bg-muted/40 rounded-xl mb-4 border border-border/50">
+            <TabsTrigger
+              value="profile"
+              className="rounded-lg text-xs font-medium gap-1.5 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all"
+            >
+              <User className="h-3.5 w-3.5" /> Profile &amp; Bio
+            </TabsTrigger>
+            <TabsTrigger
+              value="tiers"
+              className="rounded-lg text-xs font-medium gap-1.5 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all"
+            >
+              <Layers className="h-3.5 w-3.5" /> Service Tiers ({formData.service_tiers?.length ?? 3})
+            </TabsTrigger>
+            <TabsTrigger
+              value="plugins"
+              className="rounded-lg text-xs font-medium gap-1.5 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all"
+            >
+              <Video className="h-3.5 w-3.5" /> Meeting Plugins (5)
+            </TabsTrigger>
+          </TabsList>
 
-            <div className="space-y-1.5">
-              <Label className="text-xs font-semibold">Professional Title *</Label>
-              <Input
-                value={formData.title}
-                onChange={(e) => updateField("title", e.target.value)}
-                placeholder="e.g. Principal AI Architect @ Razorpay"
-                className="text-xs"
-                required
-              />
-            </div>
-          </div>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <TabsContent value="profile" className="space-y-4 m-0">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold">Full Name *</Label>
+                  <Input
+                    value={formData.name}
+                    onChange={(e) => updateField("name", e.target.value)}
+                    placeholder="e.g. Priya Sharma"
+                    className="text-xs bg-card/60"
+                    required
+                  />
+                </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label className="text-xs font-semibold">Expertise &amp; Tech Stack *</Label>
-              <Input
-                value={formData.expertise}
-                onChange={(e) => updateField("expertise", e.target.value)}
-                placeholder="e.g. System Design, LLMs & LangChain"
-                className="text-xs"
-                required
-              />
-            </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold">Professional Title *</Label>
+                  <Input
+                    value={formData.title}
+                    onChange={(e) => updateField("title", e.target.value)}
+                    placeholder="e.g. Principal AI Architect @ Razorpay"
+                    className="text-xs bg-card/60"
+                    required
+                  />
+                </div>
+              </div>
 
-            <div className="space-y-1.5">
-              <Label className="text-xs font-semibold">Hourly Rate (₹ INR) *</Label>
-              <Input
-                type="number"
-                value={formData.hourly_rate}
-                onChange={(e) => updateField("hourly_rate", Number(e.target.value) || 0)}
-                placeholder="1499"
-                className="text-xs"
-                required
-              />
-            </div>
-          </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold">Expertise &amp; Tech Stack *</Label>
+                  <Input
+                    value={formData.expertise}
+                    onChange={(e) => updateField("expertise", e.target.value)}
+                    placeholder="e.g. System Design, LLMs & LangChain"
+                    className="text-xs bg-card/60"
+                    required
+                  />
+                </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label className="text-xs font-semibold">Languages (comma-separated)</Label>
-              <Input
-                value={(formData.languages || []).join(", ")}
-                onChange={(e) =>
-                  updateField(
-                    "languages",
-                    e.target.value
-                      .split(",")
-                      .map((s) => s.trim())
-                      .filter(Boolean)
-                  )
-                }
-                placeholder="English, Hindi"
-                className="text-xs"
-              />
-            </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold">Base Hourly Rate (₹ INR) *</Label>
+                  <Input
+                    type="number"
+                    value={formData.hourly_rate}
+                    onChange={(e) => updateField("hourly_rate", Number(e.target.value) || 0)}
+                    placeholder="1499"
+                    className="text-xs bg-card/60"
+                    required
+                  />
+                </div>
+              </div>
 
-            <div className="space-y-1.5">
-              <Label className="text-xs font-semibold">Availability Slots</Label>
-              <Input
-                value={formData.availability || ""}
-                onChange={(e) => updateField("availability", e.target.value)}
-                placeholder="Weekends &amp; Evenings"
-                className="text-xs"
-              />
-            </div>
-          </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold">Languages (comma-separated)</Label>
+                  <Input
+                    value={(formData.languages || []).join(", ")}
+                    onChange={(e) =>
+                      updateField(
+                        "languages",
+                        e.target.value
+                          .split(",")
+                          .map((s) => s.trim())
+                          .filter(Boolean)
+                      )
+                    }
+                    placeholder="English, Hindi"
+                    className="text-xs bg-card/60"
+                  />
+                </div>
 
-          <div className="space-y-1.5">
-            <Label className="text-xs font-semibold">Profile Photo URL</Label>
-            <div className="flex gap-2">
-              <Input
-                value={formData.photo || ""}
-                onChange={(e) => updateField("photo", e.target.value)}
-                placeholder="https://images.unsplash.com/... or blank for auto avatar"
-                className="text-xs"
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold">Availability Slots</Label>
+                  <Input
+                    value={formData.availability || ""}
+                    onChange={(e) => updateField("availability", e.target.value)}
+                    placeholder="Weekends &amp; Evenings"
+                    className="text-xs bg-card/60"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold">Profile Photo URL</Label>
+                <div className="flex gap-2">
+                  <Input
+                    value={formData.photo || ""}
+                    onChange={(e) => updateField("photo", e.target.value)}
+                    placeholder="https://images.unsplash.com/... or blank for auto avatar"
+                    className="text-xs bg-card/60"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="text-xs shrink-0 rounded-xl"
+                    onClick={() => updateField("photo", getRealHumanAvatar(formData.name || "Coach"))}
+                  >
+                    Auto Generate
+                  </Button>
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold">Bio &amp; Mentoring Philosophy</Label>
+                <Textarea
+                  rows={4}
+                  value={formData.bio}
+                  onChange={(e) => updateField("bio", e.target.value)}
+                  placeholder="Tell students about your real-world experience, interview tips, and how you conduct 1-on-1 sessions."
+                  className="text-xs leading-relaxed bg-card/60"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-border/40">
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold">Verification Status</Label>
+                  <Select
+                    value={formData.verification_status}
+                    onValueChange={(val: any) => updateField("verification_status", val)}
+                  >
+                    <SelectTrigger className="text-xs bg-card/60">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="unverified">Unverified</SelectItem>
+                      <SelectItem value="verified">Verified (Shows Badge)</SelectItem>
+                      <SelectItem value="rejected">Rejected</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold">Visibility</Label>
+                  <Select
+                    value={formData.visibility}
+                    onValueChange={(val: any) => updateField("visibility", val)}
+                  >
+                    <SelectTrigger className="text-xs bg-card/60">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="published">Published (Live to Students)</SelectItem>
+                      <SelectItem value="draft">Draft (Hidden)</SelectItem>
+                      <SelectItem value="hidden">Archived / Hidden</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-3 rounded-xl border border-border/50 bg-muted/20">
+                <div className="flex items-center gap-3">
+                  <Switch
+                    checked={Boolean(formData.is_demo)}
+                    onCheckedChange={(val) => updateField("is_demo", val)}
+                    id="is_demo_toggle"
+                  />
+                  <Label htmlFor="is_demo_toggle" className="text-xs cursor-pointer">
+                    <span className="font-semibold block">Demo Test Profile</span>
+                    <span className="text-muted-foreground text-[11px] block">
+                      Excludes this profile from the live public student directory so no demo data leaks.
+                    </span>
+                  </Label>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <Switch
+                    checked={Boolean(formData.featured)}
+                    onCheckedChange={(val) => updateField("featured", val)}
+                    id="featured_toggle"
+                  />
+                  <Label htmlFor="featured_toggle" className="text-xs cursor-pointer">
+                    <span className="font-semibold block">Featured</span>
+                    <span className="text-muted-foreground text-[11px] block">
+                      Highlight at the top of directory.
+                    </span>
+                  </Label>
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="tiers" className="space-y-4 m-0">
+              <CoachTiersEditor
+                tiers={formData.service_tiers || DEFAULT_COACH_TIERS}
+                onChange={(tiers) => updateField("service_tiers", tiers)}
               />
+            </TabsContent>
+
+            <TabsContent value="plugins" className="space-y-4 m-0">
+              <CoachPluginsEditor
+                bookingSettings={formData.booking_settings || DEFAULT_BOOKING_SETTINGS}
+                onChange={(settings) => updateField("booking_settings", settings)}
+              />
+            </TabsContent>
+
+            <DialogFooter className="pt-4 border-t border-border/50 flex items-center justify-between">
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
-                className="text-xs shrink-0"
-                onClick={() => updateField("photo", getRealHumanAvatar(formData.name || "Coach"))}
+                onClick={() => onOpenChange(false)}
+                className="rounded-xl text-xs"
               >
-                Auto Generate
+                Cancel
               </Button>
-            </div>
-          </div>
-
-          <div className="space-y-1.5">
-            <Label className="text-xs font-semibold">Bio &amp; Mentoring Philosophy</Label>
-            <Textarea
-              rows={4}
-              value={formData.bio}
-              onChange={(e) => updateField("bio", e.target.value)}
-              placeholder="Tell students about your real-world experience, interview tips, and how you conduct 1-on-1 sessions."
-              className="text-xs leading-relaxed"
-            />
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t">
-            <div className="space-y-1.5">
-              <Label className="text-xs font-semibold">Verification Status</Label>
-              <Select
-                value={formData.verification_status}
-                onValueChange={(val: any) => updateField("verification_status", val)}
-              >
-                <SelectTrigger className="text-xs">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="unverified">Unverified</SelectItem>
-                  <SelectItem value="verified">Verified (Shows Badge)</SelectItem>
-                  <SelectItem value="rejected">Rejected</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-1.5">
-              <Label className="text-xs font-semibold">Visibility</Label>
-              <Select
-                value={formData.visibility}
-                onValueChange={(val: any) => updateField("visibility", val)}
-              >
-                <SelectTrigger className="text-xs">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="published">Published (Live to Students)</SelectItem>
-                  <SelectItem value="draft">Draft (Hidden)</SelectItem>
-                  <SelectItem value="hidden">Archived / Hidden</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-3 rounded-lg border bg-muted/20">
-            <div className="flex items-center gap-3">
-              <Switch
-                checked={Boolean(formData.is_demo)}
-                onCheckedChange={(val) => updateField("is_demo", val)}
-                id="is_demo_toggle"
-              />
-              <Label htmlFor="is_demo_toggle" className="text-xs cursor-pointer">
-                <span className="font-semibold block">Demo Test Profile</span>
-                <span className="text-muted-foreground text-[11px] block">
-                  Excludes this profile from the live public student directory so no demo data leaks.
-                </span>
-              </Label>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <Switch
-                checked={Boolean(formData.featured)}
-                onCheckedChange={(val) => updateField("featured", val)}
-                id="featured_toggle"
-              />
-              <Label htmlFor="featured_toggle" className="text-xs cursor-pointer">
-                <span className="font-semibold block">Featured</span>
-                <span className="text-muted-foreground text-[11px] block">
-                  Highlight at the top of directory.
-                </span>
-              </Label>
-            </div>
-          </div>
-
-          <DialogFooter className="pt-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => onOpenChange(false)}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" size="sm" disabled={isSaving}>
-              {isSaving && <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />}
-              Save Mentor
-            </Button>
-          </DialogFooter>
-        </form>
+              <Button type="submit" size="sm" disabled={isSaving} className="rounded-xl text-xs">
+                {isSaving && <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />}
+                Save Mentor &amp; Settings
+              </Button>
+            </DialogFooter>
+          </form>
+        </Tabs>
       </DialogContent>
     </Dialog>
   );
