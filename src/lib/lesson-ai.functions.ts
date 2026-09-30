@@ -114,6 +114,7 @@ export const lessonAiHelper = createServerFn({ method: "POST" })
     }
 
     const res = await callUserAiChat({
+      task: data.action,
       messages: [
         { role: "system", content: SYSTEM },
         { role: "user", content: buildPrompt(data, ragContext) },

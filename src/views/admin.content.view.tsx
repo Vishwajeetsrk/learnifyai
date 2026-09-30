@@ -44,6 +44,7 @@ import {
   ShoppingCart,
   Heart,
   Scale,
+  Cpu,
 } from "lucide-react";
 import { CANONICAL_LEGAL_DOCS } from "@/lib/canonical-config";
 import { DOC_CONTENTS } from "@/lib/legal-docs-data";
@@ -114,6 +115,9 @@ import BlogManager from "@/components/admin/BlogManager";
 const DesignProjectsManager = lazy(() => import("@/components/admin/DesignProjectsManager"));
 const CouponManager = lazy(() => import("@/components/admin/CouponManager"));
 const InvoiceDesigner = lazy(() => import("@/components/admin/InvoiceDesigner"));
+const CoachesManager = lazy(() => import("@/components/admin/CoachesManager"));
+const CreatorsManager = lazy(() => import("@/components/admin/CreatorsManager"));
+const AiInfrastructureManager = lazy(() => import("@/components/admin/AiInfrastructureManager"));
 import { CertDesignerAdmin } from "@/components/certificate-designer/CertDesignerAdmin";
 
 const AVATAR_URLS = {
@@ -286,6 +290,21 @@ const SECTION_TOURS: Record<string, { what: string; how: string; where: string }
     how: "Toggle overall Legal Center availability or hide individual documents. Edit policy titles, summaries, and HTML content directly.",
     where: "Appears publicly at /legal and in the footer legal policy links.",
   },
+  coaches: {
+    what: "Manage the 1-on-1 coaching and mentoring directory, hourly rates, availability, and verification status.",
+    how: "Add or edit mentors, toggle verification status, and set visibility to Published, Draft, or Hidden.",
+    where: "Published non-demo coaches appear on the public Coaches page at /coaches.",
+  },
+  creators: {
+    what: "Manage tech educators, course creator profiles, course counts, and verified author badges.",
+    how: "Add or edit creators, toggle verification status, and set visibility to Published or Draft.",
+    where: "Published non-demo creators appear on the public Creators page at /creators.",
+  },
+  "ai-infrastructure": {
+    what: "Monitor AI provider health, live endpoint latency, model registry, and token budget anti-exhaustion clamping.",
+    how: "Click 'Test Connection' on Groq, Gemini, or OpenRouter to run a real-time connectivity and latency ping.",
+    where: "Gateway health directly powers the AI tutor, lesson summaries, doubt solver, and code generator.",
+  },
 };
 
 const TAB_LABELS: Record<string, string> = {
@@ -312,6 +331,9 @@ const TAB_LABELS: Record<string, string> = {
   "store-products": "Digital Products & Store",
   "support-us": "Support Us / Sponsor",
   "legal-center": "Legal Center",
+  coaches: "Coaches & Mentors",
+  creators: "Course Creators",
+  "ai-infrastructure": "AI Infrastructure",
 };
 
 export default function AdminContentPage() {
@@ -338,6 +360,8 @@ export default function AdminContentPage() {
         "support-us": "support-us",
         legal: "legal-center",
         "legal-center": "legal-center",
+        ai: "ai-infrastructure",
+        gateway: "ai-infrastructure",
       } as Record<string, string>
     )[requestedTab] ?? requestedTab;
   const tabFromUrl = [
@@ -364,6 +388,9 @@ export default function AdminContentPage() {
     "invoice-designer",
     "support-us",
     "legal-center",
+    "coaches",
+    "creators",
+    "ai-infrastructure",
   ].includes(tabAlias)
     ? tabAlias
     : "events";
@@ -504,6 +531,9 @@ export default function AdminContentPage() {
                     <SelectItem value="wcms-sections">Sections</SelectItem>
                     <SelectItem value="support-us">Support Us / Sponsor</SelectItem>
                     <SelectItem value="legal-center">Legal Center</SelectItem>
+                    <SelectItem value="coaches">Coaches &amp; Mentors</SelectItem>
+                    <SelectItem value="creators">Course Creators</SelectItem>
+                    <SelectItem value="ai-infrastructure">AI Infrastructure</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -520,6 +550,8 @@ export default function AdminContentPage() {
                     {[
                       { id: "events", label: "Events", icon: CalendarIcon },
                       { id: "jobs", label: "Jobs", icon: Briefcase },
+                      { id: "coaches", label: "Coaches & Mentors", icon: Users },
+                      { id: "creators", label: "Course Creators", icon: Sparkles },
                       { id: "store-products", label: "Digital Store", icon: ShoppingCart },
                       { id: "design-projects", label: "Design Projects", icon: FolderTree },
                       { id: "faqs", label: "FAQs", icon: HelpCircle },
@@ -626,6 +658,7 @@ export default function AdminContentPage() {
                   </p>
                   <div className="flex flex-col gap-0.5">
                     {[
+                      { id: "ai-infrastructure", label: "AI Infrastructure", icon: Cpu },
                       { id: "pricing", label: "Pricing Tiers", icon: Tag },
                       { id: "site", label: "Site Settings", icon: Settings },
                       { id: "features", label: "Visibility", icon: Eye },
@@ -750,6 +783,21 @@ export default function AdminContentPage() {
               </TabsContent>
               <TabsContent value="legal-center" forceMount className={cn("mt-0", tab !== "legal-center" && "hidden")}>
                 <LegalCenterManager />
+              </TabsContent>
+              <TabsContent value="coaches" forceMount className={cn("mt-0", tab !== "coaches" && "hidden")}>
+                <Suspense fallback={<LazyFallback />}>
+                  <CoachesManager />
+                </Suspense>
+              </TabsContent>
+              <TabsContent value="creators" forceMount className={cn("mt-0", tab !== "creators" && "hidden")}>
+                <Suspense fallback={<LazyFallback />}>
+                  <CreatorsManager />
+                </Suspense>
+              </TabsContent>
+              <TabsContent value="ai-infrastructure" forceMount className={cn("mt-0", tab !== "ai-infrastructure" && "hidden")}>
+                <Suspense fallback={<LazyFallback />}>
+                  <AiInfrastructureManager />
+                </Suspense>
               </TabsContent>
             </div>
           </div>

@@ -9,6 +9,7 @@ import {
   Settings,
   Subtitles,
   Lock,
+  PictureInPicture,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -447,6 +448,36 @@ export function CustomVideoPlayer({
     }
   }, []);
 
+  const seekRelative = useCallback(
+    (secondsDelta: number) => {
+      const dur = durationRef.current;
+      const cur = currentTime;
+      const target = Math.max(0, Math.min(dur || 999999, cur + secondsDelta));
+      if (youtubeId) {
+        const api = playerApiRef.current;
+        if (api) api.seekTo(target, true);
+      } else {
+        const video = videoRef.current;
+        if (video) video.currentTime = target;
+      }
+      setCurrentTime(target);
+    },
+    [currentTime, youtubeId]
+  );
+
+  const togglePictureInPicture = useCallback(async () => {
+    if (!videoRef.current) return;
+    try {
+      if (document.pictureInPictureElement) {
+        await document.exitPictureInPicture();
+      } else if (document.pictureInPictureEnabled) {
+        await videoRef.current.requestPictureInPicture();
+      }
+    } catch (err) {
+      console.error("Picture-in-picture error:", err);
+    }
+  }, []);
+
   const handleSpeedChange = useCallback(
     (rate: number) => {
       if (youtubeId) {
@@ -537,6 +568,45 @@ export function CustomVideoPlayer({
     const timer = setTimeout(() => setShowControls(false), 3000);
     return () => clearTimeout(timer);
   }, [playing, showControls, settingsOpen]);
+
+  // Keyboard Navigation & Shortcuts (Space, Left/Right Seek, M Mute, F Fullscreen)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.isContentEditable ||
+          target.closest(".monaco-editor") ||
+          target.closest("[role='textbox']"))
+      ) {
+        return;
+      }
+
+      if (!containerRef.current) return;
+
+      if (e.key === " " || e.code === "Space") {
+        e.preventDefault();
+        togglePlay();
+      } else if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        seekRelative(-5);
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        seekRelative(5);
+      } else if (e.key.toLowerCase() === "m") {
+        e.preventDefault();
+        toggleMute();
+      } else if (e.key.toLowerCase() === "f") {
+        e.preventDefault();
+        toggleFullscreen();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [togglePlay, seekRelative, toggleMute, toggleFullscreen]);
 
   const played = duration > 0 ? currentTime / duration : 0;
 
@@ -799,9 +869,20 @@ export function CustomVideoPlayer({
               )}
             </div>
 
+            {!youtubeId && !restrictDownload && (
+              <button
+                onClick={togglePictureInPicture}
+                className="p-1 hover:text-white/80 cursor-pointer shrink-0"
+                title="Picture in Picture"
+              >
+                <PictureInPicture className="h-4 w-4" />
+              </button>
+            )}
+
             <button
               onClick={toggleFullscreen}
               className="p-1 hover:text-white/80 cursor-pointer shrink-0"
+              title="Fullscreen (F)"
             >
               <Maximize className="h-4 w-4" />
             </button>

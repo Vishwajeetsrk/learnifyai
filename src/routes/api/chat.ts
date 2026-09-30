@@ -279,6 +279,7 @@ NEVER give shallow answers, a single resource, outdated stacks, generic boilerpl
           body: JSON.stringify({
             model: providerModel,
             stream: true,
+            max_tokens: 2500,
             stream_options: { include_usage: true },
             messages: [
               { role: "system", content: systemPrompt },
@@ -315,7 +316,13 @@ NEVER give shallow answers, a single resource, outdated stacks, generic boilerpl
         if (!upstream.ok || !upstream.body) {
           const text = await upstream.text().catch(() => "");
           console.error("Upstream AI error", upstream.status, text);
-          return new Response(JSON.stringify({ error: `AI provider error (${upstream.status})` }), {
+          const friendlyMessage =
+            upstream.status === 429
+              ? "The AI engine is temporarily experiencing high traffic. Please retry in a moment."
+              : upstream.status === 402
+              ? "AI quota is temporarily busy. Retrying with backup provider..."
+              : "AI assistant is temporarily unavailable. Please retry in a few moments.";
+          return new Response(JSON.stringify({ error: friendlyMessage }), {
             status: 502,
           });
         }

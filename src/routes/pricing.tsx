@@ -168,7 +168,7 @@ const DEFAULT_TIERS: Plan[] = [
     highlighted: false,
     price_inr: 159,
     interval: "month",
-    badge: "Academic",
+    badge: "Academic Discount",
     color: "#3B82F6",
     ai_credits_monthly: 10000,
     max_courses: -1,
@@ -223,7 +223,7 @@ const DEFAULT_TIERS: Plan[] = [
     highlighted: false,
     price_inr: 499,
     interval: "month",
-    badge: "Best Value",
+    badge: "Career-Focused",
     color: "#8B5CF6",
     ai_credits_monthly: 25000,
     max_courses: -1,
@@ -513,6 +513,14 @@ function PricingPage() {
     gcTime: 300_000,
     placeholderData: DEFAULT_TIERS,
   });
+
+  const calculatedSavingsPct = useMemo(() => {
+    const paidList = (tiers || DEFAULT_TIERS).filter((t) => t.price_inr > 0 && t.yearly_price);
+    if (!paidList.length) return 17;
+    const p = paidList[0];
+    const annualSum = p.price_inr * 12;
+    return Math.max(Math.round((1 - p.yearly_price! / annualSum) * 100), 10);
+  }, [tiers]);
 
   const currentSub = useQuery({
     enabled: !!user,
@@ -895,8 +903,8 @@ function PricingPage() {
                   }`}
               >
                 Yearly
-                <span className="ml-1.5 text-[10px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full animate-bounce">
-                  Save 30%
+                <span className="ml-1.5 text-[10px] font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 px-1.5 py-0.5 rounded-full">
+                  Save {calculatedSavingsPct}%
                 </span>
               </button>
             </div>
@@ -955,35 +963,75 @@ function PricingPage() {
             <p className="text-center text-muted-foreground py-12">Pricing coming soon.</p>
           ) : (
             <>
-              <div
-                className="flex md:grid md:grid-cols-2 lg:grid-cols-4 gap-5 items-stretch overflow-x-auto snap-x snap-mandatory md:overflow-visible pb-4 md:pb-0 scrollbar-none"
-                style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-              >
-                {tiers.map((t, idx) => {
-                  const isCurrent = activePlanId === t.id;
-                  const isFree = t.price_inr <= 0 && !t.interval;
-                  const hasPrice = t.price_inr > 0;
-                  const accentColor = t.color || "#7c3aed";
-                  const isPopular = t.highlighted;
+              {/* 4 Core Self-Serve Plans Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 items-stretch w-full">
+                {tiers
+                  .filter(
+                    (t) =>
+                      t.name.toLowerCase() !== "enterprise" &&
+                      !t.is_custom_pricing &&
+                      t.price_label.toLowerCase() !== "custom",
+                  )
+                  .map((t, idx) => {
+                    const isCurrent = activePlanId === t.id;
+                    const isFree = t.price_inr <= 0 && !t.interval;
+                    const hasPrice = t.price_inr > 0;
+                    const accentColor = t.color || "#7c3aed";
+                    const isPopular = t.highlighted;
 
-                  return (
-                    <PricingCard
-                      key={t.id}
-                      plan={t}
-                      idx={idx}
-                      isCurrent={isCurrent}
-                      isFree={isFree}
-                      hasPrice={hasPrice}
-                      accentColor={accentColor}
-                      isPopular={isPopular}
-                      billingCycle={billingCycle}
-                      loadingPlan={loadingPlan}
-                      onSubscribe={handleSubscribe}
-                      onCancel={handleCancel}
-                    />
-                  );
-                })}
+                    return (
+                      <PricingCard
+                        key={t.id}
+                        plan={t}
+                        idx={idx}
+                        isCurrent={isCurrent}
+                        isFree={isFree}
+                        hasPrice={hasPrice}
+                        accentColor={accentColor}
+                        isPopular={isPopular}
+                        billingCycle={billingCycle}
+                        loadingPlan={loadingPlan}
+                        onSubscribe={handleSubscribe}
+                        onCancel={handleCancel}
+                      />
+                    );
+                  })}
               </div>
+
+              {/* Enterprise Full-Width Institutional Card */}
+              {(() => {
+                const enterprise = tiers.find(
+                  (t) =>
+                    t.name.toLowerCase() === "enterprise" ||
+                    t.is_custom_pricing ||
+                    t.price_label.toLowerCase() === "custom",
+                );
+                if (!enterprise) return null;
+                return (
+                  <div className="mt-8 rounded-2xl border bg-card p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-sm hover:shadow-md transition-all">
+                    <div className="space-y-2 max-w-2xl">
+                      <div className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-0.5 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400">
+                        <Users className="h-3.5 w-3.5" /> Institutional &amp; Campus Training
+                      </div>
+                      <h3 className="text-xl md:text-2xl font-bold font-display">
+                        Enterprise &amp; University Solutions
+                      </h3>
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        Bulk seat licensing, Single Sign-On (SAML/Okta/Google Workspace), institutional admin reporting, departmental analytics, custom API certificate issuance, and dedicated SLA manager.
+                      </p>
+                    </div>
+                    <div className="shrink-0 w-full sm:w-auto">
+                      <Button asChild size="lg" className="w-full sm:w-auto font-semibold rounded-xl">
+                        <Link to={enterprise.cta_to || "/contact?inquiry=enterprise"}>
+                          {enterprise.cta_label || "Contact Sales"}
+                          <ArrowRight className="h-4 w-4 ml-2" />
+                        </Link>
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })()}
+
               <div className="mt-8 max-w-xl mx-auto text-center">
                 <ContextualLegalNotice context="checkout" />
               </div>
@@ -1598,7 +1646,7 @@ function PricingCard({
     : plan.price_label;
 
   return (
-    <div className="relative flex flex-col snap-start shrink-0 w-[80vw] sm:w-auto">
+    <div className="relative flex flex-col w-full h-full">
       <div
         className={`relative rounded-2xl flex flex-col overflow-hidden transition-all duration-300 ${isPopular ? "shadow-xl border-2 hover:shadow-2xl" : "border hover:shadow-lg"
           }`}
@@ -1674,29 +1722,19 @@ function PricingCard({
             </div>
           ) : null}
 
-          {/* Social proof: avatar stack */}
-          <div className="flex items-center gap-2.5 mt-3 mb-1">
-            <div className="flex -space-x-2">
-              {["Arjun","Meera","Rahul","Divya"].map((seed, i) => (
-                <img
-                  key={i}
-                  src={getRealHumanAvatar(seed)}
-                  alt={seed}
-                  className="h-6 w-6 rounded-full border-2 border-background object-cover"
-                  style={{ zIndex: 4 - i }}
-                />
-              ))}
-            </div>
+          {/* Authentic Plan Signal - No repeated identical avatars */}
+          <div className="flex items-center gap-2 mt-3 mb-1 py-1 px-2.5 rounded-lg bg-muted/40 border border-border/40 w-fit">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0" />
             <span className="text-[11px] text-muted-foreground font-medium">
               {plan.name === "Enterprise"
-                ? "Used by colleges & companies"
+                ? "Custom university & team deployment"
                 : plan.name === "Free"
-                ? "10K+ learners started here"
+                ? "10,000+ registered free learners"
                 : plan.name === "Pro"
-                ? "5,000+ active Pro learners"
+                ? "5,000+ active Pro developers"
                 : plan.name === "Career Pro"
                 ? "2,000+ job seekers enrolled"
-                : "Trusted by students"}
+                : "Verified collegiate student benefit"}
             </span>
           </div>
 

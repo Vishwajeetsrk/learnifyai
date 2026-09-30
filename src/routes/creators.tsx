@@ -2,12 +2,13 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Sparkles, DollarSign, Megaphone, Users, Check, Loader2, Send, Video } from "lucide-react";
+import { Sparkles, DollarSign, Megaphone, Users, Check, Loader2, Send, Video, BadgeCheck } from "lucide-react";
 import { MarketingPage } from "@/components/MarketingPage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { StaggerGroup, StaggerItem } from "@/components/Reveal";
 import { getRealHumanAvatar } from "@/lib/real-avatars";
+import { getPublicCreators, CreatorRecord } from "@/lib/coach-creator.functions";
 
 export const Route = createFileRoute("/creators")({
   head: () => ({
@@ -450,40 +451,12 @@ function CreatorsPage() {
     }
   };
 
-  const { data: approvedCreators } = useQuery({
-    queryKey: ["approved-creators-public"],
-    queryFn: async () => {
-      try {
-        const { supabase } = await import("@/integrations/supabase/client");
-        const { data } = await (supabase as any)
-          .from("creator_applications")
-          .select("*")
-          .eq("status", "approved");
-        return data ?? [];
-      } catch {
-        return [];
-      }
-    },
+  const { data: publicCreators = [] } = useQuery<CreatorRecord[]>({
+    queryKey: ["public-creators-directory"],
+    queryFn: () => getPublicCreators(),
   });
 
-  const fallbackCreator = {
-    id: "creator-demo-1",
-    full_name: "Alex Rivera",
-    expertise: "Full-Stack & AI Systems",
-    bio: "Creator of Full-Stack AI Engineering & Autonomous Agents masterclasses on Learnify AI.",
-    coursesCount: 5,
-  };
-
-  const creatorsList =
-    approvedCreators && approvedCreators.length > 0
-      ? approvedCreators.map((c: any) => ({
-          id: c.id,
-          full_name: c.full_name || c.applicant_name || "Verified Creator",
-          expertise: c.expertise || c.category || "AI Educator",
-          bio: c.motivation || c.bio || "Building interactive courses and code playgrounds.",
-          coursesCount: 3,
-        }))
-      : [fallbackCreator];
+  const creatorsList = publicCreators;
 
   return (
     <MarketingPage
@@ -560,48 +533,66 @@ function CreatorsPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 font-sans">
-          {creatorsList.map((creator: any) => (
-            <div
-              key={creator.id}
-              className="rounded-2xl border border-border/80 bg-card p-6 shadow-sm hover:shadow-xl hover:border-primary/40 transition-all flex flex-col justify-between space-y-4"
-            >
-              <div className="space-y-3 font-sans">
-                <div className="flex items-start justify-between gap-3 font-sans">
-                  <div className="flex items-center gap-3">
-                    <img
-                      src={
-                        creator.avatar_url || getRealHumanAvatar(creator.full_name)
-                      }
-                      alt={creator.full_name}
-                      className="h-12 w-12 rounded-xl bg-primary/10 border border-primary/20 object-cover"
-                    />
-                    <div>
-                      <h3 className="font-bold text-base text-foreground leading-tight animate-none">
-                        {creator.full_name}
-                      </h3>
-                      <p className="text-xs text-primary font-medium mt-0.5">{creator.expertise}</p>
-                    </div>
-                  </div>
-                  <span className="text-[10px] font-semibold text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded-full shrink-0 font-sans">
-                    Verified
-                  </span>
-                </div>
-
-                <p className="text-xs text-muted-foreground leading-relaxed line-clamp-3">
-                  {creator.bio}
-                </p>
-              </div>
-
-              <div className="pt-4 border-t border-border/60 flex items-center justify-between gap-3 font-sans animate-none animate-none">
-                <span className="text-xs font-semibold text-muted-foreground">
-                  {creator.coursesCount} Courses Published
-                </span>
-                <Button size="sm" asChild variant="outline">
-                  <Link to="/courses">View Courses ➔</Link>
+          {creatorsList.length === 0 ? (
+            <div className="col-span-full py-14 px-6 rounded-2xl border border-dashed text-center space-y-3 bg-card/40">
+              <Users className="h-10 w-10 text-muted-foreground/60 mx-auto" />
+              <h3 className="font-semibold text-base text-foreground">
+                Creator Roster Opening Soon
+              </h3>
+              <p className="text-xs text-muted-foreground max-w-md mx-auto leading-relaxed">
+                Our inaugural cohort of tech educators is currently preparing curriculum releases. Are you an experienced engineer or educator? Apply below to build and publish courses on Learnify AI.
+              </p>
+              <div className="pt-2">
+                <Button size="sm" asChild>
+                  <Link to="/apply-creator">Apply as Creator</Link>
                 </Button>
               </div>
             </div>
-          ))}
+          ) : (
+            creatorsList.map((creator) => (
+              <div
+                key={creator.id}
+                className="rounded-2xl border border-border/80 bg-card p-6 shadow-sm hover:shadow-xl hover:border-primary/40 transition-all flex flex-col justify-between space-y-4"
+              >
+                <div className="space-y-3 font-sans">
+                  <div className="flex items-start justify-between gap-3 font-sans">
+                    <div className="flex items-center gap-3">
+                      <img
+                        src={creator.photo || getRealHumanAvatar(creator.name)}
+                        alt={creator.name}
+                        className="h-12 w-12 rounded-xl bg-primary/10 border border-primary/20 object-cover"
+                      />
+                      <div>
+                        <h3 className="font-bold text-base text-foreground leading-tight">
+                          {creator.name}
+                        </h3>
+                        <p className="text-xs text-primary font-medium mt-0.5">{creator.expertise}</p>
+                      </div>
+                    </div>
+                    {creator.verification_status === "verified" && (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded-full shrink-0 font-sans">
+                        <BadgeCheck className="h-3 w-3" />
+                        Verified
+                      </span>
+                    )}
+                  </div>
+
+                  <p className="text-xs text-muted-foreground leading-relaxed line-clamp-3">
+                    {creator.bio}
+                  </p>
+                </div>
+
+                <div className="pt-4 border-t border-border/60 flex items-center justify-between gap-3 font-sans">
+                  <span className="text-xs font-semibold text-muted-foreground">
+                    {creator.courses_count || 0} Courses Published
+                  </span>
+                  <Button size="sm" asChild variant="outline">
+                    <Link to="/courses">View Courses ➔</Link>
+                  </Button>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
 

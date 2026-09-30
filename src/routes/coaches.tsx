@@ -531,42 +531,13 @@ function CoachesPage() {
     }
   };
 
-  const { data: approvedCoaches } = useQuery({
-    queryKey: ["approved-coaches-public"],
+  const { data: coachesList = [], isLoading: coachesLoading } = useQuery({
+    queryKey: ["public-coaches-directory"],
     queryFn: async () => {
-      try {
-        const { supabase } = await import("@/integrations/supabase/client");
-        const { data } = await (supabase as any)
-          .from("coach_applications")
-          .select("*")
-          .eq("status", "approved");
-        return data ?? [];
-      } catch {
-        return [];
-      }
+      const { getPublicCoaches } = await import("@/lib/coach-creator.functions");
+      return getPublicCoaches();
     },
   });
-
-  const fallbackCoach = {
-    id: "coach-demo-1",
-    full_name: "Alex Rivera",
-    expertise: "Frontend Developer & SaaS Architect",
-    bio: "Senior Full-Stack Engineer & AI Educator specializing in cloud architecture and web platforms.",
-    hourly_rate: 99,
-    rating: "4.9 (42 reviews)",
-  };
-
-  const coachesList =
-    approvedCoaches && approvedCoaches.length > 0
-      ? approvedCoaches.map((c: any) => ({
-          id: c.id,
-          full_name: c.full_name || c.applicant_name || "Verified Coach",
-          expertise: c.expertise || "Tech Coach",
-          bio: c.motivation || c.bio || "1-on-1 personalized tech mentoring and code reviews.",
-          hourly_rate: c.hourly_rate || c.rate || 99,
-          rating: "5.0 (New)",
-        }))
-      : [fallbackCoach];
 
   return (
     <MarketingPage
@@ -647,57 +618,94 @@ function CoachesPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {coachesList.map((coach: any) => (
-            <div
-              key={coach.id}
-              className="rounded-2xl border border-border/80 bg-card p-6 shadow-sm hover:shadow-xl hover:border-primary/40 transition-all flex flex-col justify-between space-y-4"
-            >
-              <div className="space-y-3">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <img
-                      src={
-                        coach.avatar_url || getRealHumanAvatar(coach.full_name)
-                      }
-                      alt={coach.full_name}
-                      className="h-12 w-12 rounded-xl bg-primary/10 border border-primary/20 object-cover"
-                    />
-                    <div>
-                      <h3 className="font-bold text-base text-foreground leading-tight">
-                        {coach.full_name}
-                      </h3>
-                      <p className="text-xs text-primary font-medium mt-0.5">{coach.expertise}</p>
-                    </div>
-                  </div>
-                  <Badge
-                    variant="outline"
-                    className="text-[10px] shrink-0 border-emerald-500/30 bg-emerald-500/10 text-emerald-600 font-semibold"
-                  >
-                    Verified Coach
-                  </Badge>
-                </div>
-
-                <p className="text-xs text-muted-foreground leading-relaxed line-clamp-3">
-                  {coach.bio}
-                </p>
-              </div>
-
-              <div className="pt-4 border-t border-border/60 flex items-center justify-between gap-3">
-                <div>
-                  <span className="text-[10px] text-muted-foreground block uppercase font-semibold">
-                    Hourly Rate
-                  </span>
-                  <span className="text-sm font-bold text-foreground">
-                    ₹{coach.hourly_rate}{" "}
-                    <span className="text-xs font-normal text-muted-foreground">/ hr</span>
-                  </span>
-                </div>
-                <Button size="sm" asChild className="gap-1">
-                  <Link to="/apply-coach">Book Session ➔</Link>
+          {coachesList.length === 0 ? (
+            <div className="col-span-full py-14 px-6 rounded-2xl border border-dashed text-center space-y-3 bg-card/40">
+              <Users className="h-10 w-10 text-muted-foreground/60 mx-auto" />
+              <h3 className="font-semibold text-base text-foreground">
+                Mentor Roster Opening Soon
+              </h3>
+              <p className="text-xs text-muted-foreground max-w-md mx-auto leading-relaxed">
+                Our inaugural cohort of industry mentors is currently completing credential verification. Are you a senior engineer or tech lead? Apply below to host 1-on-1 sessions.
+              </p>
+              <div className="pt-2">
+                <Button size="sm" asChild>
+                  <Link to="/apply-coach">Apply as Coach</Link>
                 </Button>
               </div>
             </div>
-          ))}
+          ) : (
+            coachesList.map((coach: any) => (
+              <div
+                key={coach.id}
+                className="rounded-2xl border border-border/80 bg-card p-6 shadow-sm hover:shadow-xl hover:border-primary/40 transition-all flex flex-col justify-between space-y-4"
+              >
+                <div className="space-y-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <img
+                        src={coach.photo || getRealHumanAvatar(coach.name)}
+                        alt={coach.name}
+                        className="h-12 w-12 rounded-xl bg-primary/10 border border-primary/20 object-cover"
+                      />
+                      <div>
+                        <h3 className="font-bold text-base text-foreground leading-tight">
+                          {coach.name}
+                        </h3>
+                        <p className="text-xs text-primary font-medium mt-0.5">{coach.title || coach.expertise}</p>
+                      </div>
+                    </div>
+                    {coach.verification_status === "verified" ? (
+                      <Badge
+                        variant="outline"
+                        className="text-[10px] shrink-0 border-emerald-500/30 bg-emerald-500/10 text-emerald-600 font-semibold"
+                      >
+                        Verified Coach
+                      </Badge>
+                    ) : (
+                      <Badge
+                        variant="outline"
+                        className="text-[10px] shrink-0 border-muted text-muted-foreground"
+                      >
+                        Coach
+                      </Badge>
+                    )}
+                  </div>
+
+                  <p className="text-xs text-muted-foreground leading-relaxed line-clamp-3">
+                    {coach.bio}
+                  </p>
+
+                  {Array.isArray(coach.languages) && coach.languages.length > 0 && (
+                    <div className="flex flex-wrap gap-1 pt-1">
+                      {coach.languages.map((lang: string) => (
+                        <span
+                          key={lang}
+                          className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-muted/60 text-muted-foreground"
+                        >
+                          {lang}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className="pt-4 border-t border-border/60 flex items-center justify-between gap-3">
+                  <div>
+                    <span className="text-[10px] text-muted-foreground block uppercase font-semibold">
+                      Hourly Rate
+                    </span>
+                    <span className="text-sm font-bold text-foreground">
+                      ₹{coach.hourly_rate}{" "}
+                      <span className="text-xs font-normal text-muted-foreground">/ hr</span>
+                    </span>
+                  </div>
+                  <Button size="sm" asChild className="gap-1">
+                    <Link to="/apply-coach">Book Session ➔</Link>
+                  </Button>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
 

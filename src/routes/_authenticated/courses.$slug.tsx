@@ -1478,7 +1478,11 @@ function LessonAiTabs({
         </TabsList>
       </div>
 
-      <TabsContent value="notes" className="pt-4 space-y-3">
+      <TabsContent
+        value="notes"
+        forceMount
+        className={cn("pt-4 space-y-3", activeTab !== "notes" && "hidden")}
+      >
         {lessonContent && (
           <div className="flex items-center justify-between gap-2 pb-1">
             <Button variant="outline" size="sm" onClick={() => speak(lessonContent)} className="text-xs h-7">
@@ -1510,7 +1514,11 @@ function LessonAiTabs({
         )}
       </TabsContent>
 
-      <TabsContent value="playground" className="pt-4">
+      <TabsContent
+        value="playground"
+        forceMount
+        className={cn("pt-4", activeTab !== "playground" && "hidden")}
+      >
         <CodePlayground
           course={{ id: courseId, title: courseTitle, slug: courseSlug }}
           exerciseText={exercise}
@@ -1522,7 +1530,11 @@ function LessonAiTabs({
       {!hasToolAccess && <LockedCourseTools />}
 
       {hasToolAccess && (
-        <TabsContent value="summary" className="pt-4 space-y-3">
+        <TabsContent
+          value="summary"
+          forceMount
+          className={cn("pt-4 space-y-3", activeTab !== "summary" && "hidden")}
+        >
           <div className="flex items-center gap-2">
             <Button size="sm" onClick={() => run("summary")} disabled={busy === "summary"}>
               {busy === "summary" ? (
@@ -1554,7 +1566,11 @@ function LessonAiTabs({
       )}
 
       {hasToolAccess && (
-        <TabsContent value="doubt" className="pt-4 space-y-3">
+        <TabsContent
+          value="doubt"
+          forceMount
+          className={cn("pt-4 space-y-3", activeTab !== "doubt" && "hidden")}
+        >
           <Textarea
             placeholder="Ask anything about this lesson — concepts, code, errors, real-world use…"
             value={doubtQ}
@@ -1578,7 +1594,11 @@ function LessonAiTabs({
       )}
 
       {hasToolAccess && (
-        <TabsContent value="exercise" className="pt-4 space-y-3">
+        <TabsContent
+          value="exercise"
+          forceMount
+          className={cn("pt-4 space-y-3", activeTab !== "exercise" && "hidden")}
+        >
           <Button size="sm" onClick={() => run("exercise")} disabled={busy === "exercise"}>
             {busy === "exercise" ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -1596,7 +1616,11 @@ function LessonAiTabs({
       )}
 
       {hasToolAccess && (
-        <TabsContent value="visual" className="pt-4">
+        <TabsContent
+          value="visual"
+          forceMount
+          className={cn("pt-4", activeTab !== "visual" && "hidden")}
+        >
           <VisualLearningPanel
             lessonId={lesson.id}
             courseId={courseId}

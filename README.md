@@ -2,7 +2,7 @@
 
 <img src="src/assets/learnify-logo.png" alt="Learnify AI Logo" width="180" style="margin-bottom: 12px; filter: drop-shadow(0 4px 12px rgba(99, 102, 241, 0.25));" />
 
-# Learnify AI 4.5
+# Learnify AI 4.6
 
 **The AI-Native Learning & Career Operating System**
 
@@ -1435,6 +1435,33 @@ MIT License. See [LICENSE](LICENSE) for details.
 - 💳 **RAZORPAY INTEGRATION**: Added Razorpay as the primary payment gateway alongside Cashfree for broader UPI, card, and NetBanking support.
 
 - 🐛 **DATABASE FIX**: Resolved `duplicate key value violates unique constraint "billing_settings_key_key"` by adding explicit `onConflict: "key"` in Supabase upsert calls.
+
+### v4.6.0 (September 2026) — Production AI Gateway Resilience, Public CMS Directories & Course Player OS
+
+- 🤖 **ENTERPRISE AI GATEWAY & ANTI-EXHAUSTION TOKEN BUDGETING**:
+  - Resolved OpenRouter `402 Payment Required` credit reservation failures caused by unbounded 65k context requests.
+  - Implemented strict per-task token clamping (`clampMaxTokens(100, budget, 4000)`) across summary (1,500), exercises (2,000), quizzes (1,500), doubts (2,000), and chat (2,500).
+  - Multi-provider fallback cascade: Groq (`llama-3.3-70b-versatile` → `llama-3.1-8b-instant`) → Google Gemini (`gemini-2.0-flash` → `gemini-1.5-flash`) → OpenRouter (`gemini-2.0-flash-001` → `llama-3.3-70b-instruct`).
+  - Added enterprise error sanitization to strip internal URLs, raw JSON, and secrets from user-facing error messages.
+  - Built interactive **AI Infrastructure Manager** in Admin panel (`/admin/content`) with masked API keys, model catalogs, and live one-click latency/connectivity test (`testAiProvider`).
+
+- 👥 **COACHES & CREATORS PUBLIC DIRECTORIES & ADMIN CMS**:
+  - Replaced hardcoded dummy profiles and client-side application queries with database-backed Supabase tables (`coaches`, `creators`).
+  - Strict demo data isolation: demo records are flagged `is_demo=true` with `visibility="draft"`, completely preventing unverified demo profiles from leaking into public production rosters.
+  - Public directory routes (`/coaches`, `/creators`) filter strictly for `visibility === 'published' AND is_demo === false`.
+  - Added verified badge rendering strictly when `verification_status === "verified"`.
+  - Built comprehensive **Coaches Manager** and **Creators Manager** tabs in Admin Content Manager with KPI summary cards, search, verify/publish toggles, draft autosave (`useAdminDraft`), and full CRUD dialogs.
+
+- 🎥 **COURSE PLAYER KEYBOARD SHORTCUTS & NON-DESTRUCTIVE TABS**:
+  - Enhanced video player (`CustomVideoPlayer.tsx`) with professional media keyboard shortcuts: Space (play/pause), Left/Right Arrows (5-second seek), M (mute/unmute), and F (fullscreen toggle), with event target protection for form inputs, textareas, and code editors.
+  - Added native Picture-in-Picture (PiP) support with browser compatibility fallbacks.
+  - Upgraded `LessonAiTabs` in `courses.$slug.tsx` with Radix `forceMount` and conditional CSS display toggling to ensure Monaco editor code, terminal output, and Ask AI doubts are never erased when switching between tabs.
+  - Repositioned `GlobalSupportAgent` on course player routes (`bottom-24`) to eliminate overlap with video controls and completion buttons.
+
+- 💎 **PRICING & FOOTER REDESIGN**:
+  - Replaced hardcoded yearly discount badges in `pricing.tsx` with mathematically computed savings (~17% discount for annual billing).
+  - Cleaned up pricing tier cards into responsive 4-column self-serve grid + full-width Enterprise consultation banner with zero cloned avatars.
+  - Overhauled `SiteFooter.tsx` with a desktop 4-column layout (Product, Learn, Community, Company), mobile accordion groups, dynamic current year copyright, and contextual legal navigation.
 
 ### v4.5.0 (September 2026) — Devicons Integration & Course Skills Vector Architecture
  
