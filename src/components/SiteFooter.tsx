@@ -288,6 +288,14 @@ export function SiteFooter() {
               Refund Policy
             </Link>
             <span>&middot;</span>
+            <Link
+              to="/legal"
+              search={{ doc: "digital-delivery" }}
+              className="hover:text-foreground transition-colors"
+            >
+              Shipping &amp; Delivery Policy
+            </Link>
+            <span>&middot;</span>
             <Link to="/legal" className="hover:text-foreground transition-colors">
               Legal Center
             </Link>
