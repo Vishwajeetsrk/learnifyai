@@ -302,117 +302,102 @@ function CoursesPage() {
           celebrationSlug && navigate({ to: "/courses/$slug", params: { slug: celebrationSlug } })
         }
       />
-      <div className="px-4 sm:px-6 lg:px-10 py-6 sm:py-10 max-w-7xl mx-auto space-y-8">
-        {/* Marketplace Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-          <div>
-            <div className="text-xs uppercase tracking-widest text-primary font-bold">
-              Learnify AI · Marketplace
-            </div>
-            <h1 className="mt-1 text-2xl sm:text-3xl font-display font-bold tracking-tight text-foreground">
-              Courses & Masteries
-            </h1>
-            <p className="text-muted-foreground mt-1 text-xs sm:text-sm font-medium">
-              Real software masteries, verified skills, and interactive hands-on learning.
-            </p>
-          </div>
-          <div className="relative w-full sm:w-84">
-            <Search
-              className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-              aria-hidden="true"
-            />
-            <label htmlFor="course-search" className="sr-only">
-              Search courses
-            </label>
-            <Input
-              id="course-search"
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder="Search courses, skills, technologies…"
-              className="pl-9 pr-12 h-10 text-sm rounded-xl border-border/80 bg-card shadow-sm"
-            />
-            <kbd className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] bg-muted px-1.5 py-0.5 rounded text-muted-foreground font-mono">
-              ⌘K
-            </kbd>
-          </div>
-        </div>
-
-        {/* Database-backed Marketplace Metrics Bar */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
-          <div className="rounded-2xl border border-border/80 bg-card/60 backdrop-blur p-4 flex items-center gap-3.5 shadow-sm">
-            <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
-              <GraduationCap className="h-5 w-5" />
-            </div>
-            <div>
-              <div className="text-xl sm:text-2xl font-display font-extrabold text-foreground min-h-[32px] flex items-center">
-                {isStatsLoading ? <Skeleton className="h-6 w-12 rounded" /> : stats.totalCourses}
+      <div className="px-4 sm:px-6 lg:px-10 py-8 sm:py-12 max-w-7xl mx-auto space-y-10">
+        {/* Apple Pro Hero & Search Stage */}
+        <div className="relative overflow-hidden rounded-3xl p-8 sm:p-12 bg-neutral-950 border border-white/10 shadow-2xl text-white">
+          <div className="absolute top-0 right-1/4 w-96 h-96 rounded-full bg-gradient-to-b from-blue-500/10 via-indigo-500/10 to-transparent blur-3xl pointer-events-none" />
+          <div className="relative flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+            <div className="space-y-3 max-w-2xl">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-mono uppercase tracking-widest bg-white/10 text-neutral-300 border border-white/10">
+                <Sparkles className="h-3.5 w-3.5 text-amber-400" /> Learnify Masteries · Designed for Engineers
               </div>
-              <div className="text-xs text-muted-foreground font-semibold">Total Courses</div>
+              <h1 className="text-3xl sm:text-5xl font-display font-semibold tracking-tight text-neutral-100">
+                Master Modern Engineering.
+              </h1>
+              <p className="text-sm sm:text-base text-neutral-400 leading-relaxed font-normal">
+                Production-grade curricula in Full-Stack, System Design, AI Agents, and Cloud Architecture. Learn by building real systems.
+              </p>
+            </div>
+
+            {/* Apple-style Spotlight Search */}
+            <div className="relative w-full lg:w-96 shrink-0">
+              <Search
+                className="h-4 w-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400"
+                aria-hidden="true"
+              />
+              <label htmlFor="course-search" className="sr-only">
+                Search courses
+              </label>
+              <Input
+                id="course-search"
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder="Search masteries, tools, frameworks…"
+                className="pl-10 pr-12 h-12 text-sm rounded-2xl border-white/15 bg-white/5 backdrop-blur-2xl text-white placeholder:text-neutral-500 focus-visible:ring-1 focus-visible:ring-white/30 shadow-inner"
+              />
+              <kbd className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[10px] bg-white/10 border border-white/10 px-2 py-0.5 rounded-md text-neutral-300 font-mono">
+                ⌘K
+              </kbd>
             </div>
           </div>
 
-          <div className="rounded-2xl border border-border/80 bg-card/60 backdrop-blur p-4 flex items-center gap-3.5 shadow-sm">
-            <div className="h-10 w-10 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center shrink-0">
-              <BookOpen className="h-5 w-5" />
-            </div>
-            <div>
-              <div className="text-xl sm:text-2xl font-display font-extrabold text-foreground min-h-[32px] flex items-center">
-                {isStatsLoading ? <Skeleton className="h-6 w-12 rounded" /> : stats.totalLessons}
+          {/* Apple Pro Metrics Bar */}
+          <div className="mt-8 pt-8 border-t border-white/10 grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xl space-y-1">
+              <div className="text-2xl sm:text-3xl font-display font-bold text-white tracking-tight">
+                {isStatsLoading ? <Skeleton className="h-7 w-12 rounded bg-white/10" /> : stats.totalCourses}
               </div>
-              <div className="text-xs text-muted-foreground font-semibold">Lessons Available</div>
+              <div className="text-xs text-neutral-400 font-medium">Curated Masteries</div>
             </div>
-          </div>
 
-          <div className="rounded-2xl border border-border/80 bg-card/60 backdrop-blur p-4 flex items-center gap-3.5 shadow-sm">
-            <div className="h-10 w-10 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0">
-              <Sparkles className="h-5 w-5" />
-            </div>
-            <div>
-              <div className="text-xl sm:text-2xl font-display font-extrabold text-emerald-500 min-h-[32px] flex items-center">
-                {isStatsLoading ? <Skeleton className="h-6 w-12 rounded" /> : stats.totalFreeCourses}
+            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xl space-y-1">
+              <div className="text-2xl sm:text-3xl font-display font-bold text-white tracking-tight">
+                {isStatsLoading ? <Skeleton className="h-7 w-12 rounded bg-white/10" /> : stats.totalLessons}
               </div>
-              <div className="text-xs text-muted-foreground font-semibold">Free Courses</div>
+              <div className="text-xs text-neutral-400 font-medium">Interactive Lessons</div>
             </div>
-          </div>
 
-          <div className="rounded-2xl border border-border/80 bg-card/60 backdrop-blur p-4 flex items-center gap-3.5 shadow-sm">
-            <div className="h-10 w-10 rounded-xl bg-purple-500/10 text-purple-500 flex items-center justify-center shrink-0">
-              <Users className="h-5 w-5" />
-            </div>
-            <div>
-              <div className="text-xl sm:text-2xl font-display font-extrabold text-foreground min-h-[32px] flex items-center">
-                {isStatsLoading ? <Skeleton className="h-6 w-12 rounded" /> : stats.totalLearners.toLocaleString()}
+            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xl space-y-1">
+              <div className="text-2xl sm:text-3xl font-display font-bold text-emerald-400 tracking-tight">
+                {isStatsLoading ? <Skeleton className="h-7 w-12 rounded bg-white/10" /> : stats.totalFreeCourses}
               </div>
-              <div className="text-xs text-muted-foreground font-semibold">Active Learners</div>
+              <div className="text-xs text-neutral-400 font-medium">Free Access Tracks</div>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xl space-y-1">
+              <div className="text-2xl sm:text-3xl font-display font-bold text-white tracking-tight">
+                {isStatsLoading ? <Skeleton className="h-7 w-12 rounded bg-white/10" /> : stats.totalLearners.toLocaleString()}
+              </div>
+              <div className="text-xs text-neutral-400 font-medium">Active Engineers</div>
             </div>
           </div>
         </div>
 
         {/* Featured System Design Academy Banner */}
-        <div className="rounded-2xl border border-primary/40 bg-gradient-to-r from-primary/15 via-card to-background p-5 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-lg hover:border-primary/60 transition-all">
+        <div className="rounded-3xl border border-white/10 bg-neutral-900/60 backdrop-blur-xl p-6 sm:p-7 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl hover:border-white/20 transition-all">
           <div className="flex items-center gap-4">
-            <div className="h-12 w-12 rounded-2xl bg-primary text-primary-foreground grid place-items-center shrink-0 shadow-md shadow-primary/30">
+            <div className="h-12 w-12 rounded-2xl bg-white text-black grid place-items-center shrink-0 shadow-lg shadow-white/10 font-bold">
               <Cpu className="h-6 w-6" />
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-base font-bold text-foreground">System Design Academy</h2>
-                <Badge className="bg-primary/20 text-primary border border-primary/30 font-bold px-2.5 py-0.5 rounded-full text-[10px]">
-                  10 Topics
+                <Badge className="bg-primary/10 text-primary border border-primary/20 font-bold px-2.5 py-0.5 rounded-full text-[10px]">
+                  10 Architectural Blueprints
                 </Badge>
               </div>
-              <p className="text-xs text-muted-foreground mt-0.5 font-medium leading-relaxed">
-                Master Netflix, Uber, WhatsApp, YouTube, Amazon, and Google Search architectures.
+              <p className="text-xs text-muted-foreground mt-1 font-normal leading-relaxed">
+                Deconstruct Netflix, Uber, WhatsApp, YouTube, and Google Search high-scale architectures.
               </p>
             </div>
           </div>
           <Button
             asChild
             size="sm"
-            className="gap-2 shrink-0 shadow-md font-bold rounded-full px-5 cursor-pointer"
+            className="gap-2 shrink-0 font-semibold rounded-full px-5 cursor-pointer bg-foreground text-background hover:bg-foreground/90 shadow-md"
           >
             <Link to="/system-design" className="inline-flex items-center gap-2">
-              <span>Explore System Design</span>
+              <span>Explore Blueprints</span>
               <ArrowRight className="h-4 w-4" />
             </Link>
           </Button>

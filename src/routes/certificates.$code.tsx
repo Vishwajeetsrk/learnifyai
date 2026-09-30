@@ -22,6 +22,7 @@ import { emailCertificate } from "@/lib/cert.functions";
 import { downloadElementAsPdf, downloadElementAsImage } from "@/lib/certificate-pdf";
 import { CertificateRender, DEFAULT_DESIGN, type CertDesign } from "@/components/CertificateDesign";
 import { CertificateFullPreviewDialog } from "@/components/CertificateFullPreviewDialog";
+import { AppleCertificateStage } from "@/components/certificates/AppleCertificateStage";
 import { Maximize2, Image as ImageIcon } from "lucide-react";
 
 export const Route = createFileRoute("/certificates/$code")({
@@ -311,26 +312,30 @@ function CertificatePage() {
   };
 
   return (
-    <div
-      className="min-h-screen bg-gradient-to-br from-slate-100 via-indigo-50 to-violet-100 py-6 sm:py-12 px-4"
-      style={{ colorScheme: "light" }}
-    >
-      <div className="max-w-4xl mx-auto">
-        <div className="flex items-center justify-between gap-2 mb-4 print:hidden flex-wrap">
-          <Link to="/" className="text-sm text-muted-foreground hover:text-foreground">
-            ← Home
+    <div className="min-h-[100dvh] bg-neutral-950 text-white py-8 sm:py-12 px-4 selection:bg-white/20">
+      <div className="max-w-4xl mx-auto space-y-6">
+        {/* Apple Style Top Navigation & Actions Bar */}
+        <div className="flex items-center justify-between gap-3 p-3 rounded-2xl bg-neutral-900/80 backdrop-blur-xl border border-white/10 shadow-xl print:hidden flex-wrap">
+          <Link
+            to="/certificates"
+            className="text-xs font-semibold text-neutral-400 hover:text-white transition-colors px-2 py-1"
+          >
+            ← All Certificates
           </Link>
-          <div className="flex gap-2 flex-wrap">
-            <Button size="sm" variant="outline" onClick={() => setFullPreviewOpen(true)}>
-              <Maximize2 className="h-4 w-4" /> Expand
-            </Button>
-            <Button size="sm" variant="outline" onClick={share}>
-              <Share2 className="h-4 w-4" /> Share
+          <div className="flex items-center gap-2 flex-wrap">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setFullPreviewOpen(true)}
+              className="gap-1.5 text-xs rounded-xl bg-white/5 border-white/15 text-white hover:bg-white/15 cursor-pointer"
+            >
+              <Maximize2 className="h-3.5 w-3.5" />
+              <span>Full View</span>
             </Button>
             <Button
               size="sm"
               variant="outline"
-              className="bg-[#0A66C2] text-white hover:bg-[#004182] hover:text-white border-none"
+              className="bg-[#0A66C2] text-white hover:bg-[#004182] hover:text-white border-none rounded-xl text-xs font-semibold gap-1.5 cursor-pointer shadow-sm"
               onClick={() => {
                 const issueDateObj = new Date(row.issued_at);
                 const year = issueDateObj.getFullYear();
@@ -343,24 +348,25 @@ function CertificatePage() {
                 window.open(linkedinUrl, "_blank", "noopener,noreferrer");
               }}
             >
-              Add to LinkedIn
+              <span>Add to LinkedIn</span>
             </Button>
-            <Button size="sm" variant="outline" onClick={() => setEmailOpen(true)}>
-              <Mail className="h-4 w-4" /> Email
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setEmailOpen(true)}
+              className="gap-1.5 text-xs rounded-xl bg-white/5 border-white/15 text-white hover:bg-white/15 cursor-pointer"
+            >
+              <Mail className="h-3.5 w-3.5" />
+              <span>Email</span>
             </Button>
-            <Button size="sm" variant="outline" onClick={() => window.print()}>
-              <Printer className="h-4 w-4" /> Print
-            </Button>
-            <Button size="sm" variant="outline" onClick={handleDownloadImage} disabled={downloading}>
-              <ImageIcon className="h-4 w-4" /> Image
-            </Button>
-            <Button size="sm" onClick={handleDownloadPdf} disabled={downloading}>
-              {downloading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Download className="h-4 w-4" />
-              )}{" "}
-              PDF
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => window.print()}
+              className="gap-1.5 text-xs rounded-xl bg-white/5 border-white/15 text-white hover:bg-white/15 cursor-pointer"
+            >
+              <Printer className="h-3.5 w-3.5" />
+              <span>Print</span>
             </Button>
           </div>
         </div>
@@ -489,7 +495,15 @@ function CertificatePage() {
             )}
           </div>
         ) : (
-          <CertificateRender ref={certRef} design={design} ctx={ctx} />
+          <AppleCertificateStage
+            design={design}
+            ctx={ctx}
+            certRef={certRef}
+            onDownloadPdf={handleDownloadPdf}
+            onDownloadImage={handleDownloadImage}
+            onShare={share}
+            downloading={downloading}
+          />
         )}
 
         <p className="mt-4 text-center text-[11px] text-muted-foreground print:hidden">

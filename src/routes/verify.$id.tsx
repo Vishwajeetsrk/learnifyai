@@ -23,6 +23,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { CertificateRender, DEFAULT_DESIGN, type CertDesign } from "@/components/CertificateDesign";
 import { downloadElementAsPdf, downloadElementAsImage } from "@/lib/certificate-pdf";
+import { AppleCertificateStage } from "@/components/certificates/AppleCertificateStage";
 
 export const Route = createFileRoute("/verify/$id")({
   head: () => ({ meta: [{ title: "Verify Credential — Learnify AI" }] }),
@@ -259,87 +260,15 @@ function CertificateVerificationPage() {
             </Button>
           </Card>
         ) : (
-          <div className="space-y-6">
-            {/* Status Header */}
-            <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-6 flex flex-wrap items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div className="h-12 w-12 rounded-xl bg-emerald-500 text-white grid place-items-center shadow-lg shadow-emerald-500/20">
-                  <ShieldCheck className="h-6 w-6" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h1 className="text-lg font-bold text-foreground">
-                      Authentic Credential Verified
-                    </h1>
-                    <Badge className="bg-emerald-500 text-white hover:bg-emerald-500">
-                      Official
-                    </Badge>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    Verified on Learnify AI Immutable Credential Registry
-                  </p>
-                </div>
-              </div>
-              <div className="flex gap-2 flex-wrap">
-                <Button size="sm" variant="outline" onClick={shareVerification} className="gap-1.5">
-                  <Share2 className="h-3.5 w-3.5" /> Share
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={handleDownloadImage}
-                  disabled={downloading}
-                  className="gap-1.5"
-                >
-                  <ImageIcon className="h-3.5 w-3.5" /> Image
-                </Button>
-                <Button size="sm" onClick={handleDownloadPdf} disabled={downloading} className="gap-1.5">
-                  {downloading ? (
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  ) : (
-                    <Download className="h-3.5 w-3.5" />
-                  )}{" "}
-                  PDF
-                </Button>
-              </div>
-            </div>
-
-            {/* Rendered Live Certificate Card */}
-            <div className="rounded-2xl border bg-card p-2 sm:p-4 shadow-2xl overflow-hidden">
-              <CertificateRender ref={certRef} design={design} ctx={ctx} />
-            </div>
-
-            {/* Credential Metadata Details */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-left">
-              <div className="p-4 rounded-xl bg-card border shadow-sm">
-                <span className="text-[10px] font-semibold text-muted-foreground uppercase block">
-                  Issue Date
-                </span>
-                <span className="text-xs font-bold text-foreground flex items-center gap-1.5 mt-1">
-                  <Calendar className="h-3.5 w-3.5 text-primary" />
-                  {issueDate}
-                </span>
-              </div>
-              <div className="p-4 rounded-xl bg-card border shadow-sm">
-                <span className="text-[10px] font-semibold text-muted-foreground uppercase block">
-                  Grade / Score
-                </span>
-                <span className="text-xs font-bold text-foreground flex items-center gap-1.5 mt-1">
-                  <Award className="h-3.5 w-3.5 text-amber-500" />
-                  {ctx.score} / {ctx.total} (100%)
-                </span>
-              </div>
-              <div className="p-4 rounded-xl bg-card border shadow-sm">
-                <span className="text-[10px] font-semibold text-muted-foreground uppercase block">
-                  Signatory / Founder
-                </span>
-                <span className="text-xs font-bold text-foreground flex items-center gap-1.5 mt-1">
-                  <BookOpen className="h-3.5 w-3.5 text-blue-500" />
-                  {design.signatory_name} ({design.signatory_title})
-                </span>
-              </div>
-            </div>
-          </div>
+          <AppleCertificateStage
+            design={design}
+            ctx={ctx}
+            certRef={certRef}
+            onDownloadPdf={handleDownloadPdf}
+            onDownloadImage={handleDownloadImage}
+            onShare={shareVerification}
+            downloading={downloading}
+          />
         )}
       </div>
     </AppShell>
