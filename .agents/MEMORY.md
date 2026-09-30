@@ -12,7 +12,10 @@
 | **Primary Domain** | [https://www.learnifyai.in/](https://www.learnifyai.in/) |
 | **Backup Domain** | [https://learnifyaitool.vercel.app/](https://learnifyaitool.vercel.app/) |
 | **GitHub Repo** | `github.com/Vishwajeetsrk/learnifyai` (Branch: `main`) |
-| **Admin Account** | `vishwajeetsrk@gmail.com` / `12345678` |
+| **Admin Superuser** | `vishwajeetsrk@gmail.com` (Internal only — NEVER expose publicly) |
+| **Public Support Email** | `support.learnifyai@gmail.com` (Canonical for support, contact, legal, refunds) |
+| **Product Nature** | **100% Digital Products & Online Services** (Zero physical shipping or goods) |
+| **Primary Gateway** | **Razorpay** (UPI, RuPay/Cards, NetBanking, EMI) · Backup: **Cashfree** |
 | **Supabase Project** | `gnvsqwyexjuuwkjibxrr` (Region: `ap-south-1` Mumbai) |
 | **Tech Stack** | TanStack Start (SSR) + React 19 + Supabase PostgreSQL + Tailwind CSS v4 + LightningCSS + Shadcn UI + Vercel |
 
@@ -47,11 +50,13 @@
 - Real-time stats card headers for every administrative view.
 
 ### 5. Indian Payment & Billing Standards
-- Currency: Indian Rupee (`₹` / INR).
-- Taxes: 18% GST (CGST 9% + SGST 9% for intra-state; IGST 18% for inter-state).
-- HSN/SAC code: `998431` (Online Education & Certification Services).
-- Gateway: Cashfree (UPI, RuPay/Visa/MasterCard, Net Banking, EMI).
-- Invoicing: jsPDF generation with QR code and company GSTIN.
+- **Currency**: Indian Rupee (`₹` / INR).
+- **Primary Gateway**: **Razorpay** (Standard Checkout, UPI Intent, NetBanking, Cards, EMI).
+- **Secondary Gateway**: **Cashfree** (Backup provider).
+- **Tax Mode (Current)**: Unregistered Individual / Sole Proprietor (`invoice_mode = "receipt"`, no GST charged, compliant payment receipt issued).
+- **Tax Mode (Post-GST Registration)**: Flip to `tax_invoice` with 18% GST (CGST 9% + SGST 9% or IGST 18%), SAC code `998431`, and GSTIN.
+- **Fulfillment**: 100% Digital Delivery — instant account provisioning upon webhook / payment verification (Zero physical shipping).
+- **Invoicing**: PDF receipt generation with transaction reference numbers.
 
 ### 6. Build & Compilation Standards
 - TypeScript typecheck command: `node ./node_modules/typescript/bin/tsc --noEmit --skipLibCheck`.
