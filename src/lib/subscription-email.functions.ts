@@ -38,7 +38,7 @@ async function sendEmail(data: {
   // Fallback to nodemailer (SMTP)
   try {
     const moduleName = "nodemailer";
-    const { default: nodemailer } = await import(moduleName);
+    const { default: nodemailer } = await import(/* @vite-ignore */ moduleName);
     const transporter = nodemailer.createTransport({
       host: "smtp.resend.com",
       port: 587,

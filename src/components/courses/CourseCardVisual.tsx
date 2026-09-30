@@ -18,18 +18,28 @@ interface CourseCardVisualProps {
 
 /**
  * Maps course slug/title to canonical brand logos.
+ * Handles both existing platform courses and any newly created technologies.
  */
 export function getCourseBrands(slug: string = "", title: string = ""): KnownBrand[] {
   const norm = `${slug} ${title}`.toLowerCase();
-  const brands: KnownBrand[] = [];
 
+  // WordPress explicitly first to avoid accidental 'word' matching
+  if (norm.includes("wordpress") || norm.includes("woocommerce")) {
+    return ["wordpress", "php"];
+  }
+
+  // Multi-brand course combinations
   if (norm.includes("word") && norm.includes("powerpoint")) {
     return ["microsoft-word", "microsoft-powerpoint"];
   }
   if (norm.includes("chatgpt") || norm.includes("claude")) {
     return ["chatgpt", "claude"];
   }
-  if (norm.includes("vs-code") || norm.includes("vscode") || (norm.includes("code") && norm.includes("git"))) {
+  if (
+    norm.includes("vs-code") ||
+    norm.includes("vscode") ||
+    (norm.includes("code") && norm.includes("git"))
+  ) {
     return ["vs-code", "git"];
   }
   if (norm.includes("html") || norm.includes("css")) {
@@ -41,69 +51,134 @@ export function getCourseBrands(slug: string = "", title: string = ""): KnownBra
   if (norm.includes("excel") || norm.includes("sheets")) {
     return ["microsoft-excel"];
   }
+  if (
+    norm.includes("ui & ux") ||
+    norm.includes("ui/ux") ||
+    norm.includes("user-interfaces") ||
+    norm.includes("design-systems")
+  ) {
+    return ["figma", "tailwindcss"];
+  }
+  if (norm.includes("figma")) {
+    return ["figma"];
+  }
+  if (
+    norm.includes("python") &&
+    (norm.includes("data") || norm.includes("science") || norm.includes("analytics"))
+  ) {
+    return ["python", "pandas"];
+  }
   if (norm.includes("python")) {
     return ["python"];
   }
-  if (norm.includes("typescript") || norm.includes("ts-")) {
-    return ["typescript" as KnownBrand];
-  }
-  if (norm.includes("javascript") || norm.includes("js")) {
-    return ["javascript"];
-  }
-  if (norm.includes("nextjs") || norm.includes("next.js") || norm.includes("next")) {
-    return ["nextjs" as KnownBrand];
+  if (
+    norm.includes("nextjs") ||
+    norm.includes("next.js") ||
+    (norm.includes("full-stack") && norm.includes("next"))
+  ) {
+    return ["nextjs", "react"];
   }
   if (norm.includes("react")) {
-    return ["react"];
+    return ["react", "typescript"];
   }
-  if (norm.includes("nodejs") || norm.includes("node.js") || norm.includes("node")) {
-    return ["nodejs" as KnownBrand];
+  if (norm.includes("svelte")) {
+    return ["svelte"];
   }
-  if (norm.includes("docker") || norm.includes("container")) {
-    return ["docker" as KnownBrand];
+  if (norm.includes("vue")) {
+    return ["vuejs"];
   }
-  if (norm.includes("aws") || norm.includes("amazon")) {
-    return ["aws" as KnownBrand];
+  if (norm.includes("angular")) {
+    return ["angular"];
   }
-  if (norm.includes("azure")) {
-    return ["azure" as KnownBrand];
+  if (norm.includes("typescript") || norm.includes("ts-")) {
+    return ["typescript", "javascript"];
   }
-  if (norm.includes("firebase")) {
-    return ["firebase" as KnownBrand];
-  }
-  if (norm.includes("supabase")) {
-    return ["supabase" as KnownBrand];
-  }
-  if (norm.includes("postgres") || norm.includes("postgresql")) {
-    return ["postgresql" as KnownBrand];
-  }
-  if (norm.includes("mysql") || norm.includes("sql") || norm.includes("database")) {
-    return ["mysql" as KnownBrand];
-  }
-  if (norm.includes("tailwind")) {
-    return ["tailwindcss" as KnownBrand];
-  }
-  if (norm.includes("git") || norm.includes("github")) {
-    return ["github" as KnownBrand];
+  if (norm.includes("javascript") || norm.includes("js")) {
+    return ["javascript", "typescript"];
   }
   if (norm.includes("java") && !norm.includes("javascript")) {
-    return ["java"];
+    return ["java", "spring"];
   }
-  if (norm.includes("figma") || norm.includes("ui/ux") || norm.includes("design")) {
-    return ["figma"];
+  if (norm.includes("c++") || norm.includes("cpp")) {
+    return ["cplusplus"];
+  }
+  if (norm.includes("c#") || norm.includes("csharp")) {
+    return ["csharp"];
+  }
+  if (norm.includes("go") || norm.includes("golang")) {
+    return ["go"];
+  }
+  if (norm.includes("rust")) {
+    return ["rust"];
+  }
+  if (norm.includes("php")) {
+    return ["php"];
+  }
+  if (norm.includes("flutter") || norm.includes("dart")) {
+    return ["flutter", "dart"];
+  }
+  if (norm.includes("swift") || norm.includes("ios")) {
+    return ["swift"];
+  }
+  if (norm.includes("kotlin") || norm.includes("android")) {
+    return ["kotlin"];
+  }
+  if (norm.includes("docker") || norm.includes("container")) {
+    return ["docker", "kubernetes"];
+  }
+  if (norm.includes("kubernetes") || norm.includes("k8s")) {
+    return ["kubernetes", "docker"];
+  }
+  if (norm.includes("aws") || norm.includes("amazon")) {
+    return ["aws"];
+  }
+  if (norm.includes("azure")) {
+    return ["azure"];
   }
   if (norm.includes("google") || norm.includes("workspace")) {
     return ["google-workspace"];
   }
-  if (norm.includes("cyber") || norm.includes("security") || norm.includes("ethical-hacking")) {
-    return ["cybersecurity" as unknown as KnownBrand];
+  if (norm.includes("firebase")) {
+    return ["firebase"];
   }
-  if (norm.includes("ai") || norm.includes("machine-learning") || norm.includes("deep-learning") || norm.includes("neural")) {
-    return ["ai" as unknown as KnownBrand];
+  if (norm.includes("supabase")) {
+    return ["supabase", "postgresql"];
+  }
+  if (norm.includes("postgres") || norm.includes("postgresql")) {
+    return ["postgresql"];
+  }
+  if (norm.includes("mysql") || norm.includes("sql") || norm.includes("database")) {
+    return ["mysql"];
+  }
+  if (norm.includes("mongodb") || norm.includes("mongo")) {
+    return ["mongodb"];
+  }
+  if (norm.includes("redis")) {
+    return ["redis"];
+  }
+  if (norm.includes("graphql")) {
+    return ["graphql"];
+  }
+  if (norm.includes("tailwind")) {
+    return ["tailwindcss"];
+  }
+  if (norm.includes("git") || norm.includes("github")) {
+    return ["git", "github"];
+  }
+  if (norm.includes("cyber") || norm.includes("security") || norm.includes("ethical-hacking")) {
+    return ["cybersecurity"];
+  }
+  if (
+    norm.includes("ai") ||
+    norm.includes("machine-learning") ||
+    norm.includes("deep-learning") ||
+    norm.includes("prompt")
+  ) {
+    return ["chatgpt", "claude"];
   }
 
-  // Default to AI / Tech if nothing else matched
-  return ["chatgpt"];
+  // Default
+  return ["react"];
 }
 
 export function CourseCardVisual({
@@ -126,7 +201,7 @@ export function CourseCardVisual({
   if (primaryBrand.includes("excel")) {
     gradientClass = "from-[#082817] via-[#0E4728] to-[#061C10]";
     accentBorder = "border-emerald-500/40";
-  } else if (primaryBrand.includes("word") || primaryBrand.includes("typescript")) {
+  } else if (primaryBrand.includes("word") && !primaryBrand.includes("wordpress") || primaryBrand.includes("typescript")) {
     gradientClass = "from-[#081E3D] via-[#103A70] to-[#05152B]";
     accentBorder = "border-blue-500/40";
   } else if (primaryBrand.includes("powerpoint")) {
@@ -156,6 +231,18 @@ export function CourseCardVisual({
   } else if (primaryBrand.includes("aws") || primaryBrand.includes("azure")) {
     gradientClass = "from-[#141C2A] via-[#1F2C42] to-[#0E131E]";
     accentBorder = "border-amber-500/40";
+  } else if (primaryBrand.includes("wordpress")) {
+    gradientClass = "from-[#0A1A2F] via-[#133256] to-[#081526]";
+    accentBorder = "border-sky-500/40";
+  } else if (primaryBrand.includes("svelte")) {
+    gradientClass = "from-[#2A0E08] via-[#4A1A10] to-[#1C0804]";
+    accentBorder = "border-orange-500/40";
+  } else if (primaryBrand.includes("vue")) {
+    gradientClass = "from-[#082419] via-[#0F3F2C] to-[#051710]";
+    accentBorder = "border-emerald-500/40";
+  } else if (primaryBrand.includes("angular")) {
+    gradientClass = "from-[#2A0812] via-[#4A1020] to-[#1C050C]";
+    accentBorder = "border-rose-500/40";
   }
 
   return (
@@ -200,7 +287,7 @@ export function CourseCardVisual({
                 <div
                   key={b}
                   className={cn(
-                    "p-3 rounded-2xl bg-card/85 backdrop-blur-md shadow-2xl border transition-transform duration-300 group-hover:scale-110",
+                    "p-3 rounded-2xl bg-card/85 backdrop-blur-md shadow-2xl border transition-transform duration-300 group-hover:scale-110 flex items-center justify-center",
                     accentBorder,
                     i > 0 && "-ml-2",
                   )}

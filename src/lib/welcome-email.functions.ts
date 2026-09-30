@@ -101,7 +101,7 @@ export async function sendEmail({
   if (BREVO_SMTP_KEY && BREVO_SMTP_SERVER && BREVO_SMTP_LOGIN) {
     try {
       const moduleName = "nodemailer";
-      const { default: nodemailer } = await import(moduleName);
+      const { default: nodemailer } = await import(/* @vite-ignore */ moduleName);
       const transporter = nodemailer.createTransport({
         host: BREVO_SMTP_SERVER,
         port: Number(BREVO_SMTP_PORT) || 587,
@@ -120,7 +120,7 @@ export async function sendEmail({
   if (GMAIL_EMAIL && GMAIL_APP_PASSWORD) {
     try {
       const moduleName = "nodemailer";
-      const { default: nodemailer } = await import(moduleName);
+      const { default: nodemailer } = await import(/* @vite-ignore */ moduleName);
       const transporter = nodemailer.createTransport({
         host: "smtp.gmail.com",
         port: 587,

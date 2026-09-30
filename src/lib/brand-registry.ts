@@ -49,7 +49,7 @@ export const CANONICAL_BRANDS: BrandEntry[] = [
     website: "https://www.microsoft.com/word",
     color: "#185ABD",
     description: "Document creation, academic formatting, templates and professional publishing.",
-    keywords: ["word", "doc", "docs", "document"],
+    keywords: ["microsoft word", "ms word", "ms-word", "doc", "docs", "document"],
   },
   {
     id: "microsoft-powerpoint",
@@ -326,6 +326,149 @@ export const CANONICAL_BRANDS: BrandEntry[] = [
     description: "Code editor redefined and optimized for building and debugging modern web apps.",
     keywords: ["vs-code", "vscode", "editor", "visual studio code"],
   },
+  {
+    id: "wordpress",
+    canonicalName: "WordPress",
+    shortName: "WordPress",
+    brandType: "framework",
+    category: "CMS & Web Development",
+    website: "https://wordpress.org",
+    color: "#21759B",
+    description: "World's leading open-source content management system, themes, and plugins.",
+    keywords: ["wordpress", "wp", "woocommerce", "elementor", "gutenberg"],
+  },
+  {
+    id: "vuejs",
+    canonicalName: "Vue.js",
+    shortName: "Vue",
+    brandType: "framework",
+    category: "Frontend Development",
+    website: "https://vuejs.org",
+    color: "#4FC08D",
+    description: "Progressive JavaScript framework for building user interfaces and SPAs.",
+    keywords: ["vue", "vuejs", "vue.js", "nuxt", "pinia"],
+  },
+  {
+    id: "svelte",
+    canonicalName: "Svelte",
+    shortName: "Svelte",
+    brandType: "framework",
+    category: "Frontend Development",
+    website: "https://svelte.dev",
+    color: "#FF3E00",
+    description: "Cybernetically enhanced web apps with zero-virtual-DOM compile time.",
+    keywords: ["svelte", "sveltekit"],
+  },
+  {
+    id: "angular",
+    canonicalName: "Angular",
+    shortName: "Angular",
+    brandType: "framework",
+    category: "Frontend Development",
+    website: "https://angular.dev",
+    color: "#DD0031",
+    description: "Enterprise web application framework developed by Google.",
+    keywords: ["angular", "angularjs", "ng"],
+  },
+  {
+    id: "kubernetes",
+    canonicalName: "Kubernetes",
+    shortName: "Kubernetes",
+    brandType: "tool",
+    category: "DevOps & Containers",
+    website: "https://kubernetes.io",
+    color: "#326CE5",
+    description: "Production-grade container orchestration and automated deployment.",
+    keywords: ["kubernetes", "k8s", "kubectl", "helm"],
+  },
+  {
+    id: "cplusplus",
+    canonicalName: "C++",
+    shortName: "C++",
+    brandType: "language",
+    category: "Systems & Performance",
+    website: "https://isocpp.org",
+    color: "#00599C",
+    description: "High-performance systems programming, game development, and algorithms.",
+    keywords: ["c++", "cpp", "cplusplus"],
+  },
+  {
+    id: "csharp",
+    canonicalName: "C#",
+    shortName: "C#",
+    brandType: "language",
+    category: "Enterprise & Gaming",
+    website: "https://dotnet.microsoft.com",
+    color: "#512BD4",
+    description: "Modern, object-oriented language for .NET, ASP.NET, and Unity development.",
+    keywords: ["c#", "csharp", ".net", "dotnet", "asp.net"],
+  },
+  {
+    id: "go",
+    canonicalName: "Go",
+    shortName: "Go",
+    brandType: "language",
+    category: "Cloud & Systems",
+    website: "https://go.dev",
+    color: "#00ADD8",
+    description: "High-concurrency compiled language engineered by Google for scalable backends.",
+    keywords: ["go", "golang", "goroutine"],
+  },
+  {
+    id: "rust",
+    canonicalName: "Rust",
+    shortName: "Rust",
+    brandType: "language",
+    category: "Systems & Safety",
+    website: "https://www.rust-lang.org",
+    color: "#DEA584",
+    description: "Empowering everyone to build reliable and efficient systems without GC pauses.",
+    keywords: ["rust", "cargo", "rustlang"],
+  },
+  {
+    id: "php",
+    canonicalName: "PHP",
+    shortName: "PHP",
+    brandType: "language",
+    category: "Web Backend",
+    website: "https://www.php.net",
+    color: "#777BB4",
+    description: "Popular general-purpose scripting language especially suited to web development.",
+    keywords: ["php", "laravel", "symfony"],
+  },
+  {
+    id: "flutter",
+    canonicalName: "Flutter",
+    shortName: "Flutter",
+    brandType: "framework",
+    category: "Cross-Platform Mobile",
+    website: "https://flutter.dev",
+    color: "#02569B",
+    description: "Multi-platform UI toolkit by Google for mobile, web, and desktop.",
+    keywords: ["flutter", "dart", "cross-platform"],
+  },
+  {
+    id: "mongodb",
+    canonicalName: "MongoDB",
+    shortName: "MongoDB",
+    brandType: "database",
+    category: "NoSQL Database",
+    website: "https://www.mongodb.com",
+    color: "#47A248",
+    description: "Document-oriented database for scalable, high-volume cloud applications.",
+    keywords: ["mongodb", "mongo", "nosql", "mongoose"],
+  },
+  {
+    id: "redis",
+    canonicalName: "Redis",
+    shortName: "Redis",
+    brandType: "database",
+    category: "In-Memory Store",
+    website: "https://redis.io",
+    color: "#DC382D",
+    description: "In-memory data structure store used as a database, cache, and message broker.",
+    keywords: ["redis", "cache", "pubsub"],
+  },
 ];
 
 /**
@@ -337,14 +480,24 @@ export function resolveCourseBrands(course: {
   category?: string;
   technology?: string;
 }): BrandEntry[] {
-  const norm = `${course.slug || ""} ${course.title || ""} ${course.category || ""} ${course.technology || ""}`
+  // If explicitly assigned technology brand exists, prioritize it
+  if (course.technology) {
+    const direct = getCanonicalBrand(course.technology);
+    if (direct) return [direct];
+  }
+
+  const norm = `${course.slug || ""} ${course.title || ""} ${course.category || ""}`
     .toLowerCase()
     .trim();
 
-  const matched: BrandEntry[] = [];
+  // WordPress explicit check first (prevents any overlap with "word")
+  if (norm.includes("wordpress") || norm.includes("wp-") || norm.includes("wp ") || norm.endsWith(" wp")) {
+    const wp = CANONICAL_BRANDS.find((b) => b.id === "wordpress");
+    if (wp) return [wp];
+  }
 
   // Special multi-brand pairs
-  if (norm.includes("word") && norm.includes("powerpoint")) {
+  if ((norm.includes("microsoft word") || norm.includes("ms word") || norm.includes("word and")) && norm.includes("powerpoint")) {
     const word = CANONICAL_BRANDS.find((b) => b.id === "microsoft-word");
     const ppt = CANONICAL_BRANDS.find((b) => b.id === "microsoft-powerpoint");
     if (word && ppt) return [word, ppt];
@@ -360,6 +513,7 @@ export function resolveCourseBrands(course: {
     if (cg && cl) return [cg, cl];
   }
 
+  const matched: BrandEntry[] = [];
   for (const b of CANONICAL_BRANDS) {
     if (b.keywords.some((kw) => norm.includes(kw))) {
       matched.push(b);

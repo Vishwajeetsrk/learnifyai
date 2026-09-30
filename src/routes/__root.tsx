@@ -210,6 +210,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: appCss,
       },
       {
+        rel: "stylesheet",
+        href: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css",
+      },
+      {
         rel: "sitemap",
         type: "application/xml",
         href: "/sitemap.xml",

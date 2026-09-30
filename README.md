@@ -2,7 +2,7 @@
 
 <img src="src/assets/learnify-logo.png" alt="Learnify AI Logo" width="180" style="margin-bottom: 12px; filter: drop-shadow(0 4px 12px rgba(99, 102, 241, 0.25));" />
 
-# Learnify AI 4.4
+# Learnify AI 4.5
 
 **The AI-Native Learning & Career Operating System**
 
@@ -1434,6 +1434,21 @@ MIT License. See [LICENSE](LICENSE) for details.
 - 💳 **RAZORPAY INTEGRATION**: Added Razorpay as the primary payment gateway alongside Cashfree for broader UPI, card, and NetBanking support.
 
 - 🐛 **DATABASE FIX**: Resolved `duplicate key value violates unique constraint "billing_settings_key_key"` by adding explicit `onConflict: "key"` in Supabase upsert calls.
+
+### v4.5.0 (September 2026) — Devicons Integration & Course Skills Vector Architecture
+ 
+- 🎨 **DEVICONS AUTHENTIC TECH & SKILLS LOGOS**:
+  - Integrated official `@dev.icons/react`, `devicon`, and `devicons` packages across the platform.
+  - Linked official Devicon stylesheets in `src/styles.css` and CDN fallback in root route (`src/routes/__root.tsx`).
+  - Added direct rendering of authentic `@dev.icons/react` vector SVG components (`ReactIcon`, `VueIcon`, `SvelteIcon`, `WordpressIcon`, `PythonIcon`, `TypescriptIcon`, `NodejsIcon`, `DockerIcon`, `KubernetesIcon`, `AwsIcon`, `AzureIcon`, `GoogleCloudIcon`, `FigmaIcon`, and 50+ tech brands) in `CourseBrandLogo.tsx`.
+  - Re-exported clean React SVG components for direct developer usage throughout the codebase.
+- 🎯 **WORDPRESS & OFFICE SUITE BRAND ACCURACY**:
+  - Resolved brand detection bug where WordPress was falsely identified as Microsoft Word due to substring overlap.
+  - Added expanded canonical brands to `src/lib/brand-registry.ts` (WordPress, Vue, Svelte, Angular, Kubernetes, C++, C#, Go, Rust, PHP, Flutter, Dart, Pandas, Redis, MongoDB).
+  - Configured dedicated WordPress gradient themes and badges in course marketplace cards and detail pages.
+- ⚡ **VITE DYNAMIC IMPORT WARNINGS RESOLVED**:
+  - Added `/* @vite-ignore */` annotations across all server functions with dynamic `nodemailer` imports (`subscription-email.functions.ts`, `cert.functions.ts`, `welcome-email.functions.ts`, and `run-reminders.ts`).
+  - Full TypeScript validation (`tsc --noEmit --skipLibCheck`) passing with zero errors.
 
 ### v4.4.1 (September 2026) — Digital Products Marketplace, GEO Optimization & Build Stability
 
