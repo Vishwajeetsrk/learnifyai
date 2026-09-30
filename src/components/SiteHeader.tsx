@@ -11,9 +11,12 @@ import { useEffect } from "react";
 import { initAutomaticLocale } from "@/lib/locale-detection";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetClose } from "@/components/ui/sheet";
 
+import { useSiteSettings } from "@/hooks/use-site-settings";
+
 export function SiteHeader() {
   const { isAuthenticated, loading } = useAuth();
   const { data: menuItems = [], isLoading: menuLoading } = usePublicMenu("main");
+  const { data: siteSettings } = useSiteSettings();
   const { t, ready } = useTranslation();
 
   useEffect(() => {
@@ -36,7 +39,10 @@ export function SiteHeader() {
     { label: tr("nav.blog", "Blog"), url: "/blog" },
   ];
   const navItems = (menuItems.length > 0 ? menuItems : fallbackNav).filter(
-    (item: any) => item.url !== "/system-design" && !item.label?.includes("System Design")
+    (item: any) =>
+      item.url !== "/system-design" &&
+      !item.label?.includes("System Design") &&
+      !(item.url === "/support-us" && siteSettings?.support_us_enabled === "false")
   );
 
   return (

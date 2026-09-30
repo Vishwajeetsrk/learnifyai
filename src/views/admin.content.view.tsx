@@ -42,7 +42,11 @@ import {
   LayoutTemplate,
   Upload,
   ShoppingCart,
+  Heart,
+  Scale,
 } from "lucide-react";
+import { CANONICAL_LEGAL_DOCS } from "@/lib/canonical-config";
+import { DOC_CONTENTS } from "@/lib/legal-docs-data";
 import {
   CertificateRender,
   DEFAULT_DESIGN,
@@ -272,6 +276,16 @@ const SECTION_TOURS: Record<string, { what: string; how: string; where: string }
     how: "Add products with download URLs, demo links, format badges, and price in XP or Wallet Cash.",
     where: "Products appear in the Digital Products & XP Marketplace at /store.",
   },
+  "support-us": {
+    what: "Manage the public Support Us & Career Sponsorship campaign portal, payment gateway link, and direct UPI configuration.",
+    how: "Toggle visibility on or off to pause public access. Update campaign titles, Razorpay hosted link, and direct UPI ID.",
+    where: "Appears publicly at /support-us and in the site navigation and footer when enabled.",
+  },
+  "legal-center": {
+    what: "Manage public Legal Center policies, canonical document contents, version numbers, and per-document visibility.",
+    how: "Toggle overall Legal Center availability or hide individual documents. Edit policy titles, summaries, and HTML content directly.",
+    where: "Appears publicly at /legal and in the footer legal policy links.",
+  },
 };
 
 const TAB_LABELS: Record<string, string> = {
@@ -296,6 +310,8 @@ const TAB_LABELS: Record<string, string> = {
   "wcms-sections": "Sections",
   "promo-banner": "Promo Banner",
   "store-products": "Digital Products & Store",
+  "support-us": "Support Us / Sponsor",
+  "legal-center": "Legal Center",
 };
 
 export default function AdminContentPage() {
@@ -317,6 +333,11 @@ export default function AdminContentPage() {
         templates: "cert-templates",
         certificate: "cert-templates",
         certificates: "cert-templates",
+        sponsor: "support-us",
+        support: "support-us",
+        "support-us": "support-us",
+        legal: "legal-center",
+        "legal-center": "legal-center",
       } as Record<string, string>
     )[requestedTab] ?? requestedTab;
   const tabFromUrl = [
@@ -341,6 +362,8 @@ export default function AdminContentPage() {
     "wcms-sections",
     "promo-banner",
     "invoice-designer",
+    "support-us",
+    "legal-center",
   ].includes(tabAlias)
     ? tabAlias
     : "events";
@@ -479,6 +502,8 @@ export default function AdminContentPage() {
                     <SelectItem value="promo-banner">Promo Banner</SelectItem>
                     <SelectItem value="invoice-designer">Invoice Designer</SelectItem>
                     <SelectItem value="wcms-sections">Sections</SelectItem>
+                    <SelectItem value="support-us">Support Us / Sponsor</SelectItem>
+                    <SelectItem value="legal-center">Legal Center</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -608,6 +633,8 @@ export default function AdminContentPage() {
                       { id: "wcms-media", label: "Media Library", icon: ImageIcon },
                       { id: "pages", label: "Custom Pages", icon: FileText },
                       { id: "roadmap", label: "Product Roadmap", icon: GitBranch },
+                      { id: "support-us", label: "Support Us / Sponsor", icon: Heart },
+                      { id: "legal-center", label: "Legal Center", icon: Scale },
                     ].map((item) => {
                       const Icon = item.icon;
                       const isActive = tab === item.id;
@@ -717,6 +744,12 @@ export default function AdminContentPage() {
                 <Suspense fallback={<LazyFallback />}>
                   <BlogManager />
                 </Suspense>
+              </TabsContent>
+              <TabsContent value="support-us" forceMount className={cn("mt-0", tab !== "support-us" && "hidden")}>
+                <SupportUsManager />
+              </TabsContent>
+              <TabsContent value="legal-center" forceMount className={cn("mt-0", tab !== "legal-center" && "hidden")}>
+                <LegalCenterManager />
               </TabsContent>
             </div>
           </div>
@@ -5967,6 +6000,686 @@ function PromoBannerManager() {
         </Button>
         <Button variant="outline" size="sm" onClick={resetDismissed}>
           Reset Dismiss State
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  SUPPORT US / SPONSOR MANAGER                                     */
+/* ------------------------------------------------------------------ */
+function SupportUsManager() {
+  const qc = useQueryClient();
+  const doUpsert = useServerFn(adminContentUpsert);
+  const doQuery = useServerFn(adminContentQuery);
+  const [saving, setSaving] = useState(false);
+  const [loaded, setLoaded] = useState(false);
+
+  const [form, setForm] = useState({
+    enabled: true,
+    title: "Help Us Build a Free Career-Learning Ecosystem",
+    subtitle:
+      "Help us make practical career education accessible to people facing financial or access barriers, with a special focus on care leavers and underrepresented learners.",
+    payment_url: "https://pages.razorpay.com/learnifyaisupport",
+    upi_id: "",
+    description: "",
+  });
+
+  const { data } = useQuery({
+    queryKey: ["admin-support-us-settings"],
+    queryFn: async () => {
+      const result = await doQuery({
+        data: {
+          table: "site_settings",
+          columns: "key,value",
+        },
+      });
+      const map: Record<string, string> = {};
+      ((result ?? []) as any[]).forEach((r: any) => {
+        if (r.key && r.value != null) map[r.key] = r.value;
+      });
+      return map;
+    },
+  });
+
+  useEffect(() => {
+    if (data) {
+      setForm({
+        enabled: data["support_us_enabled"] !== "false",
+        title: data["support_us_title"] || "Help Us Build a Free Career-Learning Ecosystem",
+        subtitle:
+          data["support_us_subtitle"] ||
+          "Help us make practical career education accessible to people facing financial or access barriers, with a special focus on care leavers and underrepresented learners.",
+        payment_url: data["support_us_payment_url"] || "https://pages.razorpay.com/learnifyaisupport",
+        upi_id: data["support_us_upi_id"] || "",
+        description: data["support_us_description"] || "",
+      });
+      setLoaded(true);
+    }
+  }, [data]);
+
+  const save = async () => {
+    setSaving(true);
+    try {
+      const updates = [
+        { key: "support_us_enabled", value: form.enabled ? "true" : "false" },
+        { key: "support_us_title", value: form.title.trim() },
+        { key: "support_us_subtitle", value: form.subtitle.trim() },
+        { key: "support_us_payment_url", value: form.payment_url.trim() },
+        { key: "support_us_upi_id", value: form.upi_id.trim() },
+        { key: "support_us_description", value: form.description.trim() },
+      ];
+
+      for (const item of updates) {
+        await doUpsert({
+          data: {
+            table: "site_settings",
+            values: { key: item.key, value: item.value },
+            onConflict: "key",
+          },
+        });
+      }
+
+      toast.success("Support Us settings saved successfully!");
+      qc.invalidateQueries({ queryKey: ["admin-support-us-settings"] });
+      qc.invalidateQueries({ queryKey: ["site-settings"] });
+      qc.invalidateQueries({ queryKey: ["public-support-us-settings"] });
+    } catch (e: any) {
+      console.error("[SupportUsManager] Save error:", e);
+      toast.error(e?.message || "Failed to save Support Us settings");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (!loaded) {
+    return (
+      <div className="flex justify-center py-12">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4">
+        <div>
+          <div className="flex items-center gap-2">
+            <Heart className="h-5 w-5 text-red-500 fill-red-500/20" />
+            <h3 className="text-xl font-bold font-display">Support Us / Sponsor Manager</h3>
+          </div>
+          <p className="text-xs text-muted-foreground mt-1">
+            Configure the public career sponsorship campaign portal, payment gateway integration, and page visibility.
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button asChild variant="outline" size="sm" className="text-xs">
+            <a href="/support-us" target="_blank" rel="noopener noreferrer">
+              <Eye className="h-3.5 w-3.5 mr-1.5" />
+              Preview Live Page
+            </a>
+          </Button>
+          <Button size="sm" onClick={save} disabled={saving} className="text-xs">
+            {saving && <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />}
+            Save Settings
+          </Button>
+        </div>
+      </div>
+
+      {/* Global Visibility Toggle Banner */}
+      <div
+        className={cn(
+          "rounded-xl border p-4.5 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4",
+          form.enabled
+            ? "border-emerald-500/30 bg-emerald-500/5 dark:bg-emerald-950/15"
+            : "border-amber-500/30 bg-amber-500/5 dark:bg-amber-950/15"
+        )}
+      >
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-bold text-foreground">Support Us Page Visibility</span>
+            <Badge
+              variant="outline"
+              className={cn(
+                "text-[10px] px-2 py-0.5 font-semibold",
+                form.enabled
+                  ? "border-emerald-500/40 text-emerald-600 bg-emerald-500/10"
+                  : "border-amber-500/40 text-amber-600 bg-amber-500/10"
+              )}
+            >
+              {form.enabled ? "Publicly Visible (Active)" : "Hidden / Paused (Admin Only)"}
+            </Badge>
+          </div>
+          <p className="text-xs text-muted-foreground max-w-xl leading-relaxed">
+            {form.enabled
+              ? "The Support Us link is visible in header navigation, footer links, and accessible directly at /support-us."
+              : "The page is hidden from header/footer menus. Non-admins visiting /support-us see a polite maintenance notice, while admins see an Admin Preview Mode banner."}
+          </p>
+        </div>
+        <div className="flex items-center gap-3 shrink-0">
+          <span className="text-xs font-medium text-muted-foreground">
+            {form.enabled ? "Visible" : "Hidden"}
+          </span>
+          <Switch
+            checked={form.enabled}
+            onCheckedChange={(v) => setForm({ ...form, enabled: v })}
+          />
+        </div>
+      </div>
+
+      {/* Campaign Details Form */}
+      <div className="rounded-xl border bg-card p-5 space-y-4 shadow-xs">
+        <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+          Campaign Messaging &amp; Content
+        </h4>
+
+        <div className="space-y-1.5">
+          <Label htmlFor="support-title" className="text-xs font-semibold">
+            Campaign Headline Title
+          </Label>
+          <Input
+            id="support-title"
+            value={form.title}
+            onChange={(e) => setForm({ ...form, title: e.target.value })}
+            placeholder="Help Us Build a Free Career-Learning Ecosystem"
+            className="text-sm"
+          />
+        </div>
+
+        <div className="space-y-1.5">
+          <Label htmlFor="support-subtitle" className="text-xs font-semibold">
+            Campaign Subtitle / Mission Statement
+          </Label>
+          <Textarea
+            id="support-subtitle"
+            rows={3}
+            value={form.subtitle}
+            onChange={(e) => setForm({ ...form, subtitle: e.target.value })}
+            placeholder="Describe the mission and who the contributions help..."
+            className="text-xs leading-relaxed"
+          />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="support-payment-url" className="text-xs font-semibold">
+                Razorpay Hosted Payment Page URL
+              </Label>
+              {form.payment_url && (
+                <a
+                  href={form.payment_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[11px] text-primary hover:underline"
+                >
+                  Test Link &rarr;
+                </a>
+              )}
+            </div>
+            <Input
+              id="support-payment-url"
+              value={form.payment_url}
+              onChange={(e) => setForm({ ...form, payment_url: e.target.value })}
+              placeholder="https://pages.razorpay.com/learnifyaisupport"
+              className="text-xs font-mono"
+            />
+            <p className="text-[11px] text-muted-foreground">
+              Donations submitted via the preset amount form redirect to this hosted Razorpay page.
+            </p>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="support-upi-id" className="text-xs font-semibold">
+              Direct UPI ID (Optional 0% Fee Support)
+            </Label>
+            <Input
+              id="support-upi-id"
+              value={form.upi_id}
+              onChange={(e) => setForm({ ...form, upi_id: e.target.value })}
+              placeholder="e.g. learnifyai@upi"
+              className="text-xs font-mono"
+            />
+            <p className="text-[11px] text-muted-foreground">
+              If provided, an instant 1-click UPI copy box appears for BHIM, GPay, PhonePe, and Paytm users.
+            </p>
+          </div>
+        </div>
+
+        <div className="space-y-1.5 pt-2">
+          <Label htmlFor="support-description" className="text-xs font-semibold">
+            Internal Notes / Campaign Milestone Notes
+          </Label>
+          <Textarea
+            id="support-description"
+            rows={2}
+            value={form.description}
+            onChange={(e) => setForm({ ...form, description: e.target.value })}
+            placeholder="Internal notes about sponsorship batches, partners, or corporate matches..."
+            className="text-xs"
+          />
+        </div>
+      </div>
+
+      <div className="flex justify-end pt-2">
+        <Button onClick={save} disabled={saving} className="px-6">
+          {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+          Save Support Us Changes
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  LEGAL CENTER MANAGER                                              */
+/* ------------------------------------------------------------------ */
+function LegalCenterManager() {
+  const qc = useQueryClient();
+  const doUpsert = useServerFn(adminContentUpsert);
+  const doQuery = useServerFn(adminContentQuery);
+  const [saving, setSaving] = useState(false);
+  const [loaded, setLoaded] = useState(false);
+  const [activeSlug, setActiveSlug] = useState<string>("terms");
+
+  // Global settings
+  const [centerEnabled, setCenterEnabled] = useState(true);
+  const [centerTitle, setCenterTitle] = useState("Legal Center");
+  const [centerSubtitle, setCenterSubtitle] = useState(
+    "Canonical legal documents, commercial policies, data privacy terms, and acceptable use standards for Learnify AI."
+  );
+
+  // Per-doc values
+  const [docValues, setDocValues] = useState<
+    Record<
+      string,
+      {
+        title: string;
+        summary: string;
+        version: string;
+        lastUpdated: string;
+        hidden: boolean;
+        content: string;
+      }
+    >
+  >({});
+
+  const { data } = useQuery({
+    queryKey: ["admin-legal-center-settings"],
+    queryFn: async () => {
+      const result = await doQuery({
+        data: {
+          table: "site_settings",
+          columns: "key,value",
+        },
+      });
+      const map: Record<string, string> = {};
+      ((result ?? []) as any[]).forEach((r: any) => {
+        if (r.key && r.value != null) map[r.key] = r.value;
+      });
+      return map;
+    },
+  });
+
+  useEffect(() => {
+    if (data) {
+      setCenterEnabled(data["legal_center_enabled"] !== "false");
+      setCenterTitle(data["legal_center_title"] || "Legal Center");
+      setCenterSubtitle(
+        data["legal_center_subtitle"] ||
+          "Canonical legal documents, commercial policies, data privacy terms, and acceptable use standards for Learnify AI."
+      );
+
+      // Populate per-document values with fallback to canonical config & baseline contents
+      const initialDocs: Record<string, any> = {};
+      CANONICAL_LEGAL_DOCS.forEach((d) => {
+        const customContent =
+          data[`legal_doc_content_${d.slug}`] ||
+          (d.slug === "terms" && data["page_terms"]) ||
+          (d.slug === "privacy" && data["page_privacy"]) ||
+          (d.slug === "cancellation-refund" && data["page_refund"]) ||
+          DOC_CONTENTS[d.slug] ||
+          "";
+
+        initialDocs[d.slug] = {
+          title: data[`legal_doc_title_${d.slug}`] || d.title,
+          summary: data[`legal_doc_summary_${d.slug}`] || d.summary,
+          version: data[`legal_doc_version_${d.slug}`] || d.version,
+          lastUpdated: data[`legal_doc_updated_${d.slug}`] || d.lastUpdated,
+          hidden: data[`legal_doc_hidden_${d.slug}`] === "true",
+          content: customContent,
+        };
+      });
+
+      setDocValues(initialDocs);
+      setLoaded(true);
+    }
+  }, [data]);
+
+  const activeDocConfig = useMemo(() => {
+    return CANONICAL_LEGAL_DOCS.find((d) => d.slug === activeSlug) || CANONICAL_LEGAL_DOCS[0];
+  }, [activeSlug]);
+
+  const currentDoc = docValues[activeSlug] || {
+    title: activeDocConfig.title,
+    summary: activeDocConfig.summary,
+    version: activeDocConfig.version,
+    lastUpdated: activeDocConfig.lastUpdated,
+    hidden: false,
+    content: DOC_CONTENTS[activeSlug] || "",
+  };
+
+  const updateCurrentDoc = (updates: Partial<typeof currentDoc>) => {
+    setDocValues((prev) => ({
+      ...prev,
+      [activeSlug]: {
+        ...(prev[activeSlug] || currentDoc),
+        ...updates,
+      },
+    }));
+  };
+
+  const handleResetToBaseline = () => {
+    const baseline = DOC_CONTENTS[activeSlug] || "";
+    updateCurrentDoc({
+      title: activeDocConfig.title,
+      summary: activeDocConfig.summary,
+      version: activeDocConfig.version,
+      lastUpdated: activeDocConfig.lastUpdated,
+      content: baseline,
+    });
+    toast.info(`Reset ${activeDocConfig.title} to canonical baseline template.`);
+  };
+
+  const save = async () => {
+    setSaving(true);
+    try {
+      const updates: Array<{ key: string; value: string }> = [
+        { key: "legal_center_enabled", value: centerEnabled ? "true" : "false" },
+        { key: "legal_center_title", value: centerTitle.trim() },
+        { key: "legal_center_subtitle", value: centerSubtitle.trim() },
+      ];
+
+      // Save all documents in docValues
+      Object.entries(docValues).forEach(([slug, val]) => {
+        updates.push(
+          { key: `legal_doc_title_${slug}`, value: val.title },
+          { key: `legal_doc_summary_${slug}`, value: val.summary },
+          { key: `legal_doc_version_${slug}`, value: val.version },
+          { key: `legal_doc_updated_${slug}`, value: val.lastUpdated },
+          { key: `legal_doc_hidden_${slug}`, value: val.hidden ? "true" : "false" },
+          { key: `legal_doc_content_${slug}`, value: val.content }
+        );
+
+        // Keep legacy backward compatibility keys in sync
+        if (slug === "terms") updates.push({ key: "page_terms", value: val.content });
+        if (slug === "privacy") updates.push({ key: "page_privacy", value: val.content });
+        if (slug === "cancellation-refund") updates.push({ key: "page_refund", value: val.content });
+      });
+
+      for (const item of updates) {
+        await doUpsert({
+          data: {
+            table: "site_settings",
+            values: { key: item.key, value: item.value },
+            onConflict: "key",
+          },
+        });
+      }
+
+      toast.success("Legal Center policies updated successfully!");
+      qc.invalidateQueries({ queryKey: ["admin-legal-center-settings"] });
+      qc.invalidateQueries({ queryKey: ["site-settings"] });
+      qc.invalidateQueries({ queryKey: ["public-legal-settings"] });
+    } catch (e: any) {
+      console.error("[LegalCenterManager] Save error:", e);
+      toast.error(e?.message || "Failed to save Legal Center changes");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (!loaded) {
+    return (
+      <div className="flex justify-center py-12">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Header Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4">
+        <div>
+          <div className="flex items-center gap-2">
+            <Scale className="h-5 w-5 text-indigo-500" />
+            <h3 className="text-xl font-bold font-display">Legal Center Manager</h3>
+          </div>
+          <p className="text-xs text-muted-foreground mt-1">
+            Manage canonical policy documents, version controls, terms compliance, and hide/unhide visibility across the site.
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button asChild variant="outline" size="sm" className="text-xs">
+            <a href={`/legal?doc=${activeSlug}`} target="_blank" rel="noopener noreferrer">
+              <Eye className="h-3.5 w-3.5 mr-1.5" />
+              Preview in Legal Center
+            </a>
+          </Button>
+          <Button size="sm" onClick={save} disabled={saving} className="text-xs">
+            {saving && <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />}
+            Save All Policies
+          </Button>
+        </div>
+      </div>
+
+      {/* Center-Wide Visibility Toggle */}
+      <div
+        className={cn(
+          "rounded-xl border p-4.5 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4",
+          centerEnabled
+            ? "border-emerald-500/30 bg-emerald-500/5 dark:bg-emerald-950/15"
+            : "border-amber-500/30 bg-amber-500/5 dark:bg-amber-950/15"
+        )}
+      >
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-bold text-foreground">Legal Center Global Visibility</span>
+            <Badge
+              variant="outline"
+              className={cn(
+                "text-[10px] px-2 py-0.5 font-semibold",
+                centerEnabled
+                  ? "border-emerald-500/40 text-emerald-600 bg-emerald-500/10"
+                  : "border-amber-500/40 text-amber-600 bg-amber-500/10"
+              )}
+            >
+              {centerEnabled ? "Online & Public" : "Paused / Maintenance (Admin Preview Only)"}
+            </Badge>
+          </div>
+          <p className="text-xs text-muted-foreground max-w-xl leading-relaxed">
+            {centerEnabled
+              ? "All active legal documents are indexed on /legal and linked in the site footer."
+              : "Legal Center links are hidden from the footer. Visiting /legal shows a compliance maintenance notice to the public, while admins see an amber preview banner."}
+          </p>
+        </div>
+        <div className="flex items-center gap-3 shrink-0">
+          <span className="text-xs font-medium text-muted-foreground">
+            {centerEnabled ? "Online" : "Paused"}
+          </span>
+          <Switch checked={centerEnabled} onCheckedChange={setCenterEnabled} />
+        </div>
+      </div>
+
+      {/* Global Title & Subtitle */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 rounded-xl border bg-card p-4">
+        <div>
+          <Label className="text-xs font-semibold">Portal Title</Label>
+          <Input
+            value={centerTitle}
+            onChange={(e) => setCenterTitle(e.target.value)}
+            className="text-xs mt-1"
+          />
+        </div>
+        <div className="md:col-span-2">
+          <Label className="text-xs font-semibold">Portal Subtitle</Label>
+          <Input
+            value={centerSubtitle}
+            onChange={(e) => setCenterSubtitle(e.target.value)}
+            className="text-xs mt-1"
+          />
+        </div>
+      </div>
+
+      {/* Document Selector Pills */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+            Select Policy Document to Edit ({CANONICAL_LEGAL_DOCS.length} Canonical Policies)
+          </Label>
+          <span className="text-[11px] text-muted-foreground">
+            Currently editing: <strong className="text-foreground">{activeDocConfig.title}</strong>
+          </span>
+        </div>
+
+        <div className="flex flex-wrap gap-1.5 p-2 rounded-xl border bg-muted/20">
+          {CANONICAL_LEGAL_DOCS.map((d) => {
+            const isSelected = d.slug === activeSlug;
+            const isDocHidden = docValues[d.slug]?.hidden;
+            return (
+              <button
+                key={d.slug}
+                type="button"
+                onClick={() => setActiveSlug(d.slug)}
+                className={cn(
+                  "px-3 py-1.5 rounded-lg text-xs font-medium transition flex items-center gap-1.5 cursor-pointer border",
+                  isSelected
+                    ? "bg-primary text-primary-foreground border-primary shadow-xs font-semibold"
+                    : "bg-card text-muted-foreground hover:text-foreground hover:bg-muted border-border/60"
+                )}
+              >
+                <span>{d.title}</span>
+                {isDocHidden ? (
+                  <Badge
+                    variant="outline"
+                    className="text-[9px] px-1 py-0 h-4 border-amber-500/40 text-amber-500 bg-amber-500/10"
+                  >
+                    Hidden
+                  </Badge>
+                ) : null}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Active Document Editor Box */}
+      <div className="rounded-xl border bg-card p-5 space-y-4 shadow-xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-3">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-bold text-foreground">{activeDocConfig.title}</span>
+              <code className="text-[11px] font-mono px-2 py-0.5 rounded bg-muted text-muted-foreground">
+                slug: {activeSlug}
+              </code>
+            </div>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Edit public title, summary, version string, last revised date, and HTML document body.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-4 bg-muted/40 px-3 py-1.5 rounded-lg border border-border/60">
+            <div className="text-right">
+              <span className="text-xs font-semibold block text-foreground">
+                Document Visibility
+              </span>
+              <span className="text-[10px] text-muted-foreground">
+                {currentDoc.hidden ? "Hidden from public" : "Visible to public"}
+              </span>
+            </div>
+            <Switch
+              checked={!currentDoc.hidden}
+              onCheckedChange={(checked) => updateCurrentDoc({ hidden: !checked })}
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-1.5">
+            <Label className="text-xs font-semibold">Document Title</Label>
+            <Input
+              value={currentDoc.title}
+              onChange={(e) => updateCurrentDoc({ title: e.target.value })}
+              className="text-xs font-medium"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-2">
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold">Version</Label>
+              <Input
+                value={currentDoc.version}
+                onChange={(e) => updateCurrentDoc({ version: e.target.value })}
+                placeholder="2.1"
+                className="text-xs font-mono"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold">Last Updated</Label>
+              <Input
+                value={currentDoc.lastUpdated}
+                onChange={(e) => updateCurrentDoc({ lastUpdated: e.target.value })}
+                placeholder="2026-09-30"
+                className="text-xs font-mono"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-1.5">
+          <Label className="text-xs font-semibold">Short Summary</Label>
+          <Input
+            value={currentDoc.summary}
+            onChange={(e) => updateCurrentDoc({ summary: e.target.value })}
+            className="text-xs"
+          />
+        </div>
+
+        <div className="space-y-2 pt-2">
+          <div className="flex items-center justify-between">
+            <Label className="text-xs font-semibold">Policy Content (HTML / Rich Text)</Label>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={handleResetToBaseline}
+              className="h-7 text-[11px] text-muted-foreground hover:text-foreground"
+            >
+              <RefreshCw className="h-3 w-3 mr-1" />
+              Reset to Canonical Template
+            </Button>
+          </div>
+          <Textarea
+            rows={14}
+            value={currentDoc.content}
+            onChange={(e) => updateCurrentDoc({ content: e.target.value })}
+            className="font-mono text-xs leading-relaxed bg-muted/15"
+          />
+          <p className="text-[11px] text-muted-foreground">
+            Supports HTML tags (e.g. &lt;h3&gt;, &lt;p&gt;, &lt;ul&gt;, &lt;li&gt;, &lt;strong&gt;, &lt;a&gt;). Rendered inside the Legal Center reader.
+          </p>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between pt-2">
+        <p className="text-xs text-muted-foreground">
+          Tip: Edits to Terms, Privacy, or Cancellation &amp; Refund automatically synchronize with checkout consent links.
+        </p>
+        <Button onClick={save} disabled={saving} className="px-6">
+          {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+          Save All Policies
         </Button>
       </div>
     </div>

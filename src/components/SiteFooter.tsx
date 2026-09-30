@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { useMemo } from "react";
 import { Twitter, Github, MessageSquare, Linkedin, Youtube, Instagram } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { useSiteSettings } from "@/hooks/use-site-settings";
@@ -74,11 +75,22 @@ export function SiteFooter() {
       sec.title?.toLowerCase().includes("blog"),
   );
 
-  const sections = hasWcmsFooter
+  const rawSections = hasWcmsFooter
     ? hasEditorialSection
       ? wcmsSections
       : [...wcmsSections, HARDCODED_SECTIONS[1]] // Always include Editorial & Guides for SEO internal inlinks
     : HARDCODED_SECTIONS;
+
+  const sections = useMemo(() => {
+    return rawSections.map((sec: any) => ({
+      ...sec,
+      links: (sec.links || []).filter((link: any) => {
+        if (link.url === "/support-us" && s?.support_us_enabled === "false") return false;
+        if (link.url === "/legal" && s?.legal_center_enabled === "false") return false;
+        return true;
+      }),
+    }));
+  }, [rawSections, s]);
 
   return (
     <footer className="border-t border-border/60 mt-32 bg-gradient-to-b from-background to-muted/20">

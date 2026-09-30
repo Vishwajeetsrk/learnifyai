@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
+import { useQuery } from "@tanstack/react-query";
 import {
   Heart,
   Sparkles,
@@ -19,8 +20,15 @@ import {
   ArrowRight,
   Gift,
   HelpCircle,
+  AlertTriangle,
+  QrCode,
 } from "lucide-react";
 import { toast } from "sonner";
+import { SiteHeader } from "@/components/SiteHeader";
+import { SiteFooter } from "@/components/SiteFooter";
+import { useSiteSettings } from "@/hooks/use-site-settings";
+import { useAuth } from "@/hooks/use-auth";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -55,7 +63,7 @@ export const Route = createFileRoute("/support-us")({
   component: SupportUsPage,
 });
 
-const RAZORPAY_PAYMENT_PAGE_URL = "https://pages.razorpay.com/learnifyaisupport";
+const DEFAULT_PAYMENT_URL = "https://pages.razorpay.com/learnifyaisupport";
 
 const PRESET_AMOUNTS = [
   { value: 500, label: "₹500", desc: "1 month of AI credits & course access" },
@@ -95,7 +103,72 @@ function SupportUsPage() {
   const [customAmount, setCustomAmount] = useState("");
   const [supportType, setSupportType] = useState("platform");
   const [copiedLink, setCopiedLink] = useState(false);
+  const [copiedUpi, setCopiedUpi] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const { data: s } = useSiteSettings();
+  const { isAdmin } = useAuth();
+
+  const { data: customSettings = {} } = useQuery({
+    queryKey: ["public-support-us-settings"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("site_settings").select("key,value");
+      if (error) return {};
+      const map: Record<string, string> = {};
+      (data ?? []).forEach((r: any) => {
+        if (r.key && r.value != null) map[r.key] = r.value;
+      });
+      return map;
+    },
+    staleTime: 60_000,
+  });
+
+  const isSupportHidden =
+    customSettings["support_us_enabled"] === "false" || s?.support_us_enabled === "false";
+
+  const pageTitle =
+    customSettings["support_us_title"] ||
+    s?.support_us_title ||
+    "Help Us Build a Free Career-Learning Ecosystem";
+
+  const pageSubtitle =
+    customSettings["support_us_subtitle"] ||
+    s?.support_us_subtitle ||
+    "Help us make practical career education accessible to people facing financial or access barriers, with a special focus on care leavers and underrepresented learners.";
+
+  const paymentPageUrl =
+    customSettings["support_us_payment_url"] ||
+    s?.support_us_payment_url ||
+    DEFAULT_PAYMENT_URL;
+
+  const upiId = customSettings["support_us_upi_id"] || s?.support_us_upi_id || "";
+
+  // If support is hidden and user is not admin, show paused notice
+  if (isSupportHidden && !isAdmin) {
+    return (
+      <div className="min-h-screen flex flex-col bg-background">
+        <SiteHeader />
+        <main className="flex-1 container max-w-xl mx-auto px-4 py-24 text-center flex flex-col items-center justify-center">
+          <div className="h-16 w-16 rounded-2xl bg-primary/10 border border-primary/20 text-primary flex items-center justify-center mb-6 shadow-sm">
+            <Heart className="h-8 w-8 text-rose-500" />
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-bold font-display">Sponsorship Program Paused</h1>
+          <p className="text-sm text-muted-foreground mt-3 max-w-md leading-relaxed">
+            Our community sponsorship and contribution portal is currently paused for campaign updates. If you would like to partner with us or sponsor educational initiatives, please reach out to our team.
+          </p>
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <Button asChild variant="outline">
+              <Link to="/">Back to Home</Link>
+            </Button>
+            <Button asChild>
+              <a href={`mailto:${s?.contact_email || "support.learnifyai@gmail.com"}`}>Contact Support</a>
+            </Button>
+          </div>
+        </main>
+        <SiteFooter />
+      </div>
+    );
+  }
 
   const finalAmount = amount === "custom" ? (Number(customAmount) || 0) : (amount || 0);
 
@@ -132,26 +205,32 @@ function SupportUsPage() {
 
     setIsSubmitting(true);
 
-    // Build URL to Razorpay hosted payment page with prefill params
-    const targetUrl = new URL(RAZORPAY_PAYMENT_PAGE_URL);
-    targetUrl.searchParams.set("name", name.trim());
-    targetUrl.searchParams.set("email", email.trim());
-    targetUrl.searchParams.set("phone", `${countryCode}${phone.trim()}`);
-    if (finalAmount > 0) {
-      targetUrl.searchParams.set("amount", String(finalAmount));
-    }
-    if (supportType) {
-      targetUrl.searchParams.set("support_type", supportType);
-    }
+    try {
+      // Build URL to Razorpay hosted payment page with prefill params
+      const targetUrl = new URL(paymentPageUrl);
+      targetUrl.searchParams.set("name", name.trim());
+      targetUrl.searchParams.set("email", email.trim());
+      targetUrl.searchParams.set("phone", `${countryCode}${phone.trim()}`);
+      if (finalAmount > 0) {
+        targetUrl.searchParams.set("amount", String(finalAmount));
+      }
+      if (supportType) {
+        targetUrl.searchParams.set("support_type", supportType);
+      }
 
-    toast.success("Redirecting to Razorpay Secure Payment...", {
-      description: `Contributing ₹${finalAmount.toLocaleString("en-IN")} towards ${supportType.replace("-", " ")}`,
-    });
+      toast.success("Redirecting to Razorpay Secure Payment...", {
+        description: `Contributing ₹${finalAmount.toLocaleString("en-IN")} towards ${supportType.replace("-", " ")}`,
+      });
 
-    setTimeout(() => {
-      window.open(targetUrl.toString(), "_blank", "noopener,noreferrer");
+      setTimeout(() => {
+        window.open(targetUrl.toString(), "_blank", "noopener,noreferrer");
+        setIsSubmitting(false);
+      }, 600);
+    } catch {
+      // If paymentPageUrl is not a full URL or throws
+      window.open(paymentPageUrl, "_blank", "noopener,noreferrer");
       setIsSubmitting(false);
-    }, 600);
+    }
   };
 
   const copyPageLink = () => {
@@ -159,6 +238,14 @@ function SupportUsPage() {
     setCopiedLink(true);
     toast.success("Link copied to clipboard!");
     setTimeout(() => setCopiedLink(false), 2000);
+  };
+
+  const copyUpiId = () => {
+    if (!upiId) return;
+    navigator.clipboard.writeText(upiId);
+    setCopiedUpi(true);
+    toast.success("UPI ID copied to clipboard!");
+    setTimeout(() => setCopiedUpi(false), 2000);
   };
 
   const shareToSocial = (platform: "twitter" | "linkedin" | "whatsapp") => {
@@ -177,7 +264,23 @@ function SupportUsPage() {
   };
 
   return (
-    <div className="min-h-[100dvh] bg-background text-foreground selection:bg-primary/20">
+    <div className="min-h-screen flex flex-col bg-background text-foreground selection:bg-primary/20">
+      <SiteHeader />
+
+      {/* Admin preview banner if hidden */}
+      {isSupportHidden && isAdmin && (
+        <div className="bg-amber-500/15 border-b border-amber-500/30 text-amber-900 dark:text-amber-200 px-4 py-2.5 text-xs font-medium text-center flex items-center justify-center gap-2">
+          <AlertTriangle className="h-4 w-4 shrink-0 text-amber-600" />
+          <span>
+            <strong>Admin Preview Mode:</strong> Support Us / Sponsor is currently <strong>HIDDEN</strong> from public visitors. Unhide it in{" "}
+            <Link to="/admin/content" search={{ tab: "support-us" }} className="underline font-bold hover:opacity-80">
+              Content Manager &rarr; Support Us / Sponsor
+            </Link>
+            .
+          </span>
+        </div>
+      )}
+
       {/* Hero Header */}
       <section className="relative overflow-hidden pt-12 pb-16 border-b border-border/40 bg-gradient-to-b from-primary/5 via-background to-background">
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(99,102,241,0.15),rgba(255,255,255,0))]" />
@@ -192,12 +295,11 @@ function SupportUsPage() {
           </Badge>
 
           <h1 className="font-display text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-foreground max-w-3xl mx-auto leading-tight">
-            Help Us Build a Free Career-Learning Ecosystem
+            {pageTitle}
           </h1>
 
           <p className="mt-4 text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Help us make practical career education accessible to people facing financial or
-            access barriers, with a special focus on care leavers and underrepresented learners.
+            {pageSubtitle}
           </p>
 
           {/* Social Proof Avatars of Real Students */}
@@ -215,14 +317,14 @@ function SupportUsPage() {
               )}
             </div>
             <span className="text-xs font-medium text-muted-foreground">
-              Empowering real students across India & worldwide
+              Empowering real students across India &amp; worldwide
             </span>
           </div>
         </div>
       </section>
 
       {/* Main Grid: Info + Donation Form */}
-      <section className="py-12 px-4 container max-w-6xl mx-auto">
+      <section className="py-12 px-4 container max-w-6xl mx-auto flex-1">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
           
           {/* Left Column: Mission, Pathway, Pillars & Impact */}
@@ -309,7 +411,7 @@ function SupportUsPage() {
                 </div>
                 <h3 className="font-bold text-sm text-foreground">1. Learn</h3>
                 <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">
-                  Courses, practical skills, AI learning & interactive cheat sheets for structured tech literacy.
+                  Courses, practical skills, AI learning &amp; interactive cheat sheets for structured tech literacy.
                 </p>
               </div>
 
@@ -319,7 +421,7 @@ function SupportUsPage() {
                 </div>
                 <h3 className="font-bold text-sm text-foreground">2. Build</h3>
                 <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">
-                  Real-world projects, live coding playgrounds, fullstack apps & industry assignments.
+                  Real-world projects, live coding playgrounds, fullstack apps &amp; industry assignments.
                 </p>
               </div>
 
@@ -329,32 +431,58 @@ function SupportUsPage() {
                 </div>
                 <h3 className="font-bold text-sm text-foreground">3. Present</h3>
                 <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">
-                  ATS Resume Builder, LinkedIn profile polish, GitHub portfolio & AI mock interviews.
+                  ATS Resume Builder, LinkedIn profile polish, GitHub portfolio &amp; AI mock interviews.
                 </p>
               </div>
             </div>
 
+            {/* UPI Option if configured */}
+            {upiId && (
+              <div className="p-5 rounded-xl border border-emerald-500/30 bg-emerald-500/5 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-emerald-600 flex items-center gap-1.5">
+                    <QrCode className="h-4 w-4" /> Direct UPI Sponsorship (Instant 0% Fee)
+                  </span>
+                  <Badge variant="outline" className="border-emerald-500/40 text-emerald-600 text-[10px]">
+                    BHIM / GPay / PhonePe / Paytm
+                  </Badge>
+                </div>
+                <div className="flex items-center justify-between gap-3 bg-card p-3 rounded-lg border border-border">
+                  <code className="text-sm font-bold text-foreground font-mono">{upiId}</code>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-8 text-xs gap-1"
+                    onClick={copyUpiId}
+                  >
+                    {copiedUpi ? <Check className="h-3.5 w-3.5 text-emerald-500" /> : <Copy className="h-3.5 w-3.5" />}
+                    {copiedUpi ? "Copied" : "Copy UPI ID"}
+                  </Button>
+                </div>
+              </div>
+            )}
+
             {/* Contact & Transparency */}
             <div className="p-5 rounded-xl border border-border/60 bg-muted/20 space-y-3">
               <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Contact & Support Inquiries
+                Contact &amp; Support Inquiries
               </h4>
               <div className="flex flex-wrap items-center gap-6 text-xs text-foreground/90">
                 <a
-                  href="mailto:support.learnifyai@gmail.com?subject=Learnify%20AI%20Support%20%26%20Sponsorship"
+                  href={`mailto:${s?.contact_email || "support.learnifyai@gmail.com"}?subject=Learnify%20AI%20Support%20%26%20Sponsorship`}
                   className="flex items-center gap-2 hover:text-primary transition"
                 >
                   <Mail className="h-4 w-4 text-primary" />
-                  support.learnifyai@gmail.com
+                  {s?.contact_email || "support.learnifyai@gmail.com"}
                 </a>
                 <a
-                  href={RAZORPAY_PAYMENT_PAGE_URL}
+                  href={paymentPageUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 text-primary hover:underline transition font-medium"
                 >
                   <ExternalLink className="h-4 w-4 text-primary" />
-                  Razorpay Support Page (pages.razorpay.com/learnifyaisupport)
+                  Razorpay Support Page
                 </a>
               </div>
             </div>
@@ -566,7 +694,7 @@ function SupportUsPage() {
               {/* Direct Hosted Razorpay Link */}
               <div className="text-center pt-2">
                 <a
-                  href={RAZORPAY_PAYMENT_PAGE_URL}
+                  href={paymentPageUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline font-medium"
@@ -585,10 +713,10 @@ function SupportUsPage() {
                 mentorship, or any specific outcome. Please ensure the information you provide is
                 accurate. For questions about your contribution, contact{" "}
                 <a
-                  href="mailto:support.learnifyai@gmail.com"
+                  href={`mailto:${s?.contact_email || "support.learnifyai@gmail.com"}`}
                   className="text-primary hover:underline"
                 >
-                  support.learnifyai@gmail.com
+                  {s?.contact_email || "support.learnifyai@gmail.com"}
                 </a>
                 . You agree to share information entered on this page with Learnifyai (owner of this
                 page) and Razorpay, adhering to applicable laws.
@@ -597,6 +725,8 @@ function SupportUsPage() {
           </div>
         </div>
       </section>
+
+      <SiteFooter />
     </div>
   );
 }
