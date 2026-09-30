@@ -40,6 +40,7 @@ const HARDCODED_SECTIONS = [
   {
     title: "Company & Legal",
     links: [
+      { label: "Legal Center", url: "/legal" },
       { label: "About Us", url: "/about" },
       { label: "Careers", url: "/careers" },
       { label: "Support Us / Sponsor", url: "/support-us" },
