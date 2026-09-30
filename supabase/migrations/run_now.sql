@@ -22,7 +22,7 @@ ALTER TABLE public.xp_purchases ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Users view own purchases" ON public.xp_purchases;
 CREATE POLICY "Users view own purchases" ON public.xp_purchases FOR SELECT USING (auth.uid() = user_id);
 DROP POLICY IF EXISTS "Service role full access" ON public.xp_purchases;
-CREATE POLICY "Service role full access" ON public.xp_purchases FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Service role full access" ON public.xp_purchases FOR ALL TO service_role USING (true) WITH CHECK (true);
 
 -- ============================================================
 -- Fix 1: Ensure xp_log table exists (dashboard weekly activity)
@@ -37,9 +37,9 @@ CREATE TABLE IF NOT EXISTS public.xp_log (
 );
 ALTER TABLE public.xp_log ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Users can read own XP log" ON public.xp_log;
-CREATE POLICY "Users can read own XP log" ON public.xp_log FOR SELECT USING (user_id = auth.uid());
+CREATE POLICY "Users can read own XP log" ON public.xp_log FOR SELECT TO authenticated USING (user_id = auth.uid());
 DROP POLICY IF EXISTS "Service role can insert XP log" ON public.xp_log;
-CREATE POLICY "Service role can insert XP log" ON public.xp_log FOR INSERT WITH CHECK (true);
+CREATE POLICY "Service role can insert XP log" ON public.xp_log FOR INSERT TO service_role WITH CHECK (true);
 CREATE INDEX IF NOT EXISTS idx_xp_log_user ON public.xp_log(user_id);
 CREATE INDEX IF NOT EXISTS idx_xp_log_created ON public.xp_log(created_at DESC);
 
@@ -57,10 +57,12 @@ VALUES (
 )
 ON CONFLICT (id) DO NOTHING;
 
--- Allow public reads on media bucket
+-- Scoped storage listing policy for media bucket (public downloads bypass RLS natively)
 DROP POLICY IF EXISTS "Public Read media" ON storage.objects;
-CREATE POLICY "Public Read media"
+DROP POLICY IF EXISTS "Authenticated view media" ON storage.objects;
+CREATE POLICY "Authenticated view media"
   ON storage.objects FOR SELECT
+  TO authenticated
   USING (bucket_id = 'media');
 
 -- Allow authenticated uploads to media bucket

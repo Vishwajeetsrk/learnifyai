@@ -1461,7 +1461,14 @@ MIT License. See [LICENSE](LICENSE) for details.
 - 💎 **PRICING & FOOTER REDESIGN**:
   - Replaced hardcoded yearly discount badges in `pricing.tsx` with mathematically computed savings (~17% discount for annual billing).
   - Cleaned up pricing tier cards into responsive 4-column self-serve grid + full-width Enterprise consultation banner with zero cloned avatars.
-  - Overhauled `SiteFooter.tsx` with a desktop 4-column layout (Product, Learn, Community, Company), mobile accordion groups, dynamic current year copyright, and contextual legal navigation.
+- 🛡️ **SUPABASE DATABASE & SECURITY ADVISOR HARDENING**:
+  - **Eliminated All 3 Security Advisor Errors**: Converted views `subscription_analytics` and `public_directory_entries` to `WITH (security_invoker = true)` to prevent view owner privilege escalation; enabled Row Level Security on `leaderboard_prizes` with public read and admin write controls.
+  - **Extension Relocation**: Moved pgvector (`vector`) extension from `public` schema to dedicated `extensions` schema per database linter best practices.
+  - **Function Search Path Immutability**: Locked down search paths (`SET search_path = public, extensions, pg_temp`) across 17 database functions to eliminate search-path injection and mutable role vulnerabilities.
+  - **Overly Permissive RLS Policy Hardening**: Replaced unconstrained `USING (true)` and `WITH CHECK (true)` policies on `coaching_slots` (restricted slot booking transition), `system_design_topics` (restricted to verified admins), `xp_log` & `xp_purchases` (scoped strictly to `service_role`), `job_applications` & `lesson_views` (enforced non-empty payload validation).
+  - **Zero-Policy Table Remediation**: Authored and applied explicit role-scoped policies across 8 tables previously flagged with `RLS Enabled No Policy` (`_supabase_migrations`, `certificate_analytics`, `certificate_badges`, `certificate_categories`, `certificate_downloads`, `certificate_logs`, `certificate_shares`, `certificate_wallets`).
+  - **Storage Bucket Enumeration Lockdown**: Revoked broad `SELECT` policies on `storage.objects` for public buckets (`avatars`, `canva-templates`, `community-uploads`, `media`), preventing unauthorized file listing and scraping while preserving public CDN asset delivery.
+  - **Security Definer Function Access Revocation**: Revoked `PUBLIC` and `anon` execution permissions on internal trigger and cron functions (`auto_generate_invoice`, `check_expired_subscriptions`, `cleanup_expired_events`, `handle_new_user_stats`).
 
 ### v4.5.0 (September 2026) — Devicons Integration & Course Skills Vector Architecture
  
