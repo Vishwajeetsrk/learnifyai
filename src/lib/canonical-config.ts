@@ -249,10 +249,11 @@ export const CANONICAL_LEGAL_DOCS: CanonicalLegalDoc[] = [
   {
     slug: "cancellation-refund",
     title: "Cancellation & Refund Policy",
-    version: "2.1",
-    effectiveDate: "2026-09-01",
-    lastUpdated: "2026-09-25",
-    summary: "Subscription cancellation rules, access retention until period end, and exception review process.",
+    version: "3.0",
+    effectiveDate: "2026-10-01",
+    lastUpdated: "2026-10-01",
+    summary:
+      "No-refund policy for digital purchases with limited exceptions for failed payments, duplicate charges, delivery failures, and remedies required by law.",
     isMandatoryOnCheckout: true,
   },
   {

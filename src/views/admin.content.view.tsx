@@ -6069,7 +6069,7 @@ function SupportUsManager() {
     title: "Help Us Build a Free Career-Learning Ecosystem",
     subtitle:
       "Help us make practical career education accessible to people facing financial or access barriers, with a special focus on care leavers and underrepresented learners.",
-    payment_url: "https://pages.razorpay.com/learnifyaisupport",
+    payment_url: "https://rzp.io/rzp/valuablesupport",
     upi_id: "",
     description: "",
   });
@@ -6099,7 +6099,7 @@ function SupportUsManager() {
         subtitle:
           data["support_us_subtitle"] ||
           "Help us make practical career education accessible to people facing financial or access barriers, with a special focus on care leavers and underrepresented learners.",
-        payment_url: data["support_us_payment_url"] || "https://pages.razorpay.com/learnifyaisupport",
+        payment_url: data["support_us_payment_url"] || "https://rzp.io/rzp/valuablesupport",
         upi_id: data["support_us_upi_id"] || "",
         description: data["support_us_description"] || "",
       });
@@ -6270,7 +6270,7 @@ function SupportUsManager() {
               id="support-payment-url"
               value={form.payment_url}
               onChange={(e) => setForm({ ...form, payment_url: e.target.value })}
-              placeholder="https://pages.razorpay.com/learnifyaisupport"
+              placeholder="https://rzp.io/rzp/valuablesupport"
               className="text-xs font-mono"
             />
             <p className="text-[11px] text-muted-foreground">

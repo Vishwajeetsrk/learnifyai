@@ -47,23 +47,37 @@ export const DOC_CONTENTS: Record<string, string> = {
 `,
 
   "cancellation-refund": `
-<h3>1. Commercial Policy</h3>
-<p>Learnify AI delivers immediate digital access upon purchase, including digital tools, course materials, certificate credentials, and allocated AI credit quotas. Consequently, Learnify AI does not provide routine refunds for normal change-of-mind purchases or unutilized subscription periods.</p>
+<h3>1. General Policy</h3>
+<p>Learnify AI provides digital subscriptions, online courses, AI-powered tools, downloadable resources, templates, e-books, prompts, PDFs, designs and other digital products. <strong>All purchases are final and generally non-refundable</strong> once digital access, subscription benefits or downloadable content has been provided, except where a refund, reversal or other remedy is required by applicable law or where Learnify AI approves an exception described below.</p>
 
-<h3>2. Exception Review Workflow</h3>
-<p>We recognize that extraordinary situations occur. An administrative refund request may be submitted for formal review under the following exceptional circumstances:</p>
+<h3>2. Subscriptions</h3>
+<p>Current tiers: Free (₹0), Pro (₹199/month) and Career Pro (₹499/month), with student benefits as displayed at checkout and subject to eligibility. Subscriptions renew automatically only where the customer has authorized recurring payments. You can cancel auto-renewal through Account Settings; after cancellation, paid access remains available until the end of the current paid billing period unless otherwise stated at checkout or required by law. Cancellation does not automatically trigger a refund for the current billing period.</p>
+
+<h3>3. Digital Products</h3>
+<p>Purchases of downloadable PDFs, e-books, prompts, resume templates, design assets, digital guides, software downloads and other digital products are generally non-refundable once delivered or made available for download. Please review the product description, compatibility, included features and price before purchasing.</p>
+
+<h3>4. Payment Errors and Exceptions</h3>
+<p>Learnify AI will investigate and provide an appropriate remedy for:</p>
 <ul>
-  <li><strong>Duplicate Charges:</strong> Technical glitch causing multiple debits for the same transaction.</li>
-  <li><strong>Unauthorized Transactions:</strong> Fraudulent card or UPI usage reported within 48 hours of charge.</li>
-  <li><strong>Platform Delivery Failure:</strong> Verified inability of Learnify AI to deliver paid features due to major system outage.</li>
-  <li><strong>Incorrect Billed Amount:</strong> Discrepancy between published canonical price and charged amount.</li>
+  <li><strong>Duplicate charges</strong> for the same purchase.</li>
+  <li><strong>Successful payments where access was not provided.</strong></li>
+  <li><strong>Incorrect amounts charged</strong> because of a verified payment-processing error.</li>
+  <li><strong>Unauthorized transactions</strong>, subject to verification and applicable payment-provider procedures.</li>
+  <li><strong>Refunds, reversals or remedies required by applicable law.</strong></li>
 </ul>
+<p>Where appropriate, Learnify AI may restore access, correct the account, provide replacement delivery or initiate a payment reversal through the relevant payment provider.</p>
 
-<h3>3. How to Submit a Refund Request</h3>
-<p>Submit your request through Account &rarr; Billing & Payments &rarr; Request Refund, or write to <a href="mailto:support.learnifyai@gmail.com">support.learnifyai@gmail.com</a> including your internal payment ID, provider transaction reference, registered email, and detailed reason. All exception requests are investigated within 2 to 3 business days.</p>
+<h3>5. Failed and Pending Payments</h3>
+<p>A failed or pending payment does not automatically create an active paid subscription. Access to paid features is granted only after the payment provider confirms a successful transaction, subject to reconciliation and fraud checks. Pending transactions are checked against payment-provider records, and customers are not charged twice for the same order.</p>
 
-<h3>4. Cancellation Mechanism</h3>
-<p>You can cancel auto-renewal at any time via Account &rarr; Billing & Payments. Cancellations take effect at the conclusion of your current billing period; no partial-month fees are withheld or prematurely terminated.</p>
+<h3>6. Subscription Cancellation</h3>
+<p>Customers may cancel future recurring payments through Account Settings or the applicable payment-provider mechanism. Cancellation stops future renewals once the cancellation is successfully processed. Confirmation, the cancellation date and the remaining access period are visible in Account &rarr; Billing &amp; Payments.</p>
+
+<h3>7. Contact and Complaints</h3>
+<p>For payment, delivery, cancellation or access issues, contact Learnify AI through <a href="mailto:support.learnifyai@gmail.com">support.learnifyai@gmail.com</a> or the official support and grievance channels displayed on the website. Please provide the order ID, transaction reference, registered email address and relevant payment details. Never share passwords, OTPs or full card details.</p>
+
+<h3>8. Legal Compliance</h3>
+<p>This policy does not remove or restrict any non-waivable rights or remedies available to consumers under applicable Indian law. It applies consistently to Razorpay and Cashfree transactions and is reviewed and updated when relevant legal or payment-provider requirements change.</p>
 `,
 
   "digital-delivery": `

@@ -22,7 +22,7 @@ interface ContextualLegalNoticeProps {
   className?: string;
 }
 
-const POLICY_VERSION = "2.1";
+const POLICY_VERSION = "3.0";
 
 export function ContextualLegalNotice({
   context,

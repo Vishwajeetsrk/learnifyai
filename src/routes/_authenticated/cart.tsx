@@ -59,6 +59,7 @@ function CartPage() {
   } | null>(null);
   const [couponInput, setCouponInput] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
+  const [legalAccepted, setLegalAccepted] = useState(false);
 
   const q = useQuery({
     enabled: !!user,
@@ -140,6 +141,10 @@ function CartPage() {
   };
 
   const pay = async () => {
+    if (!legalAccepted) {
+      toast.error("Please accept the Terms and Cancellation & Refund Policy to continue.");
+      return;
+    }
     setPaying(true);
     try {
       const order = await createOrder({ data: { amountInr: total, email: user?.email } });
@@ -363,7 +368,22 @@ function CartPage() {
                 </div>
               </div>
 
-              <Button className="w-full" onClick={pay} disabled={paying || items.length === 0}>
+              <ContextualLegalNotice
+                context="checkout"
+                className="pt-1"
+                requireExplicitAcceptance
+                onAccepted={() => setLegalAccepted(true)}
+              />
+              <Button
+                className="w-full"
+                onClick={pay}
+                disabled={paying || items.length === 0 || !legalAccepted}
+                title={
+                  !legalAccepted
+                    ? "Please accept the Terms and Cancellation & Refund Policy to continue"
+                    : undefined
+                }
+              >
                 {paying ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
@@ -371,7 +391,11 @@ function CartPage() {
                 )}{" "}
                 Pay {inr(total)}
               </Button>
-              <ContextualLegalNotice context="checkout" className="pt-1" />
+              {!legalAccepted && (
+                <p className="text-[10px] text-amber-600 dark:text-amber-500 font-medium text-center">
+                  Accept the policies above to continue to payment
+                </p>
+              )}
               <p className="text-[11px] text-muted-foreground">
                 Free courses enroll instantly. Coupon savings applied at checkout.
               </p>

@@ -413,6 +413,7 @@ function PricingPage() {
   const [faqSearch, setFaqSearch] = useState("");
   const [faqCategory, setFaqCategory] = useState<string | null>(null);
   const [couponCode, setCouponCode] = useState("");
+  const [legalAccepted, setLegalAccepted] = useState(false);
 
   useEffect(() => {
     if (coupon) {
@@ -539,6 +540,10 @@ function PricingPage() {
   const handleSubscribe = async (planId: string) => {
     if (!user) {
       navigate({ to: "/login" });
+      return;
+    }
+    if (!legalAccepted) {
+      toast.error("Please accept the Terms and Cancellation & Refund Policy to continue.");
       return;
     }
     setLoadingPlan(planId);
@@ -963,6 +968,14 @@ function PricingPage() {
             <p className="text-center text-muted-foreground py-12">Pricing coming soon.</p>
           ) : (
             <>
+              <div className="max-w-xl mx-auto mb-8 w-full text-center">
+                <ContextualLegalNotice
+                  context="checkout"
+                  requireExplicitAcceptance
+                  onAccepted={() => setLegalAccepted(true)}
+                />
+              </div>
+
               {/* 4 Core Self-Serve Plans Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 items-stretch w-full">
                 {tiers
@@ -991,6 +1004,7 @@ function PricingPage() {
                         isPopular={isPopular}
                         billingCycle={billingCycle}
                         loadingPlan={loadingPlan}
+                        legalAccepted={legalAccepted}
                         onSubscribe={handleSubscribe}
                         onCancel={handleCancel}
                       />
@@ -1031,10 +1045,6 @@ function PricingPage() {
                   </div>
                 );
               })()}
-
-              <div className="mt-8 max-w-xl mx-auto text-center">
-                <ContextualLegalNotice context="checkout" />
-              </div>
             </>
           )}
         </section>
@@ -1560,7 +1570,10 @@ function PricingPage() {
             </div>
             <p className="text-sm text-muted-foreground">
               Digital subscriptions activate instantly upon successful verification. Review our{" "}
-              <Link to="/refund-policy" className="text-primary underline underline-offset-2 hover:opacity-80 transition">
+              <Link
+                to="/refund-policy"
+                className="text-primary underline underline-offset-2 hover:opacity-80 transition"
+              >
                 Refund Policy
               </Link>{" "}
               for exception reviews. No credit card required for Free tier.{" "}
@@ -1615,6 +1628,7 @@ function PricingCard({
   isPopular,
   billingCycle,
   loadingPlan,
+  legalAccepted,
   onSubscribe,
   onCancel,
 }: {
@@ -1627,6 +1641,7 @@ function PricingCard({
   isPopular: boolean;
   billingCycle: "monthly" | "yearly";
   loadingPlan: string | null;
+  legalAccepted: boolean;
   onSubscribe: (id: string) => void;
   onCancel: () => void;
 }) {
@@ -1829,7 +1844,12 @@ function PricingCard({
                 <Button
                   className="w-full h-11 text-sm font-semibold rounded-xl"
                   onClick={() => onSubscribe(plan.id)}
-                  disabled={loadingPlan !== null}
+                  disabled={loadingPlan !== null || !legalAccepted}
+                  title={
+                    !legalAccepted
+                      ? "Please accept the Terms and Cancellation & Refund Policy to continue"
+                      : undefined
+                  }
                   style={
                     isPopular
                       ? { background: accentColor, color: "#fff", border: "none" }
@@ -1845,6 +1865,11 @@ function PricingCard({
                     ? "Processing..."
                     : plan.cta_label || `Subscribe ${displayPrice}`}
                 </Button>
+                {!legalAccepted && (
+                  <p className="mt-2 text-[10px] text-amber-600 dark:text-amber-500 font-medium text-center">
+                    Accept the policies listed above to subscribe
+                  </p>
+                )}
               </div>
             )}
           </div>

@@ -63,7 +63,7 @@ export const Route = createFileRoute("/support-us")({
   component: SupportUsPage,
 });
 
-const DEFAULT_PAYMENT_URL = "https://pages.razorpay.com/learnifyaisupport";
+const DEFAULT_PAYMENT_URL = "https://rzp.io/rzp/valuablesupport";
 
 const PRESET_AMOUNTS = [
   { value: 500, label: "₹500", desc: "1 month of AI credits & course access" },
