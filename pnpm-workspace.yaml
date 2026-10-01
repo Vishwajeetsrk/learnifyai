@@ -1,7 +1,7 @@
 allowBuilds:
-  core-js: set this to true or false
-  es5-ext: set this to true or false
-  esbuild: set this to true or false
+  core-js: false
+  es5-ext: false
+  esbuild: true
 minimumReleaseAgeExclude:
   - "@radix-ui/react-accordion@1.2.15"
   - "@radix-ui/react-alert-dialog@1.1.18"

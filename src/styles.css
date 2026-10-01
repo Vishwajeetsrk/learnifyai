@@ -1,7 +1,7 @@
 @import "tailwindcss" source(none);
 @source "../src";
 @import "devicon/devicon.min.css";
-@import "devicons/dist/devicons.css";
+@import "devicons/css";
 
 @custom-variant dark (&:is(.dark *));
 
