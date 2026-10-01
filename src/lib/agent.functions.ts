@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { executeCode } from "./playground.functions";
+import { runWebSearch } from "./web-search";
 
 const AGENT_MODEL = process.env.AGENT_MODEL || "";
 const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
@@ -179,19 +180,7 @@ async function executeTool(name: string, args: any) {
 
   if (name === "web_search") {
     try {
-      const key = process.env.SEARCHAPI_API_KEY;
-      const url = key
-        ? `https://www.searchapi.io/api/v1/search?engine=google&q=${encodeURIComponent(args.query)}&api_key=${key}`
-        : `https://serpapi.com/search.json?q=${encodeURIComponent(args.query)}&api_key=${process.env.SERPAPI_API_KEY || ""}`;
-      const apiRes = await fetch(url);
-      if (!apiRes.ok) return JSON.stringify({ message: "Search unavailable" });
-      const json = await apiRes.json();
-      const results = (json.organic_results || []).slice(0, 5).map((r: any) => ({
-        title: r.title,
-        snippet: r.snippet,
-        link: r.link,
-      }));
-      return JSON.stringify(results.length ? results : { message: "No results" });
+      return await runWebSearch(args.query);
     } catch (err: any) {
       return JSON.stringify({ error: err?.message ?? "Search failed" });
     }
