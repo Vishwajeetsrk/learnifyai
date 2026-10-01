@@ -52,6 +52,9 @@ export function checkThumbnailPromptSafety(prompt: string): string | null {
   return null;
 }
 
+// Process-lifetime latch: once FAL reports a billing restriction, stop calling it.
+let falBillingBlocked = false;
+
 export const generateCourseThumbnail = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((data) => Input.parse(data))
@@ -233,7 +236,11 @@ export const generateCourseThumbnail = createServerFn({ method: "POST" })
     }
 
     // 6. Fal AI (paid fallback)
-    if (falKey) {
+    // Kill switch: set FAL_DISABLED=1 to skip this tier entirely.
+    // A billing-locked key (HTTP 402/403 with TOP_UP/locked in the body)
+    // latches off for the process lifetime so we stop wasting a paid call
+    // on every thumbnail request.
+    if (falKey && process.env.FAL_DISABLED !== "1" && !falBillingBlocked) {
       try {
         const res = await fetch("https://fal.run/fal-ai/flux-pro/v1.1-ultra", {
           method: "POST",
@@ -257,6 +264,16 @@ export const generateCourseThumbnail = createServerFn({ method: "POST" })
           const json = (await res.json()) as { images?: Array<{ url?: string }> };
           const url = json.images?.[0]?.url;
           if (url) return { dataUrl: url };
+        } else {
+          const txt = await res.text().catch(() => "");
+          if (res.status === 402 || /top_up|locked|billing/i.test(txt)) {
+            falBillingBlocked = true;
+            console.warn(
+              `Fal AI billing restricted (${res.status}). FAL tier disabled for this process — top up credits at fal.ai or set FAL_DISABLED=1.`,
+            );
+          } else {
+            console.warn(`Fal AI failed (${res.status}): ${txt.slice(0, 120)}`);
+          }
         }
       } catch (err) {
         console.warn("Fal AI error.", err);

@@ -206,7 +206,13 @@ export const verifyClientPayment = createServerFn({ method: "POST" })
     });
 
     if (!isValidSignature) {
-      console.warn("[Payment Verification] Invalid signature rejected", data);
+      // Log identifiers only — never the signature itself.
+      console.warn("[Payment Verification] Invalid signature rejected", {
+        provider: data.provider,
+        orderId: data.orderId,
+        paymentId: data.paymentId,
+        planId: data.planId,
+      });
       throw new Error("Payment signature verification failed. Untrusted response.");
     }
 

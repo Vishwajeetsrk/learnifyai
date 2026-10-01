@@ -1,5 +1,36 @@
 import { createServerFn } from "@tanstack/react-start";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
+
+/* ── Auth helpers ─────────────────────────────────────────────── */
+
+async function isAdminUser(userId: string): Promise<boolean> {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data: roles } = await supabaseAdmin
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userId);
+  const list = ((roles ?? []) as Array<{ role: string }>).map((r) => r.role);
+  return list.includes("admin") || list.includes("super_admin");
+}
+
+/** Mutating / scoped fns may only act on the caller's own record, unless admin. */
+async function assertSelfOrAdmin(
+  context: { userId?: string },
+  targetUserId: string,
+): Promise<void> {
+  if (!context.userId) throw new Error("Unauthorized");
+  if (context.userId !== targetUserId && !(await isAdminUser(context.userId))) {
+    throw new Error("Forbidden: cannot act for another user");
+  }
+}
+
+async function requireAdmin(context: { userId?: string }): Promise<void> {
+  if (!context.userId) throw new Error("Unauthorized");
+  if (!(await isAdminUser(context.userId))) {
+    throw new Error("Forbidden: Admin role required");
+  }
+}
 
 /* ── Level / Rank helpers ───────────────────────────────────────── */
 
@@ -64,6 +95,7 @@ export function xpForLevel(level: number): number {
 /* ── Award XP ──────────────────────────────────────────────────── */
 
 export const awardXP = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .validator((input: { userId: string; amount: number; source?: string }) =>
     z
       .object({
@@ -73,7 +105,8 @@ export const awardXP = createServerFn({ method: "POST" })
       })
       .parse(input),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await assertSelfOrAdmin(context, data.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     let { data: profile } = await supabaseAdmin
@@ -166,6 +199,7 @@ export const awardXP = createServerFn({ method: "POST" })
 /* ── Deduct XP ─────────────────────────────────────────────────── */
 
 export const deductXP = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .validator((input: { userId: string; amount: number; item?: string }) =>
     z
       .object({
@@ -175,7 +209,8 @@ export const deductXP = createServerFn({ method: "POST" })
       })
       .parse(input),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await assertSelfOrAdmin(context, data.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     let { data: profile } = await supabaseAdmin
@@ -345,6 +380,7 @@ export const getCourseLearners = createServerFn({ method: "GET" })
 /* ── XP Store Purchases ────────────────────────────────────────── */
 
 export const recordPurchase = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .validator((input: { userId: string; perkId: string; perkName: string; cost: number }) =>
     z
       .object({
@@ -355,7 +391,8 @@ export const recordPurchase = createServerFn({ method: "POST" })
       })
       .parse(input),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await assertSelfOrAdmin(context, data.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const { error } = await (supabaseAdmin as any).from("xp_purchases").insert({
@@ -380,6 +417,7 @@ export const recordPurchase = createServerFn({ method: "POST" })
   });
 
 export const purchaseWithWallet = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .validator((input: { userId: string; perkId: string; perkName: string; costInr: number }) =>
     z
       .object({
@@ -390,7 +428,8 @@ export const purchaseWithWallet = createServerFn({ method: "POST" })
       })
       .parse(input),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await assertSelfOrAdmin(context, data.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     // 1. Fetch wallet transactions to compute balance
@@ -437,8 +476,10 @@ export const purchaseWithWallet = createServerFn({ method: "POST" })
   });
 
 export const getUserPurchases = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
   .validator((input: { userId: string }) => z.object({ userId: z.string().uuid() }).parse(input))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await assertSelfOrAdmin(context, data.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const { data: purchases, error } = await (supabaseAdmin as any)
@@ -463,10 +504,12 @@ export const getUserPurchases = createServerFn({ method: "GET" })
   });
 
 export const getAllPurchases = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
   .validator((input: { page?: number; limit?: number } | undefined) =>
     z.object({ page: z.number().optional(), limit: z.number().optional() }).parse(input ?? {}),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await requireAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const page = data.page ?? 1;
     const limit = data.limit ?? 50;

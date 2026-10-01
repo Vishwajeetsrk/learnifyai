@@ -2,6 +2,18 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+async function checkAdmin(userId: string) {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data: roles } = await supabaseAdmin
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userId);
+  const userRoles = (roles ?? []).map((r: any) => r.role);
+  if (!userRoles.includes("super_admin") && !userRoles.includes("admin")) {
+    throw new Error("Forbidden: Admin privileges required.");
+  }
+}
+
 // SVG Template manifest categories
 const SVG_CATEGORIES = [
   {
@@ -213,7 +225,8 @@ export const listSvgCategories = createServerFn({ method: "GET" }).handler(
 
 export const listCanvaTemplates = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async () => {
+  .handler(async ({ context }) => {
+    await checkAdmin(context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin
       .from("canva_templates")
@@ -239,6 +252,7 @@ export const saveCanvaTemplate = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data, context }) => {
+    await checkAdmin(context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const now = new Date().toISOString();
     const defaultFields = { ...DEFAULT_FIELDS };
@@ -277,7 +291,8 @@ export const saveCanvaTemplate = createServerFn({ method: "POST" })
 export const deleteCanvaTemplate = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await checkAdmin(context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("canva_templates").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
@@ -297,6 +312,7 @@ export function getTemplateFields(_templateNum?: number): Record<string, any> {
 export const seedAllTemplates = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
+    await checkAdmin(context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const results = { created: 0, updated: 0, skipped: 0, errors: [] as string[] };
@@ -857,7 +873,8 @@ export const seedAllTemplates = createServerFn({ method: "POST" })
 
 export const updateAllTemplateFields = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .handler(async () => {
+  .handler(async ({ context }) => {
+    await checkAdmin(context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const results = { updated: 0, skipped: 0, errors: [] as string[] };

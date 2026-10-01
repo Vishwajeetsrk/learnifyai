@@ -2,10 +2,23 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 
+async function checkAdmin(userId: string) {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data: roles } = await supabaseAdmin
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userId);
+  const userRoles = (roles ?? []).map((r: any) => r.role);
+  if (!userRoles.includes("super_admin") && !userRoles.includes("admin")) {
+    throw new Error("Forbidden: Admin privileges required.");
+  }
+}
+
 /* ─── List all courses (admin) ─── */
 export const adminListCourses = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
+    await checkAdmin(context.userId);
     const { supabase } = context;
     const { data, error } = await supabase
       .from("courses")
@@ -20,6 +33,7 @@ export const adminGetCourse = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .validator((d: unknown) => z.object({ courseId: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
+    await checkAdmin(context.userId);
     const { supabase } = context;
     const { data: course, error: cErr } = await supabase
       .from("courses")
@@ -78,6 +92,7 @@ export const adminCreateCourse = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data, context }) => {
+    await checkAdmin(context.userId);
     const { supabase, userId } = context;
     const { technology, ...insertData } = data;
     const { error } = await supabase.from("courses").insert({
@@ -111,6 +126,7 @@ export const adminUpdateCourse = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data, context }) => {
+    await checkAdmin(context.userId);
     const { supabase } = context;
     const { courseId, technology, ...updates } = data;
     const { error } = await supabase.from("courses").update(updates).eq("id", courseId);
@@ -123,6 +139,7 @@ export const adminDeleteCourse = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((d: unknown) => z.object({ courseId: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
+    await checkAdmin(context.userId);
     const { supabase } = context;
     const { error } = await supabase.from("courses").delete().eq("id", data.courseId);
     if (error) throw new Error(error.message);
@@ -142,6 +159,7 @@ export const adminAddModule = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data, context }) => {
+    await checkAdmin(context.userId);
     const { supabase } = context;
     const { count } = await supabase
       .from("course_modules")
@@ -171,6 +189,7 @@ export const adminUpdateModule = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data, context }) => {
+    await checkAdmin(context.userId);
     const { supabase } = context;
     const { moduleId, ...updates } = data;
     const { error } = await supabase.from("course_modules").update(updates).eq("id", moduleId);
@@ -183,6 +202,7 @@ export const adminDeleteModule = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((d: unknown) => z.object({ moduleId: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
+    await checkAdmin(context.userId);
     const { supabase } = context;
     const { error } = await supabase.from("course_modules").delete().eq("id", data.moduleId);
     if (error) throw new Error(error.message);
@@ -206,6 +226,7 @@ export const adminAddLesson = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data, context }) => {
+    await checkAdmin(context.userId);
     const { supabase } = context;
     const { count } = await supabase
       .from("lessons")
@@ -243,6 +264,7 @@ export const adminUpdateLesson = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data, context }) => {
+    await checkAdmin(context.userId);
     const { supabase } = context;
     const { lessonId, ...updates } = data;
     const { error } = await supabase.from("lessons").update(updates).eq("id", lessonId);
@@ -255,6 +277,7 @@ export const adminDeleteLesson = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((d: unknown) => z.object({ lessonId: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
+    await checkAdmin(context.userId);
     const { supabase } = context;
     const { error } = await supabase.from("lessons").delete().eq("id", data.lessonId);
     if (error) throw new Error(error.message);
@@ -265,6 +288,7 @@ export const adminDeleteLesson = createServerFn({ method: "POST" })
 export const adminCourseAnalytics = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
+    await checkAdmin(context.userId);
     const { supabase } = context;
     const { data: courses } = await supabase
       .from("courses")

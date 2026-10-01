@@ -2,6 +2,18 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+async function checkAdmin(userId: string) {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data: roles } = await supabaseAdmin
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userId);
+  const userRoles = (roles ?? []).map((r: any) => r.role);
+  if (!userRoles.includes("super_admin") && !userRoles.includes("admin")) {
+    throw new Error("Forbidden: Admin privileges required.");
+  }
+}
+
 const CF_API_VERSION = "2025-01-01";
 
 function getCashfreeApi() {
@@ -94,7 +106,8 @@ async function doSyncPlan(planId: string): Promise<string> {
 export const syncPlanToCashfree = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((d: { planId: string }) => z.object({ planId: z.string() }).parse(d))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await checkAdmin(context.userId);
     return { cashfree_plan_id: await doSyncPlan(data.planId) };
   });
 
@@ -590,7 +603,8 @@ export const getSubscriptionHistory = createServerFn({ method: "GET" })
 export const savePlan = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((d: any) => z.object({ plan: z.any() }).parse(d))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await checkAdmin(context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const plan = data.plan;
     // Strip yearly_price — column may not exist in all DB versions.
@@ -613,7 +627,8 @@ export const savePlan = createServerFn({ method: "POST" })
 export const deletePlan = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((d: any) => z.object({ planId: z.string() }).parse(d))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await checkAdmin(context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("pricing_plans").delete().eq("id", data.planId);
     if (error) throw new Error(error.message);
@@ -686,7 +701,8 @@ function getDateRangeFilter(dateRange: string, startDate?: string, endDate?: str
 export const getAdminSubscriptionAnalytics = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .validator((d: AnalyticsFilters) => d)
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await checkAdmin(context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const range = getDateRangeFilter(data.dateRange, data.startDate, data.endDate);
@@ -913,7 +929,8 @@ export const adminUpdateSubscription = createServerFn({ method: "POST" })
         })
         .parse(d),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await checkAdmin(context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const { data: sub, error: fetchErr } = await supabaseAdmin

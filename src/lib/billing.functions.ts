@@ -2,6 +2,18 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+async function checkAdmin(userId: string) {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data: roles } = await supabaseAdmin
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userId);
+  const userRoles = (roles ?? []).map((r: any) => r.role);
+  if (!userRoles.includes("super_admin") && !userRoles.includes("admin")) {
+    throw new Error("Forbidden: Admin privileges required.");
+  }
+}
+
 function generateInvoiceNumber(): string {
   const now = new Date();
   const yyyymm = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}`;
@@ -11,7 +23,8 @@ function generateInvoiceNumber(): string {
 
 export const getBillingOverview = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async () => {
+  .handler(async ({ context }) => {
+    await checkAdmin(context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
@@ -113,7 +126,8 @@ export const getInvoicesList = createServerFn({ method: "GET" })
         })
         .parse(d),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await checkAdmin(context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     let query = supabaseAdmin
       .from("invoices")
@@ -137,7 +151,8 @@ export const getInvoicesList = createServerFn({ method: "GET" })
 
 export const getBillingSettings = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async () => {
+  .handler(async ({ context }) => {
+    await checkAdmin(context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data } = await supabaseAdmin.from("billing_settings").select("*");
     const map: Record<string, string> = {};
@@ -159,7 +174,8 @@ export const updateBillingSetting = createServerFn({ method: "POST" })
   .validator((d: { key: string; value: string }) =>
     z.object({ key: z.string(), value: z.string() }).parse(d),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await checkAdmin(context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     // Map flat keys back to their parent JSONB group
@@ -229,7 +245,8 @@ export const updateBillingSetting = createServerFn({ method: "POST" })
 
 export const getInvoiceTemplates = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async () => {
+  .handler(async ({ context }) => {
+    await checkAdmin(context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data } = await supabaseAdmin
       .from("billing_templates")
@@ -249,7 +266,8 @@ export const saveInvoiceTemplate = createServerFn({ method: "POST" })
       })
       .parse(d),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await checkAdmin(context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     if (data.id) {
       const { error } = await supabaseAdmin
@@ -269,7 +287,8 @@ export const saveInvoiceTemplate = createServerFn({ method: "POST" })
 export const deleteInvoiceTemplate = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((d: { id: string }) => z.object({ id: z.string() }).parse(d))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await checkAdmin(context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("billing_templates").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
@@ -296,7 +315,8 @@ export const createManualInvoice = createServerFn({ method: "POST" })
         })
         .parse(d),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await checkAdmin(context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const invoiceNumber = generateInvoiceNumber();
     const { error } = await supabaseAdmin.from("invoices").insert({
@@ -337,7 +357,8 @@ export const getPaymentLogs = createServerFn({ method: "GET" })
       })
       .parse(d),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await checkAdmin(context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const from = (data.page - 1) * data.per_page;
     const to = from + data.per_page - 1;
@@ -359,7 +380,8 @@ export const getRefunds = createServerFn({ method: "GET" })
       })
       .parse(d),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await checkAdmin(context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const from = (data.page - 1) * data.per_page;
     const to = from + data.per_page - 1;
@@ -383,6 +405,7 @@ export const processRefund = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data, context }) => {
+    await checkAdmin(context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     // Fetch invoice to validate refund policy
@@ -574,7 +597,8 @@ export const processRefund = createServerFn({ method: "POST" })
 
 export const getCashfreeStatus = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async () => {
+  .handler(async ({ context }) => {
+    await checkAdmin(context.userId);
     const appId = process.env.CASHFREE_APP_ID || "";
     const environment =
       appId.startsWith("TEST") || appId.includes("sandbox") ? "sandbox" : "production";
@@ -596,7 +620,8 @@ export const getAuditLogs = createServerFn({ method: "GET" })
       })
       .parse(d),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await checkAdmin(context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const from = (data.page - 1) * data.per_page;
     const to = from + data.per_page - 1;
@@ -621,6 +646,7 @@ export const createBillingExport = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data, context }) => {
+    await checkAdmin(context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("billing_exports").insert({
       user_id: context!.userId,
@@ -638,7 +664,8 @@ export const createBillingExport = createServerFn({ method: "POST" })
 export const getSubscriptionBillingData = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .validator((d: { user_id?: string }) => z.object({ user_id: z.string().optional() }).parse(d))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await checkAdmin(context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const uid = data.user_id;
 
@@ -679,7 +706,8 @@ export const exportBillingData = createServerFn({ method: "GET" })
       })
       .parse(d),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await checkAdmin(context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     let query: any;
 
@@ -722,7 +750,8 @@ export const exportBillingData = createServerFn({ method: "GET" })
 
 export const getCoupons = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async () => {
+  .handler(async ({ context }) => {
+    await checkAdmin(context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin
       .from("coupon_codes")
@@ -762,7 +791,8 @@ export const saveCoupon = createServerFn({ method: "POST" })
         })
         .parse(d),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await checkAdmin(context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const payload: any = {
       code: data.code.toUpperCase(),
@@ -789,7 +819,8 @@ export const saveCoupon = createServerFn({ method: "POST" })
 export const deleteCoupon = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((d: { id: string }) => z.object({ id: z.string().uuid() }).parse(d))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await checkAdmin(context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("coupon_codes").delete().eq("id", data.id);
     if (error) throw new Error(error.message);

@@ -1,10 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { verifyCronRequest } from "@/lib/cron-auth";
 
 export const Route = createFileRoute("/api/cron/auto-maintenance")({
   server: {
     handlers: {
-      GET: async () => {
+      GET: async ({ request }) => {
+        const denied = verifyCronRequest(request);
+        if (denied) return denied;
+
         const results: Record<string, unknown> = {};
 
         try {

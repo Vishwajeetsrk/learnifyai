@@ -11,10 +11,6 @@
     {
       "path": "/api/cron/auto-maintenance",
       "schedule": "0 0 * * *"
-    },
-    {
-      "path": "/api/cron/leaderboard-prizes",
-      "schedule": "0 18 * * 0"
     }
   ],
   "rewrites": [

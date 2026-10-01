@@ -83,9 +83,11 @@ export const requireSupabaseAuth = createMiddleware({ type: "function" }).server
     }
 
     if (!token) {
+      // Log only header NAMES (never values — values may contain Cookie,
+      // Authorization, or API-key material).
       console.log(
-        "[auth-middleware] No token found! Headers:",
-        Object.fromEntries(request.headers.entries()),
+        "[auth-middleware] No token found. Header names:",
+        Array.from(request.headers.keys()),
       );
       throw new Error("Unauthorized: No authorization header provided");
     }

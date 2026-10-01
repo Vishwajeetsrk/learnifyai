@@ -1,15 +1,33 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { redisRateLimit, RedisUnavailableError } from "@/lib/redis";
 import { z } from "zod";
 
 // ── In-memory rate limiter (per-user, sliding window) ──
 // Resembles a token-bucket: MAX_REQUESTS per WINDOW_MS.
-// Sufficient for single-instance Vercel; use Redis/KV for multi-instance.
+// Used as fallback when Redis (Upstash) is not configured or unreachable.
 const RATE_LIMIT_WINDOW_MS = 60_000; // 1 minute
 const RATE_LIMIT_MAX = 15; // max requests per window
 const rateLimitBuckets = new Map<string, number[]>();
 
-function isRateLimited(userId: string): boolean {
+/**
+ * Distributed-first rate limit: tries Redis, falls back to the in-memory
+ * limiter (never fails open to unlimited) when Redis is unavailable.
+ */
+async function isRateLimited(userId: string): Promise<boolean> {
+  try {
+    const result = await redisRateLimit(`chat:${userId}`, RATE_LIMIT_MAX, 60);
+    return !result.allowed;
+  } catch (err) {
+    if (!(err instanceof RedisUnavailableError)) {
+      // eslint-disable-next-line no-console
+      console.warn("[chat] Redis rate limit unavailable, using in-memory fallback");
+    }
+    return isRateLimitedMemory(userId);
+  }
+}
+
+function isRateLimitedMemory(userId: string): boolean {
   const now = Date.now();
   const timestamps = rateLimitBuckets.get(userId) ?? [];
   // Prune expired entries
@@ -125,7 +143,7 @@ export const Route = createFileRoute("/api/chat")({
         const userId = userData.user.id;
 
         // ── Rate limit check ──
-        if (isRateLimited(userId)) {
+        if (await isRateLimited(userId)) {
           return new Response(
             JSON.stringify({
               error: "Rate limit exceeded. Please wait a moment before sending another message.",

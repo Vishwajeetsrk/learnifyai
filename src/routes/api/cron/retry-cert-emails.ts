@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { verifyCronRequest } from "@/lib/cron-auth";
 import { sendEmail, buildHtml } from "@/lib/cert.functions";
 
 function resolveOrigin(): string {
@@ -13,13 +14,8 @@ export const Route = createFileRoute("/api/cron/retry-cert-emails")({
   server: {
     handlers: {
       GET: async ({ request }) => {
-        const authHeader = request.headers.get("authorization");
-        if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-          return new Response(JSON.stringify({ error: "Unauthorized" }), {
-            status: 401,
-            headers: { "Content-Type": "application/json" },
-          });
-        }
+        const denied = verifyCronRequest(request);
+        if (denied) return denied;
 
         try {
           const nowIso = new Date().toISOString();

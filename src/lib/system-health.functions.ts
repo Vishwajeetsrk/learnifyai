@@ -156,6 +156,26 @@ export const getSystemHealth = createServerFn({ method: "GET" })
       results.errors24h = null;
     }
 
+    // 8. Redis (Upstash) connectivity — never exposes credentials
+    try {
+      const { checkRedisHealth } = await import("@/lib/redis");
+      const redis = await checkRedisHealth();
+      results.redis = {
+        status:
+          redis.status === "connected"
+            ? "healthy"
+            : redis.status === "missing_config"
+              ? "not_configured"
+              : redis.status === "auth_error"
+                ? "error"
+                : "unreachable",
+        latency: redis.latencyMs,
+        message: redis.message,
+      };
+    } catch {
+      results.redis = { status: "unknown", message: "Redis check failed" };
+    }
+
     return results;
   });
 

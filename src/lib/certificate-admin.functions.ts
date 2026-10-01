@@ -2,9 +2,22 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 
+async function checkAdmin(userId: string) {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data: roles } = await supabaseAdmin
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userId);
+  const userRoles = (roles ?? []).map((r: any) => r.role);
+  if (!userRoles.includes("super_admin") && !userRoles.includes("admin")) {
+    throw new Error("Forbidden: Admin privileges required.");
+  }
+}
+
 export const listTemplates = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
+    await checkAdmin(context.userId);
     const { supabase } = context;
     const { data, error } = await supabase
       .from("certificate_templates")
@@ -32,6 +45,7 @@ export const saveTemplate = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data, context }) => {
+    await checkAdmin(context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { userId } = context;
     const templateType = data.type ?? "Certificate";
@@ -73,6 +87,7 @@ export const deleteTemplate = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
+    await checkAdmin(context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("certificate_templates").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
@@ -82,6 +97,7 @@ export const deleteTemplate = createServerFn({ method: "POST" })
 export const listCertificates = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
+    await checkAdmin(context.userId);
     const { supabase } = context;
     const { data, error } = await supabase
       .from("certificates")
@@ -111,6 +127,7 @@ export const verifyCertificateByCode = createServerFn({ method: "GET" })
 export const getCertificateStats = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
+    await checkAdmin(context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     // 1. Get counts
@@ -204,7 +221,8 @@ export const getCertificateStats = createServerFn({ method: "GET" })
 
 export const listAllCertificates = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async () => {
+  .handler(async ({ context }) => {
+    await checkAdmin(context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin
       .from("certificates")
@@ -226,7 +244,8 @@ export const listAllCertificates = createServerFn({ method: "GET" })
 
 export const getCertCategories = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async () => {
+  .handler(async ({ context }) => {
+    await checkAdmin(context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     // Fetch categories dynamically from templates & certs
@@ -380,7 +399,8 @@ export const getCertCategories = createServerFn({ method: "GET" })
 
 export const getCertSettings = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async () => {
+  .handler(async ({ context }) => {
+    await checkAdmin(context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data } = await supabaseAdmin
       .from("site_settings")
@@ -421,7 +441,8 @@ export const saveCertSettings = createServerFn({ method: "POST" })
       })
       .parse(d),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await checkAdmin(context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     for (const [key, value] of Object.entries(data)) {
@@ -454,6 +475,7 @@ export const bulkIssueCertificates = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data, context }) => {
+    await checkAdmin(context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const issuerId = context.userId!;
     let successCount = 0;

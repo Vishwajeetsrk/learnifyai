@@ -1,8 +1,22 @@
 import { createServerFn } from "@tanstack/react-start";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 // nodemailer is loaded lazily via dynamic import so it is never bundled
 // into the client-side JavaScript bundle (it's a Node.js-only module).
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+
+/** Admin role check (local helper — same pattern as other admin function files). */
+async function requireAdmin(userId?: string): Promise<void> {
+  if (!userId) throw new Error("Unauthorized");
+  const { data: roles } = await supabaseAdmin
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userId);
+  const list = ((roles ?? []) as Array<{ role: string }>).map((r) => r.role);
+  if (!list.includes("admin") && !list.includes("super_admin")) {
+    throw new Error("Forbidden: Admin role required");
+  }
+}
 
 // ─── HTML escape ──────────────────────────────────────────────────
 function escapeHtml(value: string) {
@@ -158,6 +172,23 @@ export const sendWelcomeEmail = createServerFn({ method: "POST" })
     z.object({ email: z.string().email(), fullName: z.string().optional() }).parse(input),
   )
   .handler(async ({ data }) => {
+    // No session may exist yet at signup time, so instead of auth we verify
+    // the recipient is a *recently registered* account (15 min window).
+    // The handle_new_user() trigger creates the profile row synchronously
+    // at signup, so a missing/stale profile means this is not a signup event.
+    // This closes the open-relay abuse vector while keeping signup working.
+    const { data: freshProfile } = await supabaseAdmin
+      .from("profiles")
+      .select("created_at")
+      .eq("email", data.email)
+      .maybeSingle();
+    const createdAt = freshProfile?.created_at
+      ? new Date(freshProfile.created_at as string).getTime()
+      : 0;
+    if (!freshProfile || Date.now() - createdAt > 15 * 60_000) {
+      throw new Error("Welcome email can only be sent for recently registered accounts.");
+    }
+
     const name = data.fullName?.trim() || "Learner";
     const tpl = await loadTemplate("welcome");
 
@@ -199,8 +230,11 @@ export const sendWelcomeEmail = createServerFn({ method: "POST" })
   });
 
 // ─── Admin: list templates ─────────────────────────────────────────
-export const adminListEmailTemplates = createServerFn({ method: "GET" }).handler(async () => {
-  const { data, error } = await (supabaseAdmin as any)
+export const adminListEmailTemplates = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await requireAdmin(context.userId);
+    const { data, error } = await (supabaseAdmin as any)
     .from("email_templates")
     .select("id, name, subject, description, variables, updated_at")
     .order("name");
@@ -210,8 +244,10 @@ export const adminListEmailTemplates = createServerFn({ method: "GET" }).handler
 
 // ─── Admin: get single template ────────────────────────────────────
 export const adminGetEmailTemplate = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .validator((input: unknown) => z.object({ id: z.string() }).parse(input))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await requireAdmin(context.userId);
     const { data: tpl, error } = await (supabaseAdmin as any)
       .from("email_templates")
       .select("*")
@@ -230,6 +266,7 @@ export const adminGetEmailTemplate = createServerFn({ method: "POST" })
 
 // ─── Admin: save (upsert) template ────────────────────────────────
 export const adminSaveEmailTemplate = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .validator((input: unknown) =>
     z
       .object({
@@ -241,7 +278,8 @@ export const adminSaveEmailTemplate = createServerFn({ method: "POST" })
       })
       .parse(input),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await requireAdmin(context.userId);
     const { error } = await (supabaseAdmin as any).from("email_templates").upsert(
       {
         id: data.id,
@@ -259,6 +297,7 @@ export const adminSaveEmailTemplate = createServerFn({ method: "POST" })
 
 // ─── Admin: send test email ────────────────────────────────────────
 export const adminSendTestEmail = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .validator((input: unknown) =>
     z
       .object({
@@ -267,7 +306,8 @@ export const adminSendTestEmail = createServerFn({ method: "POST" })
       })
       .parse(input),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await requireAdmin(context.userId);
     const tpl = await loadTemplate(data.templateId);
     if (!tpl) throw new Error("Template not found");
 

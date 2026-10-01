@@ -134,10 +134,12 @@ async function sendViaBrevoApi({
   subject: string;
   html: string;
 }) {
-  const apiKey = process.env.BREVO_API_KEY || process.env.BREVO_SMTP_KEY;
+  // REST API requires a v3 API key (starts with xkeysib-). An SMTP key
+  // (xsmtpsib-) is NOT valid here, so never fall back to BREVO_SMTP_KEY.
+  const apiKey = process.env.BREVO_API_KEY;
   const senderEmail = process.env.BREVO_SENDER_EMAIL || "support.learnifyai@gmail.com";
   const senderName = process.env.BREVO_SENDER_NAME || "Learnify AI";
-  if (!apiKey) throw new Error("No Brevo API key configured (BREVO_API_KEY or BREVO_SMTP_KEY)");
+  if (!apiKey) throw new Error("No Brevo v3 API key configured (BREVO_API_KEY)");
   const resp = await fetch("https://api.brevo.com/v3/smtp/email", {
     method: "POST",
     headers: {
@@ -175,7 +177,9 @@ export async function sendEmail({
   idempotencyKey?: string;
 }) {
   const RESEND_API_KEY = process.env.RESEND_API_KEY;
-  const BREVO_API_KEY = process.env.BREVO_API_KEY || process.env.BREVO_SMTP_KEY;
+  // v3 REST key only — SMTP keys (xsmtpsib-) are rejected by api.brevo.com,
+  // so they must not be passed here (step 5 uses SMTP properly).
+  const BREVO_API_KEY = process.env.BREVO_API_KEY;
   const BREVO_SMTP_KEY = process.env.BREVO_SMTP_KEY;
   const BREVO_SMTP_SERVER = process.env.BREVO_SMTP_SERVER;
   const BREVO_SMTP_PORT = process.env.BREVO_SMTP_PORT;
