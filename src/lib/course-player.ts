@@ -120,6 +120,9 @@ export function buildCourseVideoEmbedUrl(
     url.searchParams.set("autoplay", "1");
     url.searchParams.set("rel", "0");
     url.searchParams.set("modestbranding", "1");
+    url.searchParams.set("enablejsapi", "1");
+    if (startSeconds > 0) url.searchParams.set("start", Math.floor(startSeconds).toString());
+    if (origin) url.searchParams.set("origin", origin);
     return { ok: true, src: url.toString(), isYoutube: true };
   }
 

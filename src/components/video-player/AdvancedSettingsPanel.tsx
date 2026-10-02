@@ -5,10 +5,12 @@ import {
   Camera,
   Type,
   Palette,
-  Monitor,
-  Settings,
   X,
   Globe,
+  FileText,
+  ListVideo,
+  Presentation,
+  Keyboard,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -16,7 +18,6 @@ import { Switch } from "@/components/ui/switch";
 import {
   type VideoSettings,
   type CaptionStyle,
-  DEFAULT_CAPTION_STYLE,
   CAPTION_FONT_SIZES,
   CAPTION_FONTS,
   CAPTION_COLORS,
@@ -26,29 +27,41 @@ interface AdvancedSettingsPanelProps {
   settings: VideoSettings;
   onUpdate: (settings: Partial<VideoSettings>) => void;
   onScreenshot: () => void;
-  qualities: { id: string; label: string; width: number }[];
-  currentQuality: string;
-  onQualityChange: (quality: string) => void;
+  restrictDownload?: boolean;
+  restrictSpeed?: boolean;
   audioLanguage: string;
   onAudioLanguageChange: (lang: string) => void;
-  translationLanguage: string;
-  onTranslationLanguageChange: (lang: string) => void;
+  hasTranscript: boolean;
+  showTranscript: boolean;
+  onToggleTranscript: () => void;
+  hasSlides: boolean;
+  showSlides: boolean;
+  onToggleSlides: () => void;
+  showPlaylist: boolean;
+  onTogglePlaylist: () => void;
+  onShowShortcuts: () => void;
   onClose: () => void;
 }
 
-type SettingsView = "main" | "quality" | "captions" | "display" | "language";
+type SettingsView = "main" | "captions" | "display" | "language";
 
 export function AdvancedSettingsPanel({
   settings,
   onUpdate,
   onScreenshot,
-  qualities,
-  currentQuality,
-  onQualityChange,
+  restrictDownload = false,
+  restrictSpeed = false,
   audioLanguage,
   onAudioLanguageChange,
-  translationLanguage,
-  onTranslationLanguageChange,
+  hasTranscript,
+  showTranscript,
+  onToggleTranscript,
+  hasSlides,
+  showSlides,
+  onToggleSlides,
+  showPlaylist,
+  onTogglePlaylist,
+  onShowShortcuts,
   onClose,
 }: AdvancedSettingsPanelProps) {
   const [view, setView] = useState<SettingsView>("main");
@@ -69,7 +82,6 @@ export function AdvancedSettingsPanel({
         )}
         <h3 className="font-semibold text-sm">
           {view === "main" && "Settings"}
-          {view === "quality" && "Quality"}
           {view === "captions" && "Captions"}
           {view === "display" && "Display"}
           {view === "language" && "Audio & Language"}
@@ -96,17 +108,11 @@ export function AdvancedSettingsPanel({
       <Header />
 
       {view === "main" && (
-        <div className="p-2 space-y-1">
-          <SettingsRow
-            icon={<Monitor className="h-4 w-4" />}
-            label="Quality"
-            value={currentQuality}
-            onClick={() => setView("quality")}
-          />
+        <div className="p-2 space-y-1 overflow-y-auto">
           <SettingsRow
             icon={<Globe className="h-4 w-4" />}
             label="Audio & Language"
-            value={audioLanguage === "original" ? "English" : audioLanguage.toUpperCase()}
+            value={audioLanguage === "original" ? "Original" : audioLanguage.toUpperCase()}
             onClick={() => setView("language")}
           />
           <SettingsRow
@@ -120,12 +126,41 @@ export function AdvancedSettingsPanel({
             label="Display"
             onClick={() => setView("display")}
           />
-          <div className="border-t border-border mt-2 pt-2">
+          <div className="border-t border-border mt-2 pt-2 space-y-1">
+            {hasTranscript && (
+              <SettingsRow
+                icon={<FileText className="h-4 w-4" />}
+                label="Transcript"
+                value={showTranscript ? "On" : "Off"}
+                onClick={onToggleTranscript}
+              />
+            )}
             <SettingsRow
-              icon={<Camera className="h-4 w-4" />}
-              label="Screenshot"
-              onClick={onScreenshot}
+              icon={<ListVideo className="h-4 w-4" />}
+              label="Playlist"
+              value={showPlaylist ? "On" : "Off"}
+              onClick={onTogglePlaylist}
             />
+            {hasSlides && (
+              <SettingsRow
+                icon={<Presentation className="h-4 w-4" />}
+                label="Slides"
+                value={showSlides ? "On" : "Off"}
+                onClick={onToggleSlides}
+              />
+            )}
+            <SettingsRow
+              icon={<Keyboard className="h-4 w-4" />}
+              label="Keyboard shortcuts"
+              onClick={onShowShortcuts}
+            />
+            {!restrictDownload && (
+              <SettingsRow
+                icon={<Camera className="h-4 w-4" />}
+                label="Screenshot"
+                onClick={onScreenshot}
+              />
+            )}
           </div>
           <div className="border-t border-border mt-2 pt-2 px-3">
             <div className="flex items-center justify-between">
@@ -154,15 +189,15 @@ export function AdvancedSettingsPanel({
         <div className="p-3 space-y-4 overflow-y-auto max-h-[350px]">
           <div>
             <p className="text-[10px] font-semibold text-muted-foreground mb-2 uppercase tracking-wider">
-              AI Audio Track
+              Audio Track
             </p>
             <div className="space-y-1">
               {[
-                { code: "original", label: "Original Audio (English)" },
-                { code: "hi", label: "Hindi AI Dubbing" },
-                { code: "es", label: "Spanish AI Dubbing" },
-                { code: "fr", label: "French AI Dubbing" },
-                { code: "de", label: "German AI Dubbing" },
+                { code: "original", label: "Original audio" },
+                { code: "hi", label: "Hindi voice" },
+                { code: "es", label: "Spanish voice" },
+                { code: "fr", label: "French voice" },
+                { code: "de", label: "German voice" },
               ].map((lang) => (
                 <button
                   key={lang.code}
@@ -181,69 +216,10 @@ export function AdvancedSettingsPanel({
                 </button>
               ))}
             </div>
-          </div>
-
-          <div className="border-t border-border pt-3">
-            <p className="text-[10px] font-semibold text-muted-foreground mb-2 uppercase tracking-wider">
-              CC Translation
+            <p className="text-[10px] text-muted-foreground mt-2 leading-relaxed">
+              Alternate voices narrate the caption text using your browser speech engine.
             </p>
-            <div className="space-y-1">
-              {[
-                { code: "off", label: "Original (English)" },
-                { code: "hi", label: "Hindi (हिंदी)" },
-                { code: "es", label: "Spanish (Español)" },
-                { code: "fr", label: "French (Français)" },
-                { code: "de", label: "German (Deutsch)" },
-                { code: "te", label: "Telugu (తెలుగు)" },
-                { code: "ta", label: "Tamil (தமிழ்)" },
-                { code: "kn", label: "Kannada (ಕನ್ನಡ)" },
-              ].map((lang) => (
-                <button
-                  key={lang.code}
-                  onClick={() => {
-                    onTranslationLanguageChange(lang.code);
-                    setView("main");
-                  }}
-                  className={`w-full text-left px-3 py-1.5 rounded text-xs flex items-center justify-between transition ${
-                    translationLanguage === lang.code
-                      ? "bg-primary/15 text-primary font-medium"
-                      : "hover:bg-muted/50 text-muted-foreground"
-                  }`}
-                >
-                  <span>{lang.label}</span>
-                  {translationLanguage === lang.code && <Check className="h-3.5 w-3.5" />}
-                </button>
-              ))}
-            </div>
           </div>
-        </div>
-      )}
-
-      {view === "quality" && (
-        <div className="p-2 space-y-1">
-          {qualities.map((q) => (
-            <button
-              key={q.id}
-              onClick={() => {
-                onQualityChange(q.id);
-                setView("main");
-              }}
-              className={`w-full text-left px-3 py-2 rounded-lg text-xs flex items-center gap-2 transition ${
-                currentQuality === q.id
-                  ? "bg-primary/15 text-primary font-medium"
-                  : "hover:bg-muted/50 text-muted-foreground"
-              }`}
-              aria-label={`Set quality to ${q.label}`}
-            >
-              <span className="w-4">
-                {currentQuality === q.id && <Check className="h-3 w-3" />}
-              </span>
-              <span>{q.label}</span>
-            </button>
-          ))}
-          <p className="text-[10px] text-muted-foreground text-center mt-2 px-2">
-            Higher quality uses more bandwidth
-          </p>
         </div>
       )}
 
@@ -258,25 +234,27 @@ export function AdvancedSettingsPanel({
 
       {view === "display" && (
         <div className="p-3 space-y-4">
-          <div>
-            <p className="text-xs font-medium mb-2">Playback Speed</p>
-            <div className="flex items-center gap-3">
-              <Slider
-                value={[settings.playbackRate]}
-                onValueChange={(v) => onUpdate({ playbackRate: v[0] })}
-                min={0.25}
-                max={2}
-                step={0.25}
-                aria-label="Playback speed"
-              />
-              <span className="text-xs font-mono w-8 text-right">{settings.playbackRate}x</span>
+          {!restrictSpeed && (
+            <div>
+              <p className="text-xs font-medium mb-2">Playback Speed</p>
+              <div className="flex items-center gap-3">
+                <Slider
+                  value={[settings.playbackRate]}
+                  onValueChange={(v) => onUpdate({ playbackRate: v[0] })}
+                  min={0.25}
+                  max={2}
+                  step={0.25}
+                  aria-label="Playback speed"
+                />
+                <span className="text-xs font-mono w-8 text-right">{settings.playbackRate}x</span>
+              </div>
+              <div className="flex justify-between text-[10px] text-muted-foreground mt-1">
+                <span>0.25x</span>
+                <span>1x</span>
+                <span>2x</span>
+              </div>
             </div>
-            <div className="flex justify-between text-[10px] text-muted-foreground mt-1">
-              <span>0.25x</span>
-              <span>1x</span>
-              <span>2x</span>
-            </div>
-          </div>
+          )}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-xs">Theater mode</span>

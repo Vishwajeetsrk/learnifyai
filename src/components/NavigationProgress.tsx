@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
  */
 export function NavigationProgress() {
   const isLoading = useRouterState({
-    select: (s) => s.status === "pending" || s.isLoading || s.isTransitioning,
+    select: (s) => s.status === "pending" || s.isLoading,
   });
   const [visible, setVisible] = useState(false);
   const [progress, setProgress] = useState(0);

@@ -37,7 +37,7 @@ const APPROVED_SECTIONS: FooterSection[] = [
       { label: "Free Courses", url: "/courses?filter=free" },
       { label: "Learning Resources", url: "/docs" },
       { label: "Blog", url: "/blog" },
-      { label: "Guides", url: "/docs" },
+      { label: "Guides", url: "/blog/ultimate-guide-free-courses-certificates-2026" },
     ],
   },
   {

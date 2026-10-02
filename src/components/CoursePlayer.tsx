@@ -1,4 +1,3 @@
-import { useState, useCallback, useMemo } from "react";
 import { AdvancedVideoPlayer } from "./video-player/AdvancedVideoPlayer";
 import { CustomVideoPlayer } from "./CustomVideoPlayer";
 import type { LessonSlide, TranscriptEntry, SubtitleTrack } from "./video-player/types";
@@ -11,7 +10,7 @@ interface CoursePlayerProps {
   restrictDownload?: boolean;
   restrictSpeed?: boolean;
   onReady?: () => void;
-  onError?: (e: any) => void;
+  onError?: (e?: unknown) => void;
   onProgress?: (state: { playedSeconds: number; played: number; loaded: number }) => void;
   onEnded?: () => void;
 
@@ -33,6 +32,17 @@ interface CoursePlayerProps {
   slides?: LessonSlide[];
 }
 
+const EMPTY_LESSONS: {
+  id: string;
+  title: string;
+  duration: string;
+  completed: boolean;
+  videoUrl?: string;
+}[] = [];
+const EMPTY_TRANSCRIPT: TranscriptEntry[] = [];
+const EMPTY_TRACKS: SubtitleTrack[] = [];
+const EMPTY_SLIDES: LessonSlide[] = [];
+
 export function CoursePlayer({
   url,
   thumbnailUrl,
@@ -46,14 +56,19 @@ export function CoursePlayer({
   onEnded,
   mode = "basic",
   title = "",
-  lessons = [],
+  lessons,
   currentLessonId,
   onLessonClick,
   onComplete,
-  transcriptEntries = [],
-  subtitleTracks = [],
-  slides = [],
+  transcriptEntries,
+  subtitleTracks,
+  slides,
 }: CoursePlayerProps) {
+  const resolvedLessons = lessons ?? EMPTY_LESSONS;
+  const resolvedTranscript = transcriptEntries ?? EMPTY_TRANSCRIPT;
+  const resolvedTracks = subtitleTracks ?? EMPTY_TRACKS;
+  const resolvedSlides = slides ?? EMPTY_SLIDES;
+
   // Basic mode: use the existing CustomVideoPlayer
   if (mode === "basic") {
     return (
@@ -80,13 +95,21 @@ export function CoursePlayer({
       videoUrl={url}
       thumbnailUrl={thumbnailUrl}
       title={title}
-      lessons={lessons}
+      lessons={resolvedLessons}
       currentLessonId={currentLessonId || ""}
       onLessonClick={onLessonClick || (() => {})}
       onComplete={onComplete}
-      transcriptEntries={transcriptEntries}
-      subtitleTracks={subtitleTracks}
-      slides={slides}
+      onEnded={onEnded}
+      onReady={onReady}
+      onError={onError}
+      onProgress={onProgress}
+      startSeconds={startSeconds}
+      playbackRate={playbackRate}
+      restrictDownload={restrictDownload}
+      restrictSpeed={restrictSpeed}
+      transcriptEntries={resolvedTranscript}
+      subtitleTracks={resolvedTracks}
+      slides={resolvedSlides}
       isYouTube={isYouTube}
     />
   );

@@ -26,7 +26,8 @@ export const Route = createFileRoute("/_authenticated/studio")({
       <div className="max-w-lg mx-auto p-10 text-center space-y-3">
         <h2 className="text-lg font-display font-semibold">Studio hit a snag</h2>
         <p className="text-sm text-muted-foreground break-words">
-          {error.message || "Something went wrong loading Studio."}
+          {error instanceof Error ? error.message : String(error || "") ||
+            "Something went wrong loading Studio."}
         </p>
         <div className="flex justify-center gap-2 pt-2">
           <Button onClick={() => reset()}>Try again</Button>

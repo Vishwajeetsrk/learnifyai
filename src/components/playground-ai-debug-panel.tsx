@@ -30,55 +30,58 @@ const ACTIONS: {
     key: "diagnose",
     label: "Diagnose",
     Icon: Sparkles,
-    prompt: (_l, q) => q || "Diagnose any issue and return the full fixed program.",
+    prompt: (_l, q) =>
+      q ||
+      "Diagnose why this program fails using the stderr and exit code. State the root cause in 2-3 bullets, then return the complete corrected program in one fenced code block.",
   },
   {
     key: "explain",
     label: "Explain",
     Icon: BookOpen,
     prompt: (_l) =>
-      "Explain what this code does step by step in plain language. Then re-output the same code unchanged so the editor stays intact.",
+      "Explain what this code does step by step in plain language, including inputs, outputs, and any edge cases it handles. Then re-output the same code unchanged so the editor stays intact.",
   },
   {
     key: "fix",
     label: "Fix errors",
     Icon: Wrench,
-    prompt: () => "Find and fix any bugs or runtime errors. Return the corrected full program.",
+    prompt: () =>
+      "Find and fix all bugs and runtime errors in this program. Return the complete corrected program in one fenced code block, then 1-3 bullets on what changed and why.",
   },
   {
     key: "optimize",
     label: "Optimize",
     Icon: Zap,
     prompt: () =>
-      "Refactor for readability and performance. Keep behaviour identical. Return the optimized full program.",
+      "Refactor this program for readability and performance while keeping behaviour identical. Return the complete optimized program in one fenced code block, then brief bullets on the improvements.",
   },
   {
     key: "convert",
     label: "Convert",
     Icon: RefreshCcw,
     prompt: (_l, q) =>
-      `Convert this program to ${q || "TypeScript"}. Return the converted full program in a fenced code block tagged with the target language.`,
+      `Convert this program to ${q || "TypeScript"}, preserving behaviour and using idiomatic constructs and the standard library of the target language. Return the converted full program in one fenced code block tagged with the target language.`,
   },
   {
     key: "tests",
     label: "Tests",
     Icon: FlaskConical,
     prompt: (l) =>
-      `Write unit tests for this ${l} program using the language's standard test conventions. Return the test file as a fenced code block.`,
+      `Write unit tests for this ${l} program using the language's standard test framework and conventions (include the command to run them). Return the complete test file as one fenced code block.`,
   },
   {
     key: "docs",
     label: "Docs",
     Icon: FileText,
     prompt: () =>
-      "Add concise docstrings/comments to every public function or type. Return the documented full program.",
+      "Add concise docstrings and comments to every public function, type, and exported symbol without changing any logic. Return the documented full program in one fenced code block.",
   },
   {
     key: "generate",
     label: "Generate",
     Icon: Pencil,
     prompt: (l, q) =>
-      `Generate ${l} code that does the following: ${q || "describe what you want in the input box."} Return only the program in a fenced code block.`,
+      `Generate ${l} code that does the following: ${q || "describe what you want in the input box."} Return only the complete program in one fenced code block. If details are missing, make reasonable assumptions and list them in 1-2 bullets after the code.`,
   },
 ];
 

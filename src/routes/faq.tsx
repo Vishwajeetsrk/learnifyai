@@ -98,7 +98,9 @@ export const Route = createFileRoute("/faq")({
   component: FaqPage,
   errorComponent: ({ error }) => (
     <div className="min-h-screen grid place-items-center p-10 text-center">
-      <p className="text-sm text-muted-foreground">Couldn't load FAQs: {error.message}</p>
+      <p className="text-sm text-muted-foreground">
+        Couldn't load FAQs: {error instanceof Error ? error.message : String(error)}
+      </p>
     </div>
   ),
 });

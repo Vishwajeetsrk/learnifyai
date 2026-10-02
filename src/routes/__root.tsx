@@ -67,26 +67,27 @@ function NotFoundComponent() {
   );
 }
 
-function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
-  console.error(error);
+function ErrorComponent({ error, reset }: { error: unknown; reset: () => void }) {
+  const err = error instanceof Error ? error : new Error(String(error ?? "Unknown error"));
+  console.error(err);
   const router = useRouter();
   useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
+    reportLovableError(err, { boundary: "tanstack_root_error_component" });
     // Auto-reload on stale build chunk error (when a new deployment replaces old JS chunks)
     if (
-      error?.message?.includes("Failed to fetch dynamically imported module") ||
-      error?.message?.includes("Importing a module script failed") ||
-      error?.message?.includes("Cannot access") ||
-      error?.message?.includes("before initialization") ||
-      error?.name === "ChunkLoadError" ||
-      (error?.name === "ReferenceError" && error?.message?.includes("before initialization"))
+      err?.message?.includes("Failed to fetch dynamically imported module") ||
+      err?.message?.includes("Importing a module script failed") ||
+      err?.message?.includes("Cannot access") ||
+      err?.message?.includes("before initialization") ||
+      err?.name === "ChunkLoadError" ||
+      (err?.name === "ReferenceError" && err?.message?.includes("before initialization"))
     ) {
       if (typeof window !== "undefined" && "caches" in window) {
         caches.keys().then((keys) => Promise.all(keys.map((k) => caches.delete(k))));
       }
       window.location.reload();
     }
-  }, [error]);
+  }, [err]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -110,9 +111,9 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
                 Error details (dev only)
               </summary>
               <pre className="mt-2 rounded-lg bg-muted p-3 text-xs overflow-x-auto text-foreground/80">
-                {error.message}
+                {err.message}
                 {"\n"}
-                {error.stack}
+                {err.stack}
               </pre>
             </details>
           )}

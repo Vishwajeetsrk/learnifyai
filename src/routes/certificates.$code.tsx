@@ -32,7 +32,9 @@ export const Route = createFileRoute("/certificates/$code")({
     <div className="min-h-screen grid place-items-center p-10 text-center">
       <div>
         <Award className="h-10 w-10 mx-auto text-muted-foreground" />
-        <p className="mt-4 text-sm text-muted-foreground">{error.message}</p>
+        <p className="mt-4 text-sm text-muted-foreground">
+          {error instanceof Error ? error.message : String(error)}
+        </p>
         <Link to="/" className="text-primary underline text-sm mt-2 inline-block">
           Home
         </Link>

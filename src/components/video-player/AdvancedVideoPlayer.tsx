@@ -1,7 +1,8 @@
-import { useState, useRef, useEffect, useCallback, useMemo } from "react";
+﻿import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import {
   Play,
   Pause,
+  Volume1,
   Volume2,
   VolumeX,
   Maximize,
@@ -13,10 +14,7 @@ import {
   SkipBack,
   MessageSquare,
   PictureInPicture,
-  Camera,
-  HelpCircle,
   List,
-  Globe,
   Subtitles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -36,114 +34,6 @@ import { CaptionPanel } from "./CaptionPanel";
 import { AdvancedSettingsPanel } from "./AdvancedSettingsPanel";
 import { KeyboardShortcutsOverlay } from "./KeyboardShortcutsOverlay";
 
-const TRANSLATION_DICTS: Record<string, Record<string, string>> = {
-  hi: {
-    "Welcome to this lesson on:": "इस पाठ में आपका स्वागत है:",
-    "In this session, we will explore the core fundamentals and advanced concepts.":
-      "इस सत्र में, हम मुख्य सिद्धांतों और उन्नत अवधारणाओं का पता लगाएंगे।",
-    "Remember that practice is key to mastering these techniques.":
-      "याद रखें कि इन तकनीकों में महारत हासिल करने के लिए अभ्यास ही कुंजी है।",
-    "If you have any doubts, you can ask the AI Tutor in the side panel.":
-      "यदि आपको कोई संदेह है, तो आप साइड पैनल में एआई ट्यूटर से पूछ सकते हैं।",
-    "Let's proceed by writing some code in the interactive playground.":
-      "आइए इंटरैक्टिव प्लेग्राउंड में कुछ कोड लिखकर आगे बढ़ें।",
-    "We will wrap up this topic and proceed to the practice quiz next.":
-      "हम इस विषय को समाप्त करेंगे और आगे अभ्यास प्रश्नोत्तरी पर चलेंगे।",
-    "Thank you for watching! Complete the assessment to claim your certificate.":
-      "देखने के लिए धन्यवाद! अपना प्रमाणपत्र प्राप्त करने के लिए मूल्यांकन पूरा करें।",
-  },
-  es: {
-    "Welcome to this lesson on:": "Bienvenido a esta lección sobre:",
-    "In this session, we will explore the core fundamentals and advanced concepts.":
-      "En esta sesión, exploraremos los fundamentos básicos y los conceptos avanzados.",
-    "Remember that practice is key to mastering these techniques.":
-      "Recuerda que la práctica es clave para dominar estas técnicas.",
-    "If you have any doubts, you can ask the AI Tutor in the side panel.":
-      "Si tienes alguna duda, puedes preguntar al Tutor de IA en el panel lateral.",
-    "Let's proceed by writing some code in the interactive playground.":
-      "Procedamos escribiendo algo de código en el patio de recreo interactivo.",
-    "We will wrap up this topic and proceed to the practice quiz next.":
-      "Terminaremos este tema y procederemos al cuestionario de práctica a continuación.",
-    "Thank you for watching! Complete the assessment to claim your certificate.":
-      "¡Gracias por mirar! Completa la evaluación para reclamar tu certificado.",
-  },
-  fr: {
-    "Welcome to this lesson on:": "Bienvenue dans cette leçon sur :",
-    "In this session, we will explore the core fundamentals and advanced concepts.":
-      "Dans cette session, nous explorerons les fondamentaux de base et les concepts avancés.",
-    "Remember that practice is key to mastering these techniques.":
-      "N'oubliez pas que la pratique est la clé pour maîtriser ces techniques.",
-    "If you have any doubts, you can ask the tuteur IA in the side panel.":
-      "Si vous avez des doutes, vous pouvez demander au tuteur IA dans le panneau latéral.",
-    "Let's proceed by writing some code in the interactive playground.":
-      "Commençons par écrire du code dans l'espace de jeu interactif.",
-    "We will wrap up this topic and proceed to the practice quiz next.":
-      "Nous allons terminer ce sujet et passer ensuite au quiz d'entraînement.",
-    "Thank you for watching! Complete the assessment to claim your certificate.":
-      "Merci d'avoir regardé ! Remplissez l'évaluation pour obtenir votre certificat.",
-  },
-  de: {
-    "Welcome to this lesson on:": "Willkommen zu dieser Lektion über:",
-    "In this session, we will explore the core fundamentals and advanced concepts.":
-      "In dieser Sitzung werden wir die Grundlagen und fortgeschrittenen Konzepte untersuchen.",
-    "Remember that practice is key to mastering these techniques.":
-      "Denken Sie daran, dass Übung der Schlüssel zur Beherrschung dieser Techniken ist.",
-    "If you have any doubts, you can ask the KI-Tutor in the side panel.":
-      "Wenn Sie Zweifel haben, können Sie den KI-Tutor in der Seitenleiste fragen.",
-    "Let's proceed by writing some code in the interactive playground.":
-      "Schreiben wir etwas Code auf dem interaktiven Spielplatz.",
-    "We will wrap up this topic and proceed to the practice quiz next.":
-      "Wir werden dieses Thema abschließen und als Nächstes mit dem Übungsquiz fortfahren.",
-    "Thank you for watching! Complete the assessment to claim your certificate.":
-      "Vielen Dank fürs Zuschauen! Schließen Sie die Bewertung ab, um Ihr Zertifikat anzufordern.",
-  },
-  te: {
-    "Welcome to this lesson on:": "ಈ ಪಾಠಕ್ಕೆ ಸುಸ್ವಾಗತ:",
-    "In this session, we will explore the core fundamentals and advanced concepts.":
-      "ಈ ಅವಧಿಯಲ್ಲಿ, ನಾವು ಮೂಲಭೂತ ಮತ್ತು ಸುಧಾರಿತ ಪರಿಕಲ್ಪನೆಗಳನ್ನು ಅನ್ವೇಷಿಸುತ್ತೇವೆ.",
-    "Remember that practice is key to mastering these techniques.":
-      "ಈ ತಂತ್ರಗಳನ್ನು ಕರಗತ ಮಾಡಿಕೊಳ್ಳಲು ಅಭ್ಯಾಸವೇ ಪ್ರಮುಖವಾಗಿದೆ ಎಂದು ನೆನಪಿಡಿ.",
-    "If you have any doubts, you can ask the AI Tutor in the side panel.":
-      "ನಿಮಗೆ ಯಾವುದೇ ಸಂದೇಹಗಳಿದ್ದರೆ, ನೀವು ಸೈಡ್ ಪ್ಯಾನೆಲ್‌ನಲ್ಲಿರುವ AI ಟ್ಯೂಟರ್ ಅನ್ನು ಕೇಳಬಹುದು.",
-    "Let's proceed by writing some code in the interactive playground.":
-      "ಸಂವಾದಾತ್ಮಕ ಆಟದ ಮೈದಾನದಲ್ಲಿ ಕೆಲವು ಕೋಡ್ ಬರೆಯುವ ಮೂಲಕ ಮುಂದುವರಿಯೋಣ.",
-    "We will wrap up this topic and proceed to the practice quiz next.":
-      "ನಾವು ಈ ವಿಷಯವನ್ನು ಮುಕ್ತಾಯಗೊಳಿಸುತ್ತೇವೆ ಮತ್ತು ಮುಂದೆ ಅಭ್ಯಾಸ ರಸಪ್ರಶ್ನೆಗೆ ಮುಂದುವರಿಯುತ್ತೇವೆ.",
-    "Thank you for watching! Complete the assessment to claim your certificate.":
-      "ನೋಡಿದ್ದಕ್ಕಾಗಿ ಧನ್ಯವಾದಗಳು! ನಿಮ್ಮ ಪ್ರಮಾಣಪತ್ರವನ್ನು ಪಡೆಯಲು ಮೌಲ್ಯಮಾಪನವನ್ನು ಪೂರ್ಣಗೊಳಿಸಿ.",
-  },
-  ta: {
-    "Welcome to this lesson on:": "இந்த பாடத்திற்கு உங்களை வரவேற்கிறோம்:",
-    "In this session, we will explore the core fundamentals and advanced concepts.":
-      "இந்த அமர்வில், அடிப்படை மற்றும் மேம்பட்ட கருத்துக்களை ஆராய்வோம்.",
-    "Remember that practice is key to mastering these techniques.":
-      "இந்த நுட்பங்களை மாஸ்டர் செய்ய பயிற்சி முக்கியம் என்பதை நினைவில் கொள்க.",
-    "If you have any doubts, you can ask the AI Tutor in the side panel.":
-      "உங்களுக்கு ஏதேனும் சந்தேகங்கள் இருந்தால், பக்கவாட்டு பேனலில் உள்ள AI பயிற்சியாளரிடம் கேட்கலாம்.",
-    "Let's proceed by writing some code in the interactive playground.":
-      "ஊடாடும் விளையாட்டு மைதானத்தில் சில குறியீட்டை எழுதி தொடர்வோம்.",
-    "We will wrap up this topic and proceed to the practice quiz next.":
-      "இந்த தலைப்பை முடித்துவிட்டு அடுத்ததாக பயிற்சி வினாடி வினாவிற்கு செல்வோம்.",
-    "Thank you for watching! Complete the assessment to claim your certificate.":
-      "பார்த்ததற்கு நன்றி! உங்கள் சான்றிதழைக் கோர மதிப்பீட்டை முடிக்கவும்.",
-  },
-  kn: {
-    "Welcome to this lesson on:": "ಈ ಪಾಠಕ್ಕೆ ಸುಸ್ವಾಗತ:",
-    "In this session, we will explore the core fundamentals and advanced concepts.":
-      "ಈ ಅವಧಿಯಲ್ಲಿ, ನಾವು ಮೂಲಭೂತ ಮತ್ತು ಸುಧಾರಿತ ಪರಿಕಲ್ಪನೆಗಳನ್ನು ಅನ್ವೇಷಿಸುತ್ತೇವೆ.",
-    "Remember that practice is key to mastering these techniques.":
-      "ಈ ತಂತ್ರಗಳನ್ನು ಕರಗತ ಮಾಡಿಕೊಳ್ಳಲು ಅಭ್ಯಾಸವೇ ಪ್ರಮುಖವಾಗಿದೆ ಎಂದು ನೆನಪಿಡಿ.",
-    "If you have any doubts, you can ask the AI Tutor in the side panel.":
-      "ನಿಮಗೆ ಯಾವುದೇ ಸಂದೇಹಗಳಿದ್ದರೆ, ನೀವು ಸೈಡ್ ಪ್ಯಾನೆಲ್‌ನಲ್ಲಿರುವ AI ಟ್ಯೂಟರ್ ಅನ್ನು ಕೇಳಬಹುದು.",
-    "Let's proceed by writing some code in the interactive playground.":
-      "ಸಂವಾದಾತ್ಮಕ ಆಟದ ಮೈದಾನದಲ್ಲಿ ಕೆಲವು ಕೋಡ್ ಬರೆಯುವ ಮೂಲಕ ಮುಂದುವರಿಯೋಣ.",
-    "We will wrap up this topic and proceed to the practice quiz next.":
-      "ನಾವು ಈ ವಿಷಯವನ್ನು ಮುಕ್ತಾಯಗೊಳಿಸುತ್ತೇವೆ ಮತ್ತು ಮುಂದೆ ಅಭ್ಯಾಸ ರಸಪ್ರಶ್ನೆಗೆ ಮುಂದುವರಿಯುತ್ತೇವೆ.",
-    "Thank you for watching! Complete the assessment to claim your certificate.":
-      "ನೋಡಿದ್ದಕ್ಕಾಗಿ ಧನ್ಯವಾದಗಳು! ನಿಮ್ಮ ಪ್ರಮಾಣಪತ್ರವನ್ನು ಪಡೆಯಲು ಮೌಲ್ಯಮಾಪನವನ್ನು ಪೂರ್ಣಗೊಳಿಸಿ.",
-  },
-};
-
 interface AdvancedVideoPlayerProps {
   videoUrl: string;
   thumbnailUrl?: string;
@@ -152,6 +42,14 @@ interface AdvancedVideoPlayerProps {
   currentLessonId: string;
   onLessonClick: (id: string) => void;
   onComplete?: (lessonId: string) => void;
+  onEnded?: () => void;
+  onProgress?: (state: { playedSeconds: number; played: number; loaded: number }) => void;
+  onReady?: () => void;
+  onError?: (e?: unknown) => void;
+  startSeconds?: number;
+  playbackRate?: number;
+  restrictDownload?: boolean;
+  restrictSpeed?: boolean;
   transcriptEntries?: TranscriptEntry[];
   subtitleTracks?: SubtitleTrack[];
   slides?: LessonSlide[];
@@ -166,15 +64,26 @@ export function AdvancedVideoPlayer({
   currentLessonId,
   onLessonClick,
   onComplete,
+  onEnded,
+  onProgress,
+  onReady,
+  onError,
+  startSeconds = 0,
+  playbackRate = 1,
+  restrictDownload = false,
+  restrictSpeed = false,
   transcriptEntries = [],
   subtitleTracks = [],
   slides = [],
   isYouTube = false,
 }: AdvancedVideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
   const hideControlsTimer = useRef<ReturnType<typeof setTimeout>>(null);
+  const onEndedRef = useRef(onEnded);
+  onEndedRef.current = onEnded;
 
   const [playing, setPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -198,8 +107,7 @@ export function AdvancedVideoPlayer({
 
   // Settings
   const [settings, setSettings] = useState<VideoSettings>({
-    quality: "auto",
-    playbackRate: 1,
+    playbackRate,
     captionsEnabled: false,
     captionStyle: DEFAULT_CAPTION_STYLE,
     autoNextLesson: true,
@@ -212,63 +120,40 @@ export function AdvancedVideoPlayer({
   const [tracks, setTracks] = useState<SubtitleTrack[]>(subtitleTracks);
   const [activeTrack, setActiveTrack] = useState<SubtitleTrack | null>(null);
   const [audioLanguage, setAudioLanguage] = useState<string>("original");
-  const [translationLanguage, setTranslationLanguage] = useState<string>("off");
 
-  // Auto-generate captions if none passed
+  // Install caption tracks from real sources: explicit subtitle tracks, or the lesson transcript.
+  const installedTracksRef = useRef<string>("");
   useEffect(() => {
-    if (subtitleTracks.length > 0) {
-      setTracks(subtitleTracks);
-      setActiveTrack(subtitleTracks[0]);
-    } else {
-      const currentLesson = lessons.find((l) => l.id === currentLessonId);
-      const lessonTitle = currentLesson?.title || title || "Introduction";
-      const generatedCues: TranscriptEntry[] = [
-        { start: 1, end: 6, text: `Welcome to this lesson on:` },
-        { start: 6, end: 10, text: lessonTitle },
-        {
-          start: 12,
-          end: 20,
-          text: "In this session, we will explore the core fundamentals and advanced concepts.",
-        },
-        {
-          start: 24,
-          end: 32,
-          text: "Remember that practice is key to mastering these techniques.",
-        },
-        {
-          start: 36,
-          end: 44,
-          text: "If you have any doubts, you can ask the AI Tutor in the side panel.",
-        },
-        {
-          start: 48,
-          end: 56,
-          text: "Let's proceed by writing some code in the interactive playground.",
-        },
-        {
-          start: 60,
-          end: 68,
-          text: "We will wrap up this topic and proceed to the practice quiz next.",
-        },
-        {
-          start: 72,
-          end: 82,
-          text: "Thank you for watching! Complete the assessment to claim your certificate.",
-        },
-      ];
+    const sig = subtitleTracks.length
+      ? `st:${subtitleTracks.map((t) => t.id).join(",")}`
+      : transcriptEntries.length > 0
+        ? `te:${transcriptEntries.length}:${transcriptEntries[0]?.text ?? ""}:${transcriptEntries[transcriptEntries.length - 1]?.text ?? ""}`
+        : "none";
+    if (installedTracksRef.current === sig) return;
+    const wasEmpty = !installedTracksRef.current || installedTracksRef.current === "none";
+    installedTracksRef.current = sig;
 
-      const defaultTrack: SubtitleTrack = {
-        id: "auto-english",
-        label: "English (AI Auto-generated)",
+    if (subtitleTracks.length > 0) {
+      const first = subtitleTracks.find((t) => t.isDefault) ?? subtitleTracks[0];
+      setTracks(subtitleTracks);
+      setActiveTrack(first);
+      if (wasEmpty) setSettings((s) => ({ ...s, captionsEnabled: true }));
+    } else if (transcriptEntries.length > 0) {
+      const derived: SubtitleTrack = {
+        id: "lesson-transcript",
+        label: "Lesson transcript",
         language: "en",
-        cues: generatedCues,
+        cues: transcriptEntries,
         isDefault: true,
       };
-
-      setTracks([defaultTrack]);
-      setActiveTrack(defaultTrack);
+      setTracks([derived]);
+      setActiveTrack(derived);
+      if (wasEmpty) setSettings((s) => ({ ...s, captionsEnabled: true }));
+    } else {
+      setTracks([]);
+      setActiveTrack(null);
     }
-  }, [subtitleTracks, lessons, currentLessonId, title]);
+  }, [subtitleTracks, transcriptEntries]);
 
   // Active caption cue
   const activeCue = useMemo(() => {
@@ -294,16 +179,7 @@ export function AdvancedVideoPlayer({
     [slides, isYouTube],
   );
 
-  // Translated cue text
-  const translatedCueText = useMemo(() => {
-    if (!activeCue) return null;
-    if (translationLanguage === "off") return activeCue.text;
-    const dict = TRANSLATION_DICTS[translationLanguage];
-    if (dict && dict[activeCue.text]) return dict[activeCue.text];
-    return `[${translationLanguage.toUpperCase()}] ${activeCue.text}`;
-  }, [activeCue, translationLanguage]);
-
-  // Speech synthesis speaking loop
+  // Speech synthesis speaking loop (AI audio track reads the real cue text in the target voice)
   const spokenCueRef = useRef<string | null>(null);
   useEffect(() => {
     const video = videoRef.current;
@@ -322,16 +198,10 @@ export function AdvancedVideoPlayer({
       return;
     }
 
-    // Determine target text to speak
-    const targetText =
-      translationLanguage !== "off"
-        ? TRANSLATION_DICTS[translationLanguage]?.[activeCue.text] || activeCue.text
-        : TRANSLATION_DICTS[audioLanguage]?.[activeCue.text] || activeCue.text;
-
     if (spokenCueRef.current !== activeCue.text) {
       speechSynthesis.cancel();
       if (playing) {
-        const utterance = new SpeechSynthesisUtterance(targetText);
+        const utterance = new SpeechSynthesisUtterance(activeCue.text);
         utterance.lang = audioLanguage;
         const voices = speechSynthesis.getVoices();
         const matchingVoice = voices.find((v) => v.lang.startsWith(audioLanguage));
@@ -342,7 +212,7 @@ export function AdvancedVideoPlayer({
         spokenCueRef.current = activeCue.text;
       }
     }
-  }, [activeCue, audioLanguage, translationLanguage, playing, isYouTube, muted]);
+  }, [activeCue, audioLanguage, playing, isYouTube, muted]);
 
   // Pause/Resume SpeechSynthesis with player play/pause
   useEffect(() => {
@@ -367,17 +237,45 @@ export function AdvancedVideoPlayer({
     const video = videoRef.current;
     if (!video || isYouTube) return;
 
-    const onTimeUpdate = () => setCurrentTime(video.currentTime);
-    const onDurationChange = () => setDuration(video.duration);
+    let readyFired = false;
+    const onLoadedMetadata = () => {
+      setDuration(video.duration || 0);
+      if (
+        settings.resumePlayback &&
+        startSeconds > 1 &&
+        video.duration > 0 &&
+        startSeconds < video.duration * 0.95
+      ) {
+        video.currentTime = startSeconds;
+      }
+      if (!readyFired) {
+        readyFired = true;
+        onReady?.();
+      }
+    };
+    const onTimeUpdate = () => {
+      setCurrentTime(video.currentTime);
+      onProgress?.({
+        playedSeconds: video.currentTime,
+        played: video.duration ? video.currentTime / video.duration : 0,
+        loaded: video.duration ? video.buffered.length ? video.buffered.end(video.buffered.length - 1) / video.duration : 0 : 0,
+      });
+    };
+    const onDurationChange = () => setDuration(video.duration || 0);
     const onPlay = () => setPlaying(true);
     const onPause = () => setPlaying(false);
     const onEnded = () => {
       onComplete?.(currentLessonId);
-      if (settings.autoNextLesson && currentLessonIndex < lessons.length - 1) {
-        onLessonClick(lessons[currentLessonIndex + 1].id);
+      if (settings.autoNextLesson) {
+        if (onEndedRef.current) {
+          onEndedRef.current();
+        } else if (currentLessonIndex < lessons.length - 1) {
+          onLessonClick(lessons[currentLessonIndex + 1].id);
+        }
       }
     };
-    const onProgress = () => {
+    const onErrorEvent = () => onError?.();
+    const onBuffered = () => {
       if (video.buffered.length > 0) {
         setBuffered(video.buffered.end(video.buffered.length - 1));
       }
@@ -387,31 +285,40 @@ export function AdvancedVideoPlayer({
       setMuted(video.muted);
     };
 
+    video.addEventListener("loadedmetadata", onLoadedMetadata);
     video.addEventListener("timeupdate", onTimeUpdate);
     video.addEventListener("durationchange", onDurationChange);
     video.addEventListener("play", onPlay);
     video.addEventListener("pause", onPause);
     video.addEventListener("ended", onEnded);
-    video.addEventListener("progress", onProgress);
+    video.addEventListener("error", onErrorEvent);
+    video.addEventListener("progress", onBuffered);
     video.addEventListener("volumechange", onVolumeChange);
 
     return () => {
+      video.removeEventListener("loadedmetadata", onLoadedMetadata);
       video.removeEventListener("timeupdate", onTimeUpdate);
       video.removeEventListener("durationchange", onDurationChange);
       video.removeEventListener("play", onPlay);
       video.removeEventListener("pause", onPause);
       video.removeEventListener("ended", onEnded);
-      video.removeEventListener("progress", onProgress);
+      video.removeEventListener("error", onErrorEvent);
+      video.removeEventListener("progress", onBuffered);
       video.removeEventListener("volumechange", onVolumeChange);
     };
   }, [
     isYouTube,
     currentLessonId,
     settings.autoNextLesson,
+    settings.resumePlayback,
+    startSeconds,
     currentLessonIndex,
     lessons,
     onLessonClick,
     onComplete,
+    onProgress,
+    onReady,
+    onError,
   ]);
 
   // Playback rate
@@ -457,10 +364,68 @@ export function AdvancedVideoPlayer({
     };
   }, [isYouTube]);
 
+  // YouTube iframe: track time/state via the JS postMessage API and support programmatic seek
+  const sendYtCommand = useCallback((func: string, args: unknown[] = []) => {
+    try {
+      iframeRef.current?.contentWindow?.postMessage(
+        JSON.stringify({ event: "command", func, args }),
+        "*",
+      );
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!isYouTube) return;
+    const onMessage = (e: MessageEvent) => {
+      try {
+        const d = typeof e.data === "string" ? JSON.parse(e.data) : e.data;
+        if (d?.event !== "infoDelivery" || !d?.info) return;
+        if (typeof d.info.currentTime === "number") setCurrentTime(d.info.currentTime);
+        if (typeof d.info.duration === "number" && d.info.duration > 0)
+          setDuration(d.info.duration);
+        if (typeof d.info.playerState === "number") setPlaying(d.info.playerState === 1);
+      } catch {
+        /* ignore non-JSON messages */
+      }
+    };
+    window.addEventListener("message", onMessage);
+    try {
+      iframeRef.current?.contentWindow?.postMessage(
+        JSON.stringify({ event: "listening", id: "learnify-player" }),
+        "*",
+      );
+    } catch {
+      /* ignore */
+    }
+    const poll = setInterval(() => {
+      sendYtCommand("getCurrentTime");
+      sendYtCommand("getDuration");
+      sendYtCommand("getPlayerState");
+    }, 1000);
+    return () => {
+      window.removeEventListener("message", onMessage);
+      clearInterval(poll);
+    };
+  }, [isYouTube, sendYtCommand]);
+
   // Keyboard shortcuts
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (e.target instanceof HTMLElement && e.target.isContentEditable) return;
+      const container = containerRef.current;
+      const inPlayer =
+        !!container &&
+        (container.contains(document.activeElement) ||
+          container.matches(":hover") ||
+          document.fullscreenElement === container);
+      if (!inPlayer) return;
+      if (isYouTube) {
+        if (e.key === "Escape") setShowTranscript(false);
+        return;
+      }
 
       const key = e.key.toLowerCase();
       const ctrl = e.ctrlKey || e.metaKey;
@@ -481,7 +446,7 @@ export function AdvancedVideoPlayer({
 
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
-  }, [settings, currentLessonIndex, lessons, showTranscript, showSettings, showCaptions]);
+  }, [settings, currentLessonIndex, lessons, showTranscript, showSettings, showCaptions, restrictDownload, isYouTube]);
 
   const handleShortcutAction = (action: string) => {
     const video = videoRef.current;
@@ -522,7 +487,7 @@ export function AdvancedVideoPlayer({
         setShowTranscript((v) => !v);
         break;
       case "screenshot":
-        takeScreenshot();
+        if (!restrictDownload) takeScreenshot();
         break;
       case "restart":
         video.currentTime = 0;
@@ -598,26 +563,30 @@ export function AdvancedVideoPlayer({
   // Screenshot
   const takeScreenshot = () => {
     const video = videoRef.current;
-    if (!video || isYouTube) return;
-    const canvas = document.createElement("canvas");
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    canvas.toBlob((blob) => {
-      if (!blob) return;
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${title.replace(/[^a-z0-9]/gi, "_")}_screenshot.png`;
-      a.click();
-      URL.revokeObjectURL(url);
-    }, "image/png");
+    if (!video || isYouTube || restrictDownload) return;
+    try {
+      const canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob((blob) => {
+        if (!blob) return;
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${title.replace(/[^a-z0-9]/gi, "_")}_screenshot.png`;
+        a.click();
+        URL.revokeObjectURL(url);
+      }, "image/png");
+    } catch (err) {
+      console.warn("Screenshot not available for this video:", err);
+    }
   };
 
   // Volume icon
-  const VolumeIcon = muted || volume === 0 ? VolumeX : volume < 0.5 ? Volume2 : Volume2;
+  const VolumeIcon = muted || volume === 0 ? VolumeX : volume < 0.5 ? Volume1 : Volume2;
 
   // Format progress time
   const progressTime = formatTimestamp(
@@ -642,9 +611,10 @@ export function AdvancedVideoPlayer({
       {isYouTube ? (
         <div className="relative w-full aspect-video">
           <iframe
-            src={`${videoUrl}${videoUrl.includes("?") ? "&" : "?"}origin=${typeof window !== "undefined" ? encodeURIComponent(window.location.origin) : ""}`}
+            ref={iframeRef}
+            src={videoUrl}
             className="absolute inset-0 w-full h-full"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             allowFullScreen
             title={title}
           />
@@ -721,7 +691,7 @@ export function AdvancedVideoPlayer({
           )}
 
           {/* Caption overlay */}
-          {activeCue && (settings.captionsEnabled || translationLanguage !== "off") && (
+          {activeCue && settings.captionsEnabled && (
             <div
               className={cn(
                 "absolute left-1/2 -translate-x-1/2 px-3 py-1 max-w-[80%] text-center pointer-events-none z-20",
@@ -749,7 +719,7 @@ export function AdvancedVideoPlayer({
               }}
               aria-live="polite"
             >
-              {translatedCueText}
+              {activeCue.text}
             </div>
           )}
         </>
@@ -884,26 +854,11 @@ export function AdvancedVideoPlayer({
             <div className="flex-1" />
 
             {/* Right controls */}
-            {slides.length > 0 && (
-              <ControlButton
-                icon={<List className="h-4 w-4" />}
-                onClick={() => setShowSlides((v) => !v)}
-                tooltip={showSlides ? "Hide slides" : "Show slides"}
-                active={showSlides}
-              />
-            )}
-            <ControlButton
-              icon={<Camera className="h-4 w-4" />}
-              onClick={takeScreenshot}
-              tooltip="Screenshot"
-            />
             <ControlButton
               icon={<PictureInPicture className="h-4 w-4" />}
               onClick={togglePiP}
-              disabled={
-                isPiP || typeof document === "undefined" || !document.pictureInPictureEnabled
-              }
-              tooltip="Picture-in-Picture"
+              disabled={typeof document === "undefined" || !document.pictureInPictureEnabled}
+              tooltip={isPiP ? "Exit picture-in-picture" : "Picture-in-Picture"}
               active={isPiP}
             />
             <ControlButton
@@ -922,25 +877,18 @@ export function AdvancedVideoPlayer({
               tooltip="Subtitles"
               active={showCaptions || settings.captionsEnabled}
             />
-            <ControlButton
-              icon={<Globe className="h-4 w-4" />}
-              onClick={() => {
-                setShowSettings(true);
-                setShowCaptions(false);
-                setShowTranscript(false);
-              }}
-              tooltip="Audio and language"
-              active={audioLanguage !== "original" || translationLanguage !== "off"}
-            />
-            <ControlButton
-              icon={<MessageSquare className="h-4 w-4" />}
-              onClick={() => {
-                setShowTranscript((v) => !v);
-                setShowCaptions(false);
-              }}
-              tooltip="Transcript"
-              active={showTranscript}
-            />
+            {transcriptEntries.length > 0 && (
+              <ControlButton
+                icon={<MessageSquare className="h-4 w-4" />}
+                onClick={() => {
+                  setShowTranscript((v) => !v);
+                  setShowCaptions(false);
+                  setShowSettings(false);
+                }}
+                tooltip="Transcript"
+                active={showTranscript}
+              />
+            )}
             <ControlButton
               icon={<Settings className="h-4 w-4" />}
               onClick={() => {
@@ -950,11 +898,6 @@ export function AdvancedVideoPlayer({
               }}
               tooltip="Settings"
               active={showSettings}
-            />
-            <ControlButton
-              icon={<HelpCircle className="h-4 w-4" />}
-              onClick={() => setShowShortcuts(true)}
-              tooltip="Keyboard shortcuts"
             />
             <ControlButton
               icon={
@@ -968,18 +911,36 @@ export function AdvancedVideoPlayer({
       )}
 
       {/* Side panels */}
-      {showTranscript && !isYouTube && (
-        <div className="absolute top-0 right-0 bottom-0 w-72 z-30">
+      {showTranscript && (
+        <div className="absolute top-0 right-0 bottom-0 w-72 z-40">
           <TranscriptPanel
             entries={transcriptEntries}
             currentTime={currentTime}
             onSeek={(time) => {
-              if (videoRef.current) videoRef.current.currentTime = time;
+              if (isYouTube) {
+                sendYtCommand("seekTo", [time, true]);
+                setCurrentTime(time);
+              } else if (videoRef.current) {
+                videoRef.current.currentTime = time;
+              }
             }}
             onClose={() => setShowTranscript(false)}
             videoTitle={title}
           />
         </div>
+      )}
+
+      {/* Floating transcript toggle for YouTube lessons (native player has no custom bar) */}
+      {isYouTube && transcriptEntries.length > 0 && !showTranscript && (
+        <button
+          type="button"
+          onClick={() => setShowTranscript(true)}
+          className="absolute top-3 right-3 z-40 flex items-center gap-1.5 rounded-lg bg-black/70 hover:bg-black/90 text-white text-[11px] font-medium px-2.5 py-1.5 backdrop-blur-sm transition"
+          title="Open transcript"
+          aria-label="Open transcript"
+        >
+          <MessageSquare className="h-3.5 w-3.5" /> Transcript
+        </button>
       )}
 
       {showCaptions && !isYouTube && (
@@ -1007,23 +968,22 @@ export function AdvancedVideoPlayer({
             settings={settings}
             onUpdate={(s) => setSettings((prev) => ({ ...prev, ...s }))}
             onScreenshot={takeScreenshot}
-            qualities={[
-              { id: "auto", label: "Auto", width: 0 },
-              { id: "2160", label: "2160p (4K)", width: 3840 },
-              { id: "1440", label: "1440p (2K)", width: 2560 },
-              { id: "1080", label: "1080p (Full HD)", width: 1920 },
-              { id: "720", label: "720p (HD)", width: 1280 },
-              { id: "480", label: "480p (SD)", width: 854 },
-              { id: "360", label: "360p", width: 640 },
-              { id: "240", label: "240p", width: 426 },
-              { id: "144", label: "144p", width: 256 },
-            ]}
-            currentQuality={settings.quality}
-            onQualityChange={(q) => setSettings((prev) => ({ ...prev, quality: q }))}
+            restrictDownload={restrictDownload}
+            restrictSpeed={restrictSpeed}
             audioLanguage={audioLanguage}
             onAudioLanguageChange={setAudioLanguage}
-            translationLanguage={translationLanguage}
-            onTranslationLanguageChange={setTranslationLanguage}
+            hasTranscript={transcriptEntries.length > 0}
+            showTranscript={showTranscript}
+            onToggleTranscript={() => setShowTranscript((v) => !v)}
+            hasSlides={slides.length > 0}
+            showSlides={showSlides}
+            onToggleSlides={() => setShowSlides((v) => !v)}
+            showPlaylist={showPlaylist}
+            onTogglePlaylist={() => setShowPlaylist((v) => !v)}
+            onShowShortcuts={() => {
+              setShowSettings(false);
+              setShowShortcuts(true);
+            }}
             onClose={() => setShowSettings(false)}
           />
         </div>
@@ -1063,7 +1023,7 @@ export function AdvancedVideoPlayer({
                     <p className="truncate">{lesson.title}</p>
                     <p className="text-[10px] opacity-60">{lesson.duration}</p>
                   </div>
-                  {lesson.completed && <span className="text-green-500 text-[10px]">✓</span>}
+                  {lesson.completed && <span className="text-green-500 text-[10px]">âœ“</span>}
                 </div>
               </button>
             ))}

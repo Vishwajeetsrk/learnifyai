@@ -143,6 +143,44 @@ async function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+// In-memory LRU for identical AI requests — repeat questions answer instantly.
+// Key = hash(task + model + temperature + messages). 10-min TTL, capped at 100 entries.
+const AI_RESPONSE_CACHE = new Map<string, { body: string; at: number }>();
+const AI_CACHE_TTL_MS = 10 * 60 * 1000;
+const AI_CACHE_MAX = 100;
+
+function hashRequest(input: string): string {
+  let h = 5381;
+  for (let i = 0; i < input.length; i++) {
+    h = ((h << 5) + h + input.charCodeAt(i)) | 0;
+  }
+  return `ai:${(h >>> 0).toString(36)}`;
+}
+
+function getCachedAiResponse(key: string): Response | null {
+  const hit = AI_RESPONSE_CACHE.get(key);
+  if (!hit) return null;
+  if (Date.now() - hit.at > AI_CACHE_TTL_MS) {
+    AI_RESPONSE_CACHE.delete(key);
+    return null;
+  }
+  // Refresh recency
+  AI_RESPONSE_CACHE.delete(key);
+  AI_RESPONSE_CACHE.set(key, hit);
+  return new Response(hit.body, {
+    status: 200,
+    headers: { "Content-Type": "application/json", "X-Learnify-Cache": "hit" },
+  });
+}
+
+function setCachedAiResponse(key: string, body: string) {
+  AI_RESPONSE_CACHE.set(key, { body, at: Date.now() });
+  if (AI_RESPONSE_CACHE.size > AI_CACHE_MAX) {
+    const oldest = AI_RESPONSE_CACHE.keys().next().value;
+    if (oldest) AI_RESPONSE_CACHE.delete(oldest);
+  }
+}
+
 export function normalizeAiError(
   failures: Array<{ provider: string; status?: number; errorSnippet?: string }>,
 ): string {
@@ -201,6 +239,19 @@ export async function callUserAiChat(body: ChatBody, quality: "fast" | "pro" = "
     max_tokens: maxTokens,
   };
 
+  // Fast path: identical recent request → answer instantly without hitting providers
+  const cacheKey = hashRequest(
+    JSON.stringify({
+      task: body.task ?? null,
+      model: body.model ?? null,
+      temperature: (body as any).temperature ?? null,
+      max_tokens: maxTokens,
+      messages: sanitizedMessages,
+    }),
+  );
+  const cached = getCachedAiResponse(cacheKey);
+  if (cached) return cached;
+
   const failures: Array<{ provider: string; status?: number; errorSnippet?: string }> = [];
 
   for (const provider of USER_AI_PROVIDERS) {
@@ -225,21 +276,40 @@ export async function callUserAiChat(body: ChatBody, quality: "fast" | "pro" = "
         }
 
         try {
-          const res = await fetch(provider.url, {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${apiKey}`,
-              "Content-Type": "application/json",
-              ...(provider.headers || {}),
-            },
-            body: JSON.stringify({
-              ...payloadBase,
-              model: modelId,
-            }),
-          });
+          // Fail fast (25s) so a hung provider cascades to the next one instead of stalling
+          const ctrl = new AbortController();
+          const timer = setTimeout(() => ctrl.abort(), 25000);
+          let res: Response;
+          try {
+            res = await fetch(provider.url, {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${apiKey}`,
+                "Content-Type": "application/json",
+                ...(provider.headers || {}),
+              },
+              body: JSON.stringify({
+                ...payloadBase,
+                model: modelId,
+              }),
+              signal: ctrl.signal,
+            });
+          } finally {
+            clearTimeout(timer);
+          }
 
           if (res.ok) {
-            providerSuccessResponse = res;
+            // Remember success: identical repeat requests skip providers entirely
+            try {
+              const bodyText = await res.text();
+              setCachedAiResponse(cacheKey, bodyText);
+              providerSuccessResponse = new Response(bodyText, {
+                status: 200,
+                headers: { "Content-Type": "application/json" },
+              });
+            } catch {
+              providerSuccessResponse = res;
+            }
             break;
           }
 

@@ -35,7 +35,6 @@ export interface CaptionStyle {
 }
 
 export interface VideoSettings {
-  quality: string;
   playbackRate: number;
   captionsEnabled: boolean;
   captionStyle: CaptionStyle;

@@ -624,6 +624,15 @@ MIT License. See [LICENSE](LICENSE) for details.
 
 ## 📋 Changelog
 
+### v5.8.3 (October 2026) — MP4 Transcripts, Transcript-Aware AI & Faster Gateway
+
+- ✅ **MP4 Transcription (Whisper)**: New unified `getLessonTranscriptFull` server fn — YouTube lessons use cached captions, direct MP4 lessons (≤24MB) are transcribed with Groq `whisper-large-v3-turbo` (`verbose_json` segments = real timed cues). Everything is saved to the new `lesson_transcripts` table (migration `20271004000000_lesson_transcripts.sql` — run in Supabase SQL editor), so the player transcript panel, captions and AI all reuse it instantly.
+- ✅ **AI Understands Video Content**: `lessonAiHelper` now pulls the remembered transcript server-side into Summary / Exercise / Ask AI context (8k chars), Ask AI keeps RAG on top, and the Visual Blueprint tab gets the transcript appended. Summaries are **cached** in `lesson_transcripts.summary_md` — second view returns instantly (`cached: true`).
+- ✅ **Faster, More Accurate Gateway** (`user-ai.ts`): 25s per-request abort timeout (hung providers cascade fast instead of stalling), per-task temperature (summary 0.3 / doubt+exercise 0.5), task token budgets kept, and an in-memory LRU (100 entries, 10-min TTL) so identical repeat questions answer instantly. 8 playground AI modes got sharper task-aware prompts + a task-following system prompt.
+- ✅ **TanStack De-skew**: Pinned `@tanstack/router-core 1.171.34` + `start-server-core 1.169.39` (CVE-2026-102989 patched) + `start-client-core 1.170.34` + `@tanstack/history 1.162.4` as exact devDeps (react-start 1.168.60's pinned set) — fixes the Nitro SSR `makeSerovalPlugin` / `createServerHistory` build failures; plus `error: unknown` errorComponent fixes and `isTransitioning` removal after the router upgrade.
+- ✅ **Player Batch (carried)**: Real captions from transcript/VTT (fabricated cues + fake TTS translation dicts removed), lifecycle wiring (`onProgress` watch-saving, resume seek, `onReady`/`onError`, advance-only `onEnded`), YouTube `&start=` + `origin` + `enablejsapi` with JS-API time sync and postMessage seek, consolidated control bar (screenshot/slides/language/shortcuts live in Settings), dead Quality menu + dead `speed` state + dead `ai-agent` tab removed, footer Guides → canonical guide post, fake `learnifyai@upi` default cleared.
+- ✅ **TypeScript & Build Clean**: `tsc --noEmit` exit 0, `pnpm run build` exit 0.
+
 ### v5.8.2 (August 2026) — Subscription Fixes, Admin Gateway Switch & Legal Acceptance
 
 - ✅ **Razorpay Subscription Fixes**: Creating a subscription no longer fails — (1) `total_count` was invalid (`0` rejected by Razorpay; `120` cycles exceeds the 100-year cap for yearly plans) → now `12` for monthly / `3` for yearly; (2) the pending-row `upsert({ onConflict: "user_id" })` crashed because `user_subscriptions` has no unique constraint on `user_id` → replaced with delete-stale-pendings + insert; (3) `customer_notify` is now a boolean (`true`). Cancel / Resume / Plan-change handlers now call the Razorpay API (cancel immediate, resume for paused subscriptions) instead of silently toggling DB rows only.

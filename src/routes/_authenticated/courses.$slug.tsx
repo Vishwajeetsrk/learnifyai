@@ -84,6 +84,7 @@ import { cn, getCleanBannerUrl } from "@/lib/utils";
 import { getProfileBorderClass } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { lessonAiHelper } from "@/lib/lesson-ai.functions";
+import { getLessonTranscriptFull } from "@/lib/lesson-transcript.functions";
 import { enrollFree, markCourseStarted, recomputeProgress, getCourseWithLessons } from "@/lib/course.functions";
 import { awardXP, getCourseLearners } from "@/lib/gamification.functions";
 import { logDailyUsage } from "@/lib/onboarding.functions";
@@ -97,16 +98,8 @@ import {
 } from "@/lib/course-player";
 import { VisualLearningPanel } from "@/components/visual-learning/VisualLearningPanel";
 
-type CourseTab = "notes" | "summary" | "doubt" | "exercise" | "playground" | "ai-agent" | "visual";
-const VALID_TABS: CourseTab[] = [
-  "notes",
-  "summary",
-  "doubt",
-  "exercise",
-  "playground",
-  "ai-agent",
-  "visual",
-];
+type CourseTab = "notes" | "summary" | "doubt" | "exercise" | "playground" | "visual";
+const VALID_TABS: CourseTab[] = ["notes", "summary", "doubt", "exercise", "playground", "visual"];
 
 export const Route = createFileRoute("/_authenticated/courses/$slug")({
   head: ({ params }) => ({
@@ -122,7 +115,9 @@ export const Route = createFileRoute("/_authenticated/courses/$slug")({
     <AppShell>
       <div className="p-10 text-center max-w-xl mx-auto">
         <p className="text-sm font-medium">Couldn't load this course.</p>
-        <p className="text-xs text-muted-foreground mt-1 break-words">{error.message}</p>
+        <p className="text-xs text-muted-foreground mt-1 break-words">
+          {error instanceof Error ? error.message : String(error)}
+        </p>
         <div className="mt-3 flex justify-center gap-2">
           <Button size="sm" onClick={() => reset()}>
             <RefreshCcw className="h-4 w-4" /> Try again
@@ -174,7 +169,6 @@ function CourseDetail() {
   const getCourseWithLessonsFn = useServerFn(getCourseWithLessons);
 
   const [activeLessonId, setActiveLessonId] = useState<string | null>(null);
-  const [speed, setSpeed] = useState<number>(1);
   const [enrollCelebration, setEnrollCelebration] = useState(false);
   const [playerRetry, setPlayerRetry] = useState(0);
   const [playerLoadFailed, setPlayerLoadFailed] = useState(false);
@@ -454,6 +448,52 @@ function CourseDetail() {
   useEffect(() => {
     setPlayerLoadFailed(false);
   }, [active?.id, activeVideo?.ok, activeVideo?.ok ? activeVideo.src : null, playerRetry]);
+
+  // Lesson transcript: YouTube captions or MP4 transcription, saved server-side in lesson_transcripts
+  const getTranscriptFn = useServerFn(getLessonTranscriptFull);
+  const transcriptQuery = useQuery({
+    enabled: !!active && !!active.video_url && unlocked.has(active.id),
+    queryKey: ["lesson-transcript-full", active?.id],
+    queryFn: async () => {
+      try {
+        const res = await getTranscriptFn({
+          data: {
+            lessonId: active!.id,
+            courseId: course!.id,
+            videoUrl: active!.video_url as string,
+          },
+        });
+        return res ?? { text: "", cues: [] };
+      } catch {
+        return { text: "", cues: [] };
+      }
+    },
+    staleTime: 5 * 60_000,
+    retry: 1,
+  });
+
+  const transcriptText: string = (transcriptQuery.data as any)?.text ?? "";
+  const transcriptCues: Array<{ start: number; end: number; text: string }> =
+    (transcriptQuery.data as any)?.cues ?? [];
+
+  // Timed cues: real Whisper/YouTube segments when available, otherwise distribute sentences across duration
+  const transcriptEntries = useMemo(() => {
+    if (transcriptCues.length > 0) return transcriptCues;
+    if (!transcriptText) return [];
+    const minutes = active?.duration_minutes && active.duration_minutes > 0 ? active.duration_minutes : 10;
+    const durationSec = minutes * 60;
+    const sentences = transcriptText
+      .split(/(?<=[.!?])\s+/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+    if (sentences.length === 0) return [];
+    const per = durationSec / sentences.length;
+    return sentences.map((s, i) => ({
+      start: Math.round(i * per * 10) / 10,
+      end: Math.round((i + 1) * per * 10) / 10,
+      text: s,
+    }));
+  }, [transcriptText, transcriptCues, active?.duration_minutes]);
 
   // Log a lesson view once per session per lesson (RLS allows anon/auth insert)
   useEffect(() => {
@@ -928,24 +968,20 @@ function CourseDetail() {
                     getCleanBannerUrl(course?.cover_url ?? null) ?? course?.cover_url ?? undefined
                   }
                   startSeconds={activeProgress?.watched_seconds ?? 0}
-                  playbackRate={speed}
                   restrictDownload={!isAdmin && user?.id !== course?.created_by}
                   restrictSpeed={!isAdmin && user?.id !== course?.created_by}
                   onError={() => setPlayerLoadFailed(true)}
                   onReady={() => setPlayerLoadFailed(false)}
                   onProgress={handlePlayerProgress}
                   onEnded={() => {
-                    if (active && user) {
-                      if (!completed.has(active.id)) {
-                        toggleComplete(active.id);
-                      }
-                      const idx = lessons.findIndex((l) => l.id === active.id);
-                      const next = lessons[idx + 1];
-                      if (next && unlocked.has(next.id)) {
-                        setTimeout(() => setActiveLessonId(next.id), 800);
-                      }
+                    if (!active) return;
+                    const idx = lessons.findIndex((l) => l.id === active.id);
+                    const next = lessons[idx + 1];
+                    if (next && unlocked.has(next.id)) {
+                      setTimeout(() => setActiveLessonId(next.id), 800);
                     }
                   }}
+                  transcriptEntries={transcriptEntries}
                   title={course?.title || ""}
                   lessons={lessons.map((l) => ({
                     id: l.id,
@@ -1037,6 +1073,7 @@ function CourseDetail() {
                   lesson={active}
                   initialTab={initialTab}
                   hasToolAccess={hasFullAccess}
+                  transcript={transcriptText}
                 />
 
                 <LessonSocial lessonId={active.id} />
@@ -1350,10 +1387,6 @@ function VideoFallback({
   );
 }
 
-function setYouTubeSpeed(rate: number) {
-  // Deprecated: speed is now managed by CustomVideoPlayer
-}
-
 // ---------- AI Tutor + Playground tabs ----------
 
 type Lesson = {
@@ -1369,6 +1402,7 @@ function LessonAiTabs({
   lesson,
   initialTab,
   hasToolAccess,
+  transcript,
 }: {
   courseId: string;
   courseTitle: string;
@@ -1376,6 +1410,7 @@ function LessonAiTabs({
   lesson: Lesson;
   initialTab?: CourseTab;
   hasToolAccess: boolean;
+  transcript?: string;
 }) {
   const helper = useServerFn(lessonAiHelper);
   const [summary, setSummary] = useState<string>("");
@@ -1418,6 +1453,11 @@ function LessonAiTabs({
   const [ideLang, setIdeLang] = useState<string | undefined>(undefined);
 
   const lessonContent = (lesson as any).content_md || lesson.description || "";
+  // Give the visual blueprint the spoken video content too (capped so prompts stay fast)
+  const visualContent =
+    transcript && transcript.trim()
+      ? `${lessonContent}\n\n[Video transcript]\n${transcript.slice(0, 6000)}`
+      : lessonContent;
 
   const handleRunInIde = (code: string, language?: string) => {
     setIdeCode(code);
@@ -1625,7 +1665,7 @@ function LessonAiTabs({
             lessonId={lesson.id}
             courseId={courseId}
             lessonTitle={lesson.title}
-            lessonContent={lessonContent}
+            lessonContent={visualContent}
           />
         </TabsContent>
       )}

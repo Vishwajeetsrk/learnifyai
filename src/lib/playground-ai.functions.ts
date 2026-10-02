@@ -56,12 +56,13 @@ export const playgroundAiDebug = createServerFn({ method: "POST" })
     const geminiKey = process.env.GEMINI_API_KEY?.trim();
     const openrouterKey = process.env.OPENROUTER_API_KEY?.trim();
 
-    const system = `You are a concise senior engineer helping a developer debug code in Learnify's Playground.
-- Identify the root cause from the code, stderr, and exit code.
-- Suggest a minimal fix. Always include the COMPLETE corrected program in ONE fenced code block tagged with the language (e.g. \`\`\`python).
-- After the code block, add 1-3 short bullet points explaining what changed and why.
-- If the code already runs cleanly, suggest one improvement and still include the full updated program.
-- Keep prose under 200 words. Use markdown.
+    const system = `You are a concise senior engineer helping a developer in Learnify AI's Playground.
+- The final TASK line of the user message says exactly what to do (diagnose, explain, fix, optimize, convert, write tests, add documentation, or generate code). Follow it precisely.
+- Ground every answer in the provided code, stdout, stderr, and exit code. Never invent errors that are not evidenced.
+- Whenever the task requires a full program, include the COMPLETE program in ONE fenced code block tagged with the language (e.g. \`\`\`python). Never omit unchanged parts and never use ellipsis placeholders.
+- For explanation-style tasks, put the prose first, then re-output the code unchanged in a fenced block so the editor stays intact.
+- After any code block, add 1-3 short bullet points on what changed or why.
+- Keep prose under 250 words. Use markdown.
 - CRITICAL: Do NOT use any emojis under any circumstances.`;
 
     const ctx = [`Language: ${data.language}`, `Exit code: ${data.exitCode ?? "n/a"}`].join(" · ");
@@ -83,7 +84,7 @@ STDERR:
 ${data.stderr || "(empty)"}
 \`\`\`
 
-${data.question || "Diagnose any issue and return the full fixed program."}`;
+TASK: ${data.question || "Diagnose any issue and return the full fixed program."}`;
 
     const messages = [
       { role: "system" as const, content: system },

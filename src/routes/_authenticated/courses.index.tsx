@@ -4,7 +4,6 @@ import { useServerFn } from "@tanstack/react-start";
 import {
   GraduationCap,
   Clock,
-  Star,
   Search,
   Loader2,
   ShoppingCart,
@@ -12,12 +11,9 @@ import {
   Sparkles,
   TrendingUp,
   Flame,
-  Layers,
   ArrowRight,
   Cpu,
   BookOpen,
-  Award,
-  Users,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { AppShell } from "@/components/AppShell";
@@ -282,14 +278,6 @@ function CoursesPage() {
     }
   }, [filtered, sort]);
 
-  const stats = statsQuery.data ?? {
-    totalCourses: coursesQuery.data?.length ?? 0,
-    totalLessons: 0,
-    totalFreeCourses: (coursesQuery.data ?? []).filter((c) => Number(c.price_inr) === 0).length,
-    totalLearners: 0,
-  };
-  const isStatsLoading = statsQuery.isLoading && !statsQuery.data;
-
   return (
     <AppShell>
       <CelebrationOverlay
@@ -303,26 +291,26 @@ function CoursesPage() {
         }
       />
       <div className="px-4 sm:px-6 lg:px-10 py-8 sm:py-12 max-w-7xl mx-auto space-y-10">
-        {/* Apple Pro Hero & Search Stage */}
-        <div className="relative overflow-hidden rounded-3xl p-8 sm:p-12 bg-neutral-950 border border-white/10 shadow-2xl text-white">
-          <div className="absolute top-0 right-1/4 w-96 h-96 rounded-full bg-gradient-to-b from-blue-500/10 via-indigo-500/10 to-transparent blur-3xl pointer-events-none" />
+        {/* Hero & Search Stage */}
+        <div className="relative overflow-hidden rounded-3xl p-8 sm:p-12 bg-hero border border-border/60 shadow-xl">
+          <div className="absolute top-0 right-1/4 w-96 h-96 rounded-full bg-gradient-to-b from-primary/15 via-primary/10 to-transparent blur-3xl pointer-events-none" />
           <div className="relative flex flex-col lg:flex-row lg:items-center justify-between gap-8">
             <div className="space-y-3 max-w-2xl">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-mono uppercase tracking-widest bg-white/10 text-neutral-300 border border-white/10">
-                <Sparkles className="h-3.5 w-3.5 text-amber-400" /> Learnify Masteries · Designed for Engineers
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-mono uppercase tracking-widest bg-background/70 text-muted-foreground border border-border/60 backdrop-blur">
+                <Sparkles className="h-3.5 w-3.5 text-primary" /> Learnify Masteries · Designed for Engineers
               </div>
-              <h1 className="text-3xl sm:text-5xl font-display font-semibold tracking-tight text-neutral-100">
+              <h1 className="text-3xl sm:text-5xl font-display font-semibold tracking-tight text-foreground">
                 Master Modern Engineering.
               </h1>
-              <p className="text-sm sm:text-base text-neutral-400 leading-relaxed font-normal">
+              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed font-normal">
                 Production-grade curricula in Full-Stack, System Design, AI Agents, and Cloud Architecture. Learn by building real systems.
               </p>
             </div>
 
-            {/* Apple-style Spotlight Search */}
+            {/* Spotlight Search */}
             <div className="relative w-full lg:w-96 shrink-0">
               <Search
-                className="h-4 w-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400"
+                className="h-4 w-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground"
                 aria-hidden="true"
               />
               <label htmlFor="course-search" className="sr-only">
@@ -333,50 +321,19 @@ function CoursesPage() {
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
                 placeholder="Search masteries, tools, frameworks…"
-                className="pl-10 pr-12 h-12 text-sm rounded-2xl border-white/15 bg-white/5 backdrop-blur-2xl text-white placeholder:text-neutral-500 focus-visible:ring-1 focus-visible:ring-white/30 shadow-inner"
+                className="pl-10 pr-12 h-12 text-sm rounded-2xl border-border/70 bg-card/80 backdrop-blur text-foreground placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-primary/40 shadow-sm"
               />
-              <kbd className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[10px] bg-white/10 border border-white/10 px-2 py-0.5 rounded-md text-neutral-300 font-mono">
+              <kbd className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[10px] bg-muted border border-border/60 px-2 py-0.5 rounded-md text-muted-foreground font-mono">
                 ⌘K
               </kbd>
-            </div>
-          </div>
-
-          {/* Apple Pro Metrics Bar */}
-          <div className="mt-8 pt-8 border-t border-white/10 grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xl space-y-1">
-              <div className="text-2xl sm:text-3xl font-display font-bold text-white tracking-tight">
-                {isStatsLoading ? <Skeleton className="h-7 w-12 rounded bg-white/10" /> : stats.totalCourses}
-              </div>
-              <div className="text-xs text-neutral-400 font-medium">Curated Masteries</div>
-            </div>
-
-            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xl space-y-1">
-              <div className="text-2xl sm:text-3xl font-display font-bold text-white tracking-tight">
-                {isStatsLoading ? <Skeleton className="h-7 w-12 rounded bg-white/10" /> : stats.totalLessons}
-              </div>
-              <div className="text-xs text-neutral-400 font-medium">Interactive Lessons</div>
-            </div>
-
-            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xl space-y-1">
-              <div className="text-2xl sm:text-3xl font-display font-bold text-emerald-400 tracking-tight">
-                {isStatsLoading ? <Skeleton className="h-7 w-12 rounded bg-white/10" /> : stats.totalFreeCourses}
-              </div>
-              <div className="text-xs text-neutral-400 font-medium">Free Access Tracks</div>
-            </div>
-
-            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xl space-y-1">
-              <div className="text-2xl sm:text-3xl font-display font-bold text-white tracking-tight">
-                {isStatsLoading ? <Skeleton className="h-7 w-12 rounded bg-white/10" /> : stats.totalLearners.toLocaleString()}
-              </div>
-              <div className="text-xs text-neutral-400 font-medium">Active Engineers</div>
             </div>
           </div>
         </div>
 
         {/* Featured System Design Academy Banner */}
-        <div className="rounded-3xl border border-white/10 bg-neutral-900/60 backdrop-blur-xl p-6 sm:p-7 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl hover:border-white/20 transition-all">
+        <div className="rounded-3xl border border-border/80 bg-card/60 backdrop-blur-xl p-6 sm:p-7 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-sm hover:border-primary/40 transition-all">
           <div className="flex items-center gap-4">
-            <div className="h-12 w-12 rounded-2xl bg-white text-black grid place-items-center shrink-0 shadow-lg shadow-white/10 font-bold">
+            <div className="h-12 w-12 rounded-2xl bg-primary/10 text-primary grid place-items-center shrink-0">
               <Cpu className="h-6 w-6" />
             </div>
             <div>
