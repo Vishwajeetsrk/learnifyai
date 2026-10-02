@@ -92,8 +92,8 @@
 - [x] **Word-Style Rich Editor**: Ribbon toolbar, font selection, interactive tables, callouts, and MCQs.
 - [x] **In-Browser Code Execution**: Sandpack & Monaco IDE with real-time JavaScript, Python, and TypeScript sandbox runner.
 - [x] **Custom Video Player**: HLS streaming, playback speed controls, and timestamp bookmarks.
-- [x] **Real Transcripts + Captions (v5.8.3)**: `lesson_transcripts` table (migration `20271004000000_lesson_transcripts.sql` — MUST run in Supabase SQL editor); unified `getLessonTranscriptFull` (YouTube captions / MP4 Whisper ≤24MB); fabricated caption cues + fake TTS translation dicts removed; lifecycle wired (`onProgress` watch-saving, resume seek, advance-only `onEnded`); YouTube `&start=`/`origin`/`enablejsapi` + JS-API time sync; consolidated control bar; dead Quality menu / `speed` state / `ai-agent` tab removed.
-- [ ] **Interactive Lesson Checkpoints**: Mid-video interactive quizzes locking progress until passed.
+- [x] **Real Transcripts + Captions (v5.8.3/4)**: `lesson_transcripts` table (migrations `20271004/05/06/07*` — ALL APPLIED LIVE via pooler); unified `getLessonTranscriptFull` (YouTube real timed segments en→hi fallback / MP4 Whisper ≤24MB + language detect); transcribe-at-upload in Studio (auto + manual + progress); real cached AI caption translation (9 langs, timings kept); dead Quality menu / `speed` state / `ai-agent` tab removed.
+- [x] **Mid-Video Quiz Checkpoints (v5.8.4)**: `getLessonQuiz` (transcript/notes → timed MCQs, cached in `lesson_transcripts.quiz`); player pauses with answer-explain-continue overlay (HTML5 + YouTube).
 - [ ] **Offline Reading Cache**: IndexedDB caching for downloaded text lessons.
 
 ### Module 3: Admin Content & Studio CMS
@@ -107,7 +107,7 @@
 ### Module 4: Resilient AI Gateway & Autonomous Agents
 - [x] **Multi-Tier AI Routing**: Automatic failover chain: Gemini 2.5/3.1 -> Groq LLaMA 3.3 70B -> OpenRouter.
 - [x] **Fast Gateway (v5.8.3)**: 25s abort timeout per provider attempt, per-task temperature (summary 0.3 / doubt+exercise 0.5), task token budgets, in-memory LRU (100 entries / 10-min TTL) for instant repeats — in `src/lib/user-ai.ts`.
-- [x] **Transcript-Aware Lesson AI (v5.8.3)**: `lessonAiHelper` injects remembered transcript into Summary/Exercise/Ask-AI; summaries cached in `lesson_transcripts.summary_md` (`cached: true` fast path); Visual Blueprint gets transcript appended; 8 playground AI modes use sharper task-aware prompts.
+- [x] **Transcript-Aware Lesson AI (v5.8.3)**: `lessonAiHelper` injects remembered transcript into Summary/Exercise/Ask-AI; summaries cached in `lesson_transcripts.summary_md` (`cached: true` fast path) with **content-hash stale regeneration** (v5.8.4); per-task provider routing (summary→Groq, doubt→Gemini) + `ai_usage` metering (v5.8.4); Visual Blueprint gets transcript appended; 8 playground AI modes use sharper task-aware prompts.
 - [x] **AI Agent Skills Hub**: Dedicated Career Coach, Tutor, and Market Intelligence agents in `AgentHub.tsx`.
 - [x] **Global Support Agent**: Context-aware floating assistant in `GlobalSupportAgent.tsx`.
 - [x] **Voice Mock Interviewer**: WebSpeech API speech-to-text with real-time feedback scoring.

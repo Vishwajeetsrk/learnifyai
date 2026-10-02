@@ -1,6 +1,6 @@
 import { AdvancedVideoPlayer } from "./video-player/AdvancedVideoPlayer";
 import { CustomVideoPlayer } from "./CustomVideoPlayer";
-import type { LessonSlide, TranscriptEntry, SubtitleTrack } from "./video-player/types";
+import type { LessonSlide, TranscriptEntry, SubtitleTrack, QuizCheckpoint } from "./video-player/types";
 
 interface CoursePlayerProps {
   url: string;
@@ -30,6 +30,9 @@ interface CoursePlayerProps {
   transcriptEntries?: TranscriptEntry[];
   subtitleTracks?: SubtitleTrack[];
   slides?: LessonSlide[];
+  quiz?: QuizCheckpoint[];
+  lessonId?: string;
+  courseId?: string;
 }
 
 const EMPTY_LESSONS: {
@@ -42,6 +45,7 @@ const EMPTY_LESSONS: {
 const EMPTY_TRANSCRIPT: TranscriptEntry[] = [];
 const EMPTY_TRACKS: SubtitleTrack[] = [];
 const EMPTY_SLIDES: LessonSlide[] = [];
+const EMPTY_QUIZ: QuizCheckpoint[] = [];
 
 export function CoursePlayer({
   url,
@@ -63,11 +67,15 @@ export function CoursePlayer({
   transcriptEntries,
   subtitleTracks,
   slides,
+  quiz,
+  lessonId,
+  courseId,
 }: CoursePlayerProps) {
   const resolvedLessons = lessons ?? EMPTY_LESSONS;
   const resolvedTranscript = transcriptEntries ?? EMPTY_TRANSCRIPT;
   const resolvedTracks = subtitleTracks ?? EMPTY_TRACKS;
   const resolvedSlides = slides ?? EMPTY_SLIDES;
+  const resolvedQuiz = quiz ?? EMPTY_QUIZ;
 
   // Basic mode: use the existing CustomVideoPlayer
   if (mode === "basic") {
@@ -111,6 +119,9 @@ export function CoursePlayer({
       subtitleTracks={resolvedTracks}
       slides={resolvedSlides}
       isYouTube={isYouTube}
+      lessonId={lessonId}
+      courseId={courseId}
+      quiz={resolvedQuiz}
     />
   );
 }

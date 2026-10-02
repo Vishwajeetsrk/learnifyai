@@ -22,6 +22,15 @@ export interface LessonSlide {
   imageUrl?: string;
 }
 
+export interface QuizCheckpoint {
+  id: string;
+  time: number;
+  question: string;
+  options: string[];
+  answer: number;
+  explanation?: string;
+}
+
 export interface CaptionStyle {
   fontSize: "small" | "medium" | "large" | "xlarge";
   fontFamily: string;

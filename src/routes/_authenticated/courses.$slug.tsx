@@ -83,7 +83,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { cn, getCleanBannerUrl } from "@/lib/utils";
 import { getProfileBorderClass } from "@/components/ui/avatar";
 import { toast } from "sonner";
-import { lessonAiHelper } from "@/lib/lesson-ai.functions";
+import { lessonAiHelper, getLessonQuiz } from "@/lib/lesson-ai.functions";
 import { getLessonTranscriptFull } from "@/lib/lesson-transcript.functions";
 import { enrollFree, markCourseStarted, recomputeProgress, getCourseWithLessons } from "@/lib/course.functions";
 import { awardXP, getCourseLearners } from "@/lib/gamification.functions";
@@ -494,6 +494,31 @@ function CourseDetail() {
       text: s,
     }));
   }, [transcriptText, transcriptCues, active?.duration_minutes]);
+
+  // Mid-video quiz checkpoints (AI-generated from transcript/notes, cached per lesson)
+  const getQuizFn = useServerFn(getLessonQuiz);
+  const quizQuery = useQuery({
+    enabled: !!active && !!course && unlocked.has(active.id),
+    queryKey: ["lesson-quiz", active?.id],
+    queryFn: async () => {
+      try {
+        const res = await getQuizFn({ data: { lessonId: active!.id, courseId: course!.id } });
+        return (res?.quiz ?? []) as Array<{
+          id: string;
+          time: number;
+          question: string;
+          options: string[];
+          answer: number;
+          explanation?: string;
+        }>;
+      } catch {
+        return [];
+      }
+    },
+    staleTime: 10 * 60_000,
+    retry: 1,
+  });
+  const lessonQuiz = quizQuery.data ?? [];
 
   // Log a lesson view once per session per lesson (RLS allows anon/auth insert)
   useEffect(() => {
@@ -982,6 +1007,9 @@ function CourseDetail() {
                     }
                   }}
                   transcriptEntries={transcriptEntries}
+                  lessonId={active?.id}
+                  courseId={course?.id}
+                  quiz={lessonQuiz}
                   title={course?.title || ""}
                   lessons={lessons.map((l) => ({
                     id: l.id,

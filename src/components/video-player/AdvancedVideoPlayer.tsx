@@ -1,4 +1,6 @@
 ﻿import { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { translateLessonTranscript } from "@/lib/lesson-transcript.functions";
 import {
   Play,
   Pause,
@@ -23,10 +25,12 @@ import {
   type SubtitleTrack,
   type TranscriptEntry,
   type LessonSlide,
+  type QuizCheckpoint,
   type CaptionStyle,
   DEFAULT_CAPTION_STYLE,
   KEYBOARD_SHORTCUTS,
   CAPTION_FONT_SIZES,
+  LANGUAGES,
   formatTimestamp,
 } from "./types";
 import { TranscriptPanel } from "./TranscriptPanel";
@@ -54,6 +58,9 @@ interface AdvancedVideoPlayerProps {
   subtitleTracks?: SubtitleTrack[];
   slides?: LessonSlide[];
   isYouTube?: boolean;
+  lessonId?: string;
+  courseId?: string;
+  quiz?: QuizCheckpoint[];
 }
 
 export function AdvancedVideoPlayer({
@@ -76,6 +83,9 @@ export function AdvancedVideoPlayer({
   subtitleTracks = [],
   slides = [],
   isYouTube = false,
+  lessonId,
+  courseId,
+  quiz = [],
 }: AdvancedVideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -104,6 +114,11 @@ export function AdvancedVideoPlayer({
   const [showPlaylist, setShowPlaylist] = useState(false);
   const [showSlides, setShowSlides] = useState(slides.length > 0);
   const [isPiP, setIsPiP] = useState(false);
+
+  // Quiz checkpoints
+  const [doneCheckpoints, setDoneCheckpoints] = useState<Set<string>>(new Set());
+  const [activeCheckpoint, setActiveCheckpoint] = useState<QuizCheckpoint | null>(null);
+  const [pickedOption, setPickedOption] = useState<number | null>(null);
 
   // Settings
   const [settings, setSettings] = useState<VideoSettings>({
@@ -229,6 +244,45 @@ export function AdvancedVideoPlayer({
       speechSynthesis.cancel();
     };
   }, []);
+
+  // Quiz checkpoint trigger: pause at the checkpoint time until answered
+  const translateFn = useServerFn(translateLessonTranscript);
+
+  const handleTranslate = useCallback(
+    async (targetLang: string): Promise<SubtitleTrack | null> => {
+      if (!lessonId || !courseId) return null;
+      const res = await translateFn({ data: { lessonId, courseId, targetLang } });
+      const text = ((res as any)?.text ?? "") as string;
+      if (!text) return null;
+      const segs = (((res as any)?.segments ?? []) as TranscriptEntry[]).filter(
+        (c) => c && typeof c.text === "string" && c.text.length > 0,
+      );
+      let cues = segs;
+      if (cues.length === 0) {
+        const total = duration > 0 ? duration : 600;
+        const sentences = text
+          .split(/(?<=[.!?])\s+/)
+          .map((s) => s.trim())
+          .filter(Boolean);
+        if (!sentences.length) return null;
+        const per = total / sentences.length;
+        cues = sentences.map((s, i) => ({ start: i * per, end: (i + 1) * per, text: s }));
+      }
+      const label = LANGUAGES.find((l) => l.code === targetLang)?.label ?? targetLang;
+      const track: SubtitleTrack = {
+        id: `translated-${targetLang}`,
+        label: `${label} (AI translated)`,
+        language: targetLang,
+        cues,
+        isDefault: false,
+      };
+      setTracks((prev) => [...prev.filter((t) => t.id !== track.id), track]);
+      setActiveTrack(track);
+      setSettings((s) => ({ ...s, captionsEnabled: true }));
+      return track;
+    },
+    [lessonId, courseId, duration],
+  );
 
   const currentLessonIndex = lessons.findIndex((l) => l.id === currentLessonId);
 
@@ -409,6 +463,35 @@ export function AdvancedVideoPlayer({
       clearInterval(poll);
     };
   }, [isYouTube, sendYtCommand]);
+
+  // Quiz checkpoint trigger: pause at the checkpoint time until answered
+  const pauseMedia = useCallback(() => {
+    if (isYouTube) sendYtCommand("pauseVideo");
+    else videoRef.current?.pause();
+  }, [isYouTube, sendYtCommand]);
+  const resumeMedia = useCallback(() => {
+    if (isYouTube) sendYtCommand("playVideo");
+    else videoRef.current?.play().catch(() => {});
+  }, [isYouTube, sendYtCommand]);
+
+  useEffect(() => {
+    if (quiz.length === 0 || activeCheckpoint || !playing) return;
+    const hit = quiz.find((cp) => !doneCheckpoints.has(cp.id) && currentTime >= cp.time - 0.3);
+    if (hit) {
+      pauseMedia();
+      setPickedOption(null);
+      setActiveCheckpoint(hit);
+    }
+  }, [currentTime, playing, quiz, activeCheckpoint, doneCheckpoints, pauseMedia]);
+
+  const closeCheckpoint = useCallback(() => {
+    if (activeCheckpoint) {
+      setDoneCheckpoints((prev) => new Set(prev).add(activeCheckpoint.id));
+    }
+    setActiveCheckpoint(null);
+    setPickedOption(null);
+    resumeMedia();
+  }, [activeCheckpoint, resumeMedia]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -726,13 +809,75 @@ export function AdvancedVideoPlayer({
       )}
 
       {/* Play overlay */}
-      {!playing && !isYouTube && (
+      {!playing && !isYouTube && !activeCheckpoint && (
         <div
           className="absolute inset-0 flex items-center justify-center cursor-pointer"
           onClick={() => videoRef.current?.play()}
         >
           <div className="w-16 h-16 rounded-full bg-black/50 flex items-center justify-center hover:bg-black/70 transition">
             <Play className="h-8 w-8 text-white fill-white ml-1" />
+          </div>
+        </div>
+      )}
+
+      {/* Quiz checkpoint overlay */}
+      {activeCheckpoint && (
+        <div className="absolute inset-0 z-40 flex items-center justify-center bg-black/70 backdrop-blur-[2px] p-4">
+          <div className="w-full max-w-md rounded-2xl border border-border bg-card p-5 shadow-2xl">
+            <div className="flex items-center justify-between">
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-primary">
+                Quick check
+              </p>
+              <p className="text-[11px] text-muted-foreground font-mono">
+                {doneCheckpoints.size + 1} / {quiz.length}
+              </p>
+            </div>
+            <h4 className="mt-2 text-sm font-semibold leading-snug">
+              {activeCheckpoint.question}
+            </h4>
+            <div className="mt-3 space-y-1.5">
+              {activeCheckpoint.options.map((opt, i) => {
+                const isAnswer = i === activeCheckpoint.answer;
+                const isPicked = i === pickedOption;
+                return (
+                  <button
+                    key={i}
+                    type="button"
+                    disabled={pickedOption !== null}
+                    onClick={() => setPickedOption(i)}
+                    className={cn(
+                      "w-full text-left px-3 py-2 rounded-lg text-xs border transition",
+                      pickedOption === null
+                        ? "border-border hover:border-primary/60 hover:bg-primary/5"
+                        : isAnswer
+                          ? "border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-medium"
+                          : isPicked
+                            ? "border-destructive bg-destructive/10 font-medium"
+                            : "border-border opacity-50",
+                    )}
+                  >
+                    {opt}
+                  </button>
+                );
+              })}
+            </div>
+            {pickedOption !== null && activeCheckpoint.explanation && (
+              <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">
+                {activeCheckpoint.explanation}
+              </p>
+            )}
+            <button
+              type="button"
+              disabled={pickedOption === null}
+              onClick={closeCheckpoint}
+              className="mt-4 w-full h-9 rounded-lg bg-primary text-primary-foreground text-xs font-semibold disabled:opacity-40 transition hover:bg-primary/90"
+            >
+              {pickedOption === null
+                ? "Pick an answer to continue"
+                : pickedOption === activeCheckpoint.answer
+                  ? "Correct — continue watching"
+                  : "Got it — continue watching"}
+            </button>
           </div>
         </div>
       )}
@@ -958,6 +1103,8 @@ export function AdvancedVideoPlayer({
               if (activeTrack?.id === id) setActiveTrack(null);
             }}
             onClose={() => setShowCaptions(false)}
+            sourceLanguage={activeTrack?.language ?? tracks[0]?.language ?? "en"}
+            onTranslate={lessonId && courseId ? handleTranslate : undefined}
           />
         </div>
       )}

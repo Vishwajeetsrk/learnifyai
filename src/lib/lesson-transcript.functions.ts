@@ -48,7 +48,7 @@ async function saveLessonTranscript(
 async function transcribeMp4(
   videoUrl: string,
   groqKey: string,
-): Promise<{ cues: TimedCue[]; text: string } | null> {
+): Promise<{ cues: TimedCue[]; text: string; language: string } | null> {
   // Size gate first so huge files never get fully downloaded
   try {
     const head = await fetch(videoUrl, {
@@ -93,7 +93,8 @@ async function transcribeMp4(
     .filter((c: TimedCue) => c.text.length > 0 && c.end > c.start);
   const text = (json?.text as string)?.trim() || cues.map((c) => c.text).join(" ");
   if (!text) return null;
-  return { cues, text };
+  const language = typeof json?.language === "string" && json.language ? json.language : "en";
+  return { cues, text, language };
 }
 
 /**
@@ -184,15 +185,180 @@ export const getLessonTranscriptFull = createServerFn({ method: "POST" })
     // 3. MP4 / direct-file path via Whisper
     const groqKey = process.env.GROQ_API_KEY?.trim();
     if (!groqKey) return { ...empty, status: "no-key" as const };
-    let result: { cues: TimedCue[]; text: string } | null = null;
+    let result: { cues: TimedCue[]; text: string; language: string } | null = null;
     try {
       result = await transcribeMp4(videoUrl, groqKey);
     } catch (e) {
       console.warn("[getLessonTranscriptFull] MP4 transcription failed:", e);
     }
     if (!result) return { ...empty, status: "unavailable" as const };
-    await saveLessonTranscript(data.lessonId, data.courseId, "mp4", result.text, result.cues);
-    return { text: result.text, cues: result.cues, source: "mp4", status: "ok", cached: false };
+    await saveLessonTranscript(
+      data.lessonId,
+      data.courseId,
+      "mp4",
+      result.text,
+      result.cues,
+      result.language,
+    );
+    return {
+      text: result.text,
+      cues: result.cues,
+      source: "mp4",
+      status: "ok",
+      cached: false,
+      lang: result.language,
+    };
+  });
+
+const TranslateInput = z.object({
+  lessonId: z.string().uuid(),
+  courseId: z.string().uuid(),
+  targetLang: z.enum(["hi", "es", "fr", "de", "ta", "te", "kn", "mr", "bn"]),
+});
+
+const LANG_NAMES: Record<string, string> = {
+  hi: "Hindi",
+  es: "Spanish",
+  fr: "French",
+  de: "German",
+  ta: "Tamil",
+  te: "Telugu",
+  kn: "Kannada",
+  mr: "Marathi",
+  bn: "Bengali",
+  en: "English",
+};
+
+async function translateBatch(lines: string[], targetName: string): Promise<string[]> {
+  const { callUserAiChat } = await import("./user-ai");
+  const numbered = lines.map((l, i) => `${i + 1}. ${l}`).join("\n");
+  const res = await callUserAiChat({
+    task: "general",
+    temperature: 0.2,
+    max_tokens: 2500,
+    messages: [
+      {
+        role: "system",
+        content: `You translate lesson captions into ${targetName}. Rules: translate ONLY, never add/remove/reorder lines, never explain, keep technical terms and code identifiers in English, keep the "N. " numbering exactly. Output only the numbered translated lines, nothing else.`,
+      },
+      { role: "user", content: numbered },
+    ],
+  });
+  if (!res.ok) throw new Error(`AI provider error (${res.status})`);
+  const json = await res.json();
+  const content: string = json.choices?.[0]?.message?.content ?? "";
+  const out = content
+    .split("\n")
+    .map((l: string) => l.replace(/^\s*\d+[.)]\s*/, "").trim())
+    .filter(Boolean);
+  return out.length === lines.length ? out : [];
+}
+
+/**
+ * Real caption translation (replaces the old fabricated client-side dicts).
+ * Translated cues keep original timings and are cached in
+ * lesson_transcripts.translations[targetLang] for instant reuse.
+ */
+export const translateLessonTranscript = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((d: unknown) => TranslateInput.parse(d))
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: lesson } = await supabase
+      .from("lessons")
+      .select("id, course_id")
+      .eq("id", data.lessonId)
+      .eq("course_id", data.courseId)
+      .maybeSingle();
+    if (!lesson) throw new Error("Lesson not found for this course.");
+
+    const { data: row } = await (supabaseAdmin.from("lesson_transcripts" as any) as any)
+      .select("transcript_text, segments, lang, translations")
+      .eq("lesson_id", data.lessonId)
+      .maybeSingle();
+
+    const saved = (row ?? {}) as {
+      transcript_text?: string;
+      segments?: TimedCue[];
+      lang?: string;
+      translations?: Record<string, { text: string; segments: TimedCue[]; updated_at?: string }>;
+    };
+    const cached = saved.translations?.[data.targetLang];
+    if (cached?.text) {
+      return { text: cached.text, segments: cached.segments ?? [], cached: true };
+    }
+
+    const sourceText = (saved.transcript_text ?? "").trim();
+    if (!sourceText) return { text: "", segments: [], cached: false, status: "no-transcript" };
+    if ((saved.lang ?? "en") === data.targetLang) {
+      return { text: sourceText, segments: saved.segments ?? [], cached: false };
+    }
+
+    const targetName = LANG_NAMES[data.targetLang] ?? data.targetLang;
+    const segments: TimedCue[] = Array.isArray(saved.segments) ? saved.segments : [];
+    let translatedSegments: TimedCue[] = [];
+    let translatedText = "";
+
+    if (segments.length > 0) {
+      // Translate in numbered batches so every cue keeps its original timing
+      const BATCH = 40;
+      const out: string[] = [];
+      for (let i = 0; i < segments.length; i += BATCH) {
+        const slice = segments.slice(i, i + BATCH);
+        const tr = await translateBatch(
+          slice.map((s) => s.text),
+          targetName,
+        );
+        if (tr.length !== slice.length) throw new Error("Translation batch mismatch — try again.");
+        out.push(...tr);
+      }
+      translatedSegments = segments.map((s, i) => ({ ...s, text: out[i] }));
+      translatedText = out.join(" ");
+    } else {
+      // Legacy plain-text rows: chunk by sentences, translate, join
+      const sentences = sourceText
+        .split(/(?<=[.!?])\s+/)
+        .map((s) => s.trim())
+        .filter(Boolean);
+      const chunks: string[] = [];
+      let cur = "";
+      for (const s of sentences) {
+        if ((cur + " " + s).length > 2500 && cur) {
+          chunks.push(cur.trim());
+          cur = s;
+        } else {
+          cur = cur ? `${cur} ${s}` : s;
+        }
+      }
+      if (cur.trim()) chunks.push(cur.trim());
+      const out: string[] = [];
+      for (const chunk of chunks) {
+        const tr = await translateBatch([chunk], targetName);
+        if (tr.length !== 1) throw new Error("Translation failed — try again.");
+        out.push(...tr);
+      }
+      translatedText = out.join(" ");
+    }
+
+    if (!translatedText) throw new Error("Translation failed — try again.");
+
+    try {
+      const next = { ...(saved.translations ?? {}) };
+      next[data.targetLang] = {
+        text: translatedText,
+        segments: translatedSegments,
+        updated_at: new Date().toISOString(),
+      };
+      await (supabaseAdmin.from("lesson_transcripts" as any) as any)
+        .update({ translations: next, updated_at: new Date().toISOString() })
+        .eq("lesson_id", data.lessonId);
+    } catch (e) {
+      console.warn("[translateLessonTranscript] cache write failed:", e);
+    }
+
+    return { text: translatedText, segments: translatedSegments, cached: false };
   });
 
 export const getLessonTranscript = createServerFn({ method: "POST" })

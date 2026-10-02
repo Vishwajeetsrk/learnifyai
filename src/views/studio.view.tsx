@@ -21,6 +21,7 @@ import {
   ClipboardList,
   Youtube,
   CheckCircle2,
+  Captions,
   Copy,
   Link2,
   Upload,
@@ -46,6 +47,7 @@ import {
   listCourseEnrichmentRuns,
   searchYoutubeVideo,
 } from "@/lib/youtube.functions";
+import { getLessonTranscriptFull } from "@/lib/lesson-transcript.functions";
 import {
   generateCourseThumbnail,
   buildThumbnailPrompt,
@@ -1633,9 +1635,49 @@ function LessonForm({
 
   const searchVideoFn = useServerFn(searchYoutubeVideo);
   const generateNotesFn = useServerFn(generateLessonNotes);
+  const transcribeFn = useServerFn(getLessonTranscriptFull);
   const [searchingVideo, setSearchingVideo] = useState(false);
   const [generatingNotes, setGeneratingNotes] = useState(false);
   const [uploadingVideo, setUploadingVideo] = useState(false);
+  const [transcriptStatus, setTranscriptStatus] = useState<
+    "idle" | "working" | "ready" | "unavailable" | "too-large"
+  >("idle");
+  const [transcriptCueCount, setTranscriptCueCount] = useState(0);
+
+  // Transcribe at publish-time so learners never wait at watch-time.
+  // YouTube captions fetch in seconds; MP4s go through Whisper (≤24MB).
+  async function transcribeLesson(
+    targetLessonId: string,
+    videoUrl: string,
+    opts?: { silent?: boolean },
+  ) {
+    if (!videoUrl.trim() || transcriptStatus === "working") return;
+    setTranscriptStatus("working");
+    if (!opts?.silent) toast.info("Transcribing lesson audio…");
+    try {
+      const res = await transcribeFn({
+        data: { lessonId: targetLessonId, courseId, videoUrl: videoUrl.trim() },
+      });
+      const cues = (res as any)?.cues ?? [];
+      const text = (res as any)?.text ?? "";
+      if (text) {
+        setTranscriptCueCount(cues.length);
+        setTranscriptStatus("ready");
+        toast.success(
+          `Transcript ready (${cues.length > 0 ? `${cues.length} timed cues` : "captions"} — saved for player, summary & AI)`,
+        );
+      } else if ((res as any)?.status === "too-large") {
+        setTranscriptStatus("too-large");
+        toast.info("Video exceeds 24MB — transcript skipped (YouTube link recommended).");
+      } else {
+        setTranscriptStatus("unavailable");
+        if (!opts?.silent) toast.info("No transcript available for this video yet.");
+      }
+    } catch (e: any) {
+      setTranscriptStatus("unavailable");
+      if (!opts?.silent) toast.error(e?.message ?? "Transcription failed.");
+    }
+  }
 
   async function handleVideoUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
@@ -1737,13 +1779,19 @@ function LessonForm({
       order_index: Number(draft.orderIndex) || 0,
       is_preview: draft.isPreview,
     };
-    const { error } = lesson
-      ? await supabase.from("lessons").update(payload).eq("id", lesson.id)
-      : await supabase.from("lessons").insert(payload);
+    const { data, error } = lesson
+      ? await supabase.from("lessons").update(payload).eq("id", lesson.id).select("id").single()
+      : await supabase.from("lessons").insert(payload).select("id").single();
     setSaving(false);
     if (error) return toast.error(error.message);
     clearDraft();
     toast.success(lesson ? "Lesson updated" : "Lesson added");
+    // Transcribe in the background right after publish — never at watch-time.
+    const savedId = (data as any)?.id ?? lesson?.id;
+    const savedVideoUrl = draft.videoUrl.trim();
+    if (savedId && savedVideoUrl) {
+      void transcribeLesson(savedId, savedVideoUrl, { silent: false });
+    }
     onSaved();
   }
 
@@ -1830,9 +1878,41 @@ function LessonForm({
             {videoError && !uploadingVideo ? (
               <p className="text-[11px] text-destructive">{videoError}</p>
             ) : draft.videoUrl && !videoError ? (
-              <p className="text-[11px] text-emerald-600 flex items-center gap-1">
-                <CheckCircle2 className="h-3 w-3" /> Playable video attached
-              </p>
+              <div className="flex flex-wrap items-center gap-2">
+                <p className="text-[11px] text-emerald-600 flex items-center gap-1">
+                  <CheckCircle2 className="h-3 w-3" /> Playable video attached
+                </p>
+                {lesson?.id && (
+                  <button
+                    type="button"
+                    onClick={() => void transcribeLesson(lesson.id, draft.videoUrl)}
+                    disabled={transcriptStatus === "working"}
+                    className="text-[11px] font-medium flex items-center gap-1 text-primary hover:underline disabled:opacity-50"
+                  >
+                    {transcriptStatus === "working" ? (
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                    ) : (
+                      <Captions className="h-3 w-3" />
+                    )}
+                    {transcriptStatus === "working" ? "Transcribing…" : "Transcribe audio"}
+                  </button>
+                )}
+                {transcriptStatus === "ready" && (
+                  <span className="text-[11px] text-emerald-600">
+                    Transcript saved{transcriptCueCount > 0 ? ` (${transcriptCueCount} cues)` : ""} — player, summary & AI will use it
+                  </span>
+                )}
+                {transcriptStatus === "too-large" && (
+                  <span className="text-[11px] text-amber-600">
+                    File over 24MB — transcript skipped
+                  </span>
+                )}
+                {transcriptStatus === "unavailable" && (
+                  <span className="text-[11px] text-muted-foreground">
+                    No transcript found for this video
+                  </span>
+                )}
+              </div>
             ) : uploadingVideo ? (
               <p className="text-[11px] text-muted-foreground flex items-center gap-1">
                 <Loader2 className="h-3 w-3 animate-spin" /> Uploading and generating thumbnail...

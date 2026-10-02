@@ -1,7 +1,9 @@
 import { useState, useRef } from "react";
-import { Upload, Check, Globe, X } from "lucide-react";
+import { Upload, Check, Globe, X, Languages, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { type SubtitleTrack, type TranscriptEntry, parseVTT, parseSRT, LANGUAGES } from "./types";
+
+const TRANSLATABLE = ["hi", "es", "fr", "de", "ta", "te", "kn", "mr", "bn"];
 
 interface CaptionPanelProps {
   tracks: SubtitleTrack[];
@@ -10,6 +12,8 @@ interface CaptionPanelProps {
   onAddTrack: (track: SubtitleTrack) => void;
   onRemoveTrack: (trackId: string) => void;
   onClose: () => void;
+  sourceLanguage?: string;
+  onTranslate?: (targetLang: string) => Promise<SubtitleTrack | null>;
 }
 
 export function CaptionPanel({
@@ -19,8 +23,13 @@ export function CaptionPanel({
   onAddTrack,
   onRemoveTrack,
   onClose,
+  sourceLanguage = "en",
+  onTranslate,
 }: CaptionPanelProps) {
   const [uploading, setUploading] = useState(false);
+  const [targetLang, setTargetLang] = useState("hi");
+  const [translating, setTranslating] = useState(false);
+  const [translateError, setTranslateError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -185,6 +194,56 @@ export function CaptionPanel({
           </div>
         )}
       </div>
+
+      {/* Real AI translation (cached server-side per lesson + language) */}
+      {onTranslate && tracks.length > 0 && (
+        <div className="p-3 border-t border-border space-y-2">
+          <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
+            <Languages className="h-3 w-3" /> Translate captions
+          </p>
+          <div className="flex gap-1.5">
+            <select
+              value={targetLang}
+              onChange={(e) => {
+                setTargetLang(e.target.value);
+                setTranslateError(null);
+              }}
+              className="flex-1 h-8 rounded-md border border-input bg-background px-2 text-xs"
+              aria-label="Translation language"
+            >
+              {TRANSLATABLE.filter((c) => c !== sourceLanguage).map((c) => (
+                <option key={c} value={c}>
+                  {LANGUAGES.find((l) => l.code === c)?.label ?? c}
+                </option>
+              ))}
+            </select>
+            <Button
+              size="sm"
+              className="h-8"
+              disabled={translating}
+              onClick={async () => {
+                setTranslating(true);
+                setTranslateError(null);
+                try {
+                  const track = await onTranslate(targetLang);
+                  if (!track) setTranslateError("Translation unavailable for this video.");
+                } catch (e: any) {
+                  setTranslateError(e?.message ?? "Translation failed.");
+                } finally {
+                  setTranslating(false);
+                }
+              }}
+            >
+              {translating ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Check className="h-3.5 w-3.5" />
+              )}
+            </Button>
+          </div>
+          {translateError && <p className="text-[10px] text-destructive">{translateError}</p>}
+        </div>
+      )}
     </div>
   );
 }

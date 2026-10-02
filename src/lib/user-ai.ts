@@ -254,7 +254,19 @@ export async function callUserAiChat(body: ChatBody, quality: "fast" | "pro" = "
 
   const failures: Array<{ provider: string; status?: number; errorSnippet?: string }> = [];
 
-  for (const provider of USER_AI_PROVIDERS) {
+  // Preferred-provider routing: a body.model like "gemini/..." tries that
+  // provider's chain first so speed/capability-sensitive tasks land correctly.
+  const preferred = body.model?.split("/")[0]?.toLowerCase() ?? "";
+  const orderedProviders =
+    preferred.length > 0
+      ? [...USER_AI_PROVIDERS].sort((a, b) => {
+          const score = (p: (typeof USER_AI_PROVIDERS)[number]) =>
+            p.name.toLowerCase().includes(preferred) ? 0 : 1;
+          return score(a) - score(b);
+        })
+      : USER_AI_PROVIDERS;
+
+  for (const provider of orderedProviders) {
     const apiKey = process.env[provider.keyEnv]?.trim();
     if (!apiKey) continue;
 

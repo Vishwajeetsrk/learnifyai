@@ -143,27 +143,44 @@ export const lessonAiHelper = createServerFn({ method: "POST" })
     }
     if (transcript.length > 8000) transcript = transcript.slice(0, 8000);
 
-    // Remembered summary: instant answer when this lesson was already summarized
+    // Stale-summary loop: hash of (notes + video_url + transcript). Any lesson edit
+    // changes the hash, so learners always get a fresh summary after content updates.
+    const { createHash } = await import("node:crypto");
+    const sourceSnapshot = `${data.lessonDescription ?? ""}\n${((lesson as any)?.video_url as string) ?? ""}\n${transcript}`;
+    const contentHash = createHash("sha256").update(sourceSnapshot).digest("hex").slice(0, 32);
+
+    // Remembered summary: instant answer when this exact content was already summarized
     if (data.action === "summary") {
       try {
         const { data: saved } = await (supabase.from("lesson_transcripts" as any) as any)
-          .select("summary_md")
+          .select("summary_md, content_hash")
           .eq("lesson_id", data.lessonId)
           .maybeSingle();
         const cachedSummary = ((saved as any)?.summary_md as string) ?? "";
-        if (cachedSummary) return { content: cachedSummary, cached: true };
+        const cachedHash = ((saved as any)?.content_hash as string) ?? "";
+        if (cachedSummary && cachedHash === contentHash)
+          return { content: cachedSummary, cached: true };
       } catch (e) {
         console.error("Failed to read cached summary in lesson-ai:", e);
       }
     }
 
     const temperature = data.action === "summary" ? 0.3 : 0.5;
+    // Route by task: summaries → fastest engine, doubts (long RAG context) → Gemini.
+    const preferredModel =
+      data.action === "summary"
+        ? "groq/llama-3.3-70b-versatile"
+        : data.action === "doubt"
+          ? "gemini/gemini-2.0-flash"
+          : undefined;
+    const userPrompt = buildPrompt(data, ragContext, transcript);
     const res = await callUserAiChat({
       task: data.action,
       temperature,
+      ...(preferredModel ? { model: preferredModel } : {}),
       messages: [
         { role: "system", content: SYSTEM },
-        { role: "user", content: buildPrompt(data, ragContext, transcript) },
+        { role: "user", content: userPrompt },
       ],
     });
 
@@ -174,7 +191,25 @@ export const lessonAiHelper = createServerFn({ method: "POST" })
     const json = await res.json();
     const content: string = json.choices?.[0]?.message?.content ?? "";
 
-    // Save the summary so the next learner (and this one) gets it instantly
+    // Metering: log token usage for admin analytics (log-only, no credit debit here).
+    try {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const promptChars = SYSTEM.length + userPrompt.length;
+      const promptTokens = Math.ceil(promptChars / 4);
+      const completionTokens = Math.ceil(content.length / 4);
+      await supabaseAdmin.from("ai_usage").insert({
+        user_id: userId,
+        model: `lesson-ai:${data.action}`,
+        prompt_tokens: promptTokens,
+        completion_tokens: completionTokens,
+        total_tokens: promptTokens + completionTokens,
+        conversation_id: null,
+      });
+    } catch (e) {
+      console.error("Failed to log lesson-ai usage:", e);
+    }
+
+    // Save the summary (+ content hash) so repeats are instant and edits re-trigger
     if (data.action === "summary" && content) {
       try {
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -183,6 +218,7 @@ export const lessonAiHelper = createServerFn({ method: "POST" })
             lesson_id: data.lessonId,
             course_id: data.courseId,
             summary_md: content,
+            content_hash: contentHash,
             summary_updated_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
           },
@@ -194,4 +230,148 @@ export const lessonAiHelper = createServerFn({ method: "POST" })
     }
 
     return { content, cached: false };
+  });
+
+const QuizInput = z.object({
+  lessonId: z.string().uuid(),
+  courseId: z.string().uuid(),
+  count: z.number().min(1).max(5).optional().default(3),
+});
+
+export interface LessonQuizItem {
+  id: string;
+  time: number;
+  question: string;
+  options: string[];
+  answer: number;
+  explanation?: string;
+}
+
+/**
+ * Mid-video quiz checkpoints, generated from the remembered transcript (or
+ * lesson notes as fallback) and cached in lesson_transcripts.quiz.
+ * Times spread across the lesson duration so the player can pause and quiz.
+ */
+export const getLessonQuiz = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((d: unknown) => QuizInput.parse(d))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+
+    const { data: lesson } = await supabase
+      .from("lessons")
+      .select("id, course_id, title, video_url, duration_minutes, description, content_md")
+      .eq("id", data.lessonId)
+      .eq("course_id", data.courseId)
+      .maybeSingle();
+    if (!lesson) throw new Error("Lesson not found for this course.");
+
+    try {
+      const { data: saved } = await (supabase.from("lesson_transcripts" as any) as any)
+        .select("quiz")
+        .eq("lesson_id", data.lessonId)
+        .maybeSingle();
+      const cachedQuiz = ((saved as any)?.quiz as LessonQuizItem[]) ?? [];
+      if (Array.isArray(cachedQuiz) && cachedQuiz.length > 0) return { quiz: cachedQuiz, cached: true };
+    } catch (e) {
+      console.error("Failed to read cached quiz:", e);
+    }
+
+    let source = "";
+    try {
+      const { data: saved } = await (supabase.from("lesson_transcripts" as any) as any)
+        .select("transcript_text")
+        .eq("lesson_id", data.lessonId)
+        .maybeSingle();
+      source = (((saved as any)?.transcript_text as string) ?? "").slice(0, 8000);
+    } catch (e) {
+      console.error("Failed to read transcript for quiz:", e);
+    }
+    if (!source) {
+      const notes = ((lesson as any)?.content_md || (lesson as any)?.description || "") as string;
+      source = String(notes).slice(0, 8000);
+    }
+    if (!source) return { quiz: [], cached: false };
+
+    const minutes =
+      (lesson as any)?.duration_minutes && (lesson as any).duration_minutes > 0
+        ? (lesson as any).duration_minutes
+        : 10;
+    const totalSec = Math.round(minutes * 60);
+    const count = Math.min(data.count ?? 3, 5);
+    const slots = Array.from({ length: count }, (_, i) =>
+      Math.round((totalSec * (i + 1)) / (count + 1)),
+    );
+
+    const { callUserAiChat } = await import("./user-ai");
+    const res = await callUserAiChat({
+      task: "quiz",
+      temperature: 0.4,
+      max_tokens: 1500,
+      messages: [
+        {
+          role: "system",
+          content:
+            "You write short video-checkpoint quizzes. Output ONLY a JSON array, no markdown fences, no commentary. Each item: {\"question\": string (1 line), \"options\": [exactly 4 short strings], \"answer\": 0-3 index of the correct option, \"explanation\": string (1 line)}. Questions must be answerable from the lesson content below. Keep language simple.",
+        },
+        {
+          role: "user",
+          content: `Lesson: ${(lesson as any)?.title ?? ""}\n\nCONTENT:\n${source}\n\nWrite ${count} checkpoint questions as a JSON array.`,
+        },
+      ],
+    });
+    if (!res.ok) throw new Error(`AI provider error (${res.status})`);
+    const json = await res.json();
+    let raw: string = json.choices?.[0]?.message?.content ?? "";
+    raw = raw
+      .trim()
+      .replace(/^```(?:json)?/i, "")
+      .replace(/```$/, "")
+      .trim();
+    let items: any[] = [];
+    try {
+      items = JSON.parse(raw);
+    } catch {
+      const m = raw.match(/\[[\s\S]*\]/);
+      if (m) items = JSON.parse(m[0]);
+    }
+    const quiz: LessonQuizItem[] = (Array.isArray(items) ? items : [])
+      .slice(0, count)
+      .map((q: any, i: number) => ({
+        id: `q${i + 1}`,
+        time: slots[i] ?? Math.round(totalSec / 2),
+        question: String(q?.question ?? "").slice(0, 300),
+        options: (Array.isArray(q?.options) ? q.options : []).slice(0, 4).map((o: any) => String(o).slice(0, 160)),
+        answer: Math.min(3, Math.max(0, Number(q?.answer ?? 0) || 0)),
+        explanation: String(q?.explanation ?? "").slice(0, 300),
+      }))
+      .filter((q) => q.question && q.options.length === 4);
+
+    if (quiz.length > 0) {
+      try {
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        await (supabaseAdmin.from("lesson_transcripts" as any) as any)
+          .update({ quiz, updated_at: new Date().toISOString() })
+          .eq("lesson_id", data.lessonId);
+      } catch (e) {
+        console.error("Failed to cache quiz:", e);
+      }
+    }
+
+    // Metering (log-only)
+    try {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      await supabaseAdmin.from("ai_usage").insert({
+        user_id: userId,
+        model: "lesson-ai:quiz",
+        prompt_tokens: Math.ceil((source.length + 500) / 4),
+        completion_tokens: 400,
+        total_tokens: Math.ceil((source.length + 500) / 4) + 400,
+        conversation_id: null,
+      });
+    } catch (e) {
+      console.error("Failed to log quiz usage:", e);
+    }
+
+    return { quiz, cached: false };
   });
