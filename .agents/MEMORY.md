@@ -150,10 +150,10 @@
 
 ## 🚀 Immediate Next Action Items
 
-1. **Run `lesson_transcripts` migration**: Execute `supabase/migrations/20271004000000_lesson_transcripts.sql` in the Supabase SQL editor (DB host unresolvable locally) — unlocks MP4 transcripts + summary cache.
-2. **Verify GROQ_API_KEY in Vercel**: Required for MP4 Whisper transcription (≤24MB files). Large MP4s return `status: "too-large"` — consider CDN-chunked upload or pre-transcribed VTT later.
-3. **Rotate pasted keys**: Upstash token + `tvly-dev-...` Tavily key seen in chat — rotate, set `TAVILY_API_KEY` + `CRON_SECRET` in Vercel and local `.env`.
-4. **Certificate Verification & Stats Refinement**: Finalize dynamic verification counting in `certificate-admin.functions.ts`.
-5. **Blog & Rich Content Polish**: Connect image uploads in `BlogManager.tsx` directly to Supabase Storage bucket `blog-assets`.
+1. ~~**Run `lesson_transcripts` migration**~~ — ✅ DONE (applied live via pooler `aws-1-ap-south-1`, verified: table exists; billing `pending` status + provider columns verified).
+2. ~~**CRON_SECRET**~~ — ✅ generated + set in local `.env` (64 hex chars). Still needed: add the SAME value as `CRON_SECRET` in Vercel env.
+3. **Verify `GROQ_API_KEY` in Vercel env** (local key tested OK) — required for Whisper MP4 transcription + AI gateway primary path.
+4. **Upstash URL is dead** (`prime-seahorse-141143.upstash.io` → NXDOMAIN): copy the correct REST URL + token from Upstash dashboard into `.env` + Vercel. App safely falls back to in-memory rate limiting meanwhile.
+5. **Tavily key missing everywhere**: rotate the pasted `tvly-dev-...` key, set `TAVILY_API_KEY` in `.env` + Vercel (agent web search currently returns "Search unavailable").
 6. **Cashfree Webhook Signature**: Implement HMAC-SHA256 signature verification in `src/routes/api/cashfree-webhook.ts`.
 7. **Dashboard Setting**: Enable Leaked Password Protection in Supabase dashboard.
