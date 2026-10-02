@@ -135,21 +135,63 @@ export async function ytSearchTopVideo(query: string, apiKey: string) {
   };
 }
 
-export async function fetchTranscriptRaw(videoId: string): Promise<string | null> {
+export interface TimedTranscriptCue {
+  start: number;
+  end: number;
+  text: string;
+}
+
+/**
+ * Real timed transcript segments (seconds) instead of estimated timings.
+ * Tries English first, then Hindi, then YouTube's default track — many Indian
+ * lessons only carry Hindi or auto-generated captions.
+ */
+export async function fetchTranscriptTimed(
+  videoId: string,
+): Promise<{ cues: TimedTranscriptCue[]; text: string; lang: string } | null> {
   try {
     const { YoutubeTranscript } = await import("youtube-transcript");
-    const items = await YoutubeTranscript.fetchTranscript(videoId, { lang: "en" }).catch(
-      () => null,
-    );
-    if (!items || !items.length) return null;
-    const text = items
-      .map((i: any) => (i.text ?? "").replace(/\s+/g, " "))
-      .join(" ")
-      .trim();
-    return text.length > 50 ? text.slice(0, 20_000) : null;
+    for (const lang of ["en", "hi", "en-US"]) {
+      const items = await YoutubeTranscript.fetchTranscript(videoId, { lang }).catch(() => null);
+      if (!items || !items.length) continue;
+      const raw: TimedTranscriptCue[] = (items as any[])
+        .map((i: any) => ({
+          start: Number(i.offset ?? 0) / 1000,
+          end: (Number(i.offset ?? 0) + Number(i.duration ?? 0)) / 1000,
+          text: String(i.text ?? "")
+            .replace(/\s+/g, " ")
+            .trim(),
+        }))
+        .filter((c) => c.text.length > 0 && c.end > c.start);
+      if (!raw.length) continue;
+      // Merge tiny fragments into readable caption cues (≤ ~220 chars / 14s each)
+      const cues: TimedTranscriptCue[] = [];
+      let cur = { ...raw[0] };
+      for (const n of raw.slice(1)) {
+        const joined = `${cur.text} ${n.text}`;
+        if (joined.length <= 220 && n.end - cur.start <= 14) {
+          cur = { start: cur.start, end: n.end, text: joined };
+        } else {
+          cues.push(cur);
+          cur = { ...n };
+        }
+      }
+      cues.push(cur);
+      const text = cues
+        .map((c) => c.text)
+        .join(" ")
+        .slice(0, 20000);
+      if (text.length > 50) return { cues, text, lang };
+    }
+    return null;
   } catch {
     return null;
   }
+}
+
+export async function fetchTranscriptRaw(videoId: string): Promise<string | null> {
+  const timed = await fetchTranscriptTimed(videoId);
+  return timed?.text ?? null;
 }
 
 async function aiSummarizeTranscript(

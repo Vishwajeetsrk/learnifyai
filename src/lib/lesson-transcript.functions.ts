@@ -141,10 +141,12 @@ export const getLessonTranscriptFull = createServerFn({ method: "POST" })
     const videoUrl = (data.videoUrl || (lesson as any)?.video_url || "").trim();
     if (!videoUrl) return empty;
 
-    // 2. YouTube path
+    // 2. YouTube path (real timed segments — no estimated timings)
     const ytId = extractYouTubeVideoId(videoUrl);
     if (ytId) {
       let text = "";
+      let cues: TimedCue[] = [];
+      let lang = "en";
       try {
         const { data: cached } = await supabaseAdmin
           .from("youtube_transcripts")
@@ -156,15 +158,18 @@ export const getLessonTranscriptFull = createServerFn({ method: "POST" })
         console.warn("[getLessonTranscriptFull] YT cache read failed:", e);
       }
       if (!text) {
-        const { fetchTranscriptRaw } = await import("./youtube.functions");
-        text = (await fetchTranscriptRaw(ytId)) ?? "";
-        if (text) {
+        const { fetchTranscriptTimed } = await import("./youtube.functions");
+        const timed = await fetchTranscriptTimed(ytId);
+        if (timed) {
+          text = timed.text;
+          cues = timed.cues;
+          lang = timed.lang;
           try {
             await supabaseAdmin.from("youtube_transcripts").upsert({
               video_id: ytId,
               transcript: text,
               chars: text.length,
-              lang: "en",
+              lang,
             });
           } catch (e) {
             console.warn("[getLessonTranscriptFull] YT cache write failed:", e);
@@ -172,8 +177,8 @@ export const getLessonTranscriptFull = createServerFn({ method: "POST" })
         }
       }
       if (!text) return empty;
-      await saveLessonTranscript(data.lessonId, data.courseId, "youtube", text, []);
-      return { text, cues: [], source: "youtube", status: "ok", cached: false };
+      await saveLessonTranscript(data.lessonId, data.courseId, "youtube", text, cues, lang);
+      return { text, cues, source: "youtube", status: "ok", cached: false };
     }
 
     // 3. MP4 / direct-file path via Whisper
