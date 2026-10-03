@@ -41,6 +41,7 @@ interface AdvancedSettingsPanelProps {
   onTogglePlaylist: () => void;
   onShowShortcuts: () => void;
   onClose: () => void;
+  className?: string;
 }
 
 type SettingsView = "main" | "captions" | "display" | "language";
@@ -63,17 +64,18 @@ export function AdvancedSettingsPanel({
   onTogglePlaylist,
   onShowShortcuts,
   onClose,
+  className,
 }: AdvancedSettingsPanelProps) {
   const [view, setView] = useState<SettingsView>("main");
 
   const Header = () => (
-    <div className="flex items-center justify-between p-3 border-b border-border">
+    <div className="flex items-center justify-between p-3.5 border-b border-border shrink-0">
       <div className="flex items-center gap-2">
         {view !== "main" && (
           <Button
             variant="ghost"
             size="sm"
-            className="h-7 w-7 p-0"
+            className="h-8 w-8 p-0 rounded-full"
             onClick={() => setView("main")}
             aria-label="Back"
           >
@@ -90,18 +92,18 @@ export function AdvancedSettingsPanel({
       <Button
         variant="ghost"
         size="sm"
-        className="h-7 w-7 p-0"
+        className="h-8 w-8 p-0 rounded-full hover:bg-muted"
         onClick={onClose}
         aria-label="Close settings"
       >
-        <X className="h-3.5 w-3.5" />
+        <X className="h-4 w-4" />
       </Button>
     </div>
   );
 
   return (
     <div
-      className="flex flex-col bg-background border-l border-border w-full max-w-xs"
+      className={`flex flex-col bg-background w-full md:max-w-xs h-full select-none ${className || "border-l border-border"}`}
       role="dialog"
       aria-label="Video settings"
     >
@@ -292,13 +294,13 @@ function SettingsRow({
 }) {
   return (
     <button
-      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-muted/50 transition text-xs"
+      className="w-full flex items-center gap-3 px-3.5 py-3 min-h-[44px] rounded-xl hover:bg-muted/60 active:bg-muted transition text-xs sm:text-sm font-medium"
       onClick={onClick}
     >
-      <span className="text-muted-foreground">{icon}</span>
-      <span className="flex-1 text-left">{label}</span>
-      {value && <span className="text-muted-foreground">{value}</span>}
-      <ChevronLeft className="h-3 w-3 rotate-180 text-muted-foreground" />
+      <span className="text-muted-foreground shrink-0">{icon}</span>
+      <span className="flex-1 text-left leading-snug">{label}</span>
+      {value && <span className="text-muted-foreground text-xs">{value}</span>}
+      <ChevronLeft className="h-4 w-4 rotate-180 text-muted-foreground/70 shrink-0" />
     </button>
   );
 }

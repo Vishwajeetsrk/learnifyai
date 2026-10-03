@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { callUserAiChat } from "@/lib/user-ai";
+import { cleanQuizQuestion } from "./quiz-cleaner";
 import { z } from "zod";
 
 const Input = z.object({
@@ -340,7 +341,7 @@ export const getLessonQuiz = createServerFn({ method: "POST" })
       .map((q: any, i: number) => ({
         id: `q${i + 1}`,
         time: slots[i] ?? Math.round(totalSec / 2),
-        question: String(q?.question ?? "").slice(0, 300),
+        question: cleanQuizQuestion(String(q?.question ?? "").slice(0, 300)),
         options: (Array.isArray(q?.options) ? q.options : []).slice(0, 4).map((o: any) => String(o).slice(0, 160)),
         answer: Math.min(3, Math.max(0, Number(q?.answer ?? 0) || 0)),
         explanation: String(q?.explanation ?? "").slice(0, 300),

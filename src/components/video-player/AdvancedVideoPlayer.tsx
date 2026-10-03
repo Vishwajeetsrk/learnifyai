@@ -1,6 +1,8 @@
-﻿import { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import { createPortal } from "react-dom";
 import { useServerFn } from "@tanstack/react-start";
 import { translateLessonTranscript } from "@/lib/lesson-transcript.functions";
+import { cleanQuizQuestion } from "@/lib/quiz-cleaner";
 import {
   Play,
   Pause,
@@ -18,6 +20,8 @@ import {
   PictureInPicture,
   List,
   Subtitles,
+  Check,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -493,6 +497,41 @@ export function AdvancedVideoPlayer({
     resumeMedia();
   }, [activeCheckpoint, resumeMedia]);
 
+  // Lock background scroll when quiz checkpoint or mobile bottom sheets are open
+  useEffect(() => {
+    const isModalOpen = Boolean(
+      activeCheckpoint ||
+        showSettings ||
+        showTranscript ||
+        showPlaylist ||
+        showCaptions,
+    );
+    if (!isModalOpen || typeof document === "undefined") return;
+
+    if (activeCheckpoint || window.innerWidth < 768) {
+      const origOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = origOverflow;
+      };
+    }
+  }, [activeCheckpoint, showSettings, showTranscript, showPlaylist, showCaptions]);
+
+  // Global Escape key listener to close open panels
+  useEffect(() => {
+    const onGlobalKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        if (showSettings) setShowSettings(false);
+        if (showTranscript) setShowTranscript(false);
+        if (showPlaylist) setShowPlaylist(false);
+        if (showCaptions) setShowCaptions(false);
+        if (showShortcuts) setShowShortcuts(false);
+      }
+    };
+    window.addEventListener("keydown", onGlobalKeyDown);
+    return () => window.removeEventListener("keydown", onGlobalKeyDown);
+  }, [showSettings, showTranscript, showPlaylist, showCaptions, showShortcuts]);
+
   // Keyboard shortcuts
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -773,19 +812,19 @@ export function AdvancedVideoPlayer({
             </div>
           )}
 
-          {/* Caption overlay */}
+          {/* Caption overlay — floating non-obtrusively near bottom by default */}
           {activeCue && settings.captionsEnabled && (
             <div
               className={cn(
-                "absolute left-1/2 -translate-x-1/2 px-3 py-1 max-w-[80%] text-center pointer-events-none z-20",
-                settings.captionStyle.rounded && "rounded-lg",
-                settings.captionStyle.blur && "backdrop-blur-sm",
-                settings.captionStyle.position === "top" && "top-4",
-                settings.captionStyle.position === "center" && "top-1/2 -translate-y-1/2",
-                settings.captionStyle.position === "bottom" && "bottom-16",
+                "absolute left-1/2 -translate-x-1/2 px-3 sm:px-4 py-1.5 max-w-[92%] sm:max-w-[85%] text-center pointer-events-none z-20 transition-all duration-150 leading-snug select-none",
+                settings.captionStyle.rounded ? "rounded-xl" : "rounded-md",
+                settings.captionStyle.blur && "backdrop-blur-md",
+                settings.captionStyle.position === "top" && "top-3 sm:top-5",
+                settings.captionStyle.position === "center" && "top-1/2 -translate-y-1/2 max-h-[35%] overflow-hidden line-clamp-3",
+                settings.captionStyle.position === "bottom" && "bottom-14 sm:bottom-16",
               )}
               style={{
-                fontSize: `${CAPTION_FONT_SIZES.find((s) => s.value === settings.captionStyle.fontSize)?.px || 18}px`,
+                fontSize: `${Math.min(CAPTION_FONT_SIZES.find((s) => s.value === settings.captionStyle.fontSize)?.px || 16, 20)}px`,
                 fontFamily: settings.captionStyle.fontFamily,
                 fontWeight:
                   settings.captionStyle.fontWeight === "bold"
@@ -820,66 +859,90 @@ export function AdvancedVideoPlayer({
         </div>
       )}
 
-      {/* Quiz checkpoint overlay */}
-      {activeCheckpoint && (
-        <div className="absolute inset-0 z-40 flex items-center justify-center bg-black/70 backdrop-blur-[2px] p-4">
-          <div className="w-full max-w-md rounded-2xl border border-border bg-card p-5 shadow-2xl">
-            <div className="flex items-center justify-between">
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-primary">
-                Quick check
-              </p>
-              <p className="text-[11px] text-muted-foreground font-mono">
-                {doneCheckpoints.size + 1} / {quiz.length}
+      {/* Quiz checkpoint overlay (rendered via Portal to guarantee 0px clipping on mobile devices) */}
+      {activeCheckpoint && typeof document !== "undefined" && createPortal(
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-3 sm:p-4 md:p-6 overflow-y-auto animate-in fade-in duration-200"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="quick-check-title"
+        >
+          <div className="w-full max-w-lg bg-card text-card-foreground border border-border/80 rounded-2xl p-5 sm:p-6 shadow-2xl my-auto max-h-[92dvh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between pb-3 border-b border-border/60 shrink-0">
+              <div className="flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+                <p id="quick-check-title" className="text-xs font-bold uppercase tracking-wider text-primary">
+                  Quick Check
+                </p>
+              </div>
+              <p className="text-xs text-muted-foreground font-mono font-medium">
+                Question {doneCheckpoints.size + 1} of {quiz.length}
               </p>
             </div>
-            <h4 className="mt-2 text-sm font-semibold leading-snug">
-              {activeCheckpoint.question}
-            </h4>
-            <div className="mt-3 space-y-1.5">
-              {activeCheckpoint.options.map((opt, i) => {
-                const isAnswer = i === activeCheckpoint.answer;
-                const isPicked = i === pickedOption;
-                return (
-                  <button
-                    key={i}
-                    type="button"
-                    disabled={pickedOption !== null}
-                    onClick={() => setPickedOption(i)}
-                    className={cn(
-                      "w-full text-left px-3 py-2 rounded-lg text-xs border transition",
-                      pickedOption === null
-                        ? "border-border hover:border-primary/60 hover:bg-primary/5"
-                        : isAnswer
-                          ? "border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-medium"
-                          : isPicked
-                            ? "border-destructive bg-destructive/10 font-medium"
-                            : "border-border opacity-50",
-                    )}
-                  >
-                    {opt}
-                  </button>
-                );
-              })}
+
+            <div className="overflow-y-auto flex-1 py-4 pr-1 space-y-4">
+              <h4 className="text-sm sm:text-base font-semibold leading-relaxed text-foreground">
+                {cleanQuizQuestion(activeCheckpoint.question)}
+              </h4>
+
+              <div className="space-y-2">
+                {activeCheckpoint.options.map((opt, i) => {
+                  const isAnswer = i === activeCheckpoint.answer;
+                  const isPicked = i === pickedOption;
+                  return (
+                    <button
+                      key={i}
+                      type="button"
+                      disabled={pickedOption !== null}
+                      onClick={() => setPickedOption(i)}
+                      className={cn(
+                        "w-full text-left px-4 py-3 min-h-[46px] rounded-xl text-xs sm:text-sm border transition-all duration-200 flex items-center justify-between gap-3",
+                        pickedOption === null
+                          ? "border-border hover:border-primary/60 hover:bg-primary/5 active:scale-[0.99] cursor-pointer"
+                          : isAnswer
+                            ? "border-emerald-500 bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-medium shadow-sm ring-1 ring-emerald-500/30"
+                            : isPicked
+                              ? "border-destructive bg-destructive/15 text-destructive font-medium shadow-sm ring-1 ring-destructive/30"
+                              : "border-border/60 opacity-50 bg-muted/20",
+                      )}
+                    >
+                      <span className="flex-1 leading-snug">{opt}</span>
+                      {pickedOption !== null && isAnswer && (
+                        <Check className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                      )}
+                      {pickedOption !== null && isPicked && !isAnswer && (
+                        <X className="h-4 w-4 text-destructive shrink-0" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {pickedOption !== null && activeCheckpoint.explanation && (
+                <div className="p-3.5 rounded-xl bg-muted/60 border border-border text-xs leading-relaxed text-muted-foreground animate-in fade-in duration-150">
+                  <span className="font-semibold text-foreground mr-1.5">Explanation:</span>
+                  {activeCheckpoint.explanation}
+                </div>
+              )}
             </div>
-            {pickedOption !== null && activeCheckpoint.explanation && (
-              <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">
-                {activeCheckpoint.explanation}
-              </p>
-            )}
-            <button
-              type="button"
-              disabled={pickedOption === null}
-              onClick={closeCheckpoint}
-              className="mt-4 w-full h-9 rounded-lg bg-primary text-primary-foreground text-xs font-semibold disabled:opacity-40 transition hover:bg-primary/90"
-            >
-              {pickedOption === null
-                ? "Pick an answer to continue"
-                : pickedOption === activeCheckpoint.answer
-                  ? "Correct — continue watching"
-                  : "Got it — continue watching"}
-            </button>
+
+            <div className="pt-3 border-t border-border/60 mt-auto shrink-0">
+              <button
+                type="button"
+                disabled={pickedOption === null}
+                onClick={closeCheckpoint}
+                className="w-full h-11 min-h-[44px] rounded-xl bg-primary text-primary-foreground text-xs sm:text-sm font-semibold disabled:opacity-40 transition-all duration-200 hover:bg-primary/90 active:scale-[0.99] shadow-md flex items-center justify-center gap-2"
+              >
+                {pickedOption === null
+                  ? "Pick an answer to continue"
+                  : pickedOption === activeCheckpoint.answer
+                    ? "Correct — continue watching"
+                    : "Got it — continue watching"}
+              </button>
+            </div>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
 
       {/* Controls overlay */}
@@ -930,10 +993,11 @@ export function AdvancedVideoPlayer({
             )}
           </div>
 
-          {/* Controls row */}
-          <div className="flex items-center gap-1">
+          {/* Controls row — responsive layout prioritized for mobile, tablet, and desktop */}
+          <div className="flex items-center gap-1 sm:gap-1.5 flex-nowrap overflow-hidden">
             {/* Left controls */}
             <ControlButton
+              className="hidden sm:flex"
               icon={<ChevronLeft className="h-4 w-4" />}
               onClick={() => handleShortcutAction("prevLesson")}
               disabled={currentLessonIndex <= 0}
@@ -945,8 +1009,9 @@ export function AdvancedVideoPlayer({
               tooltip="Back 10 seconds"
             />
             <ControlButton
+              className="h-9 w-9 sm:h-10 sm:w-10 bg-white/10 text-white hover:bg-white/20 active:scale-90"
               icon={
-                playing ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4 fill-current" />
+                playing ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4 fill-current ml-0.5" />
               }
               onClick={() => handleShortcutAction("togglePlay")}
               tooltip={playing ? "Pause" : "Play"}
@@ -957,14 +1022,15 @@ export function AdvancedVideoPlayer({
               tooltip="Forward 10 seconds"
             />
             <ControlButton
+              className="hidden sm:flex"
               icon={<ChevronRight className="h-4 w-4" />}
               onClick={() => handleShortcutAction("nextLesson")}
               disabled={currentLessonIndex < 0 || currentLessonIndex >= lessons.length - 1}
               tooltip="Next lesson"
             />
 
-            {/* Volume */}
-            <div className="flex items-center gap-1 group/vol">
+            {/* Volume — hidden on small mobile, accessible via device buttons or tablet/desktop hover */}
+            <div className="hidden sm:flex items-center gap-1 group/vol">
               <ControlButton
                 icon={<VolumeIcon className="h-4 w-4" />}
                 onClick={() => {
@@ -985,21 +1051,22 @@ export function AdvancedVideoPlayer({
                     videoRef.current.muted = v === 0;
                   }
                 }}
-                className="w-0 group-hover/vol:w-20 transition-all duration-200 accent-primary h-1 cursor-pointer opacity-0 group-hover/vol:opacity-100"
+                className="w-0 group-hover/vol:w-16 md:group-hover/vol:w-20 transition-all duration-200 accent-primary h-1 cursor-pointer opacity-0 group-hover/vol:opacity-100"
                 aria-label="Volume"
               />
             </div>
 
             {/* Time */}
-            <span className="text-[11px] text-white/80 font-mono ml-2 tabular-nums">
+            <span className="text-[10px] sm:text-[11px] text-white/90 font-mono ml-1 sm:ml-2 tabular-nums shrink-0">
               {formatTimestamp(currentTime)} / {formatTimestamp(duration)}
             </span>
 
             {/* Spacer */}
-            <div className="flex-1" />
+            <div className="flex-1 min-w-0" />
 
             {/* Right controls */}
             <ControlButton
+              className="hidden md:flex"
               icon={<PictureInPicture className="h-4 w-4" />}
               onClick={togglePiP}
               disabled={typeof document === "undefined" || !document.pictureInPictureEnabled}
@@ -1007,8 +1074,14 @@ export function AdvancedVideoPlayer({
               active={isPiP}
             />
             <ControlButton
+              className="hidden md:flex"
               icon={<List className="h-4 w-4" />}
-              onClick={() => setShowPlaylist((v) => !v)}
+              onClick={() => {
+                setShowPlaylist((v) => !v);
+                setShowSettings(false);
+                setShowCaptions(false);
+                setShowTranscript(false);
+              }}
               tooltip="Playlist"
               active={showPlaylist}
             />
@@ -1018,17 +1091,20 @@ export function AdvancedVideoPlayer({
                 setShowCaptions((v) => !v);
                 setShowSettings(false);
                 setShowTranscript(false);
+                setShowPlaylist(false);
               }}
               tooltip="Subtitles"
               active={showCaptions || settings.captionsEnabled}
             />
             {transcriptEntries.length > 0 && (
               <ControlButton
+                className="hidden sm:flex"
                 icon={<MessageSquare className="h-4 w-4" />}
                 onClick={() => {
                   setShowTranscript((v) => !v);
                   setShowCaptions(false);
                   setShowSettings(false);
+                  setShowPlaylist(false);
                 }}
                 tooltip="Transcript"
                 active={showTranscript}
@@ -1040,6 +1116,7 @@ export function AdvancedVideoPlayer({
                 setShowSettings((v) => !v);
                 setShowCaptions(false);
                 setShowTranscript(false);
+                setShowPlaylist(false);
               }}
               tooltip="Settings"
               active={showSettings}
@@ -1055,24 +1132,60 @@ export function AdvancedVideoPlayer({
         </div>
       )}
 
-      {/* Side panels */}
+      {/* Side panels (Desktop drawer + Mobile bottom-sheet portal) */}
       {showTranscript && (
-        <div className="absolute top-0 right-0 bottom-0 w-72 z-40">
-          <TranscriptPanel
-            entries={transcriptEntries}
-            currentTime={currentTime}
-            onSeek={(time) => {
-              if (isYouTube) {
-                sendYtCommand("seekTo", [time, true]);
-                setCurrentTime(time);
-              } else if (videoRef.current) {
-                videoRef.current.currentTime = time;
-              }
-            }}
-            onClose={() => setShowTranscript(false)}
-            videoTitle={title}
-          />
-        </div>
+        <>
+          <div className="hidden md:flex absolute top-0 right-0 bottom-0 w-80 z-40">
+            <TranscriptPanel
+              entries={transcriptEntries}
+              currentTime={currentTime}
+              onSeek={(time) => {
+                if (isYouTube) {
+                  sendYtCommand("seekTo", [time, true]);
+                  setCurrentTime(time);
+                } else if (videoRef.current) {
+                  videoRef.current.currentTime = time;
+                }
+              }}
+              onClose={() => setShowTranscript(false)}
+              videoTitle={title}
+            />
+          </div>
+          {typeof document !== "undefined" &&
+            createPortal(
+              <div
+                className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex flex-col justify-end md:hidden animate-in fade-in duration-200"
+                onClick={(e) => {
+                  if (e.target === e.currentTarget) setShowTranscript(false);
+                }}
+              >
+                <div
+                  className="w-full bg-background border-t border-border rounded-t-2xl shadow-2xl h-[78dvh] max-h-[85dvh] flex flex-col overflow-hidden animate-in slide-in-from-bottom duration-250"
+                  role="dialog"
+                  aria-modal="true"
+                  aria-label="Video transcript"
+                >
+                  <div className="w-12 h-1 bg-muted-foreground/30 rounded-full mx-auto my-2.5 shrink-0" />
+                  <TranscriptPanel
+                    entries={transcriptEntries}
+                    currentTime={currentTime}
+                    onSeek={(time) => {
+                      if (isYouTube) {
+                        sendYtCommand("seekTo", [time, true]);
+                        setCurrentTime(time);
+                      } else if (videoRef.current) {
+                        videoRef.current.currentTime = time;
+                      }
+                      setShowTranscript(false);
+                    }}
+                    onClose={() => setShowTranscript(false)}
+                    videoTitle={title}
+                  />
+                </div>
+              </div>,
+              document.body,
+            )}
+        </>
       )}
 
       {/* Floating transcript toggle for YouTube lessons (native player has no custom bar) */}
@@ -1089,93 +1202,233 @@ export function AdvancedVideoPlayer({
       )}
 
       {showCaptions && !isYouTube && (
-        <div className="absolute top-0 right-0 bottom-0 w-72 z-30">
-          <CaptionPanel
-            tracks={tracks}
-            activeTrackId={activeTrack?.id || null}
-            onSelectTrack={(track) => {
-              setActiveTrack(track);
-              setSettings((prev) => ({ ...prev, captionsEnabled: !!track }));
-            }}
-            onAddTrack={(track) => setTracks((prev) => [...prev, track])}
-            onRemoveTrack={(id) => {
-              setTracks((prev) => prev.filter((t) => t.id !== id));
-              if (activeTrack?.id === id) setActiveTrack(null);
-            }}
-            onClose={() => setShowCaptions(false)}
-            sourceLanguage={activeTrack?.language ?? tracks[0]?.language ?? "en"}
-            onTranslate={lessonId && courseId ? handleTranslate : undefined}
-          />
-        </div>
+        <>
+          <div className="hidden md:flex absolute top-0 right-0 bottom-0 w-80 z-30">
+            <CaptionPanel
+              tracks={tracks}
+              activeTrackId={activeTrack?.id || null}
+              onSelectTrack={(track) => {
+                setActiveTrack(track);
+                setSettings((prev) => ({ ...prev, captionsEnabled: !!track }));
+              }}
+              onAddTrack={(track) => setTracks((prev) => [...prev, track])}
+              onRemoveTrack={(id) => {
+                setTracks((prev) => prev.filter((t) => t.id !== id));
+                if (activeTrack?.id === id) setActiveTrack(null);
+              }}
+              onClose={() => setShowCaptions(false)}
+              sourceLanguage={activeTrack?.language ?? tracks[0]?.language ?? "en"}
+              onTranslate={lessonId && courseId ? handleTranslate : undefined}
+            />
+          </div>
+          {typeof document !== "undefined" &&
+            createPortal(
+              <div
+                className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex flex-col justify-end md:hidden animate-in fade-in duration-200"
+                onClick={(e) => {
+                  if (e.target === e.currentTarget) setShowCaptions(false);
+                }}
+              >
+                <div
+                  className="w-full bg-background border-t border-border rounded-t-2xl shadow-2xl h-[78dvh] max-h-[85dvh] flex flex-col overflow-hidden animate-in slide-in-from-bottom duration-250"
+                  role="dialog"
+                  aria-modal="true"
+                  aria-label="Captions and Subtitles"
+                >
+                  <div className="w-12 h-1 bg-muted-foreground/30 rounded-full mx-auto my-2.5 shrink-0" />
+                  <CaptionPanel
+                    tracks={tracks}
+                    activeTrackId={activeTrack?.id || null}
+                    onSelectTrack={(track) => {
+                      setActiveTrack(track);
+                      setSettings((prev) => ({ ...prev, captionsEnabled: !!track }));
+                    }}
+                    onAddTrack={(track) => setTracks((prev) => [...prev, track])}
+                    onRemoveTrack={(id) => {
+                      setTracks((prev) => prev.filter((t) => t.id !== id));
+                      if (activeTrack?.id === id) setActiveTrack(null);
+                    }}
+                    onClose={() => setShowCaptions(false)}
+                    sourceLanguage={activeTrack?.language ?? tracks[0]?.language ?? "en"}
+                    onTranslate={lessonId && courseId ? handleTranslate : undefined}
+                  />
+                </div>
+              </div>,
+              document.body,
+            )}
+        </>
       )}
 
       {showSettings && !isYouTube && (
-        <div className="absolute top-0 right-0 bottom-0 z-30">
-          <AdvancedSettingsPanel
-            settings={settings}
-            onUpdate={(s) => setSettings((prev) => ({ ...prev, ...s }))}
-            onScreenshot={takeScreenshot}
-            restrictDownload={restrictDownload}
-            restrictSpeed={restrictSpeed}
-            audioLanguage={audioLanguage}
-            onAudioLanguageChange={setAudioLanguage}
-            hasTranscript={transcriptEntries.length > 0}
-            showTranscript={showTranscript}
-            onToggleTranscript={() => setShowTranscript((v) => !v)}
-            hasSlides={slides.length > 0}
-            showSlides={showSlides}
-            onToggleSlides={() => setShowSlides((v) => !v)}
-            showPlaylist={showPlaylist}
-            onTogglePlaylist={() => setShowPlaylist((v) => !v)}
-            onShowShortcuts={() => {
-              setShowSettings(false);
-              setShowShortcuts(true);
-            }}
-            onClose={() => setShowSettings(false)}
-          />
-        </div>
+        <>
+          <div className="hidden md:flex absolute top-0 right-0 bottom-0 w-80 z-30">
+            <AdvancedSettingsPanel
+              settings={settings}
+              onUpdate={(s) => setSettings((prev) => ({ ...prev, ...s }))}
+              onScreenshot={takeScreenshot}
+              restrictDownload={restrictDownload}
+              restrictSpeed={restrictSpeed}
+              audioLanguage={audioLanguage}
+              onAudioLanguageChange={setAudioLanguage}
+              hasTranscript={transcriptEntries.length > 0}
+              showTranscript={showTranscript}
+              onToggleTranscript={() => setShowTranscript((v) => !v)}
+              hasSlides={slides.length > 0}
+              showSlides={showSlides}
+              onToggleSlides={() => setShowSlides((v) => !v)}
+              showPlaylist={showPlaylist}
+              onTogglePlaylist={() => setShowPlaylist((v) => !v)}
+              onShowShortcuts={() => {
+                setShowSettings(false);
+                setShowShortcuts(true);
+              }}
+              onClose={() => setShowSettings(false)}
+            />
+          </div>
+          {typeof document !== "undefined" &&
+            createPortal(
+              <div
+                className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex flex-col justify-end md:hidden animate-in fade-in duration-200"
+                onClick={(e) => {
+                  if (e.target === e.currentTarget) setShowSettings(false);
+                }}
+              >
+                <div
+                  className="w-full bg-background border-t border-border rounded-t-2xl shadow-2xl h-[78dvh] max-h-[85dvh] flex flex-col overflow-hidden animate-in slide-in-from-bottom duration-250"
+                  role="dialog"
+                  aria-modal="true"
+                  aria-label="Video settings"
+                >
+                  <div className="w-12 h-1 bg-muted-foreground/30 rounded-full mx-auto my-2.5 shrink-0" />
+                  <AdvancedSettingsPanel
+                    className="border-l-0"
+                    settings={settings}
+                    onUpdate={(s) => setSettings((prev) => ({ ...prev, ...s }))}
+                    onScreenshot={takeScreenshot}
+                    restrictDownload={restrictDownload}
+                    restrictSpeed={restrictSpeed}
+                    audioLanguage={audioLanguage}
+                    onAudioLanguageChange={setAudioLanguage}
+                    hasTranscript={transcriptEntries.length > 0}
+                    showTranscript={showTranscript}
+                    onToggleTranscript={() => {
+                      setShowSettings(false);
+                      setShowTranscript(true);
+                    }}
+                    hasSlides={slides.length > 0}
+                    showSlides={showSlides}
+                    onToggleSlides={() => setShowSlides((v) => !v)}
+                    showPlaylist={showPlaylist}
+                    onTogglePlaylist={() => {
+                      setShowSettings(false);
+                      setShowPlaylist(true);
+                    }}
+                    onShowShortcuts={() => {
+                      setShowSettings(false);
+                      setShowShortcuts(true);
+                    }}
+                    onClose={() => setShowSettings(false)}
+                  />
+                </div>
+              </div>,
+              document.body,
+            )}
+        </>
       )}
 
       {/* Playlist overlay */}
       {showPlaylist && (
-        <div className="absolute top-0 right-0 bottom-0 w-72 bg-background/95 backdrop-blur-sm border-l border-border z-30 flex flex-col">
-          <div className="flex items-center justify-between p-3 border-b border-border">
-            <h3 className="font-semibold text-sm">Lessons</h3>
-            <button
-              onClick={() => setShowPlaylist(false)}
-              className="text-muted-foreground hover:text-foreground"
-              aria-label="Close playlist"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </button>
-          </div>
-          <div className="flex-1 overflow-y-auto">
-            {lessons.map((lesson, i) => (
+        <>
+          <div className="hidden md:flex absolute top-0 right-0 bottom-0 w-80 bg-background/98 backdrop-blur-md border-l border-border z-30 flex-col animate-in slide-in-from-right duration-200">
+            <div className="flex items-center justify-between p-3.5 border-b border-border shrink-0">
+              <h3 className="font-semibold text-sm">Course Lessons</h3>
               <button
-                key={lesson.id}
-                onClick={() => {
-                  onLessonClick(lesson.id);
-                  setShowPlaylist(false);
-                }}
-                className={cn(
-                  "w-full text-left px-3 py-2.5 text-xs border-b border-border/50 transition",
-                  lesson.id === currentLessonId
-                    ? "bg-primary/10 text-primary"
-                    : "hover:bg-muted/50 text-muted-foreground",
-                )}
+                onClick={() => setShowPlaylist(false)}
+                className="h-8 w-8 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted"
+                aria-label="Close playlist"
               >
-                <div className="flex items-center gap-2">
-                  <span className="w-5 text-[10px] text-center font-mono">{i + 1}</span>
-                  <div className="flex-1 min-w-0">
-                    <p className="truncate">{lesson.title}</p>
-                    <p className="text-[10px] opacity-60">{lesson.duration}</p>
-                  </div>
-                  {lesson.completed && <span className="text-green-500 text-[10px]">âœ“</span>}
-                </div>
+                <X className="h-4 w-4" />
               </button>
-            ))}
+            </div>
+            <div className="flex-1 overflow-y-auto">
+              {lessons.map((lesson, i) => (
+                <button
+                  key={lesson.id}
+                  onClick={() => {
+                    onLessonClick(lesson.id);
+                    setShowPlaylist(false);
+                  }}
+                  className={cn(
+                    "w-full text-left px-3.5 py-3 text-xs border-b border-border/40 transition flex items-center gap-3",
+                    lesson.id === currentLessonId
+                      ? "bg-primary/10 text-primary font-medium"
+                      : "hover:bg-muted/50 text-muted-foreground",
+                  )}
+                >
+                  <span className="w-5 text-[11px] text-center font-mono opacity-60">{i + 1}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="truncate text-xs sm:text-sm font-medium">{lesson.title}</p>
+                    <p className="text-[10px] opacity-70">{lesson.duration}</p>
+                  </div>
+                  {lesson.completed && <Check className="h-4 w-4 text-emerald-500 shrink-0" />}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+          {typeof document !== "undefined" &&
+            createPortal(
+              <div
+                className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex flex-col justify-end md:hidden animate-in fade-in duration-200"
+                onClick={(e) => {
+                  if (e.target === e.currentTarget) setShowPlaylist(false);
+                }}
+              >
+                <div
+                  className="w-full bg-background border-t border-border rounded-t-2xl shadow-2xl h-[78dvh] max-h-[85dvh] flex flex-col overflow-hidden animate-in slide-in-from-bottom duration-250"
+                  role="dialog"
+                  aria-modal="true"
+                  aria-label="Course Lessons"
+                >
+                  <div className="w-12 h-1 bg-muted-foreground/30 rounded-full mx-auto my-2.5 shrink-0" />
+                  <div className="flex items-center justify-between p-3.5 border-b border-border shrink-0">
+                    <h3 className="font-semibold text-sm">Course Lessons</h3>
+                    <button
+                      onClick={() => setShowPlaylist(false)}
+                      className="h-8 w-8 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted"
+                      aria-label="Close playlist"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <div className="flex-1 overflow-y-auto">
+                    {lessons.map((lesson, i) => (
+                      <button
+                        key={lesson.id}
+                        onClick={() => {
+                          onLessonClick(lesson.id);
+                          setShowPlaylist(false);
+                        }}
+                        className={cn(
+                          "w-full text-left px-4 py-3.5 min-h-[48px] text-xs sm:text-sm border-b border-border/40 transition flex items-center gap-3",
+                          lesson.id === currentLessonId
+                            ? "bg-primary/10 text-primary font-medium"
+                            : "hover:bg-muted/50 text-muted-foreground active:bg-muted",
+                        )}
+                      >
+                        <span className="w-5 text-xs text-center font-mono opacity-60">{i + 1}</span>
+                        <div className="flex-1 min-w-0">
+                          <p className="truncate font-medium">{lesson.title}</p>
+                          <p className="text-[11px] opacity-70">{lesson.duration}</p>
+                        </div>
+                        {lesson.completed && <Check className="h-4 w-4 text-emerald-500 shrink-0" />}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>,
+              document.body,
+            )}
+        </>
       )}
 
       {/* Keyboard shortcuts overlay */}
@@ -1191,19 +1444,22 @@ function ControlButton({
   disabled,
   tooltip,
   active,
+  className,
 }: {
   icon: React.ReactNode;
   onClick: () => void;
   disabled?: boolean;
   tooltip: string;
   active?: boolean;
+  className?: string;
 }) {
   return (
     <button
       className={cn(
-        "relative h-8 w-8 flex items-center justify-center rounded-lg transition",
+        "relative h-8 w-8 min-w-[32px] sm:h-9 sm:w-9 sm:min-w-[36px] flex items-center justify-center rounded-lg transition-all",
         disabled && "opacity-30 cursor-not-allowed",
-        active ? "text-primary" : "text-white/80 hover:text-white hover:bg-white/10",
+        active ? "text-primary bg-primary/15" : "text-white/85 hover:text-white hover:bg-white/10 active:scale-95",
+        className,
       )}
       onClick={onClick}
       disabled={disabled}
