@@ -6099,7 +6099,7 @@ function SupportUsManager() {
         subtitle:
           data["support_us_subtitle"] ||
           "Help us make practical career education accessible to people facing financial or access barriers, with a special focus on care leavers and underrepresented learners.",
-        payment_url: data["support_us_payment_url"] || "https://rzp.io/rzp/valuablesupport",
+        payment_url: data["support_us_payment_url"] || "https://razorpay.me/@learnifyai3660",
         upi_id: data["support_us_upi_id"] || "",
         description: data["support_us_description"] || "",
       });

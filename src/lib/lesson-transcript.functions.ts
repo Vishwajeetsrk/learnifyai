@@ -3,6 +3,18 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { extractYouTubeVideoId } from "@/lib/course-player";
 import { z } from "zod";
 
+async function checkTranscriptAdmin(userId: string) {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data: roles } = await supabaseAdmin
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userId);
+  const list = ((roles ?? []) as any[]).map((r: any) => r.role);
+  if (!list.includes("super_admin") && !list.includes("admin")) {
+    throw new Error("Forbidden: Admin privileges required.");
+  }
+}
+
 const Input = z.object({
   videoId: z.string().regex(/^[a-zA-Z0-9_-]{11}$/),
 });
@@ -359,6 +371,81 @@ export const translateLessonTranscript = createServerFn({ method: "POST" })
     }
 
     return { text: translatedText, segments: translatedSegments, cached: false };
+  });
+
+const AdminListInput = z.object({
+  search: z.string().max(200).optional().default(""),
+  limit: z.number().min(1).max(100).optional().default(50),
+});
+
+/**
+ * Admin: list lesson_transcripts rows with lesson/course titles for the
+ * AI Infrastructure manager (status across all lessons, retry/reset control).
+ */
+export const adminListLessonTranscripts = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .validator((d: unknown) => AdminListInput.parse(d))
+  .handler(async ({ data, context }) => {
+    await checkTranscriptAdmin(context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: rows } = await (supabaseAdmin.from("lesson_transcripts" as any) as any)
+      .select("lesson_id, course_id, source, lang, chars, summary_md, quiz, translations, updated_at")
+      .order("updated_at", { ascending: false })
+      .limit(data.limit ?? 50);
+
+    const list = ((rows ?? []) as any[]).map((r: any) => ({
+      lesson_id: r.lesson_id,
+      course_id: r.course_id,
+      source: r.source,
+      lang: r.lang,
+      chars: r.chars ?? 0,
+      has_summary: Boolean(r.summary_md),
+      quiz_count: Array.isArray(r.quiz) ? r.quiz.length : 0,
+      translation_langs: Object.keys(r.translations ?? {}),
+      updated_at: r.updated_at,
+    }));
+
+    // Attach lesson/course titles (batched)
+    const lessonIds = list.map((r) => r.lesson_id);
+    let titleMap: Record<string, { lesson: string; course: string }> = {};
+    if (lessonIds.length > 0) {
+      const { data: lessons } = await supabaseAdmin
+        .from("lessons")
+        .select("id, title, courses:course_id (id, title)")
+        .in("id", lessonIds);
+      for (const l of ((lessons ?? []) as any[])) {
+        const course = Array.isArray(l.courses) ? l.courses[0] : l.courses;
+        titleMap[l.id] = { lesson: l.title ?? l.id, course: course?.title ?? "" };
+      }
+    }
+
+    const q = (data.search ?? "").toLowerCase();
+    return list
+      .map((r) => ({ ...r, ...titleMap[r.lesson_id] }))
+      .filter(
+        (r) =>
+          !q ||
+          (r.lesson ?? "").toLowerCase().includes(q) ||
+          (r.course ?? "").toLowerCase().includes(q),
+      );
+  });
+
+/**
+ * Admin: delete a lesson's AI cache row (transcript + summary + quiz +
+ * translations). Everything regenerates on next demand — the "reset" control.
+ */
+export const adminDeleteLessonTranscript = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((d: unknown) => z.object({ lessonId: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    await checkTranscriptAdmin(context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await (supabaseAdmin.from("lesson_transcripts" as any) as any)
+      .delete()
+      .eq("lesson_id", data.lessonId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
   });
 
 export const getLessonTranscript = createServerFn({ method: "POST" })

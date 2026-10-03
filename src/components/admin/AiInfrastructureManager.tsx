@@ -16,13 +16,22 @@ import {
   Zap,
   Server,
   Layers,
+  Captions,
+  Trash2,
+  BarChart3,
+  Search,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
   getAdminAiInfrastructure,
   testAiProvider,
+  getAiUsageStats,
   type AdminProviderStatus,
 } from "@/lib/ai-gateway-admin.functions";
+import {
+  adminListLessonTranscripts,
+  adminDeleteLessonTranscript,
+} from "@/lib/lesson-transcript.functions";
 
 export default function AiInfrastructureManager() {
   const queryClient = useQueryClient();
@@ -34,6 +43,32 @@ export default function AiInfrastructureManager() {
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["admin-ai-infrastructure"],
     queryFn: () => getAdminAiInfrastructure(),
+  });
+
+  // Lesson transcript cache (transcripts + summaries + quiz + translations)
+  const [transcriptSearch, setTranscriptSearch] = useState("");
+  const {
+    data: transcriptRows,
+    isLoading: transcriptsLoading,
+    refetch: refetchTranscripts,
+  } = useQuery({
+    queryKey: ["admin-lesson-transcripts", transcriptSearch],
+    queryFn: () => adminListLessonTranscripts({ data: { search: transcriptSearch, limit: 50 } }),
+  });
+
+  const deleteTranscriptMutation = useMutation({
+    mutationFn: (lessonId: string) => adminDeleteLessonTranscript({ data: { lessonId } }),
+    onSuccess: () => {
+      toast.success("AI cache cleared — transcript, summary, quiz & translations will regenerate on demand.");
+      refetchTranscripts();
+    },
+    onError: (err: any) => toast.error(err?.message ?? "Failed to clear cache."),
+  });
+
+  // Token/request metering
+  const { data: usageStats, refetch: refetchUsage } = useQuery({
+    queryKey: ["admin-ai-usage"],
+    queryFn: () => getAiUsageStats(),
   });
 
   const testMutation = useMutation({
@@ -325,6 +360,172 @@ export default function AiInfrastructureManager() {
                   </td>
                 </tr>
               ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* AI Usage Metering */}
+      <div className="space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h3 className="text-sm font-bold font-display tracking-tight text-foreground flex items-center gap-2">
+              <BarChart3 className="h-4 w-4 text-emerald-500" />
+              AI Usage Metering (30 days)
+            </h3>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Requests &amp; estimated tokens across lesson AI and copilot chat.
+              {usageStats && (
+                <span className="font-mono text-foreground">
+                  {" "}{usageStats.totals.requests.toLocaleString()} requests ·{" "}
+                  {usageStats.totals.tokens.toLocaleString()} tokens
+                </span>
+              )}
+            </p>
+          </div>
+          <Button size="sm" variant="outline" className="text-xs gap-1.5" onClick={() => refetchUsage()}>
+            <RefreshCw className="h-3.5 w-3.5" /> Refresh
+          </Button>
+        </div>
+
+        <div className="rounded-xl border overflow-hidden bg-card">
+          <table className="w-full text-xs">
+            <thead className="bg-muted/50 border-b">
+              <tr className="text-left text-muted-foreground font-semibold">
+                <th className="py-2.5 px-4">Model / Task</th>
+                <th className="py-2.5 px-4">Requests</th>
+                <th className="py-2.5 px-4">Tokens</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border/60">
+              {(usageStats?.models ?? []).map((m) => (
+                <tr key={m.model}>
+                  <td className="py-2.5 px-4 font-mono font-medium text-foreground">{m.model}</td>
+                  <td className="py-2.5 px-4 font-mono">{m.requests.toLocaleString()}</td>
+                  <td className="py-2.5 px-4 font-mono text-muted-foreground">{m.tokens.toLocaleString()}</td>
+                </tr>
+              ))}
+              {(usageStats?.models ?? []).length === 0 && (
+                <tr>
+                  <td colSpan={3} className="py-4 px-4 text-center text-muted-foreground">
+                    No AI usage recorded in the last 30 days.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Lesson Transcript Cache Manager */}
+      <div className="space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h3 className="text-sm font-bold font-display tracking-tight text-foreground flex items-center gap-2">
+              <Captions className="h-4 w-4 text-sky-500" />
+              Lesson Transcripts &amp; AI Cache
+            </h3>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Every cached transcript, summary, quiz &amp; translation. Reset clears a lesson&apos;s cache — it regenerates on next demand.
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+              <input
+                value={transcriptSearch}
+                onChange={(e) => setTranscriptSearch(e.target.value)}
+                placeholder="Search lesson or course…"
+                className="h-8 pl-7 pr-2 rounded-md border border-input bg-background text-xs outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground"
+              />
+            </div>
+            <Button size="sm" variant="outline" className="text-xs gap-1.5" onClick={() => refetchTranscripts()}>
+              <RefreshCw className="h-3.5 w-3.5" /> Refresh
+            </Button>
+          </div>
+        </div>
+
+        <div className="rounded-xl border overflow-hidden bg-card">
+          <table className="w-full text-xs">
+            <thead className="bg-muted/50 border-b">
+              <tr className="text-left text-muted-foreground font-semibold">
+                <th className="py-2.5 px-4">Lesson</th>
+                <th className="py-2.5 px-4">Source</th>
+                <th className="py-2.5 px-4">Cache</th>
+                <th className="py-2.5 px-4">Updated</th>
+                <th className="py-2.5 px-4 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border/60">
+              {(transcriptRows ?? []).map((r: any) => (
+                <tr key={r.lesson_id}>
+                  <td className="py-2.5 px-4">
+                    <p className="font-semibold text-foreground">{r.lesson || r.lesson_id}</p>
+                    <p className="text-[11px] text-muted-foreground">{r.course}</p>
+                  </td>
+                  <td className="py-2.5 px-4">
+                    <Badge variant="outline" className="text-[10px] font-mono">
+                      {r.source}
+                      {r.lang ? ` · ${r.lang}` : ""}
+                    </Badge>
+                    <p className="text-[11px] text-muted-foreground mt-1 font-mono">
+                      {(r.chars ?? 0).toLocaleString()} chars
+                    </p>
+                  </td>
+                  <td className="py-2.5 px-4">
+                    <div className="flex flex-wrap gap-1">
+                      {r.has_summary && (
+                        <Badge variant="outline" className="text-[10px] bg-emerald-500/10 text-emerald-600 border-emerald-500/30">summary</Badge>
+                      )}
+                      {(r.quiz_count ?? 0) > 0 && (
+                        <Badge variant="outline" className="text-[10px] bg-sky-500/10 text-sky-600 border-sky-500/30">
+                          quiz ×{r.quiz_count}
+                        </Badge>
+                      )}
+                      {(r.translation_langs ?? []).map((l: string) => (
+                        <Badge key={l} variant="outline" className="text-[10px] bg-indigo-500/10 text-indigo-500 border-indigo-500/30">
+                          {l}
+                        </Badge>
+                      ))}
+                      {!r.has_summary && (r.quiz_count ?? 0) === 0 && (r.translation_langs ?? []).length === 0 && (
+                        <span className="text-[11px] text-muted-foreground">transcript only</span>
+                      )}
+                    </div>
+                  </td>
+                  <td className="py-2.5 px-4 font-mono text-[11px] text-muted-foreground">
+                    {r.updated_at ? new Date(r.updated_at).toLocaleDateString("en-IN", { day: "numeric", month: "short" }) : "—"}
+                  </td>
+                  <td className="py-2.5 px-4 text-right">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-7 text-[11px] gap-1 text-destructive hover:text-destructive"
+                      disabled={deleteTranscriptMutation.isPending}
+                      onClick={() => {
+                        if (window.confirm(`Reset AI cache for "${r.lesson || r.lesson_id}"? Transcript, summary, quiz & translations will regenerate on demand.`)) {
+                          deleteTranscriptMutation.mutate(r.lesson_id);
+                        }
+                      }}
+                    >
+                      <Trash2 className="h-3 w-3" /> Reset
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+              {!transcriptsLoading && (transcriptRows ?? []).length === 0 && (
+                <tr>
+                  <td colSpan={5} className="py-4 px-4 text-center text-muted-foreground">
+                    No cached transcripts yet. Publish or watch a lesson to generate one.
+                  </td>
+                </tr>
+              )}
+              {transcriptsLoading && (
+                <tr>
+                  <td colSpan={5} className="py-6 text-center">
+                    <Loader2 className="h-5 w-5 animate-spin text-muted-foreground mx-auto" />
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

@@ -107,6 +107,7 @@
 ### Module 4: Resilient AI Gateway & Autonomous Agents
 - [x] **Multi-Tier AI Routing**: Automatic failover chain: Gemini 2.5/3.1 -> Groq LLaMA 3.3 70B -> OpenRouter.
 - [x] **Fast Gateway (v5.8.3)**: 25s abort timeout per provider attempt, per-task temperature (summary 0.3 / doubt+exercise 0.5), task token budgets, in-memory LRU (100 entries / 10-min TTL) for instant repeats — in `src/lib/user-ai.ts`.
+- [x] **Admin AI control (v5.8.4)**: AI Infrastructure manager now has AI Usage Metering (30d requests/tokens by model, from `ai_usage`) + Lesson Transcripts & AI Cache manager (search, per-lesson status badges, one-click Reset via `adminDeleteLessonTranscript`). Provider health/test/budgets/registry already present. Support Us payment link updated to live `https://razorpay.me/@learnifyai3660` (code defaults + live DB row; admin-editable).
 - [x] **Transcript-Aware Lesson AI (v5.8.3)**: `lessonAiHelper` injects remembered transcript into Summary/Exercise/Ask-AI; summaries cached in `lesson_transcripts.summary_md` (`cached: true` fast path) with **content-hash stale regeneration** (v5.8.4); per-task provider routing (summary→Groq, doubt→Gemini) + `ai_usage` metering (v5.8.4); Visual Blueprint gets transcript appended; 8 playground AI modes use sharper task-aware prompts.
 - [x] **AI Agent Skills Hub**: Dedicated Career Coach, Tutor, and Market Intelligence agents in `AgentHub.tsx`.
 - [x] **Global Support Agent**: Context-aware floating assistant in `GlobalSupportAgent.tsx`.

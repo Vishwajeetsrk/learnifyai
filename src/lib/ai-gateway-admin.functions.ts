@@ -104,3 +104,71 @@ export const testAiProvider = createServerFn({ method: "POST" })
     } catch {}
     return result;
   });
+
+export interface AiUsageByModel {
+  model: string;
+  requests: number;
+  tokens: number;
+}
+
+export interface AiUsageDay {
+  day: string;
+  requests: number;
+  tokens: number;
+}
+
+/**
+ * Admin: token/request metering from ai_usage (lesson AI + copilot chat).
+ * Powers the usage section of the AI Infrastructure manager.
+ */
+export const getAiUsageStats = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await checkAdmin(context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const since = new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString();
+    const { data: rows } = await supabaseAdmin
+      .from("ai_usage")
+      .select("model, total_tokens, created_at")
+      .gte("created_at", since)
+      .order("created_at", { ascending: false })
+      .limit(5000);
+
+    const list = ((rows ?? []) as any[]) as Array<{
+      model: string;
+      total_tokens: number;
+      created_at: string;
+    }>;
+
+    const byModel = new Map<string, { requests: number; tokens: number }>();
+    const byDay = new Map<string, { requests: number; tokens: number }>();
+    for (const r of list) {
+      const m = byModel.get(r.model) ?? { requests: 0, tokens: 0 };
+      m.requests += 1;
+      m.tokens += Number(r.total_tokens ?? 0);
+      byModel.set(r.model, m);
+      const day = String(r.created_at).slice(0, 10);
+      const d = byDay.get(day) ?? { requests: 0, tokens: 0 };
+      d.requests += 1;
+      d.tokens += Number(r.total_tokens ?? 0);
+      byDay.set(day, d);
+    }
+
+    const models: AiUsageByModel[] = [...byModel.entries()]
+      .map(([model, v]) => ({ model, ...v }))
+      .sort((a, b) => b.tokens - a.tokens);
+    const days: AiUsageDay[] = [...byDay.entries()]
+      .map(([day, v]) => ({ day, ...v }))
+      .sort((a, b) => (a.day < b.day ? 1 : -1))
+      .slice(0, 14);
+
+    return {
+      models,
+      days,
+      totals: {
+        requests: list.length,
+        tokens: list.reduce((s, r) => s + Number(r.total_tokens ?? 0), 0),
+      },
+    };
+  });

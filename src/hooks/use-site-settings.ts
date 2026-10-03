@@ -38,7 +38,7 @@ const defaults: SiteSettings = {
   support_us_title: "Support Us & Sponsor a Career",
   support_us_subtitle:
     "Help us build a free career-learning ecosystem. Sponsor a career and make practical education accessible to people facing financial barriers.",
-  support_us_payment_url: "https://rzp.io/rzp/valuablesupport",
+  support_us_payment_url: "https://razorpay.me/@learnifyai3660",
   support_us_upi_id: "",
   support_us_description: "",
   legal_center_enabled: "true",
