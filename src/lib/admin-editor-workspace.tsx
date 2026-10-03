@@ -476,6 +476,7 @@ export function useAdminDraft<T extends Record<string, any>>({
     restoreDraft,
     discardRecoverableDraft,
     hasRecoverableDraft: !!recoverableDraft,
+    recoverableDraft,
     recoverableDraftDate: recoverableDraft?.updatedAt
       ? new Date(recoverableDraft.updatedAt).toLocaleString()
       : null,
@@ -564,38 +565,85 @@ export function DraftRecoveryBanner({
   recoverableDraftDate,
   onRestore,
   onDiscard,
+  currentData,
+  draftData,
+  moduleName,
 }: {
   date?: string;
   hasRecoverableDraft?: boolean;
   recoverableDraftDate?: string | null;
   onRestore: () => void;
   onDiscard: () => void;
+  currentData?: Record<string, any>;
+  draftData?: Record<string, any>;
+  moduleName?: string;
 }) {
+  const [showDiff, setShowDiff] = useState(false);
   const displayDate = date || recoverableDraftDate;
   if (hasRecoverableDraft === false || !displayDate) return null;
 
   return (
-    <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-200 mb-4 animate-in fade-in duration-200">
-      <div className="flex items-center gap-2">
-        <span className="font-semibold text-amber-300">Recovered Draft:</span>
-        <span>An autosaved draft from {displayDate} was found.</span>
+    <>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-200 mb-4 animate-in fade-in duration-200">
+        <div className="flex items-center gap-2">
+          <span className="font-semibold text-amber-300">Recovered Draft:</span>
+          <span>An autosaved draft from {displayDate} was found.</span>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          {draftData && (
+            <button
+              type="button"
+              onClick={() => setShowDiff(true)}
+              className="px-2.5 py-1 rounded-md bg-muted/60 hover:bg-muted text-foreground font-medium transition cursor-pointer border border-border/40"
+            >
+              Review Diff
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={onRestore}
+            className="px-2.5 py-1 rounded-md bg-amber-500 text-slate-950 font-semibold hover:bg-amber-400 transition cursor-pointer"
+          >
+            Restore Draft
+          </button>
+          <button
+            type="button"
+            onClick={onDiscard}
+            className="px-2.5 py-1 rounded-md text-muted-foreground hover:text-foreground transition cursor-pointer"
+          >
+            Discard
+          </button>
+        </div>
       </div>
-      <div className="flex items-center gap-2 shrink-0">
-        <button
-          type="button"
-          onClick={onRestore}
-          className="px-2.5 py-1 rounded-md bg-amber-500 text-slate-950 font-semibold hover:bg-amber-400 transition cursor-pointer"
-        >
-          Restore Draft
-        </button>
-        <button
-          type="button"
-          onClick={onDiscard}
-          className="px-2.5 py-1 rounded-md text-muted-foreground hover:text-foreground transition cursor-pointer"
-        >
-          Discard
-        </button>
-      </div>
-    </div>
+
+      {draftData && (
+        <DraftDiffDialogWrapper
+          open={showDiff}
+          onOpenChange={setShowDiff}
+          moduleName={moduleName}
+          currentData={currentData || {}}
+          draftData={draftData}
+          draftUpdatedAt={displayDate}
+          onRestoreAll={onRestore}
+          onDiscardDraft={onDiscard}
+        />
+      )}
+    </>
   );
+}
+
+// Lazy load dialog to keep editor bundle lightweight
+function DraftDiffDialogWrapper(props: any) {
+  const [Component, setComponent] = useState<any>(null);
+
+  useEffect(() => {
+    if (props.open && !Component) {
+      import("@/components/admin/DraftDiffDialog").then((mod) => {
+        setComponent(() => mod.DraftDiffDialog);
+      });
+    }
+  }, [props.open, Component]);
+
+  if (!props.open || !Component) return null;
+  return <Component {...props} />;
 }

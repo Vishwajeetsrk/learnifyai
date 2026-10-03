@@ -14,6 +14,7 @@ import { StudentJourney } from "@/components/interactive/StudentJourney";
 import { MagnificationDock } from "@/components/interactive/MagnificationDock";
 import { PricingComparisonTable } from "@/components/interactive/PricingComparisonTable";
 import { SavingsCalculator } from "@/components/interactive/SavingsCalculator";
+import { InteractiveSalaryHikeCalculator } from "@/components/pricing/InteractiveSalaryHikeCalculator";
 import { usePublicSection } from "@/hooks/use-wcms-public";
 import {
   Check,
@@ -1074,6 +1075,9 @@ function PricingPage() {
             </Button>
           </div>
         </section>
+
+        {/* ========== INTERACTIVE SALARY HIKE ROI CALCULATOR ========== */}
+        <InteractiveSalaryHikeCalculator />
 
         {/* ========== FEATURE COMPARISON ========== */}
         <section className="container mx-auto px-6 py-16 md:py-20 max-w-6xl">

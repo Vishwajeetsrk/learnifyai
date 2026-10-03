@@ -163,6 +163,7 @@ function BlogEditorModal({
     discardRecoverableDraft,
     hasRecoverableDraft,
     recoverableDraftDate,
+    recoverableDraft,
   } = useAdminDraft<Partial<BlogPost>>({
     module: "blog",
     recordId: editing?.id || "new",
@@ -305,8 +306,12 @@ function BlogEditorModal({
             <div className="mt-3">
               <DraftRecoveryBanner
                 date={recoverableDraftDate}
+                hasRecoverableDraft={hasRecoverableDraft}
                 onRestore={restoreDraft}
                 onDiscard={discardRecoverableDraft}
+                currentData={formData}
+                draftData={recoverableDraft?.data}
+                moduleName="Blog Post"
               />
             </div>
           )}

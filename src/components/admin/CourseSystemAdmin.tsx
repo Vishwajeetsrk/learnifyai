@@ -789,6 +789,7 @@ function CourseEditor({
     discardRecoverableDraft,
     hasRecoverableDraft,
     recoverableDraftDate,
+    recoverableDraft,
   } = useAdminDraft<typeof initialValues>({
     module: "courses",
     recordId: courseId || "new",
@@ -883,6 +884,9 @@ function CourseEditor({
             recoverableDraftDate={recoverableDraftDate}
             onRestore={restoreDraft}
             onDiscard={discardRecoverableDraft}
+            currentData={form}
+            draftData={recoverableDraft?.data}
+            moduleName="Course"
           />
 
           <Tabs value={activeTab} onValueChange={(v: any) => setActiveTab(v)}>
