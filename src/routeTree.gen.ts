@@ -115,6 +115,7 @@ import { Route as AuthenticatedSystemDesignTopicRouteImport } from './routes/_au
 import { Route as ApiCronAutoMaintenanceRouteImport } from './routes/api/cron/auto-maintenance'
 import { Route as ApiCronCheckSubscriptionsRouteImport } from './routes/api/cron/check-subscriptions'
 import { Route as ApiCronRetryCertEmailsRouteImport } from './routes/api/cron/retry-cert-emails'
+import { Route as ApiCronRenewalDunningRouteImport } from './routes/api/cron/renewal-dunning'
 import { Route as ApiWebhooksCashfreeRouteImport } from './routes/api/webhooks/cashfree'
 import { Route as ApiWebhooksCashfreeSubscriptionRouteImport } from './routes/api/webhooks/cashfree-subscription'
 import { Route as ApiWebhooksRazorpayRouteImport } from './routes/api/webhooks/razorpay'
@@ -690,6 +691,11 @@ const ApiCronRetryCertEmailsRoute = ApiCronRetryCertEmailsRouteImport.update({
   path: '/api/cron/retry-cert-emails',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiCronRenewalDunningRoute = ApiCronRenewalDunningRouteImport.update({
+  id: '/api/cron/renewal-dunning',
+  path: '/api/cron/renewal-dunning',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiWebhooksCashfreeRoute = ApiWebhooksCashfreeRouteImport.update({
   id: '/api/webhooks/cashfree',
   path: '/api/webhooks/cashfree',
@@ -821,6 +827,7 @@ export interface FileRoutesByFullPath {
   '/api/cron/auto-maintenance': typeof ApiCronAutoMaintenanceRoute
   '/api/cron/check-subscriptions': typeof ApiCronCheckSubscriptionsRoute
   '/api/cron/retry-cert-emails': typeof ApiCronRetryCertEmailsRoute
+  '/api/cron/renewal-dunning': typeof ApiCronRenewalDunningRoute
   '/api/webhooks/cashfree': typeof ApiWebhooksCashfreeRoute
   '/api/webhooks/cashfree-subscription': typeof ApiWebhooksCashfreeSubscriptionRoute
   '/api/webhooks/razorpay': typeof ApiWebhooksRazorpayRoute
@@ -931,7 +938,7 @@ export interface FileRoutesByTo {
   '/api/cron/auto-maintenance': typeof ApiCronAutoMaintenanceRoute
   '/api/cron/check-subscriptions': typeof ApiCronCheckSubscriptionsRoute
   '/api/cron/retry-cert-emails': typeof ApiCronRetryCertEmailsRoute
-  '/api/webhooks/cashfree': typeof ApiWebhooksCashfreeRoute
+  '/api/cron/renewal-dunning': typeof ApiCronRenewalDunningRoute
   '/api/webhooks/cashfree-subscription': typeof ApiWebhooksCashfreeSubscriptionRoute
   '/api/webhooks/razorpay': typeof ApiWebhooksRazorpayRoute
   '/verify/invoice/$id': typeof VerifyInvoiceIdRoute
@@ -1435,6 +1442,7 @@ export interface RootRouteChildren {
   ApiCronAutoMaintenanceRoute: typeof ApiCronAutoMaintenanceRoute
   ApiCronCheckSubscriptionsRoute: typeof ApiCronCheckSubscriptionsRoute
   ApiCronRetryCertEmailsRoute: typeof ApiCronRetryCertEmailsRoute
+  ApiCronRenewalDunningRoute: typeof ApiCronRenewalDunningRoute
   ApiWebhooksCashfreeRoute: typeof ApiWebhooksCashfreeRoute
   ApiWebhooksCashfreeSubscriptionRoute: typeof ApiWebhooksCashfreeSubscriptionRoute
   ApiWebhooksRazorpayRoute: typeof ApiWebhooksRazorpayRoute
@@ -2186,6 +2194,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiCronRetryCertEmailsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/cron/renewal-dunning': {
+      id: '/api/cron/renewal-dunning'
+      path: '/api/cron/renewal-dunning'
+      fullPath: '/api/cron/renewal-dunning'
+      preLoaderRoute: typeof ApiCronRenewalDunningRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/webhooks/cashfree': {
       id: '/api/webhooks/cashfree'
       path: '/api/webhooks/cashfree'
@@ -2459,6 +2474,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiCronAutoMaintenanceRoute: ApiCronAutoMaintenanceRoute,
   ApiCronCheckSubscriptionsRoute: ApiCronCheckSubscriptionsRoute,
   ApiCronRetryCertEmailsRoute: ApiCronRetryCertEmailsRoute,
+  ApiCronRenewalDunningRoute: ApiCronRenewalDunningRoute,
   ApiWebhooksCashfreeRoute: ApiWebhooksCashfreeRoute,
   ApiWebhooksCashfreeSubscriptionRoute: ApiWebhooksCashfreeSubscriptionRoute,
   ApiWebhooksRazorpayRoute: ApiWebhooksRazorpayRoute,

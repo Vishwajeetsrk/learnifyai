@@ -2,7 +2,7 @@
 
 <img src="src/assets/learnify-logo.png" alt="Learnify AI Logo" width="180" style="margin-bottom: 12px; filter: drop-shadow(0 4px 12px rgba(99, 102, 241, 0.25));" />
 
-# Learnify AI 4.6
+# Learnify AI 4.7
 
 **The AI-Native Learning & Career Operating System**
 
@@ -1447,6 +1447,30 @@ MIT License. See [LICENSE](LICENSE) for details.
 - 💳 **RAZORPAY INTEGRATION**: Added Razorpay as the primary payment gateway alongside Cashfree for broader UPI, card, and NetBanking support.
 
 - 🐛 **DATABASE FIX**: Resolved `duplicate key value violates unique constraint "billing_settings_key_key"` by adding explicit `onConflict: "key"` in Supabase upsert calls.
+
+### v4.7.0 (October 2026) — MYRAA AI Gateway V2, Stable Diffusion Research, Subscription Dunning & Dynamic Sitemap
+
+- 🤖 **MYRAA AI GATEWAY & MODEL INFRASTRUCTURE V2**:
+  - Unified multi-provider server architecture supporting Groq Cloud (LPU), Google Gemini, OpenRouter, NVIDIA, and local inference backends.
+  - Authoritative model registry in `src/lib/user-ai.ts` upgraded with explicit modality tags (`text`, `vision`, `multimodal`, `image`, `embedding`) and token budgets.
+  - Image generation architecture: researched `CompVis/stable-diffusion`, validated CreativeML OpenRAIL M licensing and 10GB VRAM requirements, and established pluggable Image API -> Provider Adapter -> Local SD / Cloud provider pipeline with SVG typography overlays.
+  - Published comprehensive infrastructure audit and architecture roadmap in `docs/ai/AI-INFRASTRUCTURE-AUDIT.md`.
+  - Created zero-secret `.env.example` template with strict credential hygiene for all providers.
+
+- 💳 **SUBSCRIPTION RECOVERY & DUNNING OS**:
+  - Implemented automated subscription renewal failure and dunning lifecycle in `/api/cron/renewal-dunning`.
+  - Added smart multi-attempt recovery emails (Attempt 1: friendly notification, Attempt 2: urgency reminder, Attempt 3: final warning before cancellation).
+  - Admin audit tracking for dunning triggers and recovery state transitions.
+  - Registered daily cron execution in `vercel.json` (`30 2 * * *`).
+
+- 🗺️ **COMPREHENSIVE DYNAMIC XML SITEMAP (`/sitemap.xml`)**:
+  - Upgraded sitemap engine to fetch published courses, canonical roadmap slugs, blog articles, and certificate verification endpoints live from Supabase.
+  - Applied HTTP caching headers (`public, max-age=3600, s-maxage=86400`) for high-speed edge distribution.
+
+- 🛡️ **SECURITY & DISTRIBUTED RATE LIMITING**:
+  - Authored reusable distributed rate limiter `src/lib/api-rate-limit.ts` (Redis-first with Upstash, graceful sliding-window in-memory fallback).
+  - Built dual payment gateway configuration manager with masked secrets and audit logging.
+  - Zero TypeScript compiler errors across the entire codebase (`tsc --noEmit --skipLibCheck`).
 
 ### v4.6.0 (September 2026) — Production AI Gateway Resilience, Public CMS Directories & Course Player OS
 

@@ -21,6 +21,9 @@ import {
   Sparkles,
   Save,
   CheckCircle2,
+  Upload,
+  ImageIcon,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,6 +31,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
 import { FREE_COURSES_GUIDE_POST } from "@/lib/canonical-blog";
 import { BLOG_POSTS_DATA } from "@/lib/blog-posts-data";
 import { generateDeepResearchBlogPost } from "@/lib/admin-content.functions";
@@ -116,6 +120,34 @@ function BlogEditorModal({
 
   const [saving, setSaving] = useState(false);
   const [publishing, setPublishing] = useState(false);
+  const [imageUploading, setImageUploading] = useState(false);
+
+  async function uploadFeaturedImage(file: File) {
+    if (!file.type.startsWith("image/")) {
+      toast.error("Only image files are accepted.");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image must be under 5 MB.");
+      return;
+    }
+    setImageUploading(true);
+    try {
+      const ext = file.name.split(".").pop() || "jpg";
+      const filename = `blog-${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const { error } = await supabase.storage
+        .from("blog-assets")
+        .upload(filename, file, { upsert: false, contentType: file.type });
+      if (error) throw error;
+      const { data: urlData } = supabase.storage.from("blog-assets").getPublicUrl(filename);
+      updateField("featured_image", urlData.publicUrl);
+      toast.success("Featured image uploaded successfully.");
+    } catch (e: any) {
+      toast.error(e?.message || "Image upload failed.");
+    } finally {
+      setImageUploading(false);
+    }
+  }
 
   // Connect to persistent Admin Editor Workspace
   const {
@@ -321,13 +353,70 @@ function BlogEditorModal({
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-xs font-semibold">Featured Image URL</Label>
-            <Input
-              value={formData.featured_image || ""}
-              onChange={(e) => updateField("featured_image", e.target.value)}
-              placeholder="https://images.unsplash.com/..."
-              className="text-xs"
-            />
+            <Label className="text-xs font-semibold">Featured Image</Label>
+            <div className="space-y-2">
+              {/* File upload button */}
+              <label className="cursor-pointer">
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) uploadFeaturedImage(file);
+                    e.target.value = "";
+                  }}
+                />
+                <div
+                  className={cn(
+                    "flex items-center gap-2 px-3 py-2 rounded-lg border-2 border-dashed text-xs transition-colors",
+                    imageUploading
+                      ? "border-primary/50 bg-primary/5 text-primary cursor-wait"
+                      : "border-border hover:border-primary/50 hover:bg-muted/30 text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  {imageUploading ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Upload className="h-3.5 w-3.5" />
+                  )}
+                  {imageUploading ? "Uploading to Supabase Storage…" : "Upload image (max 5 MB)"}
+                </div>
+              </label>
+              {/* URL fallback input */}
+              <div className="flex items-center gap-2">
+                <Input
+                  value={formData.featured_image || ""}
+                  onChange={(e) => updateField("featured_image", e.target.value)}
+                  placeholder="Or paste image URL (Unsplash, CDN, etc.)"
+                  className="text-xs font-mono"
+                />
+                {formData.featured_image && (
+                  <button
+                    type="button"
+                    onClick={() => updateField("featured_image", "")}
+                    className="shrink-0 text-muted-foreground hover:text-destructive"
+                    aria-label="Clear image"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+              {/* Preview */}
+              {formData.featured_image && (
+                <div className="relative rounded-lg overflow-hidden border bg-muted/30 aspect-video w-full max-w-xs">
+                  <img
+                    src={formData.featured_image}
+                    alt="Featured image preview"
+                    className="w-full h-full object-cover"
+                    onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-black/40">
+                    <ImageIcon className="h-6 w-6 text-white" />
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Editor Header: Visual vs Markdown */}

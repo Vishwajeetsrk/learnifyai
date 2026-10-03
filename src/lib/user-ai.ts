@@ -22,12 +22,13 @@ export interface AIProviderConfig {
 
 export interface ModelRegistryEntry {
   id: string;
-  provider: "groq" | "gemini" | "openrouter" | "nvidia";
+  provider: "groq" | "gemini" | "openrouter" | "nvidia" | "huggingface" | "local";
   displayName: string;
   contextWindow: number;
   maxOutputTokens: number;
   recommendedTask: string;
   enabled: boolean;
+  modality?: "text" | "vision" | "multimodal" | "image" | "embedding";
 }
 
 export const AI_MODEL_REGISTRY: ModelRegistryEntry[] = [
@@ -39,6 +40,7 @@ export const AI_MODEL_REGISTRY: ModelRegistryEntry[] = [
     maxOutputTokens: 2500,
     recommendedTask: "Summaries & Quick Explanations",
     enabled: true,
+    modality: "text",
   },
   {
     id: "groq/llama-3.1-8b-instant",
@@ -48,6 +50,7 @@ export const AI_MODEL_REGISTRY: ModelRegistryEntry[] = [
     maxOutputTokens: 2000,
     recommendedTask: "Instant Q&A & Flashcards",
     enabled: true,
+    modality: "text",
   },
   {
     id: "gemini/gemini-2.0-flash",
@@ -57,6 +60,7 @@ export const AI_MODEL_REGISTRY: ModelRegistryEntry[] = [
     maxOutputTokens: 2500,
     recommendedTask: "Lesson Tutoring & Visual Help",
     enabled: true,
+    modality: "multimodal",
   },
   {
     id: "gemini/gemini-1.5-flash",
@@ -66,6 +70,7 @@ export const AI_MODEL_REGISTRY: ModelRegistryEntry[] = [
     maxOutputTokens: 2000,
     recommendedTask: "Course Summaries & Doubts",
     enabled: true,
+    modality: "multimodal",
   },
   {
     id: "gemini/gemini-1.5-pro",
@@ -75,6 +80,37 @@ export const AI_MODEL_REGISTRY: ModelRegistryEntry[] = [
     maxOutputTokens: 3000,
     recommendedTask: "Complex Code & Architecture",
     enabled: true,
+    modality: "multimodal",
+  },
+  {
+    id: "gemini/imagen-3.0-generate-002",
+    provider: "gemini",
+    displayName: "Google Imagen 3 (High-Fidelity Visuals)",
+    contextWindow: 0,
+    maxOutputTokens: 0,
+    recommendedTask: "Course Artwork & Thumbnails",
+    enabled: true,
+    modality: "image",
+  },
+  {
+    id: "huggingface/stabilityai/stable-diffusion-xl-base-1.0",
+    provider: "huggingface",
+    displayName: "Stable Diffusion XL (Hosted Inference)",
+    contextWindow: 0,
+    maxOutputTokens: 0,
+    recommendedTask: "Thumbnails & Background Art",
+    enabled: true,
+    modality: "image",
+  },
+  {
+    id: "local/stable-diffusion-v1-5",
+    provider: "local",
+    displayName: "Local Stable Diffusion v1.5 (A1111/ComfyUI API)",
+    contextWindow: 0,
+    maxOutputTokens: 0,
+    recommendedTask: "Offline / On-Premise Visual Assets (Requires ~10GB VRAM)",
+    enabled: false,
+    modality: "image",
   },
   {
     id: "openrouter/google/gemini-2.0-flash-001",
@@ -84,6 +120,7 @@ export const AI_MODEL_REGISTRY: ModelRegistryEntry[] = [
     maxOutputTokens: 2500,
     recommendedTask: "Secondary Fallback",
     enabled: true,
+    modality: "multimodal",
   },
   {
     id: "openrouter/meta-llama/llama-3.3-70b-instruct",
@@ -93,6 +130,7 @@ export const AI_MODEL_REGISTRY: ModelRegistryEntry[] = [
     maxOutputTokens: 2500,
     recommendedTask: "Secondary Coding Backup",
     enabled: true,
+    modality: "text",
   },
 ];
 

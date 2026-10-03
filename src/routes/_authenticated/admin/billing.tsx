@@ -59,6 +59,7 @@ import {
 } from "@/lib/billing.functions";
 
 import { adminUpdateSubscription } from "@/lib/subscription.functions";
+import { PaymentGatewayManager } from "@/components/admin/PaymentGatewayManager";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/AppShell";
 import { Badge } from "@/components/ui/badge";
@@ -663,7 +664,7 @@ function BillingOSPage() {
             <TabsTrigger value="refunds">Refunds</TabsTrigger>
             <TabsTrigger value="taxes">Taxes</TabsTrigger>
             <TabsTrigger value="coupons">Coupons</TabsTrigger>
-            <TabsTrigger value="cashfree">Cashfree</TabsTrigger>
+            <TabsTrigger value="cashfree">Gateway</TabsTrigger>
             <TabsTrigger
               value="analytics"
               className="text-violet-600 dark:text-violet-400 font-bold"
@@ -1598,134 +1599,18 @@ function BillingOSPage() {
             <CouponsManager />
           </TabsContent>
 
-          {/* ============ CASHFREE ============ */}
+          {/* ============ PAYMENT GATEWAY MANAGER ============ */}
           <TabsContent value="cashfree" className="space-y-4">
-            {cashfreeStatus.isLoading ? (
-              <div className="flex justify-center py-12">
-                <Loader2 className="h-6 w-6 animate-spin text-primary" />
-              </div>
-            ) : (
-              <>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="rounded-xl border bg-card p-5">
-                    <div className="flex items-center gap-2 mb-3">
-                      <div
-                        className={cn(
-                          "w-10 h-10 rounded-lg flex items-center justify-center",
-                          cashfreeStatus.data?.connected ? "bg-emerald-500/10" : "bg-red-500/10",
-                        )}
-                      >
-                        <Globe
-                          className={cn(
-                            "h-5 w-5",
-                            cashfreeStatus.data?.connected ? "text-emerald-500" : "text-red-500",
-                          )}
-                        />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium">Gateway Status</p>
-                        <p className="text-xs text-muted-foreground">
-                          {cashfreeStatus.data?.connected ? "Connected" : "Disconnected"}
-                        </p>
-                      </div>
-                    </div>
-                    <Badge
-                      className={cn(
-                        "text-xs",
-                        cashfreeStatus.data?.connected
-                          ? "bg-emerald-500/10 text-emerald-500"
-                          : "bg-red-500/10 text-red-500",
-                      )}
-                    >
-                      {cashfreeStatus.data?.connected ? "Live" : "Inactive"}
-                    </Badge>
-                  </div>
-                  <div className="rounded-xl border bg-card p-5">
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                        <Shield className="h-5 w-5 text-blue-500" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium">Environment</p>
-                        <p className="text-xs text-muted-foreground capitalize">
-                          {cashfreeStatus.data?.environment || "unknown"}
-                        </p>
-                      </div>
-                    </div>
-                    <Badge variant="outline" className="text-xs">
-                      {cashfreeStatus.data?.environment === "production" ? "Production" : "Sandbox"}
-                    </Badge>
-                  </div>
-                  <div className="rounded-xl border bg-card p-5">
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className="w-10 h-10 rounded-lg bg-violet-500/10 flex items-center justify-center">
-                        <CreditCard className="h-5 w-5 text-violet-500" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium">Merchant ID</p>
-                        <p className="text-xs text-muted-foreground font-mono">
-                          {cashfreeStatus.data?.merchant || "—"}
-                        </p>
-                      </div>
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      Last sync:{" "}
-                      {cashfreeStatus.data?.last_sync
-                        ? format(new Date(cashfreeStatus.data.last_sync), "MMM d, HH:mm")
-                        : "—"}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="rounded-xl border bg-card p-5 space-y-4">
-                  <div>
-                    <h3 className="font-semibold mb-1">Future Payment Gateways</h3>
-                    <p className="text-xs text-muted-foreground">
-                      Razorpay and international payment support coming soon.
-                    </p>
-                    <div className="flex gap-2 mt-2">
-                      <Badge variant="outline" className="text-xs">
-                        Razorpay
-                      </Badge>
-                      <Badge variant="outline" className="text-xs">
-                        Stripe
-                      </Badge>
-                      <Badge variant="outline" className="text-xs">
-                        PayPal
-                      </Badge>
-                      <Badge variant="outline" className="text-xs">
-                        International Cards
-                      </Badge>
-                    </div>
-                  </div>
-                  <h3 className="font-semibold mb-2">Webhook Status</h3>
-                  <p className="text-xs text-muted-foreground mb-3">
-                    Cashfree webhook endpoint for payment callbacks.
-                  </p>
-                  <div className="flex items-center gap-2 text-sm">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                    <span>
-                      Webhook configured at{" "}
-                      <code className="text-xs bg-muted px-1.5 py-0.5 rounded">
-                        /api/webhooks/cashfree
-                      </code>
-                    </span>
-                  </div>
-                  <div className="mt-3">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={async () => {
-                        toast.success("Cashfree connection tested successfully");
-                      }}
-                    >
-                      <RefreshCw className="h-4 w-4 mr-1" />
-                      Test Connection
-                    </Button>
-                  </div>
-                </div>
-              </>
-            )}
+            <div>
+              <h2 className="text-xl font-bold font-display flex items-center gap-2">
+                <CreditCard className="h-5 w-5 text-indigo-500" />
+                Payment Gateway Settings
+              </h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                Switch between Razorpay (primary) and Cashfree (optional). All webhook functions remain active for both gateways.
+              </p>
+            </div>
+            <PaymentGatewayManager />
           </TabsContent>
 
           {/* ============ SUBSCRIPTION ANALYTICS ============ */}

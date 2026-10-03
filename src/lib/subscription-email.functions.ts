@@ -269,3 +269,76 @@ export async function sendSubscriptionExpiringEmail(
     html,
   });
 }
+
+/**
+ * Renewal Reminder Email (3-day or 1-day before renewal)
+ * Used by the daily dunning cron at /api/cron/renewal-dunning
+ */
+export async function sendSubscriptionRenewalReminderEmail(
+  userId: string,
+  planName: string,
+  priceInr: number,
+  renewalDateStr: string,
+  daysUntilRenewal: number,
+) {
+  const { data: profile } = await supabaseAdmin
+    .from("profiles")
+    .select("email, full_name")
+    .eq("id", userId)
+    .single();
+  if (!profile?.email) return;
+
+  const urgencyColor = daysUntilRenewal <= 1 ? "#dc2626" : "#d97706";
+  const urgencyLabel = daysUntilRenewal <= 1 ? "Tomorrow!" : `in ${daysUntilRenewal} days`;
+  const priceFormatted = new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 0,
+  }).format(priceInr);
+
+  const html = emailWrapper(`
+    <h2 style="font-size: 20px; font-weight: 600; color: ${urgencyColor}; margin-bottom: 16px;">
+      🔔 Your Learnify AI Subscription Renews ${urgencyLabel}
+    </h2>
+    <p style="font-size: 15px; color: #374151; line-height: 1.6;">
+      Hi ${profile.full_name || "there"}, just a heads-up — your <strong>${planName}</strong> plan will automatically renew on <strong>${renewalDateStr}</strong>.
+    </p>
+    <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; margin: 20px 0;">
+      <table style="width: 100%; border-collapse: collapse;">
+        <tr>
+          <td style="padding: 6px 0; font-size: 14px; color: #6b7280;">Plan</td>
+          <td style="padding: 6px 0; font-size: 14px; font-weight: 600; color: #111827; text-align: right;">${planName}</td>
+        </tr>
+        <tr>
+          <td style="padding: 6px 0; font-size: 14px; color: #6b7280;">Amount</td>
+          <td style="padding: 6px 0; font-size: 14px; font-weight: 600; color: #111827; text-align: right;">${priceFormatted}/month</td>
+        </tr>
+        <tr>
+          <td style="padding: 6px 0; font-size: 14px; color: #6b7280;">Renewal Date</td>
+          <td style="padding: 6px 0; font-size: 14px; font-weight: 600; color: ${urgencyColor}; text-align: right;">${renewalDateStr}</td>
+        </tr>
+      </table>
+    </div>
+    <p style="font-size: 14px; color: #6b7280; line-height: 1.6;">
+      No action needed — your plan renews automatically. If you'd like to cancel or update your payment method, visit your billing page.
+    </p>
+    <div style="text-align: center; margin: 24px 0; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+      <a href="${BASE_URL}/billing" style="display: inline-block; background: #4f46e5; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px;">
+        View Billing
+      </a>
+      <a href="${BASE_URL}/billing?action=cancel" style="display: inline-block; background: white; color: #6b7280; border: 1px solid #e5e7eb; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px;">
+        Manage Plan
+      </a>
+    </div>
+    <p style="font-size: 12px; color: #9ca3af; text-align: center;">
+      Questions? Email us at <a href="mailto:support.learnifyai@gmail.com" style="color: #4f46e5;">support.learnifyai@gmail.com</a>
+    </p>
+  `);
+
+  await sendEmail({
+    to: profile.email,
+    subject: `Your ${planName} plan renews ${urgencyLabel} — ${priceFormatted}`,
+    html,
+  });
+}
+
