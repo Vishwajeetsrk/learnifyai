@@ -44,6 +44,7 @@ import { toast } from "sonner";
 import { generatePortfolio, extractResumeFields } from "@/lib/resume.functions";
 import { ResumeFileUpload } from "@/components/ResumeFileUpload";
 import { motion, AnimatePresence } from "framer-motion";
+import { ShaderButtons } from "@/components/shaders";
 
 const STYLES = [
   { value: "developer", label: "Developer" },
@@ -1034,16 +1035,18 @@ This portfolio website was generated with Learnify AI Portfolio Builder.
                 </div>
               </motion.div>
 
-              <div className="flex flex-col sm:flex-row gap-3">
-                <Button size="lg" onClick={handleGenerate} disabled={loading} className="flex-1">
-                  {loading ? (
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  ) : (
+              <div className="flex flex-col sm:flex-row gap-3 items-center">
+                {loading ? (
+                  <div className="flex-1 w-full flex justify-center py-1">
+                    <ShaderButtons variant="thinking-button" mode="dark" />
+                  </div>
+                ) : (
+                  <Button size="lg" onClick={handleGenerate} className="flex-1 w-full">
                     <Sparkles className="h-4 w-4 mr-2" />
-                  )}
-                  {loading ? "Generating..." : "Generate Portfolio"}
-                </Button>
-                <Button size="lg" variant="outline" onClick={handlePublish} className="gap-2">
+                    Generate Portfolio
+                  </Button>
+                )}
+                <Button size="lg" variant="outline" onClick={handlePublish} className="gap-2 w-full sm:w-auto">
                   <Send className="h-4 w-4" /> Publish
                 </Button>
               </div>

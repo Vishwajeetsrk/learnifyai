@@ -2,7 +2,7 @@
 
 <img src="src/assets/learnify-logo.png" alt="Learnify AI Logo" width="180" style="margin-bottom: 12px; filter: drop-shadow(0 4px 12px rgba(99, 102, 241, 0.25));" />
 
-# Learnify AI 4.7
+# Learnify AI 4.8
 
 **The AI-Native Learning & Career Operating System**
 
@@ -1447,6 +1447,16 @@ MIT License. See [LICENSE](LICENSE) for details.
 - 💳 **RAZORPAY INTEGRATION**: Added Razorpay as the primary payment gateway alongside Cashfree for broader UPI, card, and NetBanking support.
 
 - 🐛 **DATABASE FIX**: Resolved `duplicate key value violates unique constraint "billing_settings_key_key"` by adding explicit `onConflict: "key"` in Supabase upsert calls.
+
+### v4.8.0 (October 2026) — ThreeUI WebGL Shaders, Raking Light Pill Button & Design Projects Showcase
+
+- 🌟 **THREEUI SHADERBUTTONS & WEBGL ENGINE INTEGRATION**:
+  - Integrated the exact ThreeUI runtime engine with raw WebGL + GLSL shaders, canvas 2D microinteractions, and Three.js effects.
+  - Implemented `<ShaderButtons />` supporting all primary and study variants: `raking-light-pill` (raw GLSL light bands & floating motes), `ignition-button` (ignition terminal), `thinking-button` (AI cognitive glowing border spinner), `star-portal` (cosmic warp starfield), `plasma-button` (Aetheris plasma reactor), `tactile-button` (Nexus tactile raymarching), `glassy-split`, `generate-site`, `chrome-upload`, and `iridescent-glass`.
+  - Created `<ShaderShowcase />` laboratory component in `src/components/shaders/ShaderShowcase.tsx` with live parameter dials (Light/Dark mode, Hue: -180° to 180°, Saturation: 0-2x, Brightness) and 1-click React component code generator.
+  - Featured `<ShaderButtons variant="raking-light-pill" mode="dark" />` directly in the Design Projects Showcase header (`/projects`) and integrated the ThreeUI WebGL & Shader Lab.
+  - Embedded cognitive AI `thinking-button` microinteraction in Career Portfolio Builder (`PortfolioBuilderPage.tsx`) during portfolio synthesis.
+  - 100% type-safe with zero TypeScript errors (`tsc --noEmit --skipLibCheck`).
 
 ### v4.7.0 (October 2026) — MYRAA AI Gateway V2, Stable Diffusion Research, Subscription Dunning & Dynamic Sitemap
 

@@ -33,6 +33,8 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Input } from "@/components/ui/input";
 import projectsData from "@/data/projects.json";
+import { ShaderShowcase, ShaderButtons } from "@/components/shaders";
+import "@/components/shaders/threeui.css";
 
 export const Route = createFileRoute("/projects")({
   head: () => ({
@@ -61,6 +63,7 @@ type ViewportType = "desktop" | "tablet" | "mobile";
 // Category filter definitions — using Lucide SVG icons
 const FILTER_CATEGORIES: { label: string; key: string; icon?: React.ElementType }[] = [
   { label: "All", key: "all", icon: LayoutGrid },
+  { label: "WebGL Shaders", key: "shaders", icon: Sparkles },
   { label: "GSAP", key: "gsap", icon: Zap },
   { label: "Video", key: "video", icon: Video },
   { label: "3D", key: "3d", icon: Box },
@@ -131,6 +134,13 @@ function matchesFilter(p: Project, filterKey: string): boolean {
   if (filterKey === "all") return true;
   const lower = (p.description || "").toLowerCase();
   switch (filterKey) {
+    case "shaders":
+      return (
+        lower.includes("shader") ||
+        lower.includes("three") ||
+        lower.includes("glsl") ||
+        lower.includes("webgl")
+      );
     case "gsap":
       return lower.includes("gsap");
     case "video":
@@ -514,6 +524,24 @@ function ProjectsPage() {
                 </button>
               )}
             </motion.div>
+
+            {/* Featured ThreeUI WebGL Shader Pill Button */}
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.35 }}
+              className="pt-6 flex flex-col items-center justify-center gap-2"
+            >
+              <div className="flex items-center justify-center">
+                <ShaderButtons variant="raking-light-pill" mode="dark">
+                  Field Notes 2026
+                </ShaderButtons>
+              </div>
+              <span className="text-[11px] font-mono text-muted-foreground flex items-center gap-1.5">
+                <Sparkles className="h-3 w-3 text-primary animate-pulse" />
+                ThreeUI Raw WebGL Shader • Raking Light Pill
+              </span>
+            </motion.div>
           </div>
         </section>
 
@@ -543,6 +571,13 @@ function ProjectsPage() {
             })}
           </div>
         </section>
+
+        {/* ── ThreeUI Shader Lab Section ──────────────────────── */}
+        {(filter === "all" || filter === "shaders") && (
+          <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-8 pb-4">
+            <ShaderShowcase />
+          </section>
+        )}
 
         {/* ── Projects Grid ─────────────────────────────────────── */}
         <section className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
