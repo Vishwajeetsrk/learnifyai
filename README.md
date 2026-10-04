@@ -628,7 +628,9 @@ MIT License. See [LICENSE](LICENSE) for details.
 
 - ✅ **Controlled Diff Review Lifecycle**: Resolved "Canceled" diff bug in `EditTool.tsx` by turning approval actions into a controlled state pattern with parent lifecycle state synchronization (`idle` -> `generating` -> `review` -> `applying` -> `applied`/`discarded`/`failed`).
 - ✅ **Eliminated Blank Preview Screens**: Repaired `AnimatePresence` wrapper hierarchy in `PortfolioBuilderPage.tsx` so tab switching between Form, IDE, Preview, and Live site operates seamlessly without unmounting flash or dark blank screens.
-- ✅ **Pulsing Shimmer & Skeleton Feedback**: Added dynamic CSS animated shimmer lines and glowing border pulses (`an-edit-pulse-border`, `an-edit-skeleton-line`) when AI generates or applies code refinements.
+- ✅ **Mobile-First IDE Architecture**: Engineered responsive mobile workspace tabs (`[Files]`, `[Code]`, `[Preview]`) for tablets and phones, preventing side-by-side pane squishing while keeping desktop split views with collapsible file explorer (`isSidebarOpen`).
+- ✅ **Clean Skill Selector Hub**: Replaced jittery macOS magnification dock with a high-contrast, touch-friendly Skill Explorer with category filters (Frontend, Backend, Cloud, AI, Design), live search, and 44px tap targets.
+- ✅ **Color Contrast & Theme Visibility**: Integrated full `.theme-light` styling in generated portfolios, fixed invisible headings, added mobile navigation overflow handling, and replaced fake macOS traffic dots with clean IDE window controls.
 - ✅ **Direct File & Folder Operations**: Fully operational IDE virtual tree with file creation, deletion, copy, cut, paste, path renaming, multi-file ZIP archive downloading, and live Monaco editor integration.
 
 ### v5.8.3 (October 2026) — MP4 Transcripts, Transcript-Aware AI & Faster Gateway

@@ -18,6 +18,7 @@ import {
   Sparkles,
   ChevronRight,
   MoreVertical,
+  FolderTree,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -368,16 +369,12 @@ export function PortfolioFileTree({
         className,
       )}
     >
-      {/* Explorer macOS Window Header */}
+      {/* Explorer Professional Header */}
       <div className="flex items-center justify-between px-3 py-2 bg-slate-900/90 border-b border-border/50">
         <div className="flex items-center gap-2">
-          <div className="flex gap-1.5 items-center">
-            <div className="w-2.5 h-2.5 rounded-full bg-rose-500/80 hover:bg-rose-500 transition-colors" />
-            <div className="w-2.5 h-2.5 rounded-full bg-amber-500/80 hover:bg-amber-500 transition-colors" />
-            <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/80 hover:bg-emerald-500 transition-colors" />
-          </div>
-          <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider ml-1.5">
-            EXPLORER
+          <FolderTree className="h-3.5 w-3.5 text-indigo-400" />
+          <span className="text-[11px] font-bold text-foreground/90 uppercase tracking-wider">
+            Workspace Files
           </span>
         </div>
 

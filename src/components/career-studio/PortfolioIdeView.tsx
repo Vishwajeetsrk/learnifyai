@@ -26,6 +26,7 @@ import {
   X,
   FilePlus,
   FolderPlus,
+  FolderTree,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -228,6 +229,63 @@ export function PortfolioIdeView({
   --accent-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
   --radius-lg: 16px;
   --radius-md: 10px;
+}
+
+/* Light Theme Variables & High-Contrast Overrides */
+body.theme-light {
+  --bg-primary: #f8fafc;
+  --bg-card: rgba(255, 255, 255, 0.95);
+  --bg-card-hover: #ffffff;
+  --border-color: rgba(15, 23, 42, 0.1);
+  --border-glow: rgba(99, 102, 241, 0.3);
+  --text-main: #0f172a;
+  --text-muted: #475569;
+}
+
+body.theme-light .hero-title {
+  background: linear-gradient(180deg, #0f172a 0%, #334155 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+body.theme-light .navbar {
+  background: rgba(255, 255, 255, 0.9);
+  border-bottom: 1px solid rgba(15, 23, 42, 0.1);
+}
+
+body.theme-light .skill-pill {
+  background: #ffffff;
+  border-color: rgba(15, 23, 42, 0.12);
+  color: #1e293b;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+body.theme-light .skill-pill:hover {
+  background: #f1f5f9;
+  border-color: var(--accent-primary);
+}
+
+body.theme-light .project-card {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+}
+
+body.theme-light .btn-secondary {
+  background: rgba(15, 23, 42, 0.05);
+  border-color: rgba(15, 23, 42, 0.15);
+  color: #0f172a;
+}
+
+body.theme-light .btn-secondary:hover {
+  background: rgba(15, 23, 42, 0.1);
+}
+
+body.theme-light .exp-content {
+  color: #334155;
+}
+
+body.theme-light .footer {
+  color: #64748b;
+  border-top-color: rgba(15, 23, 42, 0.08);
 }
 
 * {
@@ -685,10 +743,40 @@ body {
 
 @media (max-width: 768px) {
   .navbar {
-    padding: 1rem;
+    padding: 0.75rem 1rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
   }
   .nav-links {
-    display: none;
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    width: 100%;
+    padding: 0.25rem 0;
+    gap: 1rem;
+    -webkit-overflow-scrolling: touch;
+  }
+  .nav-links a {
+    white-space: nowrap;
+    font-size: 0.825rem;
+  }
+  .container {
+    padding: 2rem 1rem;
+  }
+  .hero-section {
+    padding: 2.5rem 0.5rem 3.5rem;
+  }
+  .hero-title {
+    font-size: 2.25rem;
+  }
+  .projects-grid {
+    grid-template-columns: 1fr;
+  }
+  .contact-box {
+    padding: 2rem 1rem;
+  }
+  .contact-title {
+    font-size: 1.5rem;
   }
 }
 `;
@@ -786,6 +874,8 @@ npx serve .
   const [viewMode, setViewMode] = useState<"split" | "code" | "preview">("split");
   const [previewDevice, setPreviewDevice] = useState<"desktop" | "tablet" | "mobile">("desktop");
   const [clipboard, setClipboard] = useState<{ action: "cut" | "copy"; path: string } | null>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [mobileTab, setMobileTab] = useState<"files" | "code" | "preview">("code");
 
   // --- AI Code Assistant State Machine ---
   // Lifecycle: idle -> generating -> review -> applying -> applied/discarded/failed
@@ -887,6 +977,10 @@ npx serve .
     setActiveFilePath(path);
     if (!openTabs.includes(path)) {
       setOpenTabs((prev) => [...prev, path]);
+    }
+    // On mobile, auto-navigate to code editor when file is selected
+    if (typeof window !== "undefined" && window.innerWidth < 1024) {
+      setMobileTab("code");
     }
   };
 
@@ -1131,29 +1225,33 @@ npx serve .
       )}
     >
       {/* ================= TOP IDE TOOLBAR ================= */}
-      <header className="flex items-center justify-between px-4 py-2.5 bg-slate-900/90 border-b border-border/60 flex-wrap gap-3">
+      <header className="flex items-center justify-between px-3 sm:px-4 py-2 bg-slate-900/90 border-b border-border/60 flex-wrap gap-2.5">
         {/* Left: Window Controls + Project Label */}
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded-full bg-rose-500/80" />
-            <span className="w-3 h-3 rounded-full bg-amber-500/80" />
-            <span className="w-3 h-3 rounded-full bg-emerald-500/80" />
-          </div>
-          <div className="flex items-center gap-2 pl-2 border-l border-border/60">
-            <span className="text-xs font-mono font-bold text-foreground">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <button
+            type="button"
+            onClick={() => setIsSidebarOpen((v) => !v)}
+            className="hidden lg:flex items-center justify-center p-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-muted-foreground hover:text-foreground border border-border/50 transition cursor-pointer"
+            title={isSidebarOpen ? "Collapse Explorer (Ctrl+B)" : "Expand Explorer (Ctrl+B)"}
+          >
+            <FolderTree className="h-3.5 w-3.5 text-indigo-400" />
+          </button>
+          <div className="flex items-center gap-2">
+            <Code2 className="h-4 w-4 text-indigo-400 shrink-0" />
+            <span className="text-xs font-mono font-bold text-foreground truncate max-w-[140px] sm:max-w-none">
               {portfolioData.fullName || "Developer"} Studio
             </span>
             <Badge
               variant="outline"
-              className="text-[10px] text-emerald-400 border-emerald-500/30 bg-emerald-500/10 px-2 py-0"
+              className="text-[10px] text-emerald-400 border-emerald-500/30 bg-emerald-500/10 px-2 py-0 hidden xs:inline-flex"
             >
-              Live Editor
+              Live IDE
             </Badge>
           </div>
         </div>
 
-        {/* Center: View Switcher (Split, Code Only, Preview Only) */}
-        <div className="flex items-center gap-1 bg-slate-950/80 p-0.5 rounded-lg border border-border/60">
+        {/* Center: Desktop View Switcher (Split, Code Only, Preview Only) — hidden on mobile */}
+        <div className="hidden lg:flex items-center gap-1 bg-slate-950/80 p-0.5 rounded-lg border border-border/60">
           <button
             type="button"
             onClick={() => setViewMode("split")}
@@ -1192,7 +1290,7 @@ npx serve .
           </button>
         </div>
 
-        {/* Right: Actions (Download ZIP, Re-run, Publish) */}
+        {/* Right: Actions (Download ZIP, Publish) */}
         <div className="flex items-center gap-2">
           <Button
             size="sm"
@@ -1201,7 +1299,8 @@ npx serve .
             className="h-8 text-xs font-bold gap-1.5 bg-slate-900 border-border/70 hover:bg-slate-800 text-slate-200 cursor-pointer shadow-xs"
           >
             <Download className="h-3.5 w-3.5 text-indigo-400" />
-            Download ZIP
+            <span className="hidden sm:inline">Download ZIP</span>
+            <span className="sm:hidden">ZIP</span>
           </Button>
           {onPublish && (
             <Button
@@ -1210,7 +1309,8 @@ npx serve .
               className="h-8 text-xs font-bold gap-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white cursor-pointer shadow-md shadow-emerald-500/20"
             >
               <Send className="h-3.5 w-3.5" />
-              Publish Live
+              <span className="hidden sm:inline">Publish Live</span>
+              <span className="sm:hidden">Publish</span>
             </Button>
           )}
         </div>
@@ -1330,136 +1430,184 @@ npx serve .
         </div>
       )}
 
-      {/* ================= MAIN SPLIT WORKSPACE ================= */}
-      <div className="flex-1 flex min-h-[580px] overflow-hidden">
+      {/* ================= MOBILE WORKSPACE TABS (< lg) ================= */}
+      <div className="lg:hidden flex items-center justify-between px-3 py-1.5 bg-slate-900 border-b border-border/60">
+        <div className="flex items-center gap-1 bg-slate-950 p-0.5 rounded-lg border border-border/60 text-xs">
+          <button
+            type="button"
+            onClick={() => setMobileTab("files")}
+            className={cn(
+              "px-2.5 py-1 rounded font-medium flex items-center gap-1.5 transition cursor-pointer",
+              mobileTab === "files"
+                ? "bg-primary text-white font-semibold shadow-xs"
+                : "text-muted-foreground hover:text-foreground",
+            )}
+          >
+            <FolderTree className="h-3 w-3" /> Files
+          </button>
+          <button
+            type="button"
+            onClick={() => setMobileTab("code")}
+            className={cn(
+              "px-2.5 py-1 rounded font-medium flex items-center gap-1.5 transition cursor-pointer",
+              mobileTab === "code"
+                ? "bg-primary text-white font-semibold shadow-xs"
+                : "text-muted-foreground hover:text-foreground",
+            )}
+          >
+            <Code2 className="h-3 w-3" /> Code
+          </button>
+          <button
+            type="button"
+            onClick={() => setMobileTab("preview")}
+            className={cn(
+              "px-2.5 py-1 rounded font-medium flex items-center gap-1.5 transition cursor-pointer",
+              mobileTab === "preview"
+                ? "bg-primary text-white font-semibold shadow-xs"
+                : "text-muted-foreground hover:text-foreground",
+            )}
+          >
+            <Eye className="h-3 w-3" /> Preview
+          </button>
+        </div>
+        <span className="text-[11px] font-mono text-indigo-400 font-semibold truncate max-w-[140px]">
+          {activeFilePath}
+        </span>
+      </div>
+
+      {/* ================= MAIN RESPONSIVE WORKSPACE ================= */}
+      <div className="flex-1 flex flex-col lg:flex-row min-h-[580px] overflow-hidden">
         {/* --- LEFT: ANIMATED FILE TREE --- */}
-        {(viewMode === "split" || viewMode === "code") && (
-          <aside className="w-56 shrink-0 border-r border-border/60 bg-slate-950/80 p-2 flex flex-col justify-between">
-            <PortfolioFileTree
-              files={fileTreeData}
-              activeFilePath={activeFilePath}
-              onSelectFile={handleSelectFile}
-              onCreateFile={handleCreateFile}
-              onCreateFolder={handleCreateFolder}
-              onRename={handleRename}
-              onDelete={handleDelete}
-              onCopy={handleCopy}
-              onCut={handleCut}
-              onPaste={handlePaste}
-              canPaste={!!clipboard}
-              className="h-full border-0 rounded-none bg-transparent"
-            />
-            <div className="pt-2 border-t border-border/40 text-[10px] text-muted-foreground px-1 flex items-center justify-between">
-              <span>{Object.keys(filesMap).length} files</span>
-              <span>UTF-8</span>
-            </div>
-          </aside>
-        )}
+        <aside
+          className={cn(
+            "border-r border-border/60 bg-slate-950/80 p-2 flex flex-col justify-between shrink-0",
+            isSidebarOpen && (viewMode === "split" || viewMode === "code") ? "lg:flex lg:w-56" : "lg:hidden",
+            mobileTab === "files" ? "flex flex-1 w-full" : "hidden",
+          )}
+        >
+          <PortfolioFileTree
+            files={fileTreeData}
+            activeFilePath={activeFilePath}
+            onSelectFile={handleSelectFile}
+            onCreateFile={handleCreateFile}
+            onCreateFolder={handleCreateFolder}
+            onRename={handleRename}
+            onDelete={handleDelete}
+            onCopy={handleCopy}
+            onCut={handleCut}
+            onPaste={handlePaste}
+            canPaste={!!clipboard}
+            className="h-full border-0 rounded-none bg-transparent"
+          />
+          <div className="pt-2 border-t border-border/40 text-[10px] text-muted-foreground px-1 flex items-center justify-between">
+            <span>{Object.keys(filesMap).length} files</span>
+            <span>UTF-8</span>
+          </div>
+        </aside>
 
         {/* --- MIDDLE: CODE EDITOR PANE --- */}
-        {(viewMode === "split" || viewMode === "code") && (
-          <div
-            className={cn(
-              "flex flex-col bg-slate-950 min-w-0 border-r border-border/60",
-              viewMode === "code" ? "flex-1" : "w-1/2",
-            )}
-          >
-            {/* Editor File Tabs */}
-            <div className="flex items-center bg-slate-900/70 border-b border-border/50 px-2 overflow-x-auto gap-1">
-              {openTabs.map((tabPath) => {
-                const isActive = activeFilePath === tabPath;
-                return (
-                  <div
-                    key={tabPath}
-                    onClick={() => setActiveFilePath(tabPath)}
-                    className={cn(
-                      "flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono border-b-2 transition cursor-pointer select-none",
-                      isActive
-                        ? "bg-slate-950 text-primary border-primary font-semibold"
-                        : "text-muted-foreground hover:text-foreground border-transparent hover:bg-slate-900",
-                    )}
+        <div
+          className={cn(
+            "flex flex-col bg-slate-950 min-w-0 border-r border-border/60",
+            viewMode === "code" ? "lg:flex lg:flex-1" : viewMode === "split" ? "lg:flex lg:w-1/2" : "lg:hidden",
+            mobileTab === "code" ? "flex flex-1 w-full" : "hidden",
+          )}
+        >
+          {/* Editor File Tabs */}
+          <div className="flex items-center bg-slate-900/70 border-b border-border/50 px-2 overflow-x-auto gap-1">
+            {openTabs.map((tabPath) => {
+              const isActive = activeFilePath === tabPath;
+              return (
+                <div
+                  key={tabPath}
+                  onClick={() => setActiveFilePath(tabPath)}
+                  className={cn(
+                    "flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono border-b-2 transition cursor-pointer select-none",
+                    isActive
+                      ? "bg-slate-950 text-primary border-primary font-semibold"
+                      : "text-muted-foreground hover:text-foreground border-transparent hover:bg-slate-900",
+                  )}
+                >
+                  <span>{tabPath.split("/").pop()}</span>
+                  <button
+                    type="button"
+                    onClick={(e) => handleCloseTab(tabPath, e)}
+                    className="p-0.5 rounded hover:bg-muted text-muted-foreground hover:text-foreground"
                   >
-                    <span>{tabPath.split("/").pop()}</span>
-                    <button
-                      type="button"
-                      onClick={(e) => handleCloseTab(tabPath, e)}
-                      className="p-0.5 rounded hover:bg-muted text-muted-foreground hover:text-foreground"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
+                    <X className="h-3 w-3" />
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Code Textarea with line numbers */}
+          <div className="flex-1 relative flex overflow-hidden min-h-[350px]">
+            {/* Line numbers gutter */}
+            <div className="w-10 bg-slate-950/90 border-r border-border/30 text-right pr-2 pt-3 font-mono text-[11px] text-slate-500 select-none">
+              {Array.from({
+                length: Math.max(1, (filesMap[activeFilePath] || "").split("\n").length),
+              })
+                .slice(0, 1000)
+                .map((_, i) => (
+                  <div key={i} className="leading-[1.5rem]">
+                    {i + 1}
                   </div>
-                );
-              })}
+                ))}
             </div>
 
-            {/* Code Textarea with line numbers */}
-            <div className="flex-1 relative flex overflow-hidden">
-              {/* Line numbers gutter */}
-              <div className="w-10 bg-slate-950/80 border-r border-border/30 text-right pr-2 pt-3 font-mono text-[11px] text-slate-600 select-none">
-                {Array.from({
-                  length: Math.max(1, (filesMap[activeFilePath] || "").split("\n").length),
-                })
-                  .slice(0, 1000)
-                  .map((_, i) => (
-                    <div key={i} className="leading-[1.5rem]">
-                      {i + 1}
-                    </div>
-                  ))}
-              </div>
+            {/* Textarea */}
+            <textarea
+              value={filesMap[activeFilePath] || ""}
+              onChange={(e) => handleCodeChange(e.target.value)}
+              spellCheck={false}
+              autoCapitalize="off"
+              autoComplete="off"
+              className="flex-1 p-3 font-mono text-[12px] leading-[1.5rem] bg-transparent text-slate-100 outline-none resize-none overflow-y-auto selection:bg-indigo-500/30"
+            />
+          </div>
 
-              {/* Textarea */}
-              <textarea
-                value={filesMap[activeFilePath] || ""}
-                onChange={(e) => handleCodeChange(e.target.value)}
-                spellCheck={false}
-                autoCapitalize="off"
-                autoComplete="off"
-                className="flex-1 p-3 font-mono text-[12px] leading-[1.5rem] bg-transparent text-slate-200 outline-none resize-none overflow-y-auto selection:bg-indigo-500/30"
-              />
+          {/* Editor Status Bar */}
+          <div className="flex items-center justify-between px-3 py-1 bg-slate-900/80 border-t border-border/40 text-[10px] text-muted-foreground font-mono">
+            <div className="flex items-center gap-3">
+              <span className="flex items-center gap-1 text-slate-300">
+                <FileCode className="h-3 w-3 text-indigo-400" />
+                {activeFilePath}
+              </span>
+              <span>
+                Lines: {(filesMap[activeFilePath] || "").split("\n").length}
+              </span>
             </div>
-
-            {/* Editor Status Bar */}
-            <div className="flex items-center justify-between px-3 py-1 bg-slate-900/80 border-t border-border/40 text-[10px] text-muted-foreground font-mono">
-              <div className="flex items-center gap-3">
-                <span className="flex items-center gap-1">
-                  <FileCode className="h-3 w-3 text-indigo-400" />
-                  {activeFilePath}
-                </span>
-                <span>
-                  Lines: {(filesMap[activeFilePath] || "").split("\n").length}
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    navigator.clipboard.writeText(filesMap[activeFilePath] || "");
-                    toast.success(`Copied ${activeFilePath} code!`);
-                  }}
-                  className="hover:text-foreground flex items-center gap-1"
-                >
-                  <Copy className="h-3 w-3" /> Copy
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setPreviewKey((k) => k + 1)}
-                  className="hover:text-foreground flex items-center gap-1 text-emerald-400 font-semibold"
-                >
-                  <Play className="h-3 w-3" /> Run
-                </button>
-              </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText(filesMap[activeFilePath] || "");
+                  toast.success(`Copied ${activeFilePath} code!`);
+                }}
+                className="hover:text-foreground flex items-center gap-1 text-slate-300 cursor-pointer"
+              >
+                <Copy className="h-3 w-3" /> Copy
+              </button>
+              <button
+                type="button"
+                onClick={() => setPreviewKey((k) => k + 1)}
+                className="hover:text-foreground flex items-center gap-1 text-emerald-400 font-semibold cursor-pointer"
+              >
+                <Play className="h-3 w-3" /> Run
+              </button>
             </div>
           </div>
-        )}
+        </div>
 
         {/* --- RIGHT: LIVE PREVIEW PANE --- */}
-        {(viewMode === "split" || viewMode === "preview") && (
-          <div
-            className={cn(
-              "flex flex-col bg-slate-900/60 min-w-0 flex-1",
-              viewMode === "preview" ? "w-full" : "",
-            )}
-          >
+        <div
+          className={cn(
+            "flex flex-col bg-slate-900/60 min-w-0 flex-1",
+            viewMode === "preview" ? "lg:flex lg:w-full" : viewMode === "split" ? "lg:flex lg:flex-1" : "lg:hidden",
+            mobileTab === "preview" ? "flex flex-1 w-full" : "hidden",
+          )}
+        >
             {/* Live Preview Controls Header */}
             <div className="flex items-center justify-between px-4 py-2 bg-slate-900 border-b border-border/60">
               <div className="flex items-center gap-2">
@@ -1555,7 +1703,6 @@ npx serve .
               </div>
             </div>
           </div>
-        )}
       </div>
     </div>
   );

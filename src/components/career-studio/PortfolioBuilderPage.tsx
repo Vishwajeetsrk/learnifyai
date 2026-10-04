@@ -20,6 +20,7 @@ import {
   Plus,
   X,
   Eye,
+  Globe,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -646,17 +647,17 @@ This portfolio website was generated with Learnify AI Portfolio Builder.
       </motion.div>
 
       <Tabs value={tab} onValueChange={setTab} className="mt-2">
-        <TabsList className="bg-slate-900/60 border border-border/60 p-1 rounded-xl">
-          <TabsTrigger value="form" className="text-xs sm:text-sm">
+        <TabsList className="bg-slate-900/70 border border-border/70 p-1 rounded-xl w-full max-w-full overflow-x-auto justify-start sm:justify-center flex-nowrap scrollbar-none">
+          <TabsTrigger value="form" className="text-xs sm:text-sm shrink-0">
             <Sparkles className="h-3.5 w-3.5 mr-1.5" /> Build
           </TabsTrigger>
-          <TabsTrigger value="ide" disabled={!form.fullName} className="text-xs sm:text-sm">
+          <TabsTrigger value="ide" disabled={!form.fullName} className="text-xs sm:text-sm shrink-0">
             <Code2 className="h-3.5 w-3.5 mr-1.5 text-indigo-400" /> Code Studio (IDE)
           </TabsTrigger>
-          <TabsTrigger value="preview" disabled={!result} className="text-xs sm:text-sm">
+          <TabsTrigger value="preview" disabled={!result} className="text-xs sm:text-sm shrink-0">
             <FolderOpen className="h-3.5 w-3.5 mr-1.5" /> Plan
           </TabsTrigger>
-          <TabsTrigger value="live" disabled={!form.fullName} className="text-xs sm:text-sm">
+          <TabsTrigger value="live" disabled={!form.fullName} className="text-xs sm:text-sm shrink-0">
             <Eye className="h-3.5 w-3.5 mr-1.5" /> Live Preview
           </TabsTrigger>
         </TabsList>
@@ -1220,13 +1221,16 @@ This portfolio website was generated with Learnify AI Portfolio Builder.
             animate={{ opacity: 1, scale: 1 }}
             className="max-w-4xl mx-auto border rounded-2xl overflow-hidden shadow-lg"
           >
-            <div className="h-10 bg-muted border-b flex items-center px-4 gap-2">
-              <div className="w-3 h-3 rounded-full bg-red-500" />
-              <div className="w-3 h-3 rounded-full bg-amber-500" />
-              <div className="w-3 h-3 rounded-full bg-emerald-500" />
-              <span className="text-xs text-muted-foreground ml-2 font-mono">
-                portfolio-preview
-              </span>
+            <div className="h-10 bg-muted/80 border-b flex items-center justify-between px-4 gap-2">
+              <div className="flex items-center gap-2">
+                <Globe className="h-3.5 w-3.5 text-primary" />
+                <span className="text-xs text-foreground/80 font-mono font-medium truncate max-w-[200px] sm:max-w-none">
+                  {form.fullName ? `${form.fullName.toLowerCase().replace(/\s+/g, "")}.learnifyai.in` : "portfolio.learnifyai.in"}
+                </span>
+              </div>
+              <Badge variant="outline" className="text-[10px] text-emerald-500 border-emerald-500/30 bg-emerald-500/10">
+                Live Preview
+              </Badge>
             </div>
             <div className="bg-gradient-to-br from-background to-muted/30 p-6 sm:p-10">
               <div className="flex flex-col sm:flex-row items-center gap-6 mb-10">
