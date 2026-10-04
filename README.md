@@ -2,7 +2,7 @@
 
 <img src="src/assets/learnify-logo.png" alt="Learnify AI Logo" width="180" style="margin-bottom: 12px; filter: drop-shadow(0 4px 12px rgba(99, 102, 241, 0.25));" />
 
-# Learnify AI 4.9
+# Learnify AI 4.9.5
 
 **The AI-Native Learning & Career Operating System**
 
@@ -1580,6 +1580,29 @@ MIT License. See [LICENSE](LICENSE) for details.
   - Fixed category & career path filter count bugs via `course-taxonomy.ts`.
   - Built authentic SVG vector brand logo system (`CourseBrandLogo.tsx`, `CourseCardVisual.tsx`) covering Excel, Word, Power BI, Python, Figma, ChatGPT, Claude, and more.
   - Repositioned support agent widget to prevent bottom navigation collisions.
+
+### v4.9.5 (October 2026) — Code Studio IDE & AI Diff Editor for Portfolio Builder
+
+- 💻 **PORTFOLIO BUILDER CODE STUDIO & FULL IDE WORKSPACE (`PortfolioIdeView.tsx`)**:
+  - Live multi-file workspace supporting `index.html`, `css/style.css`, `js/script.js`, `portfolio.json`, and `README.md`.
+  - Tri-mode layout: **Split View** (File Tree + Code Editor + Live Preview), **Code Only**, and **Live Preview Only**.
+  - Multi-tab file switching with close tabs, active tab markers, line number gutter, and UTF-8 status bar.
+  - Multi-device preview frames: **Desktop**, **Tablet (768px)**, and **Mobile (375px)** with hot reloading and open in new tab capability.
+  - **Full Codebase ZIP Download**: Recursively bundles all files and directories into a deploy-ready `.zip` archive via JSZip.
+- 📂 **ANIMATED EXPLORER FILE TREE (`PortfolioFileTree.tsx`)**:
+  - Dynamic file tree with smooth folder expansion animations, recursive depth tree lines, extension badges (`.html`, `.css`, `.js`, `.ts`, `.json`, `.md`), and hover glow indicators.
+  - **Complete File/Folder Management**:
+    - `+ File` and `+ Folder` creation (at root or inside any folder).
+    - Inline Rename with Enter / Escape keyboard shortcuts.
+    - Delete with workspace cleanup.
+    - **Cut, Copy, and Paste** clipboard engine for moving and duplicating files across folders.
+- ⚡ **AI CODE ASSISTANT & EDIT DIFF TOOL (`EditTool.tsx` & `refinePortfolioCode`)**:
+  - Integrated the exact AI Edit Tool featuring shimmering generation status (`an-edit-shimmer`, `an-edit-dot`), dynamic line diff computing additions (+) and deletions (-), and diff statistics counter.
+  - Interactive approval footer with **Apply** and **Discard** buttons.
+  - Quick action recipes: *"Add neon gradient border to project cards"*, *"Add typing animation effect to hero title"*, *"Add contact modal popup"*, *"Add 3D perspective tilt hover"*.
+- 🎨 **RADIANT ANIMATED BUTTON & UI/UX POLISH**:
+  - Replaced static action buttons with high-performance radiant animated buttons featuring glowing iridescent borders, subtle raking sheen transitions, and tactile hover/tap feedback.
+  - Seamless post-result workflow automatically opening the full interactive Code Studio upon generation.
 
 ### v4.9.0 (October 2026) — Job Board Sync, GitHub Auditor, Scheduled Publishing, HIBP Protection & AI Infra
 

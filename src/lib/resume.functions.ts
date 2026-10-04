@@ -562,3 +562,78 @@ export const generatePortfolio = createServerFn({ method: "POST" })
       return { content, rawContent: content };
     }
   });
+
+const AiCodeRefineInput = z.object({
+  filePath: z.string().min(1),
+  currentCode: z.string().min(1).max(100000),
+  instruction: z.string().min(1).max(2000),
+  candidateContext: z.record(z.any()).optional(),
+});
+
+export const refinePortfolioCode = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((d: unknown) => AiCodeRefineInput.parse(d || {}))
+  .handler(async ({ data }) => {
+    const ext = data.filePath.split(".").pop() || "txt";
+    const body = {
+      messages: [
+        {
+          role: "system",
+          content: `You are an elite frontend web architect and designer. You edit web portfolio code (HTML, CSS, JS, JSON, Markdown).
+RULES:
+1. Apply the user's requested instruction precisely to the provided code.
+2. Maintain clean, modern, accessible semantic syntax.
+3. Return ONLY valid JSON in this exact structure without markdown fences:
+{
+  "summary": "1-sentence summary of what was changed",
+  "updatedCode": "The complete modified code"
+}
+Never output markdown text or explanations outside the JSON object.`,
+        },
+        {
+          role: "user",
+          content: `File: ${data.filePath}
+Instruction: ${data.instruction}
+
+Current Code:
+"""
+${data.currentCode}
+"""`,
+        },
+      ],
+      response_format: { type: "json_object" },
+      temperature: 0.2,
+    };
+
+    const res = await callUserAiChat(body as any, "pro");
+    if (!res.ok) throw new Error(`AI code refinement failed (${res.status})`);
+    const payload = await res.json();
+    const content: string = payload.choices?.[0]?.message?.content ?? "{}";
+    try {
+      const parsed = JSON.parse(content);
+      if (parsed.updatedCode) {
+        return {
+          summary: parsed.summary || `Updated ${data.filePath}`,
+          updatedCode: parsed.updatedCode,
+        };
+      }
+    } catch {
+      const m = content.match(/\{[\s\S]*\}/);
+      if (m) {
+        const parsed = JSON.parse(m[0]);
+        if (parsed.updatedCode) {
+          return {
+            summary: parsed.summary || `Updated ${data.filePath}`,
+            updatedCode: parsed.updatedCode,
+          };
+        }
+      }
+    }
+
+    // Fallback if model returned raw code directly
+    let cleanCode = content.replace(/^```[a-z]*\n?/i, "").replace(/```$/i, "");
+    return {
+      summary: `Applied changes to ${data.filePath}`,
+      updatedCode: cleanCode,
+    };
+  });

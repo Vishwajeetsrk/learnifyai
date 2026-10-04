@@ -47,6 +47,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { CourseBrandLogo } from "@/components/courses/CourseBrandLogo";
 import { MacOSSkillsDock } from "./MacOSSkillsDock";
 import { HoloTiltCard } from "./HoloTiltCard";
+import { PortfolioIdeView } from "./PortfolioIdeView";
 
 const STYLES = [
   { value: "developer", label: "Developer" },
@@ -302,8 +303,8 @@ export function PortfolioBuilderPage({ embedded = false }: { embedded?: boolean 
     try {
       const res = await generateFn({ data: portfolioForm });
       setResult(res.content || (res as any).rawContent);
-      setTab("preview");
-      toast.success("Portfolio plan generated!");
+      setTab("ide");
+      toast.success("Portfolio generated! Workspace loaded in Code Studio.");
     } catch (err: any) {
       toast.error(err.message || "Failed to generate portfolio");
     } finally {
@@ -645,9 +646,12 @@ This portfolio website was generated with Learnify AI Portfolio Builder.
       </motion.div>
 
       <Tabs value={tab} onValueChange={setTab} className="mt-2">
-        <TabsList>
+        <TabsList className="bg-slate-900/60 border border-border/60 p-1 rounded-xl">
           <TabsTrigger value="form" className="text-xs sm:text-sm">
             <Sparkles className="h-3.5 w-3.5 mr-1.5" /> Build
+          </TabsTrigger>
+          <TabsTrigger value="ide" disabled={!form.fullName} className="text-xs sm:text-sm">
+            <Code2 className="h-3.5 w-3.5 mr-1.5 text-indigo-400" /> Code Studio (IDE)
           </TabsTrigger>
           <TabsTrigger value="preview" disabled={!result} className="text-xs sm:text-sm">
             <FolderOpen className="h-3.5 w-3.5 mr-1.5" /> Plan
@@ -1050,34 +1054,53 @@ This portfolio website was generated with Learnify AI Portfolio Builder.
                 </div>
               </motion.div>
 
-              <div className="flex flex-col sm:flex-row gap-3 items-center">
+              {/* High-Performance Radiant Animated Action Buttons */}
+              <div className="flex flex-col sm:flex-row gap-3 items-center pt-2">
                 {loading ? (
-                  <Button
-                    size="lg"
-                    disabled
-                    className="flex-1 w-full h-12 relative overflow-hidden bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 text-white font-medium shadow-lg shadow-indigo-500/25 border-0 cursor-wait"
-                  >
-                    <div className="absolute inset-0 bg-white/10 animate-pulse" />
-                    <Loader2 className="h-4 w-4 mr-2.5 animate-spin text-white shrink-0" />
-                    <span className="relative z-10 font-semibold tracking-wide flex items-center gap-2">
-                      <span>Crafting AI Portfolio Architecture...</span>
-                    </span>
-                  </Button>
+                  <div className="flex-1 w-full h-12 p-[1.5px] rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 animate-pulse shadow-lg shadow-indigo-500/25">
+                    <div className="w-full h-full bg-slate-950/95 rounded-[10px] flex items-center justify-center gap-2.5 px-4 text-white">
+                      <Loader2 className="h-4 w-4 animate-spin text-indigo-400 shrink-0" />
+                      <span className="text-xs font-semibold tracking-wide font-mono bg-gradient-to-r from-indigo-300 via-purple-200 to-pink-300 bg-clip-text text-transparent">
+                        Synthesizing AI Portfolio Codebase...
+                      </span>
+                    </div>
+                  </div>
                 ) : (
-                  <Button
-                    size="lg"
-                    onClick={handleGenerate}
-                    className="flex-1 w-full h-12 bg-gradient-to-r from-indigo-600 via-primary to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold shadow-md shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
+                  <motion.div
+                    whileHover={{ scale: 1.015 }}
+                    whileTap={{ scale: 0.985 }}
+                    className="flex-1 w-full relative group"
                   >
-                    <Sparkles className="h-4 w-4 mr-2" />
-                    Generate Portfolio
-                  </Button>
+                    {/* Glowing outer halo */}
+                    <div className="absolute -inset-0.5 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 opacity-60 group-hover:opacity-100 blur-xs transition duration-300 group-hover:blur-sm" />
+                    <button
+                      type="button"
+                      onClick={handleGenerate}
+                      className="relative w-full h-12 rounded-xl bg-gradient-to-r from-indigo-600 via-primary to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold flex items-center justify-center gap-2 px-6 shadow-md transition-all cursor-pointer overflow-hidden"
+                    >
+                      {/* Raking Light Pill Sheen */}
+                      <span className="absolute inset-0 w-1/2 h-full bg-white/15 skew-x-[-25deg] transform -translate-x-full group-hover:translate-x-[300%] transition-transform duration-1000 ease-out pointer-events-none" />
+                      <Sparkles className="h-4 w-4 animate-pulse text-indigo-200" />
+                      <span className="tracking-wide">Generate Portfolio</span>
+                    </button>
+                  </motion.div>
                 )}
+
+                <Button
+                  size="lg"
+                  variant="outline"
+                  onClick={() => setTab("ide")}
+                  disabled={!form.fullName}
+                  className="gap-2 w-full sm:w-auto h-12 px-5 font-semibold border-indigo-500/30 hover:border-indigo-500/60 hover:bg-indigo-500/10 text-indigo-400 hover:text-indigo-300 transition-all duration-200 cursor-pointer shadow-xs"
+                >
+                  <Code2 className="h-4 w-4" /> Open Code Studio (IDE)
+                </Button>
+
                 <Button
                   size="lg"
                   variant="outline"
                   onClick={handlePublish}
-                  className="gap-2 w-full sm:w-auto h-12 px-6 font-semibold hover:bg-muted/60 transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
+                  className="gap-2 w-full sm:w-auto h-12 px-5 font-semibold hover:bg-muted/60 transition-all duration-200 cursor-pointer"
                 >
                   <Send className="h-4 w-4" /> Publish
                 </Button>
@@ -1085,6 +1108,52 @@ This portfolio website was generated with Learnify AI Portfolio Builder.
             </TabsContent>
           </motion.div>
         </AnimatePresence>
+
+        {/* CODE STUDIO & AI IDE TAB */}
+        <TabsContent value="ide" className="pt-4">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-4"
+          >
+            <div className="flex items-center justify-between gap-4 flex-wrap pb-1">
+              <div>
+                <h2 className="text-lg font-bold flex items-center gap-2">
+                  <Code2 className="h-5 w-5 text-indigo-400" />
+                  Code Studio & Full IDE Workspace
+                </h2>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Live multi-file editor with animated explorer, AI diff code assistant, device viewports, and ZIP export.
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setTab("live")}
+                  className="text-xs gap-1.5 h-8"
+                >
+                  <Eye className="h-3.5 w-3.5" /> Full Live Screen
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setTab("form")}
+                  className="text-xs gap-1.5 h-8"
+                >
+                  <ChevronRight className="h-3.5 w-3.5 rotate-180" /> Back to Form
+                </Button>
+              </div>
+            </div>
+
+            <PortfolioIdeView
+              portfolioData={form}
+              projectsList={projects}
+              photoPreview={photoPreview}
+              onPublish={handlePublish}
+            />
+          </motion.div>
+        </TabsContent>
 
         <TabsContent value="preview" className="pt-4">
           {result && (
@@ -1129,8 +1198,16 @@ This portfolio website was generated with Learnify AI Portfolio Builder.
                 >
                   <Check className="h-4 w-4 mr-1.5" /> Copy
                 </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setTab("ide")}
+                  size="sm"
+                  className="gap-1.5 text-indigo-400 border-indigo-500/30 hover:bg-indigo-500/10"
+                >
+                  <Code2 className="h-4 w-4" /> Open in Code Studio (IDE)
+                </Button>
                 <Button variant="ghost" onClick={() => setTab("form")} size="sm">
-                  <ChevronRight className="h-4 w-4 mr-1.5" /> Edit
+                  <ChevronRight className="h-4 w-4 mr-1.5" /> Edit Form
                 </Button>
               </div>
               <div className="border rounded-xl p-6 bg-card prose prose-sm dark:prose-invert max-w-none">
@@ -1395,6 +1472,13 @@ This portfolio website was generated with Learnify AI Portfolio Builder.
               )}
 
               <div className="flex flex-wrap justify-center gap-3 pt-6 border-t mt-8">
+                <Button
+                  size="sm"
+                  onClick={() => setTab("ide")}
+                  className="gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold rounded-xl shadow-md cursor-pointer"
+                >
+                  <Code2 className="h-4 w-4" /> Open in Code Studio (IDE)
+                </Button>
                 <Button
                   size="sm"
                   onClick={handleExportZip}
