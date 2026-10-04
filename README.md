@@ -624,7 +624,15 @@ MIT License. See [LICENSE](LICENSE) for details.
 
 ## 📋 Changelog
 
+### v5.8.5 (October 2026) — Portfolio Builder IDE, Live Diff Review & Shimmer States
+
+- ✅ **Controlled Diff Review Lifecycle**: Resolved "Canceled" diff bug in `EditTool.tsx` by turning approval actions into a controlled state pattern with parent lifecycle state synchronization (`idle` -> `generating` -> `review` -> `applying` -> `applied`/`discarded`/`failed`).
+- ✅ **Eliminated Blank Preview Screens**: Repaired `AnimatePresence` wrapper hierarchy in `PortfolioBuilderPage.tsx` so tab switching between Form, IDE, Preview, and Live site operates seamlessly without unmounting flash or dark blank screens.
+- ✅ **Pulsing Shimmer & Skeleton Feedback**: Added dynamic CSS animated shimmer lines and glowing border pulses (`an-edit-pulse-border`, `an-edit-skeleton-line`) when AI generates or applies code refinements.
+- ✅ **Direct File & Folder Operations**: Fully operational IDE virtual tree with file creation, deletion, copy, cut, paste, path renaming, multi-file ZIP archive downloading, and live Monaco editor integration.
+
 ### v5.8.3 (October 2026) — MP4 Transcripts, Transcript-Aware AI & Faster Gateway
+
 
 - ✅ **MP4 Transcription (Whisper)**: New unified `getLessonTranscriptFull` server fn — YouTube lessons use cached captions with **real timed segments** (en → hi → auto-track fallback, merged into readable cues), direct MP4 lessons (≤24MB) are transcribed with Groq `whisper-large-v3-turbo` (`verbose_json` segments = real timed cues, language auto-detected). Everything is saved to the new `lesson_transcripts` table (migrations `20271004/05/06/07*` — applied live), so the player transcript panel, captions and AI all reuse it instantly.
 - ✅ **v5.8.4 batch (same release line)**: Transcribe-at-upload in Studio (auto + manual button with progress); real cached AI caption translation (9 languages, timings preserved) replacing fabricated dicts; stale-summary regeneration via content hash; per-task provider routing (summary→Groq, doubt→Gemini) + `ai_usage` metering for lesson AI; mid-video quiz checkpoints (AI-generated, cached, pause-and-answer overlay).

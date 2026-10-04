@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Check, X, Sparkles, ArrowRight } from "lucide-react";
+import { Check, X, Sparkles, ArrowRight, RotateCcw, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const SHIMMER_STYLE_ID = "learnify-edit-tool-shimmer-styles";
@@ -29,6 +29,22 @@ const SHIMMER_STYLES = `
 .an-edit-dot { animation: an-edit-dot 1.4s ease-in-out infinite; }
 .an-edit-dot:nth-child(2) { animation-delay: 0.2s; }
 .an-edit-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes an-edit-pulse-border {
+  0%, 100% { border-color: rgba(99, 102, 241, 0.2); }
+  50% { border-color: rgba(99, 102, 241, 0.5); }
+}
+.an-edit-pulse-border { animation: an-edit-pulse-border 2s ease-in-out infinite; }
+@keyframes an-edit-skeleton {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+.an-edit-skeleton-line {
+  height: 0.65rem;
+  border-radius: 4px;
+  background: linear-gradient(90deg, rgba(99,102,241,0.06) 25%, rgba(99,102,241,0.15) 37%, rgba(99,102,241,0.06) 63%);
+  background-size: 400% 100%;
+  animation: an-edit-skeleton 1.8s ease infinite;
+}
 `;
 
 let shimmerStylesInjected = false;
@@ -117,28 +133,38 @@ export function countDiffStats(ops: DiffOp[]): { added: number; removed: number 
   return { added, removed };
 }
 
+/**
+ * The decision type that reflects the lifecycle of a code diff:
+ * - null: Awaiting user action (buttons visible)
+ * - "approved": User approved, code is being applied or was applied
+ * - "rejected": User rejected, diff is discarded
+ */
 export type ApprovalDecision = "approved" | "rejected" | null;
 
+/**
+ * ApprovalFooter — now uses CONTROLLED decision prop from parent.
+ * This prevents the "Canceled" bug where internal state would desync
+ * from the parent's pendingDiff lifecycle.
+ */
 export function ApprovalFooter({
   isPending,
+  decision,
   approveLabel = "Apply Diff",
   rejectLabel = "Discard",
   onApprove,
   onReject,
 }: {
   isPending: boolean;
+  decision: ApprovalDecision;
   approveLabel?: string;
   rejectLabel?: string;
   onApprove?: () => void;
   onReject?: () => void;
 }) {
-  const [decision, setDecision] = React.useState<ApprovalDecision>(null);
   const handleApprove = () => {
-    setDecision("approved");
     onApprove?.();
   };
   const handleReject = () => {
-    setDecision("rejected");
     onReject?.();
   };
 
@@ -153,6 +179,12 @@ export function ApprovalFooter({
         <Sparkles className="h-3.5 w-3.5 text-primary shrink-0" />
         {status && decision !== null ? (
           <span className="text-xs font-medium text-muted-foreground inline-flex items-center gap-1.5">
+            {decision === "approved" && (
+              <Check className="h-3 w-3 text-emerald-500" />
+            )}
+            {decision === "rejected" && (
+              <X className="h-3 w-3 text-rose-400" />
+            )}
             {status}
             {decision === "approved" && isPending && (
               <span className="inline-flex gap-0.5 text-primary">
@@ -169,7 +201,7 @@ export function ApprovalFooter({
         )}
       </div>
 
-      {decision === null && (
+      {decision === null && !isPending && (
         <div className="flex items-center gap-2">
           <button
             type="button"
@@ -196,12 +228,13 @@ export function ApprovalFooter({
 export type EditToolApproval = {
   approveLabel?: string;
   rejectLabel?: string;
+  decision?: ApprovalDecision;
   onApprove?: () => void;
   onReject?: () => void;
 };
 
 export type EditToolProps = {
-  /** "completed" → full diff; "pending" → shimmer "Editing X" + diff; "waiting" → "Generating..." shimmer */
+  /** "completed" → full diff; "pending" → shimmer "Editing X" + skeleton diff; "waiting" → "Generating..." shimmer */
   state?: "completed" | "pending" | "waiting";
   /** "edit" (default) → "Edited"/"Editing"; "write" → "Created"/"Creating" */
   variant?: "edit" | "write";
@@ -265,6 +298,7 @@ export const EditTool = React.memo(function EditTool({
     <div
       className={cn(
         "rounded-xl border border-border/80 bg-card text-card-foreground shadow-sm overflow-hidden w-full transition-all",
+        (isPending || isWaiting) && "an-edit-pulse-border",
         className,
       )}
     >
@@ -275,7 +309,11 @@ export const EditTool = React.memo(function EditTool({
         )}
       >
         <div className="flex items-center gap-2 min-w-0">
-          <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
+          {isPending || isWaiting ? (
+            <Loader2 className="h-3 w-3 text-indigo-500 animate-spin shrink-0" />
+          ) : (
+            <span className="w-2 h-2 rounded-full bg-indigo-500 shrink-0" />
+          )}
           {isPending || isWaiting ? (
             <span className="an-edit-shimmer text-xs font-semibold">{headerLabel}</span>
           ) : (
@@ -305,6 +343,18 @@ export const EditTool = React.memo(function EditTool({
         <div className="px-3.5 py-1.5 text-xs bg-indigo-500/5 text-indigo-700 dark:text-indigo-300 border-b border-indigo-500/15 flex items-center gap-1.5">
           <ArrowRight className="h-3 w-3 text-indigo-500 shrink-0" />
           <span className="line-clamp-1">{summary}</span>
+        </div>
+      )}
+
+      {/* Shimmer skeleton for waiting/pending state */}
+      {(isWaiting || (isPending && !diffOps)) && (
+        <div className="px-4 py-4 space-y-2.5" style={{ maxHeight: maxDiffHeight }}>
+          <div className="an-edit-skeleton-line" style={{ width: "85%" }} />
+          <div className="an-edit-skeleton-line" style={{ width: "72%" }} />
+          <div className="an-edit-skeleton-line" style={{ width: "90%" }} />
+          <div className="an-edit-skeleton-line" style={{ width: "65%" }} />
+          <div className="an-edit-skeleton-line" style={{ width: "78%" }} />
+          <div className="an-edit-skeleton-line" style={{ width: "50%" }} />
         </div>
       )}
 
@@ -348,6 +398,7 @@ export const EditTool = React.memo(function EditTool({
       {approval && (
         <ApprovalFooter
           isPending={isPending}
+          decision={approval.decision ?? null}
           approveLabel={approval.approveLabel}
           rejectLabel={approval.rejectLabel}
           onApprove={approval.onApprove}

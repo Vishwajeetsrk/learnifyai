@@ -33,7 +33,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { PortfolioFileTree, VirtualFileNode } from "./PortfolioFileTree";
-import { EditTool } from "./EditTool";
+import { EditTool, type ApprovalDecision } from "./EditTool";
 import { refinePortfolioCode } from "@/lib/resume.functions";
 
 export interface PortfolioIdeViewProps {
@@ -787,15 +787,35 @@ npx serve .
   const [previewDevice, setPreviewDevice] = useState<"desktop" | "tablet" | "mobile">("desktop");
   const [clipboard, setClipboard] = useState<{ action: "cut" | "copy"; path: string } | null>(null);
 
-  // --- AI Code Assistant State ---
+  // --- AI Code Assistant State Machine ---
+  // Lifecycle: idle -> generating -> review -> applying -> applied/discarded/failed
+  type EditLifecycleState =
+    | { phase: "idle" }
+    | { phase: "generating"; filePath: string }
+    | { phase: "review"; filePath: string; oldContent: string; newContent: string; summary: string }
+    | { phase: "applying"; filePath: string; oldContent: string; newContent: string; summary: string }
+    | { phase: "applied"; filePath: string; summary: string }
+    | { phase: "discarded" }
+    | { phase: "failed"; error: string };
+
   const [aiPrompt, setAiPrompt] = useState("");
-  const [isAiLoading, setIsAiLoading] = useState(false);
-  const [pendingDiff, setPendingDiff] = useState<{
-    filePath: string;
-    oldContent: string;
-    newContent: string;
-    summary: string;
-  } | null>(null);
+  const [editLifecycle, setEditLifecycle] = useState<EditLifecycleState>({ phase: "idle" });
+
+  // Derived convenience booleans
+  const isAiLoading = editLifecycle.phase === "generating";
+
+  // Auto-dismiss applied/discarded/failed state after a brief display
+  const dismissTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    if (editLifecycle.phase === "applied" || editLifecycle.phase === "discarded" || editLifecycle.phase === "failed") {
+      dismissTimerRef.current = setTimeout(() => {
+        setEditLifecycle({ phase: "idle" });
+      }, 3000);
+    }
+    return () => {
+      if (dismissTimerRef.current) clearTimeout(dismissTimerRef.current);
+    };
+  }, [editLifecycle.phase]);
 
   // Refresh preview counter
   const [previewKey, setPreviewKey] = useState(0);
@@ -983,7 +1003,7 @@ npx serve .
     handleSelectFile(destPath);
   };
 
-  // --- AI Code Assistant Execution ---
+  // --- AI Code Assistant Execution (State Machine) ---
   const handleRunAiAssist = async (customInstruction?: string) => {
     const prompt = (customInstruction || aiPrompt).trim();
     if (!prompt) {
@@ -992,7 +1012,7 @@ npx serve .
     }
 
     const currentCode = filesMap[activeFilePath] || "";
-    setIsAiLoading(true);
+    setEditLifecycle({ phase: "generating", filePath: activeFilePath });
     try {
       const res = await refineFn({
         data: {
@@ -1003,7 +1023,8 @@ npx serve .
         },
       });
 
-      setPendingDiff({
+      setEditLifecycle({
+        phase: "review",
         filePath: activeFilePath,
         oldContent: currentCode,
         newContent: res.updatedCode,
@@ -1012,26 +1033,35 @@ npx serve .
       setAiPrompt("");
       toast.success("AI generated code proposal! Review the diff below.");
     } catch (err: any) {
+      setEditLifecycle({ phase: "failed", error: err.message || "AI code refinement failed" });
       toast.error(err.message || "AI code refinement failed");
-    } finally {
-      setIsAiLoading(false);
     }
   };
 
   const handleApplyAiDiff = () => {
-    if (!pendingDiff) return;
+    if (editLifecycle.phase !== "review") return;
+    const { filePath: fp, newContent, summary: sm } = editLifecycle;
+
+    // Transition to applying state briefly for visual feedback
+    setEditLifecycle({ ...editLifecycle, phase: "applying" });
+
+    // Apply the code change
     isDirtyRef.current = true;
     setFilesMap((prev) => ({
       ...prev,
-      [pendingDiff.filePath]: pendingDiff.newContent,
+      [fp]: newContent,
     }));
-    setPendingDiff(null);
     setPreviewKey((k) => k + 1);
-    toast.success(`Applied changes to ${pendingDiff.filePath}!`);
+
+    // Transition to applied
+    setTimeout(() => {
+      setEditLifecycle({ phase: "applied", filePath: fp, summary: sm });
+      toast.success(`Applied changes to ${fp}!`);
+    }, 400);
   };
 
   const handleDiscardAiDiff = () => {
-    setPendingDiff(null);
+    setEditLifecycle({ phase: "discarded" });
     toast.info("Changes discarded.");
   };
 
@@ -1245,24 +1275,58 @@ npx serve .
         </div>
       </div>
 
-      {/* ================= PENDING AI DIFF VIEWER (Using EditTool) ================= */}
-      {pendingDiff && (
+      {/* ================= AI DIFF VIEWER (Lifecycle-Driven) ================= */}
+      {editLifecycle.phase === "generating" && (
         <div className="p-3 bg-slate-900 border-b border-border/80">
           <EditTool
-            state="completed"
+            state="waiting"
             variant="edit"
-            filePath={pendingDiff.filePath}
-            oldContent={pendingDiff.oldContent}
-            newContent={pendingDiff.newContent}
-            summary={pendingDiff.summary}
+            filePath={editLifecycle.filePath}
+            summary={`Generating AI code changes for ${editLifecycle.filePath}...`}
+            maxDiffHeight="200px"
+          />
+        </div>
+      )}
+      {(editLifecycle.phase === "review" || editLifecycle.phase === "applying") && (
+        <div className="p-3 bg-slate-900 border-b border-border/80">
+          <EditTool
+            state={editLifecycle.phase === "applying" ? "pending" : "completed"}
+            variant="edit"
+            filePath={editLifecycle.filePath}
+            oldContent={editLifecycle.oldContent}
+            newContent={editLifecycle.newContent}
+            summary={editLifecycle.summary}
             approval={{
               approveLabel: "Apply to Code",
               rejectLabel: "Discard Diff",
+              decision: editLifecycle.phase === "applying" ? "approved" : null,
               onApprove: handleApplyAiDiff,
               onReject: handleDiscardAiDiff,
             }}
             maxDiffHeight="280px"
           />
+        </div>
+      )}
+      {editLifecycle.phase === "applied" && (
+        <div className="px-3 py-2 bg-emerald-950/30 border-b border-emerald-500/20 flex items-center gap-2 text-xs text-emerald-400">
+          <Check className="h-3.5 w-3.5" />
+          <span className="font-semibold">Applied changes to {editLifecycle.filePath}</span>
+          <span className="text-emerald-500/60 ml-1">— {editLifecycle.summary}</span>
+        </div>
+      )}
+      {editLifecycle.phase === "failed" && (
+        <div className="px-3 py-2 bg-rose-950/30 border-b border-rose-500/20 flex items-center justify-between gap-2 text-xs text-rose-400">
+          <div className="flex items-center gap-2">
+            <X className="h-3.5 w-3.5" />
+            <span className="font-semibold">AI generation failed: {editLifecycle.error}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setEditLifecycle({ phase: "idle" })}
+            className="text-rose-300 hover:text-white px-2 py-0.5 rounded hover:bg-rose-900/40 transition"
+          >
+            Dismiss
+          </button>
         </div>
       )}
 

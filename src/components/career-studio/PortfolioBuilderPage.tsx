@@ -661,15 +661,13 @@ This portfolio website was generated with Learnify AI Portfolio Builder.
           </TabsTrigger>
         </TabsList>
 
-        <AnimatePresence mode="wait">
+        <TabsContent value="form" className="pt-4 space-y-6 max-w-3xl">
           <motion.div
-            key={tab}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.2 }}
+            className="space-y-6"
           >
-            <TabsContent value="form" className="pt-4 space-y-6 max-w-3xl">
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -1105,9 +1103,8 @@ This portfolio website was generated with Learnify AI Portfolio Builder.
                   <Send className="h-4 w-4" /> Publish
                 </Button>
               </div>
-            </TabsContent>
           </motion.div>
-        </AnimatePresence>
+        </TabsContent>
 
         {/* CODE STUDIO & AI IDE TAB */}
         <TabsContent value="ide" className="pt-4">
