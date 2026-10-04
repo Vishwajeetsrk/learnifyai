@@ -220,7 +220,9 @@ export const extractResumeFields = createServerFn({ method: "POST" })
       messages: [
         {
           role: "system",
-          content: `You are an expert resume parser. Extract structured information from the candidate's resume text. Return ONLY valid JSON matching this schema:
+          content: `You are a world-class ATS resume parser and recruitment specialist. Extract structured candidate information accurately from the provided resume text.
+Always extract the candidate's Full Name, Email, Phone Number, LinkedIn, GitHub, Summary/Objective, Experience (with company, role, dates, bullet points), Education (degrees, colleges, years), Skills (comma-separated list), Certifications, and Key Projects.
+Return ONLY valid JSON matching this schema:
 {
   "fullName": string,
   "email": string,
@@ -272,15 +274,62 @@ export const extractResumeFields = createServerFn({ method: "POST" })
       }
     } catch {}
 
+    // Fallback 1: Extract candidate full name if missing
+    if (!result.fullName || result.fullName.trim().length < 2) {
+      const lines = rawText
+        .split("\n")
+        .map((l) => l.trim())
+        .filter((l) => l.length > 2 && l.length < 50);
+      for (const line of lines.slice(0, 8)) {
+        if (
+          !line.includes("@") &&
+          !line.includes("http") &&
+          !line.includes("www.") &&
+          !/\d{3,}/.test(line) &&
+          !/^(resume|curriculum|vitae|profile|portfolio|page|contact|personal|details)/i.test(line) &&
+          /^[A-Z][a-zA-Z.'-]+(\s+[A-Z][a-zA-Z.'-]+){1,3}$/.test(line)
+        ) {
+          result.fullName = line;
+          break;
+        }
+      }
+    }
+
+    // Fallback 2: Extract email
+    if (!result.email) {
+      const emailMatch = rawText.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
+      if (emailMatch) result.email = emailMatch[0];
+    }
+
+    // Fallback 3: Extract phone (both Indian +91 10-digit mobile and international numbers)
+    if (!result.phone) {
+      const indianPhone = rawText.match(/(?:(?:\+91[\-\s]?|91[\-\s]?|0)?[6-9]\d{4}[\-\s]?\d{5})/);
+      if (indianPhone) {
+        result.phone = indianPhone[0].trim();
+      } else {
+        const intlPhone = rawText.match(/(?:\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/);
+        if (intlPhone) result.phone = intlPhone[0].trim();
+      }
+    }
+
+    // Fallback 4: Extract LinkedIn & GitHub URLs
     const urlRegex = /(https?:\/\/[^\s,">]+)/gi;
     const urls = Array.from(new Set(rawText.match(urlRegex) || []));
 
-    if (urls.length > 0) {
-      if (!result.linkedin) {
-        const linkedinUrl = urls.find((u) => u.includes("linkedin.com"));
-        if (linkedinUrl) result.linkedin = linkedinUrl;
+    if (!result.linkedin) {
+      const linkedinUrl = urls.find((u) => u.includes("linkedin.com/in/")) || urls.find((u) => u.includes("linkedin.com"));
+      if (linkedinUrl) {
+        result.linkedin = linkedinUrl;
+      } else {
+        const rawLinkedin = rawText.match(/(?:linkedin\.com\/(?:in|company)\/[a-zA-Z0-9_-]+)/i);
+        if (rawLinkedin) result.linkedin = `https://${rawLinkedin[0]}`;
       }
+    }
 
+    const githubUrl = urls.find((u) => u.includes("github.com/")) || rawText.match(/(?:github\.com\/[a-zA-Z0-9_-]+)/i)?.[0];
+    const fullGithub = githubUrl ? (githubUrl.startsWith("http") ? githubUrl : `https://${githubUrl}`) : null;
+
+    if (urls.length > 0) {
       const projUrls = urls.filter(
         (u) =>
           u.includes("github.com") ||
@@ -302,23 +351,74 @@ export const extractResumeFields = createServerFn({ method: "POST" })
       }
     }
 
-    if (!result.email) {
-      const emailMatch = rawText.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
-      if (emailMatch) result.email = emailMatch[0];
+    // Fallback 5: Extract skills from dictionary if AI extracted empty or too few skills
+    const existingSkillsCount = result.skills ? result.skills.split(",").length : 0;
+    if (existingSkillsCount < 3) {
+      const techDictionary = [
+        "React", "Next.js", "Vue", "Angular", "TypeScript", "JavaScript", "Python", "Java",
+        "C++", "C#", "Go", "Rust", "PHP", "Swift", "Kotlin", "Flutter", "Dart", "HTML5", "CSS3",
+        "Tailwind CSS", "Bootstrap", "Node.js", "Express", "FastAPI", "Django", "Flask", "Spring Boot",
+        "PostgreSQL", "MySQL", "MongoDB", "Redis", "SQLite", "Supabase", "Firebase", "GraphQL", "REST API",
+        "Docker", "Kubernetes", "AWS", "Azure", "Google Cloud", "Git", "GitHub", "Linux", "Bash",
+        "CI/CD", "Pandas", "NumPy", "TensorFlow", "PyTorch", "Scikit-Learn", "Figma", "Canva",
+        "Power BI", "Tableau", "Excel", "MS Word", "PowerPoint", "Jira", "Postman", "Agile", "Scrum"
+      ];
+      const foundSkills = techDictionary.filter((tech) => {
+        const escaped = tech.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&");
+        const regex = new RegExp(`(?:^|[^a-zA-Z0-9])${escaped}(?:$|[^a-zA-Z0-9])`, "i");
+        return regex.test(rawText);
+      });
+      if (foundSkills.length > 0) {
+        const currentList = result.skills ? result.skills.split(",").map((s: string) => s.trim()).filter(Boolean) : [];
+        const merged = Array.from(new Set([...currentList, ...foundSkills]));
+        result.skills = merged.join(", ");
+      }
     }
 
-    if (!result.phone) {
-      const phoneMatch = rawText.match(/(?:\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/);
-      if (phoneMatch) result.phone = phoneMatch[0];
-    }
-
-    if (!result.experience || result.experience.trim().length < 10) {
+    // Fallback 6: Extract Experience section
+    if (!result.experience || result.experience.trim().length < 15) {
       const expMatch = rawText.match(
-        /(?:Experience|Work History|Employment|History)[\s\S]*?(?=(?:Education|Skills|Projects|Certifications|$))/i,
+        /(?:Experience|Work History|Employment History|Professional Experience|Work Experience)[\s\S]*?(?=(?:Education|Technical Skills|Skills|Projects|Certifications|Academic Background|$))/i,
       );
       if (expMatch) {
         result.experience = expMatch[0]
-          .replace(/^(?:Experience|Work History|Employment|History)[\s:]*/i, "")
+          .replace(/^(?:Experience|Work History|Employment History|Professional Experience|Work Experience)[\s:]*/i, "")
+          .trim();
+      }
+    }
+
+    // Fallback 7: Extract Education section
+    if (!result.education || result.education.trim().length < 10) {
+      const eduMatch = rawText.match(
+        /(?:Education|Academic Background|Qualifications|Academics)[\s\S]*?(?=(?:Experience|Work History|Technical Skills|Skills|Projects|Certifications|$))/i,
+      );
+      if (eduMatch) {
+        result.education = eduMatch[0]
+          .replace(/^(?:Education|Academic Background|Qualifications|Academics)[\s:]*/i, "")
+          .trim();
+      }
+    }
+
+    // Fallback 8: Extract Projects section
+    if (!result.projects || result.projects.trim().length < 15) {
+      const projMatch = rawText.match(
+        /(?:Projects|Key Projects|Personal Projects|Academic Projects)[\s\S]*?(?=(?:Experience|Education|Technical Skills|Skills|Certifications|Achievements|$))/i,
+      );
+      if (projMatch) {
+        result.projects = projMatch[0]
+          .replace(/^(?:Projects|Key Projects|Personal Projects|Academic Projects)[\s:]*/i, "")
+          .trim();
+      }
+    }
+
+    // Fallback 9: Summary / Objective
+    if (!result.summary || result.summary.trim().length < 15) {
+      const sumMatch = rawText.match(
+        /(?:Summary|Professional Summary|About Me|Career Objective|Objective)[\s\S]*?(?=(?:Experience|Education|Skills|Projects|$))/i,
+      );
+      if (sumMatch) {
+        result.summary = sumMatch[0]
+          .replace(/^(?:Summary|Professional Summary|About Me|Career Objective|Objective)[\s:]*/i, "")
           .trim();
       }
     }

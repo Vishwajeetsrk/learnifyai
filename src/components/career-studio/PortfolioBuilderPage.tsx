@@ -44,7 +44,9 @@ import { toast } from "sonner";
 import { generatePortfolio, extractResumeFields } from "@/lib/resume.functions";
 import { ResumeFileUpload } from "@/components/ResumeFileUpload";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShaderButtons } from "@/components/shaders";
+import { CourseBrandLogo } from "@/components/courses/CourseBrandLogo";
+import { MacOSSkillsDock } from "./MacOSSkillsDock";
+import { HoloTiltCard } from "./HoloTiltCard";
 
 const STYLES = [
   { value: "developer", label: "Developer" },
@@ -61,90 +63,44 @@ type ProjectEntry = {
   imageUrl?: string;
 };
 
-type BrandInfo = { color: string; label: string };
-
-const SKILL_BRANDS: Record<string, BrandInfo> = {
-  python: { color: "#3776AB", label: "Py" },
-  sql: { color: "#336791", label: "SQL" },
-  "ms excel": { color: "#217346", label: "EX" },
-  excel: { color: "#217346", label: "EX" },
-  "ms word": { color: "#2B579A", label: "WD" },
-  word: { color: "#2B579A", label: "WD" },
-  "ms powerpoint": { color: "#D24726", label: "PP" },
-  powerpoint: { color: "#D24726", label: "PP" },
-  "power bi": { color: "#F2C811", label: "PB" },
-  salesforce: { color: "#00A1E0", label: "SF" },
-  "razor pay": { color: "#7B3FE4", label: "Rz" },
-  "data loader": { color: "#FF6B35", label: "DL" },
-  "data visualization": { color: "#0EA5E9", label: "DV" },
-  "ai research": { color: "#8B5CF6", label: "AI" },
-  chatgpt: { color: "#10A37F", label: "CG" },
-  gemini: { color: "#8E44AD", label: "Ge" },
-  perplexity: { color: "#FF6D01", label: "Px" },
-  notebooklm: { color: "#D97706", label: "NL" },
-  html: { color: "#E34F26", label: "H" },
-  css: { color: "#1572B6", label: "CSS" },
-  javascript: { color: "#F7DF1E", label: "JS" },
-  js: { color: "#F7DF1E", label: "JS" },
-  wordpress: { color: "#464342", label: "WP" },
-  wix: { color: "#0C6EFC", label: "Wx" },
-  github: { color: "#181717", label: "GH" },
-  "vs code": { color: "#007ACC", label: "VS" },
-  vscode: { color: "#007ACC", label: "VS" },
-  canva: { color: "#00C4CC", label: "Ca" },
-  capcut: { color: "#FF2D55", label: "CC" },
-  "email handling": { color: "#6B7280", label: "@" },
-  email: { color: "#6B7280", label: "@" },
-  react: { color: "#61DAFB", label: "Rx" },
-  node: { color: "#339933", label: "N" },
-  nodejs: { color: "#339933", label: "N" },
-  typescript: { color: "#3178C6", label: "TS" },
-  mongodb: { color: "#47A248", label: "MD" },
-  docker: { color: "#2496ED", label: "D" },
-  git: { color: "#F05032", label: "G" },
-  figma: { color: "#F24E1E", label: "Fi" },
-  tailwind: { color: "#06B6D4", label: "TW" },
-  nextjs: { color: "#000000", label: "N" },
-  aws: { color: "#FF9900", label: "AWS" },
-};
-
-function findBrand(name: string): BrandInfo | null {
-  const n = name.toLowerCase().trim();
-  if (SKILL_BRANDS[n]) return SKILL_BRANDS[n];
-  for (const [key, brand] of Object.entries(SKILL_BRANDS))
-    if (n.includes(key) || key.includes(n)) return brand;
-  return null;
-}
-
-function SkillLogo({ name, size = 14 }: { name: string; size?: number }) {
-  const brand = findBrand(name);
-  const c = brand?.color || "#6366f1";
-  const label = brand?.label || name.trim()[0].toUpperCase();
+function SkillLogo({
+  name,
+  size = 15,
+  className,
+}: {
+  name: string;
+  size?: number | string;
+  className?: string;
+}) {
   return (
-    <svg width={size} height={size} viewBox="0 0 20 20" fill="none" className="shrink-0">
-      <rect width={20} height={20} rx={4} fill={c} />
-      <text
-        x={10}
-        y={10}
-        textAnchor="middle"
-        dominantBaseline="central"
-        fill={c === "#F7DF1E" || c === "#F2C811" ? "#1e293b" : "#fff"}
-        fontSize={9}
-        fontWeight={800}
-        fontFamily="system-ui"
-      >
-        {label}
-      </text>
-    </svg>
+    <div
+      className={cn("inline-flex items-center justify-center shrink-0", className)}
+      style={{ width: size, height: size }}
+    >
+      <CourseBrandLogo brand={name} size={size} />
+    </div>
   );
 }
 
 function skillHtmlLogo(name: string): string {
-  const brand = findBrand(name);
-  const c = brand?.color || "#6366f1";
-  const label = brand?.label || name.trim()[0].toUpperCase();
-  const textColor = c === "#F7DF1E" || c === "#F2C811" ? "#1e293b" : "#fff";
-  return `<svg width="14" height="14" viewBox="0 0 20 20" fill="none" style="display:inline-block;vertical-align:middle;margin-right:4px;flex-shrink:0"><rect width="20" height="20" rx="4" fill="${c}"/><text x="10" y="10" text-anchor="middle" dominant-baseline="central" fill="${textColor}" font-size="9" font-weight="800" font-family="system-ui,sans-serif">${label}</text></svg>`;
+  const n = name.toLowerCase().trim();
+  const colors: Record<string, string> = {
+    react: "#61DAFB",
+    nextjs: "#000000",
+    typescript: "#3178C6",
+    javascript: "#F7DF1E",
+    python: "#3776AB",
+    nodejs: "#339933",
+    docker: "#2496ED",
+    aws: "#FF9900",
+    figma: "#F24E1E",
+    git: "#F05032",
+    html: "#E34F26",
+    css: "#1572B6",
+    tailwind: "#06B6D4",
+  };
+  const color = colors[n] || "#6366f1";
+  return `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="display:inline-block;vertical-align:middle;margin-right:6px;flex-shrink:0"><circle cx="12" cy="12" r="10" fill="${color}" fill-opacity="0.18" stroke="${color}" stroke-width="2"/><path d="M8 12l3 3 5-5" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 }
 
 export function PortfolioBuilderPage({ embedded = false }: { embedded?: boolean }) {
@@ -206,6 +162,26 @@ export function PortfolioBuilderPage({ embedded = false }: { embedded?: boolean 
   }, [projects]);
 
   const update = (field: string, value: string) => setForm((f: any) => ({ ...f, [field]: value }));
+
+  const handleToggleSkill = (skillName: string) => {
+    const currentList = form.skills
+      ? form.skills
+          .split(",")
+          .map((s: string) => s.trim())
+          .filter(Boolean)
+      : [];
+    const lower = skillName.toLowerCase();
+    const exists = currentList.some((s: string) => s.toLowerCase() === lower);
+    let updated: string[];
+    if (exists) {
+      updated = currentList.filter((s: string) => s.toLowerCase() !== lower);
+      toast.info(`Removed ${skillName}`);
+    } else {
+      updated = [...currentList, skillName];
+      toast.success(`Added ${skillName} to Tech Skills`);
+    }
+    update("skills", updated.join(", "));
+  };
 
   const handleFileExtracted = async (text: string) => {
     setExtracting(true);
@@ -785,10 +761,22 @@ This portfolio website was generated with Learnify AI Portfolio Builder.
                   />
                 </div>
 
+                {/* macOS Magnification Skills Dock */}
+                <MacOSSkillsDock
+                  activeSkills={form.skills.split(",").map((s: string) => s.trim()).filter(Boolean)}
+                  onToggleSkill={handleToggleSkill}
+                  className="py-1"
+                />
+
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div className="space-y-2">
-                    <Label className="flex items-center gap-1.5">
-                      <Code2 className="h-3 w-3 text-blue-500" /> Tech Skills
+                    <Label className="flex items-center justify-between">
+                      <span className="flex items-center gap-1.5">
+                        <Code2 className="h-3 w-3 text-blue-500" /> Tech Skills
+                      </span>
+                      <span className="text-[10px] text-muted-foreground font-mono">
+                        {form.skills ? form.skills.split(",").filter(Boolean).length : 0} skills
+                      </span>
                     </Label>
                     <Textarea
                       rows={2}
@@ -796,6 +784,27 @@ This portfolio website was generated with Learnify AI Portfolio Builder.
                       value={form.skills}
                       onChange={(e) => update("skills", e.target.value)}
                     />
+                    {form.skills && (
+                      <div className="flex flex-wrap gap-1.5 pt-1 max-h-24 overflow-y-auto">
+                        {form.skills
+                          .split(",")
+                          .map((s: string) => s.trim())
+                          .filter(Boolean)
+                          .map((s: string, idx: number) => (
+                            <Badge
+                              key={idx}
+                              variant="secondary"
+                              className="text-[10px] px-2 py-0.5 gap-1.5 bg-muted/70 hover:bg-muted border border-border/60 transition group cursor-pointer"
+                              onClick={() => handleToggleSkill(s)}
+                              title="Click to remove"
+                            >
+                              <SkillLogo name={s} size={12} />
+                              <span>{s}</span>
+                              <X className="h-2.5 w-2.5 opacity-50 group-hover:opacity-100 transition-opacity" />
+                            </Badge>
+                          ))}
+                      </div>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <Label className="flex items-center gap-1.5">
@@ -965,45 +974,51 @@ This portfolio website was generated with Learnify AI Portfolio Builder.
                       5 Design Modes
                     </span>
                   </Label>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
                     {[
                       {
                         value: "developer",
                         label: "Cyberpunk Tech",
                         desc: "Dark mode + glassmorphism glow",
+                        badge: "Popular",
                       },
                       {
                         value: "minimal",
                         label: "Executive Minimal",
                         desc: "Clean serif/sans typography",
+                        badge: "Clean",
                       },
                       {
                         value: "creative",
                         label: "3D Creative",
                         desc: "Motion cards & skill badges",
+                        badge: "3D Motion",
                       },
                       {
                         value: "designer",
                         label: "Designer Gallery",
                         desc: "Portfolio grid & media focus",
+                        badge: "Visual",
                       },
                     ].map((t) => (
-                      <button
+                      <HoloTiltCard
                         key={t.value}
-                        type="button"
+                        selected={form.style === t.value}
                         onClick={() => update("style", t.value)}
-                        className={cn(
-                          "p-3 rounded-xl border text-left transition-all cursor-pointer relative overflow-hidden",
-                          form.style === t.value
-                            ? "border-primary bg-primary/10 ring-2 ring-primary/20 shadow-sm"
-                            : "border-border bg-card hover:border-primary/40 hover:bg-muted/30",
-                        )}
+                        className="h-full flex flex-col justify-between"
                       >
-                        <div className="font-bold text-xs text-foreground">{t.label}</div>
-                        <div className="text-[10px] text-muted-foreground mt-0.5 line-clamp-1">
-                          {t.desc}
+                        <div>
+                          <div className="flex items-center justify-between gap-1 mb-1">
+                            <span className="font-bold text-xs text-foreground">{t.label}</span>
+                            <span className="text-[9px] font-medium px-1.5 py-0.5 rounded-full bg-primary/10 text-primary">
+                              {t.badge}
+                            </span>
+                          </div>
+                          <div className="text-[10px] text-muted-foreground line-clamp-2">
+                            {t.desc}
+                          </div>
                         </div>
-                      </button>
+                      </HoloTiltCard>
                     ))}
                   </div>
 
@@ -1037,16 +1052,33 @@ This portfolio website was generated with Learnify AI Portfolio Builder.
 
               <div className="flex flex-col sm:flex-row gap-3 items-center">
                 {loading ? (
-                  <div className="flex-1 w-full flex justify-center py-1">
-                    <ShaderButtons variant="thinking-button" mode="dark" />
-                  </div>
+                  <Button
+                    size="lg"
+                    disabled
+                    className="flex-1 w-full h-12 relative overflow-hidden bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 text-white font-medium shadow-lg shadow-indigo-500/25 border-0 cursor-wait"
+                  >
+                    <div className="absolute inset-0 bg-white/10 animate-pulse" />
+                    <Loader2 className="h-4 w-4 mr-2.5 animate-spin text-white shrink-0" />
+                    <span className="relative z-10 font-semibold tracking-wide flex items-center gap-2">
+                      <span>Crafting AI Portfolio Architecture...</span>
+                    </span>
+                  </Button>
                 ) : (
-                  <Button size="lg" onClick={handleGenerate} className="flex-1 w-full">
+                  <Button
+                    size="lg"
+                    onClick={handleGenerate}
+                    className="flex-1 w-full h-12 bg-gradient-to-r from-indigo-600 via-primary to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold shadow-md shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
+                  >
                     <Sparkles className="h-4 w-4 mr-2" />
                     Generate Portfolio
                   </Button>
                 )}
-                <Button size="lg" variant="outline" onClick={handlePublish} className="gap-2 w-full sm:w-auto">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  onClick={handlePublish}
+                  className="gap-2 w-full sm:w-auto h-12 px-6 font-semibold hover:bg-muted/60 transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
+                >
                   <Send className="h-4 w-4" /> Publish
                 </Button>
               </div>
@@ -1178,9 +1210,9 @@ This portfolio website was generated with Learnify AI Portfolio Builder.
                         whileHover={{ scale: 1.05, y: -2 }}
                         whileTap={{ scale: 0.95 }}
                       >
-                        <Badge variant="secondary" className="text-xs px-3 py-1.5 gap-1.5 pl-1.5">
-                          <SkillLogo name={s.trim()} size={14} />
-                          {s.trim()}
+                        <Badge variant="secondary" className="text-xs px-3 py-1.5 gap-2 pl-2 shadow-xs border border-border/50">
+                          <SkillLogo name={s.trim()} size={16} />
+                          <span className="font-medium">{s.trim()}</span>
                         </Badge>
                       </motion.div>
                     ))}

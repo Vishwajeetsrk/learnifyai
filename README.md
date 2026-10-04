@@ -1458,6 +1458,13 @@ MIT License. See [LICENSE](LICENSE) for details.
   - Embedded cognitive AI `thinking-button` microinteraction in Career Portfolio Builder (`PortfolioBuilderPage.tsx`) during portfolio synthesis.
   - 100% type-safe with zero TypeScript errors (`tsc --noEmit --skipLibCheck`).
 
+- 🔗 **CROSS-PLATFORM INTERACTIVE LINK PREVIEWS (`<LinkPreview />`)**:
+  - Implemented responsive animated link preview system supporting **Mobile**, **Tablet**, **Laptop**, and **Desktop** devices.
+  - **Desktop/Laptop Experience**: Spring-physics mouse offset tracking with Framer Motion (`useSpring`, `useMotionValue`), smooth scale entrance (`0.93 → 1`), and automatic dark/light theme matching.
+  - **Mobile/Tablet Experience**: Native touch peek modal with floating backdrop, direct "Visit Website" 44px tap targets, safety badges, and dismissal handlers (tap-outside + close button).
+  - **Instant Curated Knowledge Base**: Built-in instant preview database for top learning & developer ecosystems (Class Central, Google Skillshop & Cloud, Harvard CS50, freeCodeCamp, CodeSignal, GitHub, Kaggle, Hugging Face, OpenAI, and Learnify AI) eliminating rate-limit failures and slow 3rd-party screenshots.
+  - **Universal Markdown Blog Integration**: Upgraded `BlogPostContent.tsx` to automatically render all markdown links via `<LinkPreview />`.
+
 ### v4.7.0 (October 2026) — MYRAA AI Gateway V2, Stable Diffusion Research, Subscription Dunning & Dynamic Sitemap
 
 - 🤖 **MYRAA AI GATEWAY & MODEL INFRASTRUCTURE V2**:
@@ -1573,6 +1580,21 @@ MIT License. See [LICENSE](LICENSE) for details.
   - Fixed category & career path filter count bugs via `course-taxonomy.ts`.
   - Built authentic SVG vector brand logo system (`CourseBrandLogo.tsx`, `CourseCardVisual.tsx`) covering Excel, Word, Power BI, Python, Figma, ChatGPT, Claude, and more.
   - Repositioned support agent widget to prevent bottom navigation collisions.
+
+### v4.8.1 (October 2026) — Portfolio Builder & Resume Extraction 2.0
+
+- 🎨 **PORTFOLIO BUILDER ANIMATION & MOTION OVERHAUL**:
+  - **Eliminated Black Box Button Bug**: Replaced the 240px pitch-black iframe container with an ultra-sleek, native animated button featuring glowing gradient borders, iridescent pulse, and seamless inline alignment with the Publish CTA.
+  - **Authentic Vector SVG Skill Icons**: Replaced legacy character-monogram badges with official pixel-perfect vector SVGs powered by `@dev.icons/react` and `CourseBrandLogo`.
+  - **Interactive macOS Skills Dock (`MacOSSkillsDock.tsx`)**: Built an authentic macOS fluid magnification dock using cosine distance interpolation (`(1 - Math.cos(theta)) / 2`), physics-based spring lerp tracking, dynamic tooltips, and active indicator dots.
+  - **Holographic 3D Tilt Cards (`HoloTiltCard.tsx`)**: Applied 3D perspective rotation (`perspective: 800px`) and pointer-reactive holographic sheen glare to design template cards.
+  - **Interactive Skill Cloud**: Live SVG skill chips with instant click-to-remove feedback directly in the editor form.
+- 📄 **RESUME EXTRACTION ENGINE 2.0 (PDF & DOCX)**:
+  - **Unicode Bullet & Accent Preservation**: Retains bullet points (`•`), em-dashes, and special characters without corrupting text flow.
+  - **9-Layer Extraction Resilience**: Automatic fallbacks for candidate full name, Indian 10-digit mobile (+91) & international phones, LinkedIn/GitHub URLs, and 60+ tech skill dictionary matching.
+  - **Resilient Fallback PDF Stream Parser**: Decodes octal escapes, hex strings, and TJ array operators when external PDF workers are restricted.
+- 🔗 **RESPONSIVE LINK PREVIEW ENGINE**:
+  - Seamless desktop floating spring card + mobile backdrop peek popovers with curated instant previews for major learning hubs.
 
 ### v4.0.0 (July 2026) — Major Release
 
