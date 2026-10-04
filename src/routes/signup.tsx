@@ -10,7 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { sendWelcomeEmail } from "@/lib/welcome-email.functions";
 import { assignDefaultRole } from "@/lib/profile-save.functions";
-import { validatePasswordStrength } from "@/lib/password-validator";
+import { validatePasswordSecurity } from "@/lib/password-validator";
 import { Logo } from "@/components/Logo";
 
 export const Route = createFileRoute("/signup")({
@@ -52,9 +52,9 @@ function SignupPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const pwdCheck = validatePasswordStrength(password);
+    const pwdCheck = await validatePasswordSecurity(password);
     if (!pwdCheck.isValid) {
-      toast.error(pwdCheck.error || "Weak password.");
+      toast.error(pwdCheck.error || "Please choose a more secure password.");
       return;
     }
 

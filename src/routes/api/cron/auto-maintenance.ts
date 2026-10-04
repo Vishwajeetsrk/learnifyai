@@ -84,6 +84,27 @@ export const Route = createFileRoute("/api/cron/auto-maintenance")({
             }
           }
 
+          // 3. Auto-release scheduled blog posts
+          const nowIso = new Date().toISOString();
+          const { data: scheduledPosts, error: scheduledErr } = await supabaseAdmin
+            .from("blog_posts" as any)
+            .select("id")
+            .eq("published", false)
+            .not("scheduled_at", "is", null)
+            .lte("scheduled_at", nowIso);
+
+          if (!scheduledErr && scheduledPosts && scheduledPosts.length > 0) {
+            const { error: pubErr } = await supabaseAdmin
+              .from("blog_posts" as any)
+              .update({ published: true, published_at: nowIso })
+              .in("id", scheduledPosts.map((p: any) => p.id));
+
+            results.posts_published = scheduledPosts.length;
+            results.posts_error = pubErr?.message || null;
+          } else {
+            results.posts_published = 0;
+          }
+
           return new Response(
             JSON.stringify({ success: true, timestamp: new Date().toISOString(), results }),
             { status: 200, headers: { "Content-Type": "application/json" } },

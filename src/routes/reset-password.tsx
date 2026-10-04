@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
-import { validatePasswordStrength } from "@/lib/password-validator";
+import { validatePasswordSecurity } from "@/lib/password-validator";
 
 export const Route = createFileRoute("/reset-password")({
   head: () => ({ meta: [{ title: "Set new password — Learnify AI" }] }),
@@ -45,9 +45,9 @@ function ResetPasswordPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const pwdCheck = validatePasswordStrength(password);
+    const pwdCheck = await validatePasswordSecurity(password);
     if (!pwdCheck.isValid) {
-      toast.error(pwdCheck.error || "Weak password.");
+      toast.error(pwdCheck.error || "Please choose a more secure password.");
       return;
     }
     setSubmitting(true);

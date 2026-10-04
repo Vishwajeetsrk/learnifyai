@@ -447,7 +447,14 @@ NEVER give shallow answers, a single resource, outdated stacks, generic boilerpl
 
                 controller.enqueue(
                   encoder.encode(
-                    `data: ${JSON.stringify({ credits_remaining: newRemaining, cost_inr: Number(inr.toFixed(4)) })}\n\n`,
+                    `data: ${JSON.stringify({
+                      credits_remaining: newRemaining,
+                      cost_inr: Number(inr.toFixed(4)),
+                      prompt_tokens: promptTokens,
+                      completion_tokens: completionTokens,
+                      total_tokens: promptTokens + completionTokens,
+                      low_credit_alert: newRemaining < 15,
+                    })}\n\n`,
                   ),
                 );
               }

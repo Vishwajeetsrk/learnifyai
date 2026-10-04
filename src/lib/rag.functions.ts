@@ -144,3 +144,63 @@ export const searchCourseContext = createServerFn({ method: "POST" })
 
     return matches as unknown as Array<{ id: string; content: string; similarity: number }>;
   });
+
+const AskRAGInput = z.object({
+  courseId: z.string().uuid(),
+  question: z.string().min(3).max(2000),
+  lessonTitle: z.string().optional(),
+});
+
+export const askCourseQuestionRAG = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((d: unknown) => AskRAGInput.parse(d))
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+
+    let ragContext = "";
+    try {
+      const queryEmbedding = await generateEmbedding(data.question);
+      const { data: matches, error } = await supabase.rpc("match_material_chunks" as any, {
+        query_embedding: queryEmbedding,
+        match_threshold: 0.65,
+        match_count: 4,
+        filter_course_id: data.courseId,
+      });
+
+      if (!error && matches && (matches as any[]).length > 0) {
+        ragContext = (matches as any[])
+          .map((m, i) => `[Excerpt ${i + 1}]:\n${m.content}`)
+          .join("\n\n");
+      }
+    } catch (e) {
+      console.warn("Vector RAG search error:", e);
+    }
+
+    const { callUserAiChat } = await import("@/lib/user-ai");
+
+    const systemPrompt = `You are the Learnify AI Course Tutor.
+${data.lessonTitle ? `Current Lesson: "${data.lessonTitle}"\n` : ""}
+${ragContext ? `GROUNDED COURSE MATERIAL CONTEXT:\n${ragContext}\n\nAnswer using the verified course content above where applicable.` : ""}
+Be clear, concise, pedagogical, and provide actionable examples.`;
+
+    const res = await callUserAiChat(
+      {
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: data.question },
+        ],
+        task: "general",
+      },
+      "fast",
+    );
+
+    const payload = await res.json();
+    const answer = payload.choices?.[0]?.message?.content || "";
+
+    return {
+      answer,
+      ragGrounded: Boolean(ragContext),
+      chunksFound: ragContext ? 4 : 0,
+    };
+  });
+

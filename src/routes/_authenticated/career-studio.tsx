@@ -20,6 +20,12 @@ const PortfolioBuilderPage = React.lazy(() =>
 const AgentHub = React.lazy(() =>
   import("@/components/agents/AgentHub").then((m) => ({ default: m.AgentHub })),
 );
+const JobBoardView = React.lazy(() =>
+  import("@/components/career-studio/JobBoardView").then((m) => ({ default: m.JobBoardView })),
+);
+const GitHubAuditorView = React.lazy(() =>
+  import("@/components/career-studio/GitHubAuditorView").then((m) => ({ default: m.GitHubAuditorView })),
+);
 import {
   FileText,
   BarChart3,
@@ -139,6 +145,8 @@ const TABS = [
   { id: "internships", label: "Internship Tracker", icon: BriefcaseIcon },
   { id: "skillgap", label: "Skill Gap Analysis", icon: Target },
   { id: "ikigai", label: "Career Finder", icon: Compass },
+  { id: "job-board", label: "Job Board Sync", icon: Globe },
+  { id: "github-audit", label: "GitHub Auditor", icon: Github },
   { id: "guides", label: "Skill Roadmaps", icon: BookOpen },
   { id: "agents", label: "AI Agents", icon: Sparkles },
 ];
@@ -211,6 +219,10 @@ function CareerStudioHub() {
         return <SkillGapView />;
       case "ikigai":
         return <CareerFinderView />;
+      case "job-board":
+        return <JobBoardView />;
+      case "github-audit":
+        return <GitHubAuditorView />;
       case "guides":
         return <GuidesDocsView />;
       case "agents":
@@ -261,7 +273,7 @@ function CareerStudioHub() {
               <DialogHeader className="pb-3 border-b border-border/50">
                 <DialogTitle className="text-sm font-bold flex items-center gap-2 text-foreground">
                   <Sparkles className="h-4 w-4 text-primary" />
-                  Career Studio — 12 AI Tools
+                  Career Studio — 14 AI Tools
                 </DialogTitle>
               </DialogHeader>
               <div className="grid grid-cols-3 gap-2.5 py-3 max-h-[70vh] overflow-y-auto">

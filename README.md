@@ -2,7 +2,7 @@
 
 <img src="src/assets/learnify-logo.png" alt="Learnify AI Logo" width="180" style="margin-bottom: 12px; filter: drop-shadow(0 4px 12px rgba(99, 102, 241, 0.25));" />
 
-# Learnify AI 4.8
+# Learnify AI 4.9
 
 **The AI-Native Learning & Career Operating System**
 
@@ -1580,6 +1580,30 @@ MIT License. See [LICENSE](LICENSE) for details.
   - Fixed category & career path filter count bugs via `course-taxonomy.ts`.
   - Built authentic SVG vector brand logo system (`CourseBrandLogo.tsx`, `CourseCardVisual.tsx`) covering Excel, Word, Power BI, Python, Figma, ChatGPT, Claude, and more.
   - Repositioned support agent widget to prevent bottom navigation collisions.
+
+### v4.9.0 (October 2026) — Job Board Sync, GitHub Auditor, Scheduled Publishing, HIBP Protection & AI Infra
+
+- 🇮🇳 **DIRECT INDIAN JOB BOARD SYNC (`JobBoardView.tsx` & `job-board.functions.ts`)**:
+  - Direct integration syncing curated engineering, frontend, fullstack, backend, AI/ML, and intern feeds from **Naukri**, **Internshala**, **LinkedIn India**, and **Hasjob**.
+  - Dynamic candidate skill matching: computes instant % match scores against the user's profile skills, salary tiers in INR (₹ LPA / ₹ per month), Indian tech hub filters (Bengaluru, Pune, Hyderabad, Gurgaon, Remote, Noida, Mumbai), and 1-click verified apply links.
+- 🐙 **GITHUB PROFILE AUDITOR (`GitHubAuditorView.tsx` & `github-auditor.functions.ts`)**:
+  - In-depth public repo & contribution analyzer grading developer profiles across 4 key dimensions: Profile Completeness (/20), Repository Quality (/30), Activity & Velocity (/30), and Recruiter Readiness (/20).
+  - Letter grade evaluation (`A+` to `D`), total commits/stars/forks metrics, language distribution radar, red-flag detector (missing READMEs, license gaps, low commit frequency), and actionable recruiter-ready checklist.
+- 🕒 **SCHEDULED PUBLISHING ENGINE (`publish-scheduled.ts` & `auto-maintenance.ts`)**:
+  - Automated cron release handler releasing scheduled blog posts and course lessons when `scheduled_at <= now()`.
+  - Seamlessly updates status to published and cleans up scheduled timers with full audit logging.
+- 🛡️ **LEAKED PASSWORD PROTECTION (`password-validator.ts`)**:
+  - Implemented k-anonymity SHA-1 range queries against **HaveIBeenPwned** (`https://api.pwnedpasswords.com/range/{hashPrefix}`).
+  - Proactively blocks compromised passwords across registration (`/signup`) and credential resets (`/reset-password`) with zero plaintext exposure.
+- ⚡ **AI ENDPOINT REDIS RATE LIMITING (`/api/ai/*`)**:
+  - Enterprise token bucket rate limiter powered by Upstash Redis with robust in-memory sliding window fallback.
+  - Per-user and per-IP throttling (30 requests/minute, 300 requests/hour) with standard `X-RateLimit-*` headers to safeguard inference endpoints.
+- 📊 **STREAMING TOKEN METERING & LOW CREDIT ALERTS (`chat.ts`)**:
+  - Real-time token usage meter tracking prompt, completion, and total tokens per interaction.
+  - Transparent conversion to Indian Rupee (₹ INR) usage cost with real-time credit deduction and proactive modal alerts when balance drops below 15 credits.
+- 🧠 **VECTOR RAG MEMORY ENGINE (`rag.functions.ts`)**:
+  - Semantic similarity search over course syllabus and lesson chunks using Supabase `pgvector` (`match_material_chunks` RPC) and Google Gemini text embeddings.
+  - Returns precision-grounded context citations with graceful fallback for unindexed resources.
 
 ### v4.8.1 (October 2026) — Portfolio Builder & Resume Extraction 2.0
 
