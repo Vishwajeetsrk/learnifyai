@@ -112,10 +112,12 @@ import { Route as AuthenticatedPlaygroundReactRouteImport } from './routes/_auth
 import { Route as AuthenticatedPlaygroundWebRouteImport } from './routes/_authenticated/playground.web'
 import { Route as AuthenticatedSystemDesignIndexRouteImport } from './routes/_authenticated/system-design.index'
 import { Route as AuthenticatedSystemDesignTopicRouteImport } from './routes/_authenticated/system-design.$topic'
+import { Route as ApiAiChatRouteImport } from './routes/api/ai/chat'
 import { Route as ApiCronAutoMaintenanceRouteImport } from './routes/api/cron/auto-maintenance'
 import { Route as ApiCronCheckSubscriptionsRouteImport } from './routes/api/cron/check-subscriptions'
-import { Route as ApiCronRetryCertEmailsRouteImport } from './routes/api/cron/retry-cert-emails'
+import { Route as ApiCronPublishScheduledRouteImport } from './routes/api/cron/publish-scheduled'
 import { Route as ApiCronRenewalDunningRouteImport } from './routes/api/cron/renewal-dunning'
+import { Route as ApiCronRetryCertEmailsRouteImport } from './routes/api/cron/retry-cert-emails'
 import { Route as ApiWebhooksCashfreeRouteImport } from './routes/api/webhooks/cashfree'
 import { Route as ApiWebhooksCashfreeSubscriptionRouteImport } from './routes/api/webhooks/cashfree-subscription'
 import { Route as ApiWebhooksRazorpayRouteImport } from './routes/api/webhooks/razorpay'
@@ -675,6 +677,11 @@ const AuthenticatedSystemDesignTopicRoute =
     path: '/$topic',
     getParentRoute: () => AuthenticatedSystemDesignRoute,
   } as any)
+const ApiAiChatRoute = ApiAiChatRouteImport.update({
+  id: '/api/ai/chat',
+  path: '/api/ai/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiCronAutoMaintenanceRoute = ApiCronAutoMaintenanceRouteImport.update({
   id: '/api/cron/auto-maintenance',
   path: '/api/cron/auto-maintenance',
@@ -686,14 +693,19 @@ const ApiCronCheckSubscriptionsRoute =
     path: '/api/cron/check-subscriptions',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiCronRetryCertEmailsRoute = ApiCronRetryCertEmailsRouteImport.update({
-  id: '/api/cron/retry-cert-emails',
-  path: '/api/cron/retry-cert-emails',
+const ApiCronPublishScheduledRoute = ApiCronPublishScheduledRouteImport.update({
+  id: '/api/cron/publish-scheduled',
+  path: '/api/cron/publish-scheduled',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiCronRenewalDunningRoute = ApiCronRenewalDunningRouteImport.update({
   id: '/api/cron/renewal-dunning',
   path: '/api/cron/renewal-dunning',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiCronRetryCertEmailsRoute = ApiCronRetryCertEmailsRouteImport.update({
+  id: '/api/cron/retry-cert-emails',
+  path: '/api/cron/retry-cert-emails',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiWebhooksCashfreeRoute = ApiWebhooksCashfreeRouteImport.update({
@@ -824,10 +836,12 @@ export interface FileRoutesByFullPath {
   '/playground/react': typeof AuthenticatedPlaygroundReactRoute
   '/playground/web': typeof AuthenticatedPlaygroundWebRoute
   '/system-design/$topic': typeof AuthenticatedSystemDesignTopicRoute
+  '/api/ai/chat': typeof ApiAiChatRoute
   '/api/cron/auto-maintenance': typeof ApiCronAutoMaintenanceRoute
   '/api/cron/check-subscriptions': typeof ApiCronCheckSubscriptionsRoute
-  '/api/cron/retry-cert-emails': typeof ApiCronRetryCertEmailsRoute
+  '/api/cron/publish-scheduled': typeof ApiCronPublishScheduledRoute
   '/api/cron/renewal-dunning': typeof ApiCronRenewalDunningRoute
+  '/api/cron/retry-cert-emails': typeof ApiCronRetryCertEmailsRoute
   '/api/webhooks/cashfree': typeof ApiWebhooksCashfreeRoute
   '/api/webhooks/cashfree-subscription': typeof ApiWebhooksCashfreeSubscriptionRoute
   '/api/webhooks/razorpay': typeof ApiWebhooksRazorpayRoute
@@ -935,10 +949,13 @@ export interface FileRoutesByTo {
   '/playground/react': typeof AuthenticatedPlaygroundReactRoute
   '/playground/web': typeof AuthenticatedPlaygroundWebRoute
   '/system-design/$topic': typeof AuthenticatedSystemDesignTopicRoute
+  '/api/ai/chat': typeof ApiAiChatRoute
   '/api/cron/auto-maintenance': typeof ApiCronAutoMaintenanceRoute
   '/api/cron/check-subscriptions': typeof ApiCronCheckSubscriptionsRoute
-  '/api/cron/retry-cert-emails': typeof ApiCronRetryCertEmailsRoute
+  '/api/cron/publish-scheduled': typeof ApiCronPublishScheduledRoute
   '/api/cron/renewal-dunning': typeof ApiCronRenewalDunningRoute
+  '/api/cron/retry-cert-emails': typeof ApiCronRetryCertEmailsRoute
+  '/api/webhooks/cashfree': typeof ApiWebhooksCashfreeRoute
   '/api/webhooks/cashfree-subscription': typeof ApiWebhooksCashfreeSubscriptionRoute
   '/api/webhooks/razorpay': typeof ApiWebhooksRazorpayRoute
   '/verify/invoice/$id': typeof VerifyInvoiceIdRoute
@@ -1049,8 +1066,11 @@ export interface FileRoutesById {
   '/_authenticated/playground/react': typeof AuthenticatedPlaygroundReactRoute
   '/_authenticated/playground/web': typeof AuthenticatedPlaygroundWebRoute
   '/_authenticated/system-design/$topic': typeof AuthenticatedSystemDesignTopicRoute
+  '/api/ai/chat': typeof ApiAiChatRoute
   '/api/cron/auto-maintenance': typeof ApiCronAutoMaintenanceRoute
   '/api/cron/check-subscriptions': typeof ApiCronCheckSubscriptionsRoute
+  '/api/cron/publish-scheduled': typeof ApiCronPublishScheduledRoute
+  '/api/cron/renewal-dunning': typeof ApiCronRenewalDunningRoute
   '/api/cron/retry-cert-emails': typeof ApiCronRetryCertEmailsRoute
   '/api/webhooks/cashfree': typeof ApiWebhooksCashfreeRoute
   '/api/webhooks/cashfree-subscription': typeof ApiWebhooksCashfreeSubscriptionRoute
@@ -1163,8 +1183,11 @@ export interface FileRouteTypes {
     | '/playground/react'
     | '/playground/web'
     | '/system-design/$topic'
+    | '/api/ai/chat'
     | '/api/cron/auto-maintenance'
     | '/api/cron/check-subscriptions'
+    | '/api/cron/publish-scheduled'
+    | '/api/cron/renewal-dunning'
     | '/api/cron/retry-cert-emails'
     | '/api/webhooks/cashfree'
     | '/api/webhooks/cashfree-subscription'
@@ -1273,8 +1296,11 @@ export interface FileRouteTypes {
     | '/playground/react'
     | '/playground/web'
     | '/system-design/$topic'
+    | '/api/ai/chat'
     | '/api/cron/auto-maintenance'
     | '/api/cron/check-subscriptions'
+    | '/api/cron/publish-scheduled'
+    | '/api/cron/renewal-dunning'
     | '/api/cron/retry-cert-emails'
     | '/api/webhooks/cashfree'
     | '/api/webhooks/cashfree-subscription'
@@ -1386,8 +1412,11 @@ export interface FileRouteTypes {
     | '/_authenticated/playground/react'
     | '/_authenticated/playground/web'
     | '/_authenticated/system-design/$topic'
+    | '/api/ai/chat'
     | '/api/cron/auto-maintenance'
     | '/api/cron/check-subscriptions'
+    | '/api/cron/publish-scheduled'
+    | '/api/cron/renewal-dunning'
     | '/api/cron/retry-cert-emails'
     | '/api/webhooks/cashfree'
     | '/api/webhooks/cashfree-subscription'
@@ -1439,10 +1468,12 @@ export interface RootRouteChildren {
   UAtusernameRoute: typeof UAtusernameRoute
   VerifyIdRoute: typeof VerifyIdRoute
   BlogIndexRoute: typeof BlogIndexRoute
+  ApiAiChatRoute: typeof ApiAiChatRoute
   ApiCronAutoMaintenanceRoute: typeof ApiCronAutoMaintenanceRoute
   ApiCronCheckSubscriptionsRoute: typeof ApiCronCheckSubscriptionsRoute
-  ApiCronRetryCertEmailsRoute: typeof ApiCronRetryCertEmailsRoute
+  ApiCronPublishScheduledRoute: typeof ApiCronPublishScheduledRoute
   ApiCronRenewalDunningRoute: typeof ApiCronRenewalDunningRoute
+  ApiCronRetryCertEmailsRoute: typeof ApiCronRetryCertEmailsRoute
   ApiWebhooksCashfreeRoute: typeof ApiWebhooksCashfreeRoute
   ApiWebhooksCashfreeSubscriptionRoute: typeof ApiWebhooksCashfreeSubscriptionRoute
   ApiWebhooksRazorpayRoute: typeof ApiWebhooksRazorpayRoute
@@ -2173,6 +2204,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSystemDesignTopicRouteImport
       parentRoute: typeof AuthenticatedSystemDesignRoute
     }
+    '/api/ai/chat': {
+      id: '/api/ai/chat'
+      path: '/api/ai/chat'
+      fullPath: '/api/ai/chat'
+      preLoaderRoute: typeof ApiAiChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/cron/auto-maintenance': {
       id: '/api/cron/auto-maintenance'
       path: '/api/cron/auto-maintenance'
@@ -2187,11 +2225,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiCronCheckSubscriptionsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/cron/retry-cert-emails': {
-      id: '/api/cron/retry-cert-emails'
-      path: '/api/cron/retry-cert-emails'
-      fullPath: '/api/cron/retry-cert-emails'
-      preLoaderRoute: typeof ApiCronRetryCertEmailsRouteImport
+    '/api/cron/publish-scheduled': {
+      id: '/api/cron/publish-scheduled'
+      path: '/api/cron/publish-scheduled'
+      fullPath: '/api/cron/publish-scheduled'
+      preLoaderRoute: typeof ApiCronPublishScheduledRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/cron/renewal-dunning': {
@@ -2199,6 +2237,13 @@ declare module '@tanstack/react-router' {
       path: '/api/cron/renewal-dunning'
       fullPath: '/api/cron/renewal-dunning'
       preLoaderRoute: typeof ApiCronRenewalDunningRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/cron/retry-cert-emails': {
+      id: '/api/cron/retry-cert-emails'
+      path: '/api/cron/retry-cert-emails'
+      fullPath: '/api/cron/retry-cert-emails'
+      preLoaderRoute: typeof ApiCronRetryCertEmailsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/webhooks/cashfree': {
@@ -2471,10 +2516,12 @@ const rootRouteChildren: RootRouteChildren = {
   UAtusernameRoute: UAtusernameRoute,
   VerifyIdRoute: VerifyIdRoute,
   BlogIndexRoute: BlogIndexRoute,
+  ApiAiChatRoute: ApiAiChatRoute,
   ApiCronAutoMaintenanceRoute: ApiCronAutoMaintenanceRoute,
   ApiCronCheckSubscriptionsRoute: ApiCronCheckSubscriptionsRoute,
-  ApiCronRetryCertEmailsRoute: ApiCronRetryCertEmailsRoute,
+  ApiCronPublishScheduledRoute: ApiCronPublishScheduledRoute,
   ApiCronRenewalDunningRoute: ApiCronRenewalDunningRoute,
+  ApiCronRetryCertEmailsRoute: ApiCronRetryCertEmailsRoute,
   ApiWebhooksCashfreeRoute: ApiWebhooksCashfreeRoute,
   ApiWebhooksCashfreeSubscriptionRoute: ApiWebhooksCashfreeSubscriptionRoute,
   ApiWebhooksRazorpayRoute: ApiWebhooksRazorpayRoute,

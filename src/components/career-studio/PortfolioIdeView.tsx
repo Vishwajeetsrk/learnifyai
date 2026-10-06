@@ -28,10 +28,20 @@ import {
   FolderPlus,
   FolderTree,
   Lock,
+  AlertTriangle,
+  AlertCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { PortfolioFileTree, VirtualFileNode } from "./PortfolioFileTree";
@@ -902,8 +912,69 @@ npx serve .
   const [clipboard, setClipboard] = useState<{ action: "cut" | "copy"; path: string } | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [mobileTab, setMobileTab] = useState<"files" | "code" | "preview">("code");
-  const [saveStatus, setSaveStatus] = useState<"saved" | "saving" | "unsaved">("saved");
-  const [lastSavedTime, setLastSavedTime] = useState<Date | null>(null);
+  const [saveStatus, setSaveStatus] = useState<"saved" | "saving" | "unsaved" | "error">("saved");
+  const [lastSavedTimestamp, setLastSavedTimestamp] = useState<number | null>(() => Date.now());
+  const [relativeSavedStr, setRelativeSavedStr] = useState<string>("Saved just now");
+  const [multiTabConflict, setMultiTabConflict] = useState<boolean>(false);
+  const [isResetDialogOpen, setIsResetDialogOpen] = useState<boolean>(false);
+
+  // --- Run / Build State Machine & Diagnostics ---
+  type BuildStatus = "idle" | "building" | "ready" | "failed";
+  const [buildStatus, setBuildStatus] = useState<BuildStatus>("ready");
+  const [buildError, setBuildError] = useState<{ message: string; file?: string; line?: number } | null>(null);
+
+  // Truthful relative time timer (updates every 5s)
+  useEffect(() => {
+    const updateRelative = () => {
+      if (!lastSavedTimestamp) return;
+      const diffSec = Math.floor((Date.now() - lastSavedTimestamp) / 1000);
+      if (diffSec < 5) setRelativeSavedStr("Saved just now");
+      else if (diffSec < 60) setRelativeSavedStr(`Saved ${diffSec}s ago`);
+      else {
+        const diffMin = Math.floor(diffSec / 60);
+        setRelativeSavedStr(`Saved ${diffMin}m ago`);
+      }
+    };
+    updateRelative();
+    const interval = setInterval(updateRelative, 5000);
+    return () => clearInterval(interval);
+  }, [lastSavedTimestamp]);
+
+  // Multi-tab sync conflict listener
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === storageKey && e.newValue) {
+        setMultiTabConflict(true);
+      }
+    };
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, [storageKey]);
+
+  const handleLoadExternalCode = () => {
+    try {
+      const saved = localStorage.getItem(storageKey);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && typeof parsed === "object") {
+          setFilesMap(parsed);
+          setPreviewKey((k) => k + 1);
+          setMultiTabConflict(false);
+          isDirtyRef.current = false;
+          setSaveStatus("saved");
+          setLastSavedTimestamp(Date.now());
+          toast.success("Loaded updated code from another tab.");
+        }
+      }
+    } catch {
+      toast.error("Failed to load external updates");
+    }
+  };
+
+  const handleKeepLocalEdits = () => {
+    setMultiTabConflict(false);
+    handleManualSave();
+  };
 
   // --- AI Code Assistant State Machine ---
   // Lifecycle: idle -> generating -> review -> applying -> applied/discarded/failed
@@ -953,9 +1024,11 @@ npx serve .
         try {
           localStorage.setItem(storageKey, JSON.stringify(filesMap));
           setSaveStatus("saved");
-          setLastSavedTime(new Date());
+          setLastSavedTimestamp(Date.now());
+          isDirtyRef.current = false;
         } catch (e) {
           console.error("Auto-save failed", e);
+          setSaveStatus("error");
         }
       }
     }, 1000);
@@ -965,6 +1038,39 @@ npx serve .
     };
   }, [filesMap, storageKey]);
 
+  // Deep Codebase Validation
+  const validateCodebase = (): { valid: boolean; error?: string; file?: string; line?: number } => {
+    const html = filesMap["index.html"];
+    if (!html || !html.trim()) {
+      return { valid: false, error: "index.html is missing or empty. Portfolio requires an entry HTML document.", file: "index.html" };
+    }
+
+    const js = filesMap["js/script.js"];
+    if (js && js.trim()) {
+      try {
+        new Function(js);
+      } catch (err: any) {
+        const msg = err.message || "JavaScript syntax error";
+        return { valid: false, error: msg, file: "js/script.js" };
+      }
+    }
+
+    const css = filesMap["css/style.css"];
+    if (css) {
+      const openBraces = (css.match(/\{/g) || []).length;
+      const closeBraces = (css.match(/\}/g) || []).length;
+      if (openBraces !== closeBraces) {
+        return {
+          valid: false,
+          error: `Mismatched CSS braces: found ${openBraces} opening '{' vs ${closeBraces} closing '}' braces.`,
+          file: "css/style.css",
+        };
+      }
+    }
+
+    return { valid: true };
+  };
+
   // Manual save and rebuild handlers
   const handleManualSave = () => {
     if (typeof window !== "undefined") {
@@ -972,36 +1078,70 @@ npx serve .
       try {
         localStorage.setItem(storageKey, JSON.stringify(filesMap));
         setSaveStatus("saved");
-        setLastSavedTime(new Date());
+        setLastSavedTimestamp(Date.now());
+        isDirtyRef.current = false;
         setPreviewKey((k) => k + 1);
         toast.success("Code saved & live preview updated!");
       } catch (err: any) {
+        setSaveStatus("error");
         toast.error("Failed to save: " + err.message);
       }
     }
   };
 
   const handleRunRebuild = () => {
-    handleManualSave();
+    setBuildStatus("building");
+    setBuildError(null);
+
+    // Save codebase
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(filesMap));
+      setSaveStatus("saved");
+      setLastSavedTimestamp(Date.now());
+      isDirtyRef.current = false;
+    } catch {
+      setSaveStatus("error");
+    }
+
+    // Run validation pass
+    setTimeout(() => {
+      const validation = validateCodebase();
+      if (!validation.valid) {
+        setBuildStatus("failed");
+        setBuildError({
+          message: validation.error || "Build validation failed",
+          file: validation.file,
+          line: validation.line,
+        });
+        toast.error(`Build failed: ${validation.error}`);
+      } else {
+        setBuildStatus("ready");
+        setBuildError(null);
+        setPreviewKey((k) => k + 1);
+        toast.success("Build succeeded! Live preview is up to date.");
+      }
+    }, 300);
+  };
+
+  const handleConfirmReset = () => {
+    isDirtyRef.current = false;
+    setFilesMap(initialFilesMap);
+    if (typeof window !== "undefined") {
+      localStorage.removeItem(storageKey);
+    }
+    setActiveFilePath("index.html");
+    setOpenTabs(["index.html", "css/style.css", "js/script.js"]);
+    setBuildStatus("ready");
+    setBuildError(null);
+    setPreviewKey((k) => k + 1);
+    setSaveStatus("saved");
+    setLastSavedTimestamp(Date.now());
+    setIsResetDialogOpen(false);
+    toast.info("Reset files to default template.");
   };
 
   const handleResetToTemplate = () => {
-    if (
-      window.confirm(
-        "Reset codebase back to default template? Any custom edits will be replaced.",
-      )
-    ) {
-      isDirtyRef.current = false;
-      setFilesMap(initialFilesMap);
-      if (typeof window !== "undefined") {
-        localStorage.removeItem(storageKey);
-      }
-      setActiveFilePath("index.html");
-      setOpenTabs(["index.html", "css/style.css", "js/script.js"]);
-      setPreviewKey((k) => k + 1);
-      setSaveStatus("saved");
-      toast.info("Reset files to default template.");
-    }
+    setIsResetDialogOpen(true);
   };
 
   // Keyboard Shortcuts (Ctrl+S to save/run, Ctrl+B to toggle explorer)
@@ -1009,7 +1149,7 @@ npx serve .
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
         e.preventDefault();
-        handleManualSave();
+        handleRunRebuild();
       } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "b") {
         e.preventDefault();
         setIsSidebarOpen((v) => !v);
@@ -1126,39 +1266,80 @@ npx serve .
     const parts = oldPath.split("/");
     parts[parts.length - 1] = newName;
     const newPath = parts.join("/");
+
+    const isFile = filesMap[oldPath] !== undefined;
+    const matchingPrefix = `${oldPath}/`;
+    const folderFiles = Object.keys(filesMap).filter((p) => p.startsWith(matchingPrefix));
+
     if (filesMap[newPath] !== undefined) {
-      toast.error("File already exists with that name");
+      toast.error("File or folder already exists with that name");
       return;
     }
+
     isDirtyRef.current = true;
     setFilesMap((prev) => {
       const next = { ...prev };
-      next[newPath] = next[oldPath];
-      delete next[oldPath];
+      if (isFile) {
+        next[newPath] = next[oldPath];
+        delete next[oldPath];
+      }
+      folderFiles.forEach((oldSub) => {
+        const newSub = newPath + oldSub.slice(oldPath.length);
+        next[newSub] = next[oldSub];
+        delete next[oldSub];
+      });
       return next;
     });
-    setOpenTabs((prev) => prev.map((t) => (t === oldPath ? newPath : t)));
-    if (activeFilePath === oldPath) setActiveFilePath(newPath);
+
+    setOpenTabs((prev) =>
+      prev.map((t) => {
+        if (t === oldPath) return newPath;
+        if (t.startsWith(matchingPrefix)) return newPath + t.slice(oldPath.length);
+        return t;
+      }),
+    );
+
+    if (activeFilePath === oldPath) {
+      setActiveFilePath(newPath);
+    } else if (activeFilePath.startsWith(matchingPrefix)) {
+      setActiveFilePath(newPath + activeFilePath.slice(oldPath.length));
+    }
+
     toast.success(`Renamed to ${newName}`);
   };
 
   const handleDelete = (path: string) => {
     if (!confirm(`Are you sure you want to delete ${path}?`)) return;
     isDirtyRef.current = true;
+    const matchingPrefix = `${path}/`;
+
     setFilesMap((prev) => {
       const next = { ...prev };
       Object.keys(next).forEach((p) => {
-        if (p === path || p.startsWith(`${path}/`)) {
+        if (p === path || p.startsWith(matchingPrefix)) {
           delete next[p];
         }
       });
+      // Safety: If zero files remain, restore minimal clean index.html
+      const remaining = Object.keys(next);
+      if (remaining.length === 0) {
+        next["index.html"] =
+          initialFilesMap["index.html"] ||
+          "<!DOCTYPE html>\n<html>\n<head><title>Portfolio</title></head>\n<body>\n<h1>Welcome to my Portfolio</h1>\n</body>\n</html>";
+      }
       return next;
     });
-    setOpenTabs((prev) => prev.filter((t) => t !== path && !t.startsWith(`${path}/`)));
-    const remaining = Object.keys(filesMap).filter((p) => p !== path);
-    if (activeFilePath === path && remaining.length > 0) {
-      setActiveFilePath(remaining[0]);
+
+    setOpenTabs((prev) => {
+      const remainingTabs = prev.filter((t) => t !== path && !t.startsWith(matchingPrefix));
+      return remainingTabs.length > 0 ? remainingTabs : ["index.html"];
+    });
+
+    if (activeFilePath === path || activeFilePath.startsWith(matchingPrefix)) {
+      const remainingKeys = Object.keys(filesMap).filter((p) => p !== path && !p.startsWith(matchingPrefix));
+      setActiveFilePath(remainingKeys.length > 0 ? remainingKeys[0] : "index.html");
     }
+
     toast.success(`Deleted ${path}`);
   };
 
@@ -1355,13 +1536,26 @@ npx serve .
             {saveStatus === "saved" && (
               <span className="flex items-center gap-1 text-emerald-400">
                 <Check className="h-3 w-3 text-emerald-400" />
-                <span className="hidden sm:inline">Saved</span>
+                <span className="hidden sm:inline">{relativeSavedStr}</span>
               </span>
             )}
             {saveStatus === "unsaved" && (
               <span className="flex items-center gap-1 text-amber-400">
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-                <span className="hidden sm:inline">Unsaved</span>
+                <span className="hidden sm:inline">Unsaved edits</span>
+              </span>
+            )}
+            {saveStatus === "error" && (
+              <span className="flex items-center gap-1 text-rose-400">
+                <AlertCircle className="h-3 w-3 text-rose-400" />
+                <span className="hidden sm:inline">Save failed</span>
+                <button
+                  type="button"
+                  onClick={handleManualSave}
+                  className="underline hover:text-white ml-0.5 cursor-pointer font-bold"
+                >
+                  Retry
+                </button>
               </span>
             )}
           </div>
@@ -1413,11 +1607,21 @@ npx serve .
           <Button
             size="sm"
             onClick={handleRunRebuild}
-            className="h-8 text-xs font-bold gap-1.5 bg-indigo-600 hover:bg-indigo-500 text-white cursor-pointer shadow-xs"
-            title="Save & Run (Ctrl+S)"
+            disabled={buildStatus === "building"}
+            className="h-8 text-xs font-bold gap-1.5 bg-indigo-600 hover:bg-indigo-500 text-white cursor-pointer shadow-xs disabled:opacity-70"
+            title="Rebuild & Run Validation (Ctrl+S)"
           >
-            <Play className="h-3.5 w-3.5 fill-current" />
-            <span className="hidden sm:inline">Run</span>
+            {buildStatus === "building" ? (
+              <>
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                <span className="hidden sm:inline">Building...</span>
+              </>
+            ) : (
+              <>
+                <Play className="h-3.5 w-3.5 fill-current" />
+                <span className="hidden sm:inline">Run</span>
+              </>
+            )}
           </Button>
 
           {/* Secondary Action: Save */}
@@ -1426,7 +1630,7 @@ npx serve .
             variant="outline"
             onClick={handleManualSave}
             className="h-8 text-xs font-semibold gap-1.5 bg-slate-900 border-border/70 hover:bg-slate-800 text-slate-200 cursor-pointer shadow-xs"
-            title="Save (Ctrl+S)"
+            title="Save Codebase (Ctrl+S)"
           >
             <Save className="h-3.5 w-3.5 text-indigo-400" />
             <span className="hidden sm:inline">Save</span>
@@ -1438,7 +1642,7 @@ npx serve .
             variant="outline"
             onClick={handleDownloadZip}
             className="h-8 text-xs font-semibold gap-1.5 bg-slate-900 border-border/70 hover:bg-slate-800 text-slate-200 cursor-pointer shadow-xs"
-            title="Download ZIP"
+            title="Download Full Codebase (ZIP)"
           >
             <Download className="h-3.5 w-3.5 text-slate-300" />
             <span className="hidden md:inline">ZIP</span>
@@ -1468,6 +1672,34 @@ npx serve .
           )}
         </div>
       </header>
+
+      {/* Multi-Tab Conflict Notification Banner */}
+      {multiTabConflict && (
+        <div className="px-3 py-2 bg-amber-950/70 border-b border-amber-500/40 flex items-center justify-between text-xs text-amber-200 gap-2 flex-wrap shrink-0">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="h-4 w-4 text-amber-400 shrink-0" />
+            <span>Codebase was modified in another browser tab.</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleLoadExternalCode}
+              className="h-7 text-xs bg-amber-900/60 hover:bg-amber-800 text-amber-100 border-amber-600/50 cursor-pointer"
+            >
+              Load External Changes
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={handleKeepLocalEdits}
+              className="h-7 text-xs text-amber-300 hover:text-white cursor-pointer"
+            >
+              Keep Local Edits
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* ================= AI QUICK CODE ASSISTANT STRIP ================= */}
       <div className="px-4 py-2 bg-indigo-950/30 border-b border-indigo-500/20 flex items-center gap-3 flex-wrap">
@@ -1650,6 +1882,7 @@ npx serve .
             onCut={handleCut}
             onPaste={handlePaste}
             canPaste={!!clipboard}
+            isDirty={isDirtyRef.current || saveStatus === "unsaved"}
             className="h-full border-0 rounded-none bg-transparent"
           />
           <div className="pt-2 border-t border-border/40 text-[10px] text-muted-foreground px-1 flex items-center justify-between">
@@ -1764,8 +1997,22 @@ npx serve .
             {/* Live Preview Controls Header (Simulated Browser Bar) */}
             <div className="flex items-center justify-between px-3 py-2 bg-slate-900 border-b border-border/70 gap-2 shrink-0">
               <div className="flex items-center gap-2 min-w-0">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-                <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-950/80 border border-border/60 text-[11px] font-mono text-muted-foreground truncate max-w-[220px]">
+                <div className="flex items-center gap-1.5">
+                  <span
+                    className={cn(
+                      "w-2 h-2 rounded-full shrink-0",
+                      buildStatus === "ready" && "bg-emerald-500 animate-pulse",
+                      buildStatus === "building" && "bg-amber-400 animate-ping",
+                      buildStatus === "failed" && "bg-rose-500",
+                    )}
+                  />
+                  <span className="text-[11px] font-mono font-medium text-slate-300">
+                    {buildStatus === "building" && "Building..."}
+                    {buildStatus === "ready" && "Preview ready"}
+                    {buildStatus === "failed" && "Build failed"}
+                  </span>
+                </div>
+                <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-950/80 border border-border/60 text-[11px] font-mono text-muted-foreground truncate max-w-[200px]">
                   <Lock className="h-2.5 w-2.5 text-emerald-400 shrink-0" />
                   <span className="truncate">
                     {portfolioData.fullName
@@ -1812,7 +2059,7 @@ npx serve .
                       ? "bg-primary text-white shadow-xs"
                       : "text-muted-foreground hover:text-foreground",
                   )}
-                  title="Mobile View (375px)"
+                  title="Mobile View (390px)"
                 >
                   <Smartphone className="h-3.5 w-3.5" />
                 </button>
@@ -1842,62 +2089,148 @@ npx serve .
               </div>
             </div>
 
-            {/* Iframe viewport frame */}
+            {/* Iframe viewport or Error Diagnostic Terminal */}
             <div className="flex-1 bg-slate-950 flex items-center justify-center p-2 sm:p-4 overflow-auto">
-              <div
-                className={cn(
-                  "h-full w-full bg-background rounded-xl overflow-hidden shadow-2xl border border-border/80 transition-all duration-300",
-                  previewDevice === "tablet" && "max-w-[768px] border-4 border-slate-700",
-                  previewDevice === "mobile" && "max-w-[390px] border-8 border-slate-800 rounded-3xl",
-                )}
-              >
-                <iframe
-                  key={previewKey}
-                  srcDoc={compiledSrcDoc}
-                  title="Portfolio Live Preview"
-                  sandbox="allow-scripts allow-modals allow-same-origin allow-forms"
-                  className="w-full h-full border-0 bg-transparent"
-                />
-              </div>
+              {buildStatus === "failed" && buildError ? (
+                <div className="w-full max-w-xl p-6 rounded-2xl bg-slate-900 border border-rose-500/40 text-slate-100 shadow-2xl flex flex-col gap-4 animate-in fade-in duration-200">
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 rounded-xl bg-rose-500/20 text-rose-400 shrink-0">
+                      <AlertCircle className="h-6 w-6" />
+                    </div>
+                    <div>
+                      <h3 className="text-base font-bold text-rose-400">Build Validation Error</h3>
+                      <p className="text-xs text-slate-400 mt-1">
+                        A syntax or structural issue was detected in your codebase. Fix the issue below and click Rebuild.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="p-3.5 rounded-xl bg-slate-950 border border-rose-500/20 font-mono text-xs text-rose-300 whitespace-pre-wrap leading-relaxed">
+                    <div className="text-[11px] text-slate-500 mb-1 flex items-center gap-1.5">
+                      <FileCode className="h-3.5 w-3.5 text-indigo-400" />
+                      <span>{buildError.file || "Codebase"}</span>
+                    </div>
+                    {buildError.message}
+                  </div>
+
+                  <div className="flex items-center gap-2 pt-1 flex-wrap">
+                    {buildError.file && (
+                      <Button
+                        size="sm"
+                        onClick={() => {
+                          handleSelectFile(buildError.file!);
+                          setMobileTab("code");
+                        }}
+                        className="h-8 text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white cursor-pointer"
+                      >
+                        <Code2 className="h-3.5 w-3.5 mr-1.5" /> Jump to {buildError.file}
+                      </Button>
+                    )}
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={handleRunRebuild}
+                      className="h-8 text-xs font-semibold bg-slate-800 border-border/70 hover:bg-slate-700 text-slate-200 cursor-pointer"
+                    >
+                      <RotateCcw className="h-3.5 w-3.5 mr-1.5" /> Retry Build
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div
+                  className={cn(
+                    "h-full w-full bg-background rounded-xl overflow-hidden shadow-2xl border border-border/80 transition-all duration-300",
+                    previewDevice === "tablet" && "max-w-[768px] border-4 border-slate-700",
+                    previewDevice === "mobile" && "max-w-[390px] border-8 border-slate-800 rounded-3xl",
+                  )}
+                >
+                  <iframe
+                    key={previewKey}
+                    srcDoc={compiledSrcDoc}
+                    title="Portfolio Live Preview"
+                    sandbox="allow-scripts allow-modals allow-same-origin allow-forms"
+                    className="w-full h-full border-0 bg-transparent"
+                  />
+                </div>
+              )}
             </div>
           </div>
       </div>
 
-      {/* Mobile Bottom Quick-Action Bar (< lg) */}
-      <div className="lg:hidden flex items-center justify-between p-2 bg-slate-900 border-t border-border/70 gap-2 shrink-0">
+      {/* Mobile Bottom Quick-Action Bar (< lg) with safe-area inset */}
+      <div className="lg:hidden flex items-center justify-between p-2 pb-[calc(0.5rem+env(safe-area-inset-bottom,0px))] bg-slate-900 border-t border-border/70 gap-2 shrink-0">
         <Button
           size="sm"
           onClick={handleRunRebuild}
-          className="flex-1 h-9 text-xs font-bold gap-1.5 bg-indigo-600 hover:bg-indigo-500 text-white shadow-xs cursor-pointer"
+          disabled={buildStatus === "building"}
+          className="flex-1 min-h-[44px] text-xs font-bold gap-1.5 bg-indigo-600 hover:bg-indigo-500 text-white shadow-xs cursor-pointer"
         >
-          <Play className="h-3.5 w-3.5 fill-current" /> Run Preview
+          {buildStatus === "building" ? (
+            <Loader2 className="h-4 w-4 animate-spin text-white" />
+          ) : (
+            <Play className="h-4 w-4 fill-current" />
+          )}
+          Run Preview
         </Button>
         <Button
           size="sm"
           variant="outline"
           onClick={handleManualSave}
-          className="h-9 px-3 text-xs font-semibold gap-1.5 bg-slate-800 border-border/70 text-slate-200 cursor-pointer"
+          className="min-h-[44px] px-3.5 text-xs font-semibold gap-1.5 bg-slate-800 border-border/70 text-slate-200 cursor-pointer"
         >
-          <Save className="h-3.5 w-3.5 text-indigo-400" /> Save
+          <Save className="h-4 w-4 text-indigo-400" /> Save
         </Button>
         <Button
           size="sm"
           variant="outline"
           onClick={handleDownloadZip}
-          className="h-9 px-3 text-xs font-semibold gap-1.5 bg-slate-800 border-border/70 text-slate-200 cursor-pointer"
+          className="min-h-[44px] px-3.5 text-xs font-semibold gap-1.5 bg-slate-800 border-border/70 text-slate-200 cursor-pointer"
         >
-          <Download className="h-3.5 w-3.5" /> ZIP
+          <Download className="h-4 w-4" /> ZIP
         </Button>
         {onPublish && (
           <Button
             size="sm"
             onClick={onPublish}
-            className="h-9 px-3 text-xs font-bold gap-1 bg-emerald-600 hover:bg-emerald-500 text-white cursor-pointer"
+            className="min-h-[44px] px-3.5 text-xs font-bold gap-1 bg-emerald-600 hover:bg-emerald-500 text-white cursor-pointer"
           >
-            <Send className="h-3.5 w-3.5" />
+            <Send className="h-4 w-4" />
           </Button>
         )}
       </div>
+
+      {/* Safe Reset Confirmation Dialog */}
+      <Dialog open={isResetDialogOpen} onOpenChange={setIsResetDialogOpen}>
+        <DialogContent className="sm:max-w-md bg-slate-900 border-border/80 text-slate-100">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-rose-400">
+              <AlertTriangle className="h-5 w-5" /> Reset Codebase to Template?
+            </DialogTitle>
+            <DialogDescription className="text-slate-400 text-xs leading-relaxed pt-2">
+              This will replace all current files and custom edits in this portfolio with the default template. Any unsaved edits or custom files will be overwritten.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0 pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setIsResetDialogOpen(false)}
+              className="bg-slate-800 border-border/70 text-slate-300 hover:text-white cursor-pointer"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              onClick={handleConfirmReset}
+              className="bg-rose-600 hover:bg-rose-500 text-white font-bold cursor-pointer"
+            >
+              Confirm Reset
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

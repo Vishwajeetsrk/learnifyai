@@ -52,6 +52,7 @@ interface PortfolioFileTreeProps {
   onCut: (path: string) => void;
   onPaste: (destinationPath?: string) => void;
   canPaste: boolean;
+  isDirty?: boolean;
   className?: string;
 }
 
@@ -94,6 +95,7 @@ interface FileItemRowProps {
   onCut: (path: string) => void;
   onPaste: (destinationPath?: string) => void;
   canPaste: boolean;
+  isDirty?: boolean;
 }
 
 function FileItemRow({
@@ -111,6 +113,7 @@ function FileItemRow({
   onCut,
   onPaste,
   canPaste,
+  isDirty,
 }: FileItemRowProps) {
   const [isOpen, setIsOpen] = useState(true);
   const [isHovered, setIsHovered] = useState(false);
@@ -139,7 +142,7 @@ function FileItemRow({
     <div className="select-none">
       <div
         className={cn(
-          "group relative flex items-center gap-1.5 py-1 px-2 rounded-md cursor-pointer text-xs font-mono transition-all duration-150",
+          "group relative flex items-center gap-1.5 py-1.5 px-2 rounded-md cursor-pointer text-xs font-mono transition-all duration-150 min-h-[36px] sm:min-h-[28px]",
           isSelected
             ? "bg-primary/15 text-primary font-semibold border-l-2 border-primary"
             : isHovered
@@ -243,14 +246,23 @@ function FileItemRow({
               </button>
             </div>
           ) : (
-            <span
-              className={cn(
-                "truncate block text-[11px]",
-                isSelected ? "text-primary font-semibold" : "text-foreground/90",
+            <div className="flex items-center gap-1.5 min-w-0 truncate">
+              <span
+                className={cn(
+                  "truncate block text-[11px]",
+                  isSelected ? "text-primary font-semibold" : "text-foreground/90",
+                )}
+              >
+                {node.name}
+              </span>
+              {isSelected && isDirty && (
+                <span
+                  className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0 shadow-xs"
+                  title="Unsaved edits"
+                  aria-label="Unsaved edits"
+                />
               )}
-            >
-              {node.name}
-            </span>
+            </div>
           )}
         </div>
 
@@ -340,6 +352,7 @@ function FileItemRow({
               onCut={onCut}
               onPaste={onPaste}
               canPaste={canPaste}
+              isDirty={isDirty}
             />
           ))}
         </div>
@@ -360,6 +373,7 @@ export function PortfolioFileTree({
   onCut,
   onPaste,
   canPaste,
+  isDirty,
   className,
 }: PortfolioFileTreeProps) {
   return (
@@ -433,6 +447,7 @@ export function PortfolioFileTree({
               onCut={onCut}
               onPaste={onPaste}
               canPaste={canPaste}
+              isDirty={isDirty}
             />
           ))
         )}
