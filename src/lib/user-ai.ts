@@ -33,29 +33,49 @@ export interface ModelRegistryEntry {
 
 export const AI_MODEL_REGISTRY: ModelRegistryEntry[] = [
   {
-    id: "groq/llama-3.3-70b-versatile",
+    id: "groq/qwen/qwen3.8-27b",
     provider: "groq",
-    displayName: "Groq — Llama 3.3 70B (Ultra Fast)",
-    contextWindow: 128000,
+    displayName: "Groq — Qwen 3.8 27B (Ultra Fast)",
+    contextWindow: 131072,
     maxOutputTokens: 2500,
-    recommendedTask: "Summaries & Quick Explanations",
+    recommendedTask: "Summaries & Portfolio Generation",
     enabled: true,
     modality: "text",
   },
   {
-    id: "groq/llama-3.1-8b-instant",
+    id: "groq/openai/gpt-oss-120b",
     provider: "groq",
-    displayName: "Groq — Llama 3.1 8B (Instant)",
-    contextWindow: 128000,
+    displayName: "Groq — GPT-OSS 120B (High Precision)",
+    contextWindow: 131072,
+    maxOutputTokens: 2500,
+    recommendedTask: "Code Generation & Architecture",
+    enabled: true,
+    modality: "text",
+  },
+  {
+    id: "groq/openai/gpt-oss-20b",
+    provider: "groq",
+    displayName: "Groq — GPT-OSS 20B (Instant)",
+    contextWindow: 131072,
     maxOutputTokens: 2000,
     recommendedTask: "Instant Q&A & Flashcards",
     enabled: true,
     modality: "text",
   },
   {
-    id: "gemini/gemini-2.0-flash",
+    id: "gemini/gemini-flash-lite-latest",
     provider: "gemini",
-    displayName: "Gemini — 2.0 Flash (Multimodal & Fast)",
+    displayName: "Gemini — Flash Lite (Instant & Resilient)",
+    contextWindow: 1048576,
+    maxOutputTokens: 2500,
+    recommendedTask: "Instant Q&A & Rapid Generation",
+    enabled: true,
+    modality: "multimodal",
+  },
+  {
+    id: "gemini/gemini-flash-latest",
+    provider: "gemini",
+    displayName: "Gemini — Flash (Balanced & Fast)",
     contextWindow: 1048576,
     maxOutputTokens: 2500,
     recommendedTask: "Lesson Tutoring & Visual Help",
@@ -63,19 +83,9 @@ export const AI_MODEL_REGISTRY: ModelRegistryEntry[] = [
     modality: "multimodal",
   },
   {
-    id: "gemini/gemini-1.5-flash",
+    id: "gemini/gemini-pro-latest",
     provider: "gemini",
-    displayName: "Gemini — 1.5 Flash (Rock Solid)",
-    contextWindow: 1048576,
-    maxOutputTokens: 2000,
-    recommendedTask: "Course Summaries & Doubts",
-    enabled: true,
-    modality: "multimodal",
-  },
-  {
-    id: "gemini/gemini-1.5-pro",
-    provider: "gemini",
-    displayName: "Gemini — 1.5 Pro (Deep Reasoning)",
+    displayName: "Gemini — Pro (Deep Reasoning)",
     contextWindow: 2097152,
     maxOutputTokens: 3000,
     recommendedTask: "Complex Code & Architecture",
@@ -143,13 +153,35 @@ export const TASK_TOKEN_BUDGETS: Record<string, number> = {
   chat: 2500,
 };
 
+export const MODEL_ALIASES: Record<string, string> = {
+  // Groq legacy aliases
+  "llama-3.3-70b-versatile": "qwen/qwen3.8-27b",
+  "llama-3.1-8b-instant": "openai/gpt-oss-20b",
+  "llama3-70b-8192": "openai/gpt-oss-120b",
+  // Gemini legacy aliases
+  "gemini-2.0-flash": "gemini-flash-lite-latest",
+  "gemini-2.0-flash-exp": "gemini-flash-lite-latest",
+  "gemini-1.5-flash": "gemini-flash-lite-latest",
+  "gemini-1.5-pro": "gemini-pro-latest",
+  "gemini-2.5-flash": "gemini-flash-lite-latest",
+};
+
+export function cleanModelIdForProvider(modelId: string, providerName: string): string {
+  let cleaned = modelId.trim();
+  cleaned = cleaned.replace(/^(gemini|groq|openrouter)\//i, "");
+  if (MODEL_ALIASES[cleaned]) {
+    cleaned = MODEL_ALIASES[cleaned];
+  }
+  return cleaned;
+}
+
 const USER_AI_PROVIDERS: AIProviderConfig[] = [
   {
     name: "Groq",
     keyEnv: "GROQ_API_KEY",
     url: "https://api.groq.com/openai/v1/chat/completions",
-    primaryModel: "llama-3.3-70b-versatile",
-    fallbackModels: ["llama-3.1-8b-instant", "llama3-70b-8192"],
+    primaryModel: "qwen/qwen3.8-27b",
+    fallbackModels: ["openai/gpt-oss-120b", "openai/gpt-oss-20b"],
     maxTokensDefault: 2000,
     maxRetries: 2,
   },
@@ -157,8 +189,8 @@ const USER_AI_PROVIDERS: AIProviderConfig[] = [
     name: "Gemini API",
     keyEnv: "GEMINI_API_KEY",
     url: "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
-    primaryModel: "gemini-2.0-flash",
-    fallbackModels: ["gemini-1.5-flash", "gemini-1.5-pro"],
+    primaryModel: "gemini-flash-lite-latest",
+    fallbackModels: ["gemini-flash-latest", "gemini-pro-latest"],
     maxTokensDefault: 2000,
     maxRetries: 2,
   },
@@ -309,9 +341,17 @@ export async function callUserAiChat(body: ChatBody, quality: "fast" | "pro" = "
     if (!apiKey) continue;
 
     // Collect candidate models for this provider in priority order
+    const providerKeyword = provider.name.toLowerCase().split(" ")[0];
+    const requestedMatches =
+      body.model &&
+      (body.model.toLowerCase().includes(providerKeyword) ||
+        body.model.toLowerCase().startsWith(providerKeyword));
+    const requestedModel = requestedMatches ? cleanModelIdForProvider(body.model!, provider.name) : null;
+    const initialModel = requestedModel || provider.primaryModel;
+
     const candidateModels = [
-      body.model && body.model.includes(provider.name.toLowerCase()) ? body.model : provider.primaryModel,
-      ...provider.fallbackModels,
+      initialModel,
+      ...provider.fallbackModels.filter((m) => m !== initialModel),
     ];
 
     let providerSuccessResponse: Response | null = null;

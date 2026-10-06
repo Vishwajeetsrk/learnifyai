@@ -33,7 +33,7 @@ async function isRateLimited(userId: string): Promise<{ allowed: boolean; remain
 const BodySchema = z.object({
   message: z.string().min(1).max(10000),
   courseId: z.string().uuid().optional(),
-  model: z.string().optional().default("gemini-2.5-flash"),
+  model: z.string().optional().default("gemini-flash-lite-latest"),
   conversationId: z.string().uuid().optional(),
 });
 
@@ -155,7 +155,7 @@ Provide comprehensive, structured, step-by-step technical explanations with clea
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              model: "gemini-2.5-flash",
+              model: body.model || "gemini-flash-lite-latest",
               messages: [
                 { role: "system", content: systemPrompt },
                 { role: "user", content: body.message },
