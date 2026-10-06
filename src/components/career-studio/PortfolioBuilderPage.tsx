@@ -657,18 +657,30 @@ This portfolio website was generated with Learnify AI Portfolio Builder.
 
       <Tabs value={tab} onValueChange={setTab} className={cn(tab === "ide" ? "mt-0" : "mt-2")}>
         <div className={cn("flex items-center justify-between gap-2 flex-wrap", tab === "ide" ? "mb-2" : "mb-0")}>
-          <TabsList className="bg-slate-900/70 border border-border/70 p-1 rounded-xl max-w-full overflow-x-auto justify-start sm:justify-center flex-nowrap scrollbar-none">
-            <TabsTrigger value="form" className="text-xs sm:text-sm shrink-0">
-              <Sparkles className="h-3.5 w-3.5 mr-1.5" /> Build
+          <TabsList className="bg-muted/90 dark:bg-slate-900/90 border border-border/80 p-1 rounded-xl max-w-full overflow-x-auto justify-start sm:justify-center flex-nowrap scrollbar-none shadow-xs">
+            <TabsTrigger
+              value="form"
+              className="text-xs sm:text-sm shrink-0 font-medium text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:text-slate-950 dark:data-[state=active]:text-white data-[state=active]:shadow-xs transition-all"
+            >
+              <Sparkles className="h-3.5 w-3.5 mr-1.5 text-primary" /> Build
             </TabsTrigger>
-            <TabsTrigger value="ide" disabled={!form.fullName} className="text-xs sm:text-sm shrink-0">
-              <Code2 className="h-3.5 w-3.5 mr-1.5 text-indigo-400" /> Code Studio (IDE)
+            <TabsTrigger
+              value="ide"
+              className="text-xs sm:text-sm shrink-0 font-medium text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:text-slate-950 dark:data-[state=active]:text-white data-[state=active]:shadow-xs transition-all"
+            >
+              <Code2 className="h-3.5 w-3.5 mr-1.5 text-indigo-500 dark:text-indigo-400" /> Code Studio (IDE)
             </TabsTrigger>
-            <TabsTrigger value="preview" disabled={!result} className="text-xs sm:text-sm shrink-0">
-              <FolderOpen className="h-3.5 w-3.5 mr-1.5" /> Plan
+            <TabsTrigger
+              value="preview"
+              className="text-xs sm:text-sm shrink-0 font-medium text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:text-slate-950 dark:data-[state=active]:text-white data-[state=active]:shadow-xs transition-all"
+            >
+              <FolderOpen className="h-3.5 w-3.5 mr-1.5 text-amber-500 dark:text-amber-400" /> Plan
             </TabsTrigger>
-            <TabsTrigger value="live" disabled={!form.fullName} className="text-xs sm:text-sm shrink-0">
-              <Eye className="h-3.5 w-3.5 mr-1.5" /> Live Preview
+            <TabsTrigger
+              value="live"
+              className="text-xs sm:text-sm shrink-0 font-medium text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:text-slate-950 dark:data-[state=active]:text-white data-[state=active]:shadow-xs transition-all"
+            >
+              <Eye className="h-3.5 w-3.5 mr-1.5 text-emerald-500 dark:text-emerald-400" /> Live Preview
             </TabsTrigger>
           </TabsList>
           {tab === "ide" && (
@@ -1142,7 +1154,7 @@ This portfolio website was generated with Learnify AI Portfolio Builder.
         </TabsContent>
 
         <TabsContent value="preview" className="pt-4">
-          {result && (
+          {result ? (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -1200,6 +1212,22 @@ This portfolio website was generated with Learnify AI Portfolio Builder.
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>{result}</ReactMarkdown>
               </div>
             </motion.div>
+          ) : (
+            <div className="rounded-xl border border-dashed border-border/80 p-8 sm:p-12 text-center space-y-3 bg-card/50 max-w-2xl mx-auto">
+              <FolderOpen className="h-10 w-10 text-muted-foreground/50 mx-auto" />
+              <h3 className="font-semibold text-foreground text-sm">No Portfolio Plan Generated Yet</h3>
+              <p className="text-xs text-muted-foreground max-w-sm mx-auto">
+                Fill in your details in the Build tab and click &quot;Generate Portfolio&quot; to synthesize your structured markdown roadmap and full code export.
+              </p>
+              <div className="flex items-center justify-center gap-2 pt-2">
+                <Button size="sm" onClick={() => setTab("form")}>
+                  <Sparkles className="h-3.5 w-3.5 mr-1.5" /> Go to Build Tab
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => setTab("ide")}>
+                  <Code2 className="h-3.5 w-3.5 mr-1.5" /> Open Code Studio
+                </Button>
+              </div>
+            </div>
           )}
         </TabsContent>
 

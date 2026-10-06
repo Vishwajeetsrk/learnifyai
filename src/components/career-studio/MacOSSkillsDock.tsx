@@ -13,21 +13,47 @@ export interface DockSkill {
 }
 
 export const POPULAR_DOCK_SKILLS: DockSkill[] = [
+  // AI & LLMs First Class Citizen
+  { id: "ai", name: "AI & LLMs", brand: "ai-llms", category: "ai" },
+  { id: "chatgpt", name: "ChatGPT", brand: "chatgpt", category: "ai" },
+  { id: "claude", name: "Claude AI", brand: "claude", category: "ai" },
+  { id: "gemini", name: "Google Gemini", brand: "gemini", category: "ai" },
+  { id: "antigravity", name: "Google Antigravity", brand: "antigravity", category: "ai" },
+  { id: "ollama", name: "Ollama", brand: "ollama", category: "ai" },
+  { id: "codex", name: "Codex", brand: "codex", category: "ai" },
+
+  // Frontend & UI
   { id: "react", name: "React", brand: "react", category: "frontend" },
   { id: "nextjs", name: "Next.js", brand: "nextjs", category: "frontend" },
   { id: "typescript", name: "TypeScript", brand: "typescript", category: "frontend" },
   { id: "javascript", name: "JavaScript", brand: "javascript", category: "frontend" },
   { id: "tailwind", name: "Tailwind CSS", brand: "tailwindcss", category: "frontend" },
+  { id: "vite", name: "Vite", brand: "vite", category: "frontend" },
+
+  // Backend & Databases
   { id: "python", name: "Python", brand: "python", category: "backend" },
   { id: "nodejs", name: "Node.js", brand: "nodejs", category: "backend" },
   { id: "postgresql", name: "PostgreSQL", brand: "postgresql", category: "backend" },
+  { id: "supabase", name: "Supabase", brand: "supabase", category: "backend" },
   { id: "mongodb", name: "MongoDB", brand: "mongodb", category: "backend" },
+  { id: "azuresql", name: "Azure SQL", brand: "azure-sql", category: "backend" },
+
+  // Cloud & DevOps
   { id: "docker", name: "Docker", brand: "docker", category: "cloud" },
   { id: "aws", name: "AWS", brand: "aws", category: "cloud" },
+  { id: "firebase", name: "Firebase", brand: "firebase", category: "cloud" },
+
+  // Modern Tools & Workflow
   { id: "git", name: "Git", brand: "git", category: "tools" },
   { id: "github", name: "GitHub", brand: "github", category: "tools" },
+  { id: "linear", name: "Linear", brand: "linear", category: "tools" },
+  { id: "sentry", name: "Sentry", brand: "sentry", category: "tools" },
+  { id: "n8n", name: "n8n", brand: "n8n", category: "tools" },
+  { id: "powershell", name: "PowerShell", brand: "powershell", category: "tools" },
   { id: "figma", name: "Figma", brand: "figma", category: "design" },
-  { id: "ai", name: "AI & LLMs", brand: "chatgpt", category: "ai" },
+  { id: "analytics", name: "Google Analytics", brand: "google-analytics", category: "tools" },
+  { id: "searchconsole", name: "Search Console", brand: "search-console", category: "tools" },
+  { id: "zoom", name: "Zoom", brand: "zoom", category: "tools" },
 ];
 
 const CATEGORIES: { id: "all" | DockSkill["category"]; label: string }[] = [
