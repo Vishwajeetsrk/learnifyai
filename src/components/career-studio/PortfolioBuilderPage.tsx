@@ -622,45 +622,63 @@ This portfolio website was generated with Learnify AI Portfolio Builder.
   };
 
   const mainContent = (
-    <div className="px-4 sm:px-6 lg:px-10 py-6 sm:py-10 max-w-7xl">
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex items-end justify-between gap-4 flex-wrap mb-6"
-      >
-        <div>
-          <div className="text-xs uppercase tracking-widest text-primary font-medium flex items-center gap-1.5">
-            <FolderOpen className="h-3.5 w-3.5" /> Career Tools
+    <div
+      className={cn(
+        "transition-all duration-200",
+        tab === "ide"
+          ? "w-full max-w-full px-2 sm:px-4 py-2 sm:py-3"
+          : "px-4 sm:px-6 lg:px-10 py-6 sm:py-10 max-w-7xl mx-auto"
+      )}
+    >
+      {tab !== "ide" && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-end justify-between gap-4 flex-wrap mb-6"
+        >
+          <div>
+            <div className="text-xs uppercase tracking-widest text-primary font-medium flex items-center gap-1.5">
+              <FolderOpen className="h-3.5 w-3.5" /> Career Tools
+            </div>
+            <h1 className="mt-1 text-2xl sm:text-3xl font-display font-semibold tracking-tight">
+              Portfolio Builder
+            </h1>
+            <p className="text-muted-foreground mt-1 text-sm">
+              Create a stunning portfolio with projects, skills, and export to HTML.
+            </p>
           </div>
-          <h1 className="mt-1 text-2xl sm:text-3xl font-display font-semibold tracking-tight">
-            Portfolio Builder
-          </h1>
-          <p className="text-muted-foreground mt-1 text-sm">
-            Create a stunning portfolio with projects, skills, and export to HTML.
-          </p>
-        </div>
-        {published && (
-          <Badge className="bg-emerald-500/15 text-emerald-600 border-emerald-200 gap-1 px-3 py-1.5 text-xs">
-            <Check className="h-3 w-3" /> Published
-          </Badge>
-        )}
-      </motion.div>
+          {published && (
+            <Badge className="bg-emerald-500/15 text-emerald-600 border-emerald-200 gap-1 px-3 py-1.5 text-xs">
+              <Check className="h-3 w-3" /> Published
+            </Badge>
+          )}
+        </motion.div>
+      )}
 
-      <Tabs value={tab} onValueChange={setTab} className="mt-2">
-        <TabsList className="bg-slate-900/70 border border-border/70 p-1 rounded-xl w-full max-w-full overflow-x-auto justify-start sm:justify-center flex-nowrap scrollbar-none">
-          <TabsTrigger value="form" className="text-xs sm:text-sm shrink-0">
-            <Sparkles className="h-3.5 w-3.5 mr-1.5" /> Build
-          </TabsTrigger>
-          <TabsTrigger value="ide" disabled={!form.fullName} className="text-xs sm:text-sm shrink-0">
-            <Code2 className="h-3.5 w-3.5 mr-1.5 text-indigo-400" /> Code Studio (IDE)
-          </TabsTrigger>
-          <TabsTrigger value="preview" disabled={!result} className="text-xs sm:text-sm shrink-0">
-            <FolderOpen className="h-3.5 w-3.5 mr-1.5" /> Plan
-          </TabsTrigger>
-          <TabsTrigger value="live" disabled={!form.fullName} className="text-xs sm:text-sm shrink-0">
-            <Eye className="h-3.5 w-3.5 mr-1.5" /> Live Preview
-          </TabsTrigger>
-        </TabsList>
+      <Tabs value={tab} onValueChange={setTab} className={cn(tab === "ide" ? "mt-0" : "mt-2")}>
+        <div className={cn("flex items-center justify-between gap-2 flex-wrap", tab === "ide" ? "mb-2" : "mb-0")}>
+          <TabsList className="bg-slate-900/70 border border-border/70 p-1 rounded-xl max-w-full overflow-x-auto justify-start sm:justify-center flex-nowrap scrollbar-none">
+            <TabsTrigger value="form" className="text-xs sm:text-sm shrink-0">
+              <Sparkles className="h-3.5 w-3.5 mr-1.5" /> Build
+            </TabsTrigger>
+            <TabsTrigger value="ide" disabled={!form.fullName} className="text-xs sm:text-sm shrink-0">
+              <Code2 className="h-3.5 w-3.5 mr-1.5 text-indigo-400" /> Code Studio (IDE)
+            </TabsTrigger>
+            <TabsTrigger value="preview" disabled={!result} className="text-xs sm:text-sm shrink-0">
+              <FolderOpen className="h-3.5 w-3.5 mr-1.5" /> Plan
+            </TabsTrigger>
+            <TabsTrigger value="live" disabled={!form.fullName} className="text-xs sm:text-sm shrink-0">
+              <Eye className="h-3.5 w-3.5 mr-1.5" /> Live Preview
+            </TabsTrigger>
+          </TabsList>
+          {tab === "ide" && (
+            <div className="hidden sm:flex items-center gap-2 text-xs text-muted-foreground">
+              <span className="font-mono text-[11px] px-2 py-0.5 rounded bg-muted/60 border border-border/50">
+                {form.fullName ? `${form.fullName}'s Codebase` : "Active Codebase"}
+              </span>
+            </div>
+          )}
+        </div>
 
         <TabsContent value="form" className="pt-4 space-y-6 max-w-3xl">
           <motion.div
@@ -1108,42 +1126,12 @@ This portfolio website was generated with Learnify AI Portfolio Builder.
         </TabsContent>
 
         {/* CODE STUDIO & AI IDE TAB */}
-        <TabsContent value="ide" className="pt-4">
+        <TabsContent value="ide" className="pt-1 mt-0">
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
-            className="space-y-4"
+            transition={{ duration: 0.15 }}
           >
-            <div className="flex items-center justify-between gap-4 flex-wrap pb-1">
-              <div>
-                <h2 className="text-lg font-bold flex items-center gap-2">
-                  <Code2 className="h-5 w-5 text-indigo-400" />
-                  Code Studio & Full IDE Workspace
-                </h2>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  Live multi-file editor with animated explorer, AI diff code assistant, device viewports, and ZIP export.
-                </p>
-              </div>
-              <div className="flex items-center gap-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => setTab("live")}
-                  className="text-xs gap-1.5 h-8"
-                >
-                  <Eye className="h-3.5 w-3.5" /> Full Live Screen
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => setTab("form")}
-                  className="text-xs gap-1.5 h-8"
-                >
-                  <ChevronRight className="h-3.5 w-3.5 rotate-180" /> Back to Form
-                </Button>
-              </div>
-            </div>
-
             <PortfolioIdeView
               portfolioData={form}
               projectsList={projects}

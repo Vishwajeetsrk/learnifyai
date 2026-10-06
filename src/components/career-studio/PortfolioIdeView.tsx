@@ -27,6 +27,7 @@ import {
   FilePlus,
   FolderPlus,
   FolderTree,
+  Lock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -867,8 +868,33 @@ npx serve .
     };
   }, [portfolioData, projectsList, photoPreview]);
 
-  // --- Workspace State ---
-  const [filesMap, setFilesMap] = useState<Record<string, string>>(initialFilesMap);
+  // --- Storage Key for Workspace Persistence ---
+  const storageKey = useMemo(() => {
+    const safeName = portfolioData.fullName
+      ? portfolioData.fullName.toLowerCase().replace(/[^a-z0-9]/g, "_")
+      : "default";
+    return `portfolio_codebase_${safeName}`;
+  }, [portfolioData.fullName]);
+
+  // --- Workspace State (With LocalStorage Restoration) ---
+  const [filesMap, setFilesMap] = useState<Record<string, string>>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const safeName = portfolioData.fullName
+          ? portfolioData.fullName.toLowerCase().replace(/[^a-z0-9]/g, "_")
+          : "default";
+        const saved = localStorage.getItem(`portfolio_codebase_${safeName}`);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed && typeof parsed === "object" && Object.keys(parsed).length > 0) {
+            return parsed;
+          }
+        }
+      } catch {}
+    }
+    return initialFilesMap;
+  });
+
   const [activeFilePath, setActiveFilePath] = useState<string>("index.html");
   const [openTabs, setOpenTabs] = useState<string[]>(["index.html", "css/style.css", "js/script.js"]);
   const [viewMode, setViewMode] = useState<"split" | "code" | "preview">("split");
@@ -876,6 +902,8 @@ npx serve .
   const [clipboard, setClipboard] = useState<{ action: "cut" | "copy"; path: string } | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [mobileTab, setMobileTab] = useState<"files" | "code" | "preview">("code");
+  const [saveStatus, setSaveStatus] = useState<"saved" | "saving" | "unsaved">("saved");
+  const [lastSavedTime, setLastSavedTime] = useState<Date | null>(null);
 
   // --- AI Code Assistant State Machine ---
   // Lifecycle: idle -> generating -> review -> applying -> applied/discarded/failed
@@ -910,13 +938,86 @@ npx serve .
   // Refresh preview counter
   const [previewKey, setPreviewKey] = useState(0);
 
-  // Keep filesMap updated if initial files change and user hasn't edited
+  // Dirty state tracking & debounced auto-save
   const isDirtyRef = useRef(false);
+  const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   useEffect(() => {
-    if (!isDirtyRef.current) {
-      setFilesMap(initialFilesMap);
+    if (!isDirtyRef.current) return;
+    setSaveStatus("unsaved");
+
+    if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
+    autoSaveTimerRef.current = setTimeout(() => {
+      if (typeof window !== "undefined") {
+        setSaveStatus("saving");
+        try {
+          localStorage.setItem(storageKey, JSON.stringify(filesMap));
+          setSaveStatus("saved");
+          setLastSavedTime(new Date());
+        } catch (e) {
+          console.error("Auto-save failed", e);
+        }
+      }
+    }, 1000);
+
+    return () => {
+      if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
+    };
+  }, [filesMap, storageKey]);
+
+  // Manual save and rebuild handlers
+  const handleManualSave = () => {
+    if (typeof window !== "undefined") {
+      setSaveStatus("saving");
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(filesMap));
+        setSaveStatus("saved");
+        setLastSavedTime(new Date());
+        setPreviewKey((k) => k + 1);
+        toast.success("Code saved & live preview updated!");
+      } catch (err: any) {
+        toast.error("Failed to save: " + err.message);
+      }
     }
-  }, [initialFilesMap]);
+  };
+
+  const handleRunRebuild = () => {
+    handleManualSave();
+  };
+
+  const handleResetToTemplate = () => {
+    if (
+      window.confirm(
+        "Reset codebase back to default template? Any custom edits will be replaced.",
+      )
+    ) {
+      isDirtyRef.current = false;
+      setFilesMap(initialFilesMap);
+      if (typeof window !== "undefined") {
+        localStorage.removeItem(storageKey);
+      }
+      setActiveFilePath("index.html");
+      setOpenTabs(["index.html", "css/style.css", "js/script.js"]);
+      setPreviewKey((k) => k + 1);
+      setSaveStatus("saved");
+      toast.info("Reset files to default template.");
+    }
+  };
+
+  // Keyboard Shortcuts (Ctrl+S to save/run, Ctrl+B to toggle explorer)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        handleManualSave();
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "b") {
+        e.preventDefault();
+        setIsSidebarOpen((v) => !v);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [filesMap, storageKey]);
 
   // Convert flat filesMap into virtual file tree
   const fileTreeData: VirtualFileNode[] = useMemo(() => {
@@ -1220,13 +1321,13 @@ npx serve .
   return (
     <div
       className={cn(
-        "rounded-2xl border border-border/80 bg-slate-950 text-slate-100 overflow-hidden shadow-2xl flex flex-col font-sans",
+        "rounded-2xl border border-border/80 bg-slate-950 text-slate-100 overflow-hidden shadow-2xl flex flex-col font-sans h-[calc(100dvh-120px)] min-h-[640px]",
         className,
       )}
     >
       {/* ================= TOP IDE TOOLBAR ================= */}
-      <header className="flex items-center justify-between px-3 sm:px-4 py-2 bg-slate-900/90 border-b border-border/60 flex-wrap gap-2.5">
-        {/* Left: Window Controls + Project Label */}
+      <header className="flex items-center justify-between px-3 sm:px-4 py-2 bg-slate-900 border-b border-border/70 flex-wrap gap-2.5 shrink-0">
+        {/* Left: Window Controls + Project Label + Save Status */}
         <div className="flex items-center gap-2 sm:gap-3">
           <button
             type="button"
@@ -1241,17 +1342,33 @@ npx serve .
             <span className="text-xs font-mono font-bold text-foreground truncate max-w-[140px] sm:max-w-none">
               {portfolioData.fullName || "Developer"} Studio
             </span>
-            <Badge
-              variant="outline"
-              className="text-[10px] text-emerald-400 border-emerald-500/30 bg-emerald-500/10 px-2 py-0 hidden xs:inline-flex"
-            >
-              Live IDE
-            </Badge>
+          </div>
+
+          {/* Unified Save Status Indicator */}
+          <div className="flex items-center gap-1.5 pl-2 border-l border-border/60 text-[11px] font-mono">
+            {saveStatus === "saving" && (
+              <span className="flex items-center gap-1 text-muted-foreground">
+                <Loader2 className="h-3 w-3 animate-spin text-primary" />
+                <span className="hidden sm:inline">Saving...</span>
+              </span>
+            )}
+            {saveStatus === "saved" && (
+              <span className="flex items-center gap-1 text-emerald-400">
+                <Check className="h-3 w-3 text-emerald-400" />
+                <span className="hidden sm:inline">Saved</span>
+              </span>
+            )}
+            {saveStatus === "unsaved" && (
+              <span className="flex items-center gap-1 text-amber-400">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                <span className="hidden sm:inline">Unsaved</span>
+              </span>
+            )}
           </div>
         </div>
 
         {/* Center: Desktop View Switcher (Split, Code Only, Preview Only) — hidden on mobile */}
-        <div className="hidden lg:flex items-center gap-1 bg-slate-950/80 p-0.5 rounded-lg border border-border/60">
+        <div className="hidden lg:flex items-center gap-1 bg-slate-950 p-0.5 rounded-lg border border-border/60">
           <button
             type="button"
             onClick={() => setViewMode("split")}
@@ -1290,27 +1407,63 @@ npx serve .
           </button>
         </div>
 
-        {/* Right: Actions (Download ZIP, Publish) */}
-        <div className="flex items-center gap-2">
+        {/* Right: Actions with strong visual hierarchy */}
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          {/* Primary Action: Run / Rebuild */}
+          <Button
+            size="sm"
+            onClick={handleRunRebuild}
+            className="h-8 text-xs font-bold gap-1.5 bg-indigo-600 hover:bg-indigo-500 text-white cursor-pointer shadow-xs"
+            title="Save & Run (Ctrl+S)"
+          >
+            <Play className="h-3.5 w-3.5 fill-current" />
+            <span className="hidden sm:inline">Run</span>
+          </Button>
+
+          {/* Secondary Action: Save */}
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={handleManualSave}
+            className="h-8 text-xs font-semibold gap-1.5 bg-slate-900 border-border/70 hover:bg-slate-800 text-slate-200 cursor-pointer shadow-xs"
+            title="Save (Ctrl+S)"
+          >
+            <Save className="h-3.5 w-3.5 text-indigo-400" />
+            <span className="hidden sm:inline">Save</span>
+          </Button>
+
+          {/* Download ZIP */}
           <Button
             size="sm"
             variant="outline"
             onClick={handleDownloadZip}
-            className="h-8 text-xs font-bold gap-1.5 bg-slate-900 border-border/70 hover:bg-slate-800 text-slate-200 cursor-pointer shadow-xs"
+            className="h-8 text-xs font-semibold gap-1.5 bg-slate-900 border-border/70 hover:bg-slate-800 text-slate-200 cursor-pointer shadow-xs"
+            title="Download ZIP"
           >
-            <Download className="h-3.5 w-3.5 text-indigo-400" />
-            <span className="hidden sm:inline">Download ZIP</span>
-            <span className="sm:hidden">ZIP</span>
+            <Download className="h-3.5 w-3.5 text-slate-300" />
+            <span className="hidden md:inline">ZIP</span>
           </Button>
+
+          {/* Reset Template */}
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={handleResetToTemplate}
+            className="h-8 w-8 p-0 text-xs text-muted-foreground hover:text-foreground hover:bg-slate-800 cursor-pointer"
+            title="Reset to Template Defaults"
+          >
+            <RotateCcw className="h-3.5 w-3.5" />
+          </Button>
+
+          {/* Publish */}
           {onPublish && (
             <Button
               size="sm"
               onClick={onPublish}
-              className="h-8 text-xs font-bold gap-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white cursor-pointer shadow-md shadow-emerald-500/20"
+              className="h-8 text-xs font-bold gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white cursor-pointer shadow-xs ml-1"
             >
               <Send className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Publish Live</span>
-              <span className="sm:hidden">Publish</span>
+              <span className="hidden sm:inline">Publish</span>
             </Button>
           )}
         </div>
@@ -1608,13 +1761,18 @@ npx serve .
             mobileTab === "preview" ? "flex flex-1 w-full" : "hidden",
           )}
         >
-            {/* Live Preview Controls Header */}
-            <div className="flex items-center justify-between px-4 py-2 bg-slate-900 border-b border-border/60">
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="text-xs font-mono font-semibold text-foreground">
-                  Interactive Live Preview
-                </span>
+            {/* Live Preview Controls Header (Simulated Browser Bar) */}
+            <div className="flex items-center justify-between px-3 py-2 bg-slate-900 border-b border-border/70 gap-2 shrink-0">
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-950/80 border border-border/60 text-[11px] font-mono text-muted-foreground truncate max-w-[220px]">
+                  <Lock className="h-2.5 w-2.5 text-emerald-400 shrink-0" />
+                  <span className="truncate">
+                    {portfolioData.fullName
+                      ? `${portfolioData.fullName.toLowerCase().replace(/[^a-z0-9]/g, "")}.dev`
+                      : "portfolio.preview"}
+                  </span>
+                </div>
               </div>
 
               {/* Device view switcher */}
@@ -1623,12 +1781,12 @@ npx serve .
                   type="button"
                   onClick={() => setPreviewDevice("desktop")}
                   className={cn(
-                    "p-1 rounded text-xs transition cursor-pointer",
+                    "p-1.5 rounded text-xs transition cursor-pointer",
                     previewDevice === "desktop"
-                      ? "bg-primary text-white"
+                      ? "bg-primary text-white shadow-xs"
                       : "text-muted-foreground hover:text-foreground",
                   )}
-                  title="Desktop View"
+                  title="Desktop View (100%)"
                 >
                   <Laptop className="h-3.5 w-3.5" />
                 </button>
@@ -1636,9 +1794,9 @@ npx serve .
                   type="button"
                   onClick={() => setPreviewDevice("tablet")}
                   className={cn(
-                    "p-1 rounded text-xs transition cursor-pointer",
+                    "p-1.5 rounded text-xs transition cursor-pointer",
                     previewDevice === "tablet"
-                      ? "bg-primary text-white"
+                      ? "bg-primary text-white shadow-xs"
                       : "text-muted-foreground hover:text-foreground",
                   )}
                   title="Tablet View (768px)"
@@ -1649,9 +1807,9 @@ npx serve .
                   type="button"
                   onClick={() => setPreviewDevice("mobile")}
                   className={cn(
-                    "p-1 rounded text-xs transition cursor-pointer",
+                    "p-1.5 rounded text-xs transition cursor-pointer",
                     previewDevice === "mobile"
-                      ? "bg-primary text-white"
+                      ? "bg-primary text-white shadow-xs"
                       : "text-muted-foreground hover:text-foreground",
                   )}
                   title="Mobile View (375px)"
@@ -1660,12 +1818,12 @@ npx serve .
                 </button>
               </div>
 
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1">
                 <button
                   type="button"
-                  onClick={() => setPreviewKey((k) => k + 1)}
-                  className="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-slate-800 transition cursor-pointer"
-                  title="Reload Preview"
+                  onClick={handleRunRebuild}
+                  className="p-1.5 rounded text-muted-foreground hover:text-foreground hover:bg-slate-800 transition cursor-pointer"
+                  title="Rebuild & Refresh Preview (Ctrl+S)"
                 >
                   <RotateCcw className="h-3.5 w-3.5" />
                 </button>
@@ -1676,8 +1834,8 @@ npx serve .
                     const url = URL.createObjectURL(blob);
                     window.open(url, "_blank");
                   }}
-                  className="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-slate-800 transition cursor-pointer"
-                  title="Open Preview in New Tab"
+                  className="p-1.5 rounded text-muted-foreground hover:text-foreground hover:bg-slate-800 transition cursor-pointer"
+                  title="Open Preview in New Window"
                 >
                   <ExternalLink className="h-3.5 w-3.5" />
                 </button>
@@ -1685,7 +1843,7 @@ npx serve .
             </div>
 
             {/* Iframe viewport frame */}
-            <div className="flex-1 bg-slate-950 flex items-center justify-center p-2 overflow-auto">
+            <div className="flex-1 bg-slate-950 flex items-center justify-center p-2 sm:p-4 overflow-auto">
               <div
                 className={cn(
                   "h-full w-full bg-background rounded-xl overflow-hidden shadow-2xl border border-border/80 transition-all duration-300",
@@ -1703,6 +1861,42 @@ npx serve .
               </div>
             </div>
           </div>
+      </div>
+
+      {/* Mobile Bottom Quick-Action Bar (< lg) */}
+      <div className="lg:hidden flex items-center justify-between p-2 bg-slate-900 border-t border-border/70 gap-2 shrink-0">
+        <Button
+          size="sm"
+          onClick={handleRunRebuild}
+          className="flex-1 h-9 text-xs font-bold gap-1.5 bg-indigo-600 hover:bg-indigo-500 text-white shadow-xs cursor-pointer"
+        >
+          <Play className="h-3.5 w-3.5 fill-current" /> Run Preview
+        </Button>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={handleManualSave}
+          className="h-9 px-3 text-xs font-semibold gap-1.5 bg-slate-800 border-border/70 text-slate-200 cursor-pointer"
+        >
+          <Save className="h-3.5 w-3.5 text-indigo-400" /> Save
+        </Button>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={handleDownloadZip}
+          className="h-9 px-3 text-xs font-semibold gap-1.5 bg-slate-800 border-border/70 text-slate-200 cursor-pointer"
+        >
+          <Download className="h-3.5 w-3.5" /> ZIP
+        </Button>
+        {onPublish && (
+          <Button
+            size="sm"
+            onClick={onPublish}
+            className="h-9 px-3 text-xs font-bold gap-1 bg-emerald-600 hover:bg-emerald-500 text-white cursor-pointer"
+          >
+            <Send className="h-3.5 w-3.5" />
+          </Button>
+        )}
       </div>
     </div>
   );
