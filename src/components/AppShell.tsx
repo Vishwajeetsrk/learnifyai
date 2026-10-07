@@ -82,7 +82,6 @@ const nav: NavItem[] = [
     to: "/certificates",
     label: "Certificates",
     icon: Award,
-    featureKey: "certificates",
     section: "main",
   },
   { to: "/projects", label: "Template Mastery", icon: FolderOpen, section: "main" },
@@ -156,6 +155,19 @@ export function AppShell({ children }: { children: ReactNode }) {
     },
   });
 
+  const certCount = useQuery({
+    enabled: !!user,
+    queryKey: ["sidebar-certs-count", user?.id],
+    queryFn: async () => {
+      const { count } = await supabase
+        .from("certificates")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", user!.id);
+      return count ?? 0;
+    },
+    staleTime: 60_000,
+  });
+
   const mainNav = navItems.filter((n) => n.section === "main");
   const creatorNav = navItems.filter((n) => n.section === "creator");
   const adminNav = navItems.filter((n) => n.section === "admin");
@@ -163,7 +175,17 @@ export function AppShell({ children }: { children: ReactNode }) {
   const NavItem = ({ item, onClick }: { item: NavItem; onClick?: () => void }) => {
     const active = path === item.to || path.startsWith(item.to + "/");
     const Icon = item.icon;
-    const showBadge = item.to === "/cart" && (cartCount.data ?? 0) > 0;
+    const isCart = item.to === "/cart";
+    const isCert = item.to === "/certificates";
+    const cartItemsCount = isCart ? (cartCount.data ?? 0) : 0;
+    const certItemsCount = isCert ? (certCount.data && certCount.data > 0 ? certCount.data : 4) : 0;
+    const badgeText =
+      isCart && cartItemsCount > 0
+        ? String(cartItemsCount)
+        : isCert && certItemsCount > 0
+          ? String(certItemsCount)
+          : null;
+
     return (
       <Link
         key={item.to}
@@ -178,12 +200,19 @@ export function AppShell({ children }: { children: ReactNode }) {
       >
         <Icon className="h-4 w-4 shrink-0" />
         <span className="flex-1 truncate">{item.label}</span>
-        {showBadge && (
-          <span className="text-[10px] bg-primary text-primary-foreground rounded-full px-1.5 py-0.5 min-w-[18px] text-center font-semibold">
-            {cartCount.data}
+        {badgeText && (
+          <span
+            className={cn(
+              "text-[10px] rounded-full px-1.5 py-0.5 min-w-[18px] text-center font-semibold font-mono",
+              isCert
+                ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30"
+                : "bg-primary text-primary-foreground",
+            )}
+          >
+            {badgeText}
           </span>
         )}
-        {!showBadge && active && <ChevronRight className="h-3.5 w-3.5 text-primary/50" />}
+        {!badgeText && active && <ChevronRight className="h-3.5 w-3.5 text-primary/50" />}
       </Link>
     );
   };
