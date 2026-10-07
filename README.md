@@ -2,7 +2,7 @@
 
 <img src="src/assets/learnify-logo.png" alt="Learnify AI Logo" width="180" style="margin-bottom: 12px; filter: drop-shadow(0 4px 12px rgba(99, 102, 241, 0.25));" />
 
-# Learnify AI 4.9.5
+# Learnify AI 5.0.0
 
 **The AI-Native Learning & Career Operating System**
 
@@ -1652,6 +1652,23 @@ MIT License. See [LICENSE](LICENSE) for details.
   - **Resilient Fallback PDF Stream Parser**: Decodes octal escapes, hex strings, and TJ array operators when external PDF workers are restricted.
 - 🔗 **RESPONSIVE LINK PREVIEW ENGINE**:
   - Seamless desktop floating spring card + mobile backdrop peek popovers with curated instant previews for major learning hubs.
+
+### v5.0.0 (October 2026) — Major Release: Portfolio Builder 3.0 & Design System Upgrade
+
+- 💼 **PORTFOLIO BUILDER 3.0 & LIVE INTERACTIVE PREVIEW**:
+  - Sandboxed responsive live preview modal (`ProjectLivePreviewModal.tsx`) with Desktop (1440px), Tablet (768px), and Mobile (390px) device frame viewports, active URL reload, external popout, and graceful fallback handling for X-Frame-Options/CSP restrictions.
+  - Interactive project cards with direct **Live Demo**, **Interactive Preview**, and **GitHub Source** triggers.
+  - Eliminated generic "PROFESSIONAL.dev" output — dynamically inherits the user's authentic identity (`${displayName} / Portfolio`).
+  - Streamlined non-blocking AI status pill replacing the previous dominating red error banner.
+  - Fixed public published target URL to `https://www.learnifyai.in/p/${username}` (eliminating parked domain reference).
+- 🏷️ **OFFICIAL TECHNOLOGY & SOCIAL SVG REGISTRIES**:
+  - Centralized `TechnologyIcon.tsx` and `getTechnologyRawSvg` supporting 20+ authentic technology SVGs (React, Next.js, TypeScript, Tailwind, Python, Docker, Node.js, Supabase, WebGL/Three.js, etc.) with accessible tags and neutral code fallbacks.
+  - Centralized `SocialIcon.tsx` and `getSocialRawSvg` with automated platform detection, link normalization, and accessible ARIA attributes.
+- 📊 **CANONICAL PLATFORM BENCHMARKS & SSR FIX**:
+  - Single source of truth benchmarks in `src/lib/canonical-config.ts` (`CANONICAL_BENCHMARKS`): 120,000+ learners, 4,200+ creators, 3,400+ courses across 42+ countries.
+  - Resolved "0 Interactive Designs" bug on `/projects` via route loader and initialData hydration.
+  - Unified pricing page and about page statistical figures with canonical benchmarks.
+  - Enhanced Monaco & Code Studio visual hierarchy with readable file tree typography and cohesive dark theme tokens.
 
 ### v4.0.0 (July 2026) — Major Release
 

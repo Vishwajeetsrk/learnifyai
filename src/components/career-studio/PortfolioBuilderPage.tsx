@@ -49,6 +49,8 @@ import { CourseBrandLogo } from "@/components/courses/CourseBrandLogo";
 import { MacOSSkillsDock } from "./MacOSSkillsDock";
 import { HoloTiltCard } from "./HoloTiltCard";
 import { PortfolioIdeView } from "./PortfolioIdeView";
+import { TechnologyIcon, getTechnologyRawSvg } from "@/components/icons/TechnologyIcon";
+import { SocialIcon, detectSocialPlatform, normalizeSocialUrl } from "@/components/icons/SocialIcon";
 
 const STYLES = [
   { value: "developer", label: "Developer" },
@@ -62,12 +64,13 @@ type ProjectEntry = {
   description: string;
   techStack: string;
   githubUrl: string;
+  liveUrl?: string;
   imageUrl?: string;
 };
 
 function SkillLogo({
   name,
-  size = 15,
+  size = 16,
   className,
 }: {
   name: string;
@@ -79,30 +82,13 @@ function SkillLogo({
       className={cn("inline-flex items-center justify-center shrink-0", className)}
       style={{ width: size, height: size }}
     >
-      <CourseBrandLogo brand={name} size={size} />
+      <TechnologyIcon name={name} size={size} />
     </div>
   );
 }
 
 function skillHtmlLogo(name: string): string {
-  const n = name.toLowerCase().trim();
-  const colors: Record<string, string> = {
-    react: "#61DAFB",
-    nextjs: "#000000",
-    typescript: "#3178C6",
-    javascript: "#F7DF1E",
-    python: "#3776AB",
-    nodejs: "#339933",
-    docker: "#2496ED",
-    aws: "#FF9900",
-    figma: "#F24E1E",
-    git: "#F05032",
-    html: "#E34F26",
-    css: "#1572B6",
-    tailwind: "#06B6D4",
-  };
-  const color = colors[n] || "#6366f1";
-  return `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="display:inline-block;vertical-align:middle;margin-right:6px;flex-shrink:0"><circle cx="12" cy="12" r="10" fill="${color}" fill-opacity="0.18" stroke="${color}" stroke-width="2"/><path d="M8 12l3 3 5-5" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  return getTechnologyRawSvg(name, 16);
 }
 
 export function PortfolioBuilderPage({ embedded = false }: { embedded?: boolean }) {
@@ -250,7 +236,7 @@ export function PortfolioBuilderPage({ embedded = false }: { embedded?: boolean 
   const addProject = () => {
     setProjects((p) => [
       ...p,
-      { name: "", description: "", techStack: "", githubUrl: "", imageUrl: "" },
+      { name: "", description: "", techStack: "", githubUrl: "", liveUrl: "", imageUrl: "" },
     ]);
   };
 
@@ -615,7 +601,7 @@ This portfolio website was generated with Learnify AI Portfolio Builder.
         .replace(/[^a-z0-9-]/g, "");
       localStorage.setItem(`learnify_portfolio_${username}`, JSON.stringify(portfolio));
       setPublished(true);
-      toast.success(`Published at learnify.ai/${username}`);
+      toast.success(`Published at https://www.learnifyai.in/p/${username}`);
     } catch {
       toast.error("Publish failed");
     }
@@ -913,11 +899,16 @@ This portfolio website was generated with Learnify AI Portfolio Builder.
                                 </Button>
                               </div>
                             )}
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                               <Input
                                 placeholder="Project name"
                                 value={proj.name}
                                 onChange={(e) => updateProject(idx, "name", e.target.value)}
+                              />
+                              <Input
+                                placeholder="Live Demo URL (https://...)"
+                                value={proj.liveUrl || ""}
+                                onChange={(e) => updateProject(idx, "liveUrl", e.target.value)}
                               />
                               <Input
                                 placeholder="GitHub URL"

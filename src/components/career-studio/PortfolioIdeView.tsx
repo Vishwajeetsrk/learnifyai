@@ -47,6 +47,9 @@ import { cn } from "@/lib/utils";
 import { PortfolioFileTree, VirtualFileNode } from "./PortfolioFileTree";
 import { EditTool, type ApprovalDecision } from "./EditTool";
 import { refinePortfolioCode } from "@/lib/resume.functions";
+import { TechnologyIcon, getTechnologyRawSvg } from "@/components/icons/TechnologyIcon";
+import { SocialIcon, getSocialRawSvg, detectSocialPlatform, normalizeSocialUrl } from "@/components/icons/SocialIcon";
+import { ProjectLivePreviewModal } from "./ProjectLivePreviewModal";
 
 export interface PortfolioIdeViewProps {
   portfolioData: {
@@ -67,6 +70,7 @@ export interface PortfolioIdeViewProps {
     description: string;
     techStack: string;
     githubUrl: string;
+    liveUrl?: string;
     imageUrl?: string;
   }>;
   photoPreview?: string | null;
@@ -85,12 +89,36 @@ export function PortfolioIdeView({
 
   // --- Initial Virtual File System Generation ---
   const initialFilesMap = useMemo(() => {
-    const name = portfolioData.fullName || "Developer";
+    const rawName = (portfolioData.fullName || "Developer").trim();
+    const name = rawName && rawName.toUpperCase() !== "PROFESSIONAL" ? rawName : "Developer";
     const tagline = portfolioData.tagline || "Full-Stack Software Engineer & Builder";
     const bio = portfolioData.bio || "Passionate about creating modern, resilient web applications.";
     const skills = portfolioData.skills
       ? portfolioData.skills.split(",").map((s) => s.trim()).filter(Boolean)
       : ["React", "TypeScript", "Node.js", "Tailwind CSS", "Python"];
+
+    // Social Links
+    const socialUrls = (portfolioData.socialLinks || "")
+      .split(/[\n,]/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+    const heroSocialLinksHtml =
+      socialUrls.length > 0
+        ? `
+        <div class="hero-socials">
+          ${socialUrls
+            .map((url) => {
+              const platform = detectSocialPlatform(url);
+              const normalized = normalizeSocialUrl(url);
+              return `<a href="${normalized}" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="${platform}">
+                ${getSocialRawSvg(platform, 18)}
+                <span>${platform.charAt(0).toUpperCase() + platform.slice(1)}</span>
+              </a>`;
+            })
+            .join("\n")}
+        </div>`
+        : "";
 
     const projectCardsHtml = projectsList
       .filter((p) => p.name)
@@ -104,10 +132,17 @@ export function PortfolioIdeView({
             <div class="project-tags">
               ${(p.techStack || "React, TypeScript")
                 .split(",")
-                .map((t) => `<span class="tag">${t.trim()}</span>`)
+                .map((t) => {
+                  const tag = t.trim();
+                  return `<span class="tag">${getTechnologyRawSvg(tag, 14)}<span>${tag}</span></span>`;
+                })
                 .join("")}
             </div>
-            ${p.githubUrl ? `<a href="${p.githubUrl}" target="_blank" rel="noopener noreferrer" class="project-link">View Code &rarr;</a>` : ""}
+            <div class="project-actions">
+              ${p.liveUrl ? `<a href="${p.liveUrl}" target="_blank" rel="noopener noreferrer" class="btn-live-demo"><span>Live Demo</span> &nearr;</a>` : ""}
+              ${p.liveUrl ? `<button type="button" class="btn-preview-modal" data-project-name="${p.name}" data-live-url="${p.liveUrl}" data-github-url="${p.githubUrl || ""}">Preview</button>` : ""}
+              ${p.githubUrl ? `<a href="${p.githubUrl}" target="_blank" rel="noopener noreferrer" class="btn-github">${getSocialRawSvg("github", 15)}<span>Source</span></a>` : ""}
+            </div>
           </div>
         </article>`,
       )
@@ -117,7 +152,7 @@ export function PortfolioIdeView({
       .map(
         (s) => `
         <div class="skill-pill">
-          <span class="skill-dot"></span>
+          ${getTechnologyRawSvg(s, 16)}
           <span>${s}</span>
         </div>`,
       )
@@ -139,7 +174,7 @@ export function PortfolioIdeView({
 
   <!-- NAVIGATION -->
   <header class="navbar">
-    <div class="nav-brand">${name.split(" ")[0]}<span>.dev</span></div>
+    <div class="nav-brand">${name}<span> / Portfolio</span></div>
     <nav class="nav-links">
       <a href="#about">About</a>
       <a href="#skills">Skills</a>
@@ -161,6 +196,7 @@ export function PortfolioIdeView({
       <h1 class="hero-title">${name}</h1>
       <p class="hero-tagline">${tagline}</p>
       <p class="hero-bio">${bio}</p>
+      ${heroSocialLinksHtml}
       <div class="hero-cta-group">
         <a href="#projects" class="btn-primary">View Featured Projects</a>
         <a href="#contact" class="btn-secondary">Contact Me</a>
@@ -682,8 +718,11 @@ body {
 }
 
 .tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   font-size: 0.75rem;
-  padding: 0.2rem 0.6rem;
+  padding: 0.25rem 0.6rem;
   background: rgba(99, 102, 241, 0.1);
   color: #a5b4fc;
   border: 1px solid rgba(99, 102, 241, 0.2);
@@ -691,19 +730,101 @@ body {
   font-weight: 500;
 }
 
-.project-link {
-  color: #818cf8;
-  font-size: 0.85rem;
-  font-weight: 600;
-  text-decoration: none;
-  transition: color 0.2s;
-  display: inline-flex;
+.project-actions {
+  display: flex;
   align-items: center;
-  gap: 0.3rem;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: auto;
+  padding-top: 0.5rem;
 }
 
-.project-link:hover {
+.btn-live-demo {
+  background: var(--accent-gradient);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.4rem 0.85rem;
+  border-radius: 8px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+}
+
+.btn-live-demo:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.45);
+}
+
+.btn-preview-modal {
+  background: rgba(99, 102, 241, 0.12);
   color: #c7d2fe;
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.35rem 0.75rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-preview-modal:hover {
+  background: rgba(99, 102, 241, 0.22);
+  color: #fff;
+}
+
+.btn-github {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 0.35rem 0.75rem;
+  border-radius: 8px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: all 0.2s;
+}
+
+.btn-github:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.hero-socials {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+
+.social-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  text-decoration: none;
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.social-btn:hover {
+  background: rgba(99, 102, 241, 0.15);
+  border-color: var(--border-glow);
+  color: #fff;
+  transform: translateY(-2px);
 }
 
 /* EXPERIENCE CARD */
@@ -807,14 +928,34 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Contact trigger interactive feedback
+  // Contact trigger
   const contactBtn = document.getElementById("contactModalTrigger");
   if (contactBtn) {
     contactBtn.addEventListener("click", () => {
-      const email = "${portfolioData.socialLinks.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/)?.[0] || "hello@" + name.toLowerCase().replace(/\s+/g, "") + ".dev"}";
-      alert("Send an email to " + email);
+      const email = "${(portfolioData.socialLinks.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/)?.[0] || 'connect@' + name.toLowerCase().replace(/[^a-z0-9]/g, '') + '.me')}";
+      window.location.href = "mailto:" + email;
     });
   }
+
+  // Interactive Live Preview Modal bridge
+  document.querySelectorAll(".btn-preview-modal").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      const liveUrl = btn.getAttribute("data-live-url");
+      const projectName = btn.getAttribute("data-project-name");
+      const githubUrl = btn.getAttribute("data-github-url");
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({
+          type: "OPEN_PROJECT_PREVIEW",
+          liveUrl,
+          projectName,
+          githubUrl,
+        }, "*");
+      } else if (liveUrl) {
+        window.open(liveUrl, "_blank");
+      }
+    });
+  });
 
   // Theme toggle
   const themeBtn = document.getElementById("themeToggle");
@@ -917,6 +1058,33 @@ npx serve .
   const [relativeSavedStr, setRelativeSavedStr] = useState<string>("Saved just now");
   const [multiTabConflict, setMultiTabConflict] = useState<boolean>(false);
   const [isResetDialogOpen, setIsResetDialogOpen] = useState<boolean>(false);
+
+  // --- Interactive Project Live Preview Modal State & Message Listener ---
+  const [previewModalProject, setPreviewModalProject] = useState<{
+    isOpen: boolean;
+    projectName: string;
+    liveUrl: string;
+    githubUrl?: string;
+  }>({
+    isOpen: false,
+    projectName: "",
+    liveUrl: "",
+  });
+
+  useEffect(() => {
+    const handleMessage = (e: MessageEvent) => {
+      if (e.data && e.data.type === "OPEN_PROJECT_PREVIEW") {
+        setPreviewModalProject({
+          isOpen: true,
+          projectName: e.data.projectName || "Project Live Preview",
+          liveUrl: e.data.liveUrl || "",
+          githubUrl: e.data.githubUrl || "",
+        });
+      }
+    };
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, []);
 
   // --- Run / Build State Machine & Diagnostics ---
   type BuildStatus = "idle" | "building" | "ready" | "failed";
@@ -1800,18 +1968,30 @@ npx serve .
         </div>
       )}
       {editLifecycle.phase === "failed" && (
-        <div className="px-3 py-2 bg-rose-950/30 border-b border-rose-500/20 flex items-center justify-between gap-2 text-xs text-rose-400">
-          <div className="flex items-center gap-2">
-            <X className="h-3.5 w-3.5" />
-            <span className="font-semibold">AI generation failed: {editLifecycle.error}</span>
+        <div className="px-3 py-1.5 bg-slate-900/90 border-b border-border/70 flex items-center justify-between gap-2 text-xs text-slate-300">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="w-2 h-2 rounded-full bg-amber-400 shrink-0" />
+            <span className="text-[11px] font-mono text-slate-300 truncate">
+              AI Assistant: Temporarily busy. File editing, code execution, and live preview remain active.
+            </span>
           </div>
-          <button
-            type="button"
-            onClick={() => setEditLifecycle({ phase: "idle" })}
-            className="text-rose-300 hover:text-white px-2 py-0.5 rounded hover:bg-rose-900/40 transition"
-          >
-            Dismiss
-          </button>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={() => handleRunAiAssist()}
+              className="text-[11px] font-semibold text-indigo-400 hover:text-indigo-300 underline cursor-pointer"
+            >
+              Retry
+            </button>
+            <button
+              type="button"
+              onClick={() => setEditLifecycle({ phase: "idle" })}
+              className="text-slate-400 hover:text-white text-xs px-1.5 py-0.5 rounded hover:bg-slate-800 transition"
+              aria-label="Dismiss status"
+            >
+              ✕
+            </button>
+          </div>
         </div>
       )}
 
@@ -2012,12 +2192,12 @@ npx serve .
                     {buildStatus === "failed" && "Build failed"}
                   </span>
                 </div>
-                <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-950/80 border border-border/60 text-[11px] font-mono text-muted-foreground truncate max-w-[200px]">
+                <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-950/80 border border-border/60 text-[11px] font-mono text-slate-300 truncate max-w-[240px]">
                   <Lock className="h-2.5 w-2.5 text-emerald-400 shrink-0" />
                   <span className="truncate">
-                    {portfolioData.fullName
-                      ? `${portfolioData.fullName.toLowerCase().replace(/[^a-z0-9]/g, "")}.dev`
-                      : "portfolio.preview"}
+                    learnifyai.in/p/{portfolioData.fullName
+                      ? portfolioData.fullName.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "")
+                      : "preview"}
                   </span>
                 </div>
               </div>
@@ -2231,6 +2411,16 @@ npx serve .
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Interactive Project Live Preview Modal */}
+      <ProjectLivePreviewModal
+        isOpen={previewModalProject.isOpen}
+        onClose={() => setPreviewModalProject((prev) => ({ ...prev, isOpen: false }))}
+        projectName={previewModalProject.projectName}
+        liveUrl={previewModalProject.liveUrl}
+        githubUrl={previewModalProject.githubUrl}
+      />
     </div>
   );
 }
+

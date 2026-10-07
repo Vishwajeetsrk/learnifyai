@@ -249,8 +249,8 @@ function FileItemRow({
             <div className="flex items-center gap-1.5 min-w-0 truncate">
               <span
                 className={cn(
-                  "truncate block text-[11px]",
-                  isSelected ? "text-primary font-semibold" : "text-foreground/90",
+                  "truncate block text-xs font-mono tracking-tight",
+                  isSelected ? "text-indigo-400 font-bold" : "text-slate-200 hover:text-white",
                 )}
               >
                 {node.name}

@@ -9,6 +9,8 @@ export type PlatformStats = {
   countries: number;
 };
 
+import { CANONICAL_BENCHMARKS } from "@/lib/canonical-config";
+
 export const getPlatformStats = createServerFn({ method: "GET" }).handler(
   async (): Promise<PlatformStats> => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -26,7 +28,7 @@ export const getPlatformStats = createServerFn({ method: "GET" }).handler(
       }
     };
 
-    const [learners, courses, creators, enrollments, certificates] = await Promise.all([
+    const [dbLearners, dbCourses, dbCreators, enrollments, certificates] = await Promise.all([
       safeCount("profiles"),
       safeCount("courses", (q) => q.eq("published", true)),
       safeCount("user_roles", (q) => q.eq("role", "creator")),
@@ -35,12 +37,12 @@ export const getPlatformStats = createServerFn({ method: "GET" }).handler(
     ]);
 
     return {
-      learners,
-      courses,
-      creators: creators || Math.max(1, Math.floor(learners * 0.05)),
+      learners: Math.max(dbLearners, CANONICAL_BENCHMARKS.learners),
+      courses: Math.max(dbCourses, CANONICAL_BENCHMARKS.coursesShipped),
+      creators: Math.max(dbCreators, CANONICAL_BENCHMARKS.creators),
       enrollments,
       certificates,
-      countries: 42,
+      countries: CANONICAL_BENCHMARKS.countries,
     };
   },
 );

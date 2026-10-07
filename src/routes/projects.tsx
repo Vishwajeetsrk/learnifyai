@@ -37,13 +37,14 @@ import { ShaderShowcase, ShaderButtons } from "@/components/shaders";
 import "@/components/shaders/threeui.css";
 
 export const Route = createFileRoute("/projects")({
+  loader: () => projectsData as Project[],
   head: () => ({
     meta: [
       { title: "Design Projects Showcase — Learnify AI" },
       {
         name: "description",
         content:
-          "Explore 47 interactive website design templates, micro-sites, and UX prototypes built with next-generation aesthetics.",
+          "Explore 46 interactive website design templates, micro-sites, and UX prototypes built with next-generation aesthetics.",
       },
     ],
   }),
@@ -394,8 +395,9 @@ function ProjectsPage() {
   const [viewport, setViewport] = useState<ViewportType>("desktop");
   const [filter, setFilter] = useState("all");
 
-  const { data: dbProjects = [] } = useQuery({
+  const { data: dbProjects = (projectsData as Project[]) } = useQuery({
     queryKey: ["design-projects-public"],
+    initialData: projectsData as Project[],
     queryFn: async () => {
       try {
         const { data, error } = await supabase
@@ -734,7 +736,7 @@ function ProjectsPage() {
                     </div>
                     <div className="bg-muted rounded px-4 py-0.5 flex-1 flex items-center justify-center gap-1.5 text-muted-foreground font-mono text-[10px]">
                       <Globe className="h-2.5 w-2.5 text-primary" />
-                      <span className="text-primary/80">learnify.ai</span>
+                      <span className="text-primary/80">learnifyai.in</span>
                       <span>{selectedProject.path}</span>
                     </div>
                   </div>

@@ -48,27 +48,37 @@ export const Route = createFileRoute("/about")({
   component: AboutPage,
 });
 
+import { CANONICAL_BENCHMARKS } from "@/lib/canonical-config";
+
 function AboutPage() {
   const { data } = useQuery({
     queryKey: ["platform-stats"],
     queryFn: () => getPlatformStats(),
+    initialData: {
+      learners: CANONICAL_BENCHMARKS.learners,
+      courses: CANONICAL_BENCHMARKS.coursesShipped,
+      creators: CANONICAL_BENCHMARKS.creators,
+      enrollments: 25000,
+      certificates: 18000,
+      countries: CANONICAL_BENCHMARKS.countries,
+    },
     refetchInterval: 15_000,
   });
 
   const stats = [
     {
-      value: Math.max(data?.learners ?? 0, 120_000),
+      value: data?.learners ?? CANONICAL_BENCHMARKS.learners,
       suffix: "+",
       label: "Active learners",
       compact: true,
     },
     {
-      value: Math.max(data?.courses ?? 0, 3_400),
+      value: data?.courses ?? CANONICAL_BENCHMARKS.coursesShipped,
       suffix: "+",
       label: "Courses shipped",
       compact: true,
     },
-    { value: data?.countries ?? 42, suffix: "", label: "Countries", compact: false },
+    { value: data?.countries ?? CANONICAL_BENCHMARKS.countries, suffix: "+", label: "Countries", compact: false },
   ];
 
   return (

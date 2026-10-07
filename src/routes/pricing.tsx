@@ -63,6 +63,8 @@ import {
 import { ContextualLegalNotice } from "@/components/legal/ContextualLegalNotice";
 import { TestimonialsMarquee } from "@/components/ui/testimonials-with-marquee";
 import { getRealHumanAvatar } from "@/lib/real-avatars";
+import { CANONICAL_BENCHMARKS } from "@/lib/canonical-config";
+import { getPlatformStats } from "@/lib/stats.functions";
 
 export const Route = createFileRoute("/pricing")({
   validateSearch: (s: Record<string, unknown>): { subscribe?: string; coupon?: string } => ({
@@ -80,8 +82,7 @@ export const Route = createFileRoute("/pricing")({
       { property: "og:title", content: "Pricing — Learnify AI" },
       {
         property: "og:description",
-        content:
-          "Simple, transparent pricing. Start free, upgrade when you're ready. 10,000+ learners trust Learnify AI.",
+        content: `Simple, transparent pricing. Start free, upgrade when you're ready. ${CANONICAL_BENCHMARKS.learnersLabel} learners trust Learnify AI.`,
       },
     ],
     links: [{ rel: "canonical", href: "https://www.learnifyai.in/pricing" }],
@@ -409,8 +410,21 @@ function PricingPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [selectedTestimonial, setSelectedTestimonial] = useState<any>(null);
   const [origin, setOrigin] = useState("https://learnifyai.in");
-  const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("yearly");
-  const [learnerCount, setLearnerCount] = useState(2134);
+  const { data: platformStats } = useQuery({
+    queryKey: ["platform-stats"],
+    queryFn: () => getPlatformStats(),
+    initialData: {
+      learners: CANONICAL_BENCHMARKS.learners,
+      courses: CANONICAL_BENCHMARKS.coursesShipped,
+      creators: CANONICAL_BENCHMARKS.creators,
+      enrollments: 25000,
+      certificates: 18000,
+      countries: CANONICAL_BENCHMARKS.countries,
+    },
+    refetchInterval: 30_000,
+  });
+  const learnerCount = platformStats?.learners ?? CANONICAL_BENCHMARKS.learners;
+  const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
   const [faqSearch, setFaqSearch] = useState("");
   const [faqCategory, setFaqCategory] = useState<string | null>(null);
   const [couponCode, setCouponCode] = useState("");
@@ -742,13 +756,13 @@ function PricingPage() {
             {/* Trust indicators */}
             <div className="flex flex-wrap justify-center gap-4 sm:gap-8 mt-10">
               {[
-                { icon: Star, label: "4.9 Rating", sub: "10,000+ Learners" },
+                { icon: Star, label: "4.9 Rating", sub: `${CANONICAL_BENCHMARKS.learnersLabel} Learners` },
                 { icon: GraduationCap, label: "25,000+ Certificates", sub: "Issued & Verified" },
                 { icon: Briefcase, label: "Career Focused", sub: "Learning that leads to jobs" },
                 {
                   icon: Users,
-                  label: `🔥 ${learnerCount.toLocaleString("en-IN")} Active`,
-                  sub: "Students enrolled",
+                  label: `🔥 ${learnerCount.toLocaleString("en-IN")}+ Active`,
+                  sub: "Learners enrolled",
                 },
               ].map(({ icon: Icon, label, sub }, i) => (
                 <div key={label} className="flex items-center gap-3 text-left">
@@ -848,7 +862,7 @@ function PricingPage() {
             <div className="relative px-8 py-10 md:px-12 md:py-12 text-center">
               <div className="inline-flex items-center gap-2 rounded-full bg-emerald-500/10 px-4 py-1.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400 mb-4">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                {learnerCount.toLocaleString("en-IN")} learners started this month
+                {CANONICAL_BENCHMARKS.learnersLabel} learners learning with AI
               </div>
               <h2 className="text-2xl md:text-3xl font-bold tracking-tight mb-3">
                 Experience Learnify AI Today
