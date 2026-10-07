@@ -49,7 +49,9 @@ export function generateOpenBadgeV3({
   verificationUrl: string;
 }): OpenBadgeV3Credential {
   const origin =
-    typeof window !== "undefined" ? window.location.origin : "https://learnifyaitool.vercel.app";
+    typeof window !== "undefined"
+      ? window.location.origin
+      : (process.env.APP_URL || "https://www.learnifyai.in");
 
   return {
     "@context": [
@@ -78,7 +80,7 @@ export function generateOpenBadgeV3({
         },
         alignment: skills.map((skill) => ({
           targetName: skill,
-          targetUrl: `https://learnifyaitool.vercel.app/skills/${encodeURIComponent(skill)}`,
+          targetUrl: `${origin}/skills/${encodeURIComponent(skill)}`,
         })),
       },
     },

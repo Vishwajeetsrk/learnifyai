@@ -21,7 +21,7 @@ export async function autoGenerateCourseCertificate({
 
   const certId = `LRN-CERT-${Math.floor(100000 + Math.random() * 900000)}`;
   const origin =
-    typeof window !== "undefined" ? window.location.origin : "https://learnifyaitool.vercel.app";
+    typeof window !== "undefined" ? window.location.origin : (process.env.APP_URL || "https://www.learnifyai.in");
   const verificationUrl = `${origin}/verify/${certId}`;
 
   const { data: cert, error } = await supabase
