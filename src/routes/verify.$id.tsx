@@ -21,9 +21,11 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { CertificateRender, DEFAULT_DESIGN, type CertDesign } from "@/components/CertificateDesign";
 import { downloadElementAsPdf, downloadElementAsImage } from "@/lib/certificate-pdf";
 import { AppleCertificateStage } from "@/components/certificates/AppleCertificateStage";
+import { EngravedCertificateTemplate } from "@/components/certificate/EngravedCertificateTemplate";
+import { DEFAULT_DESIGN, type CertDesign } from "@/components/CertificateDesign";
+import { Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/verify/$id")({
   head: () => ({ meta: [{ title: "Verify Credential — Learnify AI" }] }),
@@ -35,6 +37,7 @@ function CertificateVerificationPage() {
   const certRef = useRef<HTMLDivElement>(null);
   const [qrDataUrl, setQrDataUrl] = useState<string>("");
   const [downloading, setDownloading] = useState(false);
+  const [viewMode, setViewMode] = useState<"engraved" | "apple">("engraved");
 
   const { data: cert, isLoading } = useQuery({
     queryKey: ["certificate-verify", id],
@@ -208,12 +211,43 @@ function CertificateVerificationPage() {
   return (
     <AppShell>
       <div className="py-8 sm:py-12 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto space-y-8">
-        <Link
-          to="/certificates"
-          className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <ArrowLeft className="h-4 w-4" /> Back to Certificates
-        </Link>
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <Link
+            to="/certificates"
+            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4" /> Back to Certificates
+          </Link>
+
+          {cert && cert.status !== "revoked" && (
+            <div className="flex items-center gap-1 bg-muted/60 p-0.5 rounded-xl border border-border/40">
+              <button
+                type="button"
+                onClick={() => setViewMode("engraved")}
+                className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer ${
+                  viewMode === "engraved"
+                    ? "bg-primary text-primary-foreground font-semibold shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <Award className="h-3.5 w-3.5" />
+                <span>Engraved Rosette</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode("apple")}
+                className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer ${
+                  viewMode === "apple"
+                    ? "bg-primary text-primary-foreground font-semibold shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <Sparkles className="h-3.5 w-3.5" />
+                <span>3D Hologram</span>
+              </button>
+            </div>
+          )}
+        </div>
 
         {isLoading ? (
           <Card className="p-12 text-center space-y-4">
@@ -259,6 +293,21 @@ function CertificateVerificationPage() {
               <Link to="/courses">Browse Current Courses</Link>
             </Button>
           </Card>
+        ) : viewMode === "engraved" ? (
+          <EngravedCertificateTemplate
+            ref={certRef}
+            initialRecipientName={ctx.name}
+            initialCourseTitle={ctx.course}
+            initialIssueDate={ctx.date}
+            initialCredentialId={ctx.code}
+            initialSignatoryName={design.signatory_name || "Vishwajeet"}
+            initialSignatoryTitle={design.signatory_title || "Founder & Chief AI Architect, Learnify AI"}
+            logoUrl="/logo.png"
+            qrDataUrl={qrDataUrl}
+            onDownloadPdf={handleDownloadPdf}
+            onDownloadImage={handleDownloadImage}
+            downloading={downloading}
+          />
         ) : (
           <AppleCertificateStage
             design={design}

@@ -31,19 +31,33 @@ export interface EngravedCertificateTemplateProps {
   initialSignatoryName?: string;
   initialSignatoryTitle?: string;
   logoUrl?: string;
+  qrDataUrl?: string;
   className?: string;
+  onDownloadPdf?: () => void;
+  onDownloadImage?: () => void;
+  downloading?: boolean;
 }
 
-export function EngravedCertificateTemplate({
-  initialRecipientName = "Alex Vance",
-  initialCourseTitle = "Full-Stack AI Engineering & Agent Architecture",
-  initialIssueDate = "October 2026",
-  initialCredentialId = "LRNAI-2026-9842X",
-  initialSignatoryName = "Vishwajeet",
-  initialSignatoryTitle = "Founder & Chief AI Architect, Learnify AI",
-  logoUrl = "/logo.png",
-  className = "",
-}: EngravedCertificateTemplateProps) {
+export const EngravedCertificateTemplate = React.forwardRef<
+  HTMLDivElement,
+  EngravedCertificateTemplateProps
+>(function EngravedCertificateTemplate(
+  {
+    initialRecipientName = "Alex Vance",
+    initialCourseTitle = "Full-Stack AI Engineering & Agent Architecture",
+    initialIssueDate = "October 2026",
+    initialCredentialId = "LRNAI-2026-9842X",
+    initialSignatoryName = "Vishwajeet",
+    initialSignatoryTitle = "Founder & Chief AI Architect, Learnify AI",
+    logoUrl = "/logo.png",
+    qrDataUrl,
+    className = "",
+    onDownloadPdf,
+    onDownloadImage,
+    downloading = false,
+  },
+  ref
+) {
   // State for editable fields
   const [recipientName, setRecipientName] = useState(initialRecipientName);
   const [courseTitle, setCourseTitle] = useState(initialCourseTitle);
@@ -51,6 +65,23 @@ export function EngravedCertificateTemplate({
   const [credentialId, setCredentialId] = useState(initialCredentialId);
   const [signatoryName, setSignatoryName] = useState(initialSignatoryName);
   const [signatoryTitle, setSignatoryTitle] = useState(initialSignatoryTitle);
+
+  // Keep state synced if props change
+  React.useEffect(() => {
+    if (initialRecipientName) setRecipientName(initialRecipientName);
+    if (initialCourseTitle) setCourseTitle(initialCourseTitle);
+    if (initialIssueDate) setIssueDate(initialIssueDate);
+    if (initialCredentialId) setCredentialId(initialCredentialId);
+    if (initialSignatoryName) setSignatoryName(initialSignatoryName);
+    if (initialSignatoryTitle) setSignatoryTitle(initialSignatoryTitle);
+  }, [
+    initialRecipientName,
+    initialCourseTitle,
+    initialIssueDate,
+    initialCredentialId,
+    initialSignatoryName,
+    initialSignatoryTitle,
+  ]);
 
   // Shader color calibration
   const [hue, setHue] = useState(0);
@@ -162,6 +193,32 @@ export function EngravedCertificateTemplate({
             <span>{isEditing ? "Done Editing" : "Edit Certificate"}</span>
           </Button>
 
+          {onDownloadPdf && (
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={downloading}
+              onClick={onDownloadPdf}
+              className="h-8 gap-1.5 text-xs font-medium border-border/60 hover:bg-muted"
+            >
+              <Download className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">PDF</span>
+            </Button>
+          )}
+
+          {onDownloadImage && (
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={downloading}
+              onClick={onDownloadImage}
+              className="h-8 gap-1.5 text-xs font-medium border-border/60 hover:bg-muted"
+            >
+              <Download className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">PNG</span>
+            </Button>
+          )}
+
           <Button
             variant="ghost"
             size="sm"
@@ -198,7 +255,7 @@ export function EngravedCertificateTemplate({
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-xs font-semibold">Credential ID / Token</Label>
+            <Label className="text-xs font-semibold">Credential ID</Label>
             <Input
               value={credentialId}
               onChange={(e) => setCredentialId(e.target.value)}
@@ -251,7 +308,10 @@ export function EngravedCertificateTemplate({
       )}
 
       {/* Main Certificate Stage */}
-      <div className="relative w-full max-w-4xl aspect-[1.38/1] min-h-[460px] sm:min-h-[580px] rounded-3xl overflow-hidden shadow-2xl border border-[#c9b48c]/40 bg-[#ded6c2]">
+      <div
+        ref={ref}
+        className="relative w-full max-w-4xl aspect-[1.38/1] min-h-[460px] sm:min-h-[580px] rounded-3xl overflow-hidden shadow-2xl border border-[#c9b48c]/40 bg-[#ded6c2]"
+      >
         {/* Background Harmonic Guilloche Rosette Canvas */}
         <div className="absolute inset-0 pointer-events-none z-0">
           <EngravedCertificate
@@ -337,16 +397,27 @@ export function EngravedCertificateTemplate({
               </div>
             </div>
 
-            {/* Center Seal Stamp */}
+            {/* Center Seal Stamp / QR Code */}
             <div className="hidden sm:flex flex-col items-center">
-              <div className="h-16 w-16 rounded-full border-2 border-dashed border-[#1f3a30]/40 flex items-center justify-center bg-white/30 backdrop-blur-xs shadow-inner">
-                <div className="text-center">
-                  <Award className="h-5 w-5 mx-auto text-[#1f3a30]" />
-                  <span className="text-[8px] font-mono uppercase tracking-tighter block text-[#1f3a30] font-bold">
-                    Official
+              {qrDataUrl ? (
+                <div className="flex flex-col items-center gap-1">
+                  <div className="h-16 w-16 p-1 rounded-xl border border-[#1f3a30]/30 bg-white/70 backdrop-blur-xs shadow-sm">
+                    <img src={qrDataUrl} alt="Verification QR" className="h-full w-full object-contain" />
+                  </div>
+                  <span className="text-[8px] font-mono uppercase tracking-widest text-[#1f3a30]/60">
+                    Scan to Verify
                   </span>
                 </div>
-              </div>
+              ) : (
+                <div className="h-16 w-16 rounded-full border-2 border-dashed border-[#1f3a30]/40 flex items-center justify-center bg-white/30 backdrop-blur-xs shadow-inner">
+                  <div className="text-center">
+                    <Award className="h-5 w-5 mx-auto text-[#1f3a30]" />
+                    <span className="text-[8px] font-mono uppercase tracking-tighter block text-[#1f3a30] font-bold">
+                      Official
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Signatory Authority */}
@@ -364,6 +435,6 @@ export function EngravedCertificateTemplate({
       </div>
     </div>
   );
-}
+});
 
 export default EngravedCertificateTemplate;

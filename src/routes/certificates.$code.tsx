@@ -23,7 +23,8 @@ import { downloadElementAsPdf, downloadElementAsImage } from "@/lib/certificate-
 import { CertificateRender, DEFAULT_DESIGN, type CertDesign } from "@/components/CertificateDesign";
 import { CertificateFullPreviewDialog } from "@/components/CertificateFullPreviewDialog";
 import { AppleCertificateStage } from "@/components/certificates/AppleCertificateStage";
-import { Maximize2, Image as ImageIcon } from "lucide-react";
+import { EngravedCertificateTemplate } from "@/components/certificate/EngravedCertificateTemplate";
+import { Maximize2, Image as ImageIcon, Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/certificates/$code")({
   head: () => ({ meta: [{ title: "Certificate — Learnify AI" }] }),
@@ -51,6 +52,7 @@ function CertificatePage() {
   const [emailOpen, setEmailOpen] = useState(false);
   const [emailTo, setEmailTo] = useState("");
   const [sending, setSending] = useState(false);
+  const [viewMode, setViewMode] = useState<"engraved" | "apple">("engraved");
   const [downloading, setDownloading] = useState(false);
   const [fullPreviewOpen, setFullPreviewOpen] = useState(false);
   const sendEmail = useServerFn(emailCertificate);
@@ -318,12 +320,44 @@ function CertificatePage() {
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Apple Style Top Navigation & Actions Bar */}
         <div className="flex items-center justify-between gap-3 p-3 rounded-2xl bg-neutral-900/80 backdrop-blur-xl border border-white/10 shadow-xl print:hidden flex-wrap">
-          <Link
-            to="/certificates"
-            className="text-xs font-semibold text-neutral-400 hover:text-white transition-colors px-2 py-1"
-          >
-            ← All Certificates
-          </Link>
+          <div className="flex items-center gap-2 flex-wrap">
+            <Link
+              to="/certificates"
+              className="text-xs font-semibold text-neutral-400 hover:text-white transition-colors px-2 py-1"
+            >
+              ← All Certificates
+            </Link>
+
+            {/* Edition Switcher */}
+            {!row.v2?.certificate_templates && (
+              <div className="flex items-center gap-1 bg-white/5 p-0.5 rounded-xl border border-white/10">
+                <button
+                  type="button"
+                  onClick={() => setViewMode("engraved")}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer ${
+                    viewMode === "engraved"
+                      ? "bg-white text-black font-semibold shadow-sm"
+                      : "text-neutral-400 hover:text-white"
+                  }`}
+                >
+                  <Award className="h-3.5 w-3.5" />
+                  <span>Engraved Rosette</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode("apple")}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer ${
+                    viewMode === "apple"
+                      ? "bg-white text-black font-semibold shadow-sm"
+                      : "text-neutral-400 hover:text-white"
+                  }`}
+                >
+                  <Sparkles className="h-3.5 w-3.5" />
+                  <span>3D Hologram</span>
+                </button>
+              </div>
+            )}
+          </div>
           <div className="flex items-center gap-2 flex-wrap">
             <Button
               size="sm"
@@ -496,6 +530,24 @@ function CertificatePage() {
               </div>
             )}
           </div>
+        ) : viewMode === "engraved" ? (
+          <EngravedCertificateTemplate
+            ref={certRef}
+            initialRecipientName={ctx.name}
+            initialCourseTitle={ctx.course}
+            initialIssueDate={ctx.date}
+            initialCredentialId={ctx.code}
+            initialSignatoryName={row.v2?.certificate_templates?.signatory_name || "Vishwajeet"}
+            initialSignatoryTitle={
+              row.v2?.certificate_templates?.signatory_title ||
+              "Founder & Chief AI Architect, Learnify AI"
+            }
+            logoUrl={row.issuer_org_logo_url || "/logo.png"}
+            qrDataUrl={qrDataUrl}
+            onDownloadPdf={handleDownloadPdf}
+            onDownloadImage={handleDownloadImage}
+            downloading={downloading}
+          />
         ) : (
           <AppleCertificateStage
             design={design}

@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { EngravedCertificateTemplate } from "@/components/certificate/EngravedCertificateTemplate";
 
 export const Route = createFileRoute("/verified-certificates")({
   head: () => ({
@@ -419,8 +420,42 @@ function VerifiedCertificatesPage() {
         </div>
       </section>
 
+      {/* ═══════════ INTERACTIVE ENGRAVED STAGE ═══════════ */}
+      <section className="container mx-auto px-6 py-12 md:py-16 max-w-5xl">
+        <motion.div
+          className="text-center mb-10"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.6 }}
+        >
+          <Badge
+            variant="outline"
+            className="mb-3 px-3 py-1 text-xs border-emerald-500/30 text-emerald-500 bg-emerald-500/10 font-mono tracking-wider uppercase"
+          >
+            Live Credential Stage
+          </Badge>
+          <h2 className="text-2xl md:text-4xl font-bold tracking-tight">
+            Interactive Certificate Engine
+          </h2>
+          <p className="mt-2 text-sm text-muted-foreground max-w-xl mx-auto">
+            Experience our ThreeUI harmonic guilloche rosette engraving in real-time. Full tamper-proof cryptographic metadata with instantaneous QR verification.
+          </p>
+        </motion.div>
+
+        <div className="mb-12 flex justify-center">
+          <EngravedCertificateTemplate
+            initialRecipientName="Sarah Jenkins"
+            initialCourseTitle="Advanced AI Systems & Autonomous Agent Engineering"
+            initialIssueDate="October 2026"
+            initialCredentialId="LRNAI-2026-8821V"
+            logoUrl="/logo.png"
+          />
+        </div>
+      </section>
+
       {/* ═══════════ REAL CERTIFICATES ═══════════ */}
-      <section className="container mx-auto px-6 py-16 md:py-20 max-w-5xl">
+      <section className="container mx-auto px-6 py-12 md:py-16 max-w-5xl border-t border-border/40">
         <motion.div
           className="text-center mb-12"
           initial={{ opacity: 0, y: 30 }}
