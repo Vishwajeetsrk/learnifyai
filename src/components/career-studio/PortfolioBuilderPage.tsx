@@ -50,6 +50,8 @@ import { MacOSSkillsDock } from "./MacOSSkillsDock";
 import { HoloTiltCard } from "./HoloTiltCard";
 import { PortfolioIdeView } from "./PortfolioIdeView";
 import { PortfolioLivePreview } from "./portfolio/PortfolioLivePreview";
+import { PortfolioFactoryControls } from "./portfolio/PortfolioFactoryControls";
+import type { FactoryGenerationConfig } from "@/lib/portfolio-factory";
 import { generateCanonicalPortfolioFiles, compilePortfolioToSingleHtml } from "@/lib/portfolioRenderer";
 import { LearnifyMascot } from "@/components/brand/LearnifyMascot";
 import { TechnologyIcon, getTechnologyRawSvg } from "@/components/icons/TechnologyIcon";
@@ -140,7 +142,24 @@ export function PortfolioBuilderPage({ embedded = false }: { embedded?: boolean 
     return [];
   });
   const [published, setPublished] = useState(false);
-  const canonicalFiles = generateCanonicalPortfolioFiles(form, projects, photoPreview);
+  const [factoryConfig, setFactoryConfig] = useState<FactoryGenerationConfig>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("portfolio_factory_config");
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch {}
+      }
+    }
+    return {};
+  });
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    localStorage.setItem("portfolio_factory_config", JSON.stringify(factoryConfig));
+  }, [factoryConfig]);
+
+  const canonicalFiles = generateCanonicalPortfolioFiles(form, projects, photoPreview, factoryConfig);
   const canonicalSrcDoc = compilePortfolioToSingleHtml(canonicalFiles);
   const [exportFormat, setExportFormat] = useState<"md" | "html">("md");
 
@@ -643,6 +662,20 @@ This portfolio website was generated with Learnify AI Portfolio Builder.
               <Check className="h-3 w-3" /> Published
             </Badge>
           )}
+        </motion.div>
+      )}
+
+      {tab !== "ide" && (
+        <motion.div
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-5"
+        >
+          <PortfolioFactoryControls
+            portfolioData={{ ...form, projects }}
+            config={factoryConfig}
+            onChangeConfig={setFactoryConfig}
+          />
         </motion.div>
       )}
 

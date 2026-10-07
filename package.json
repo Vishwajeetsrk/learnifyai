@@ -14,7 +14,8 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "test:portfolio": "node --experimental-strip-types scripts/test-portfolio-ide.ts"
+    "test:portfolio": "node --experimental-strip-types scripts/test-portfolio-ide.ts",
+    "test:factory": "node --experimental-strip-types scripts/test-portfolio-factory.ts"
   },
   "dependencies": {
     "@ai-sdk/openai-compatible": "^2.0.54",
