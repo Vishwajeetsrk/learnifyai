@@ -42,10 +42,25 @@
   --gradient-glow: var(--gradient-glow);
   --shadow-glow: var(--shadow-glow);
   --shadow-card: var(--shadow-card);
+
+  --color-learnify-navy: var(--learnify-navy);
+  --color-learnify-blue: var(--learnify-blue);
+  --color-learnify-cyan: var(--learnify-cyan);
+  --color-learnify-coral: var(--learnify-coral);
+  --color-learnify-violet: var(--learnify-violet);
+  --color-learnify-surface: var(--learnify-surface);
 }
 
 :root {
   --radius: 0.875rem;
+
+  /* Learnify AI Official Brand Tokens (derived from learnify-logo.png) */
+  --learnify-navy: #0A1128;
+  --learnify-blue: #1D4ED8;
+  --learnify-cyan: #00A6FB;
+  --learnify-coral: #FB7185;
+  --learnify-violet: #818CF8;
+  --learnify-surface: #0F172A;
 
   /* Inspired by Learnify logo: deep navy + electric blue */
   --background: oklch(0.99 0.005 250);
@@ -86,6 +101,13 @@
 }
 
 .dark {
+  --learnify-navy: #0A1128;
+  --learnify-blue: #3B82F6;
+  --learnify-cyan: #38BDF8;
+  --learnify-coral: #FDA4AF;
+  --learnify-violet: #A5B4FC;
+  --learnify-surface: #020617;
+
   --background: oklch(0.13 0.04 265);
   --foreground: oklch(0.98 0.005 250);
   --card: oklch(0.18 0.05 265);

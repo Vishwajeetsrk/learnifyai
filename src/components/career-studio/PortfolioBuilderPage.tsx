@@ -49,6 +49,9 @@ import { CourseBrandLogo } from "@/components/courses/CourseBrandLogo";
 import { MacOSSkillsDock } from "./MacOSSkillsDock";
 import { HoloTiltCard } from "./HoloTiltCard";
 import { PortfolioIdeView } from "./PortfolioIdeView";
+import { PortfolioLivePreview } from "./portfolio/PortfolioLivePreview";
+import { generateCanonicalPortfolioFiles, compilePortfolioToSingleHtml } from "@/lib/portfolioRenderer";
+import { LearnifyMascot } from "@/components/brand/LearnifyMascot";
 import { TechnologyIcon, getTechnologyRawSvg } from "@/components/icons/TechnologyIcon";
 import { SocialIcon, detectSocialPlatform, normalizeSocialUrl } from "@/components/icons/SocialIcon";
 
@@ -137,6 +140,8 @@ export function PortfolioBuilderPage({ embedded = false }: { embedded?: boolean 
     return [];
   });
   const [published, setPublished] = useState(false);
+  const canonicalFiles = generateCanonicalPortfolioFiles(form, projects, photoPreview);
+  const canonicalSrcDoc = compilePortfolioToSingleHtml(canonicalFiles);
   const [exportFormat, setExportFormat] = useState<"md" | "html">("md");
 
   useEffect(() => {
@@ -1222,296 +1227,57 @@ This portfolio website was generated with Learnify AI Portfolio Builder.
           )}
         </TabsContent>
 
-        <TabsContent value="live" className="pt-4">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="max-w-4xl mx-auto border rounded-2xl overflow-hidden shadow-lg"
-          >
-            <div className="h-10 bg-muted/80 border-b flex items-center justify-between px-4 gap-2">
+        <TabsContent value="live" className="pt-2">
+          <div className="space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-3 bg-card border rounded-xl p-3 px-4 shadow-2xs">
+              <div className="flex items-center gap-2.5">
+                <Globe className="h-4 w-4 text-primary" />
+                <div>
+                  <div className="text-xs font-semibold text-foreground">
+                    Canonical Live Preview
+                  </div>
+                  <div className="text-[11px] text-muted-foreground">
+                    Unified preview compiled with your active details, skills, and projects
+                  </div>
+                </div>
+              </div>
               <div className="flex items-center gap-2">
-                <Globe className="h-3.5 w-3.5 text-primary" />
-                <span className="text-xs text-foreground/80 font-mono font-medium truncate max-w-[200px] sm:max-w-none">
-                  {form.fullName ? `${form.fullName.toLowerCase().replace(/\s+/g, "")}.learnifyai.in` : "portfolio.learnifyai.in"}
-                </span>
-              </div>
-              <Badge variant="outline" className="text-[10px] text-emerald-500 border-emerald-500/30 bg-emerald-500/10">
-                Live Preview
-              </Badge>
-            </div>
-            <div className="bg-gradient-to-br from-background to-muted/30 p-6 sm:p-10">
-              <div className="flex flex-col sm:flex-row items-center gap-6 mb-10">
-                <motion.div whileHover={{ scale: 1.05 }} className="relative">
-                  <Avatar className="h-24 w-24 rounded-full ring-4 ring-primary/20">
-                    {photoPreview ? (
-                      <AvatarImage src={photoPreview} alt={form.fullName} />
-                    ) : (
-                      <AvatarFallback className="text-2xl bg-gradient-to-br from-primary/10 to-primary/5 text-primary">
-                        {form.fullName?.charAt(0)?.toUpperCase() || "?"}
-                      </AvatarFallback>
-                    )}
-                  </Avatar>
-                </motion.div>
-                <div className="text-center sm:text-left">
-                  <h2 className="text-2xl font-bold">{form.fullName || "Your Name"}</h2>
-                  <p className="text-muted-foreground">{form.tagline || "Your Tagline"}</p>
-                  {form.bio && (
-                    <p className="text-sm text-muted-foreground/80 mt-2 max-w-lg">{form.bio}</p>
-                  )}
-                  {form.socialLinks && (
-                    <div className="flex items-center gap-3 mt-3 justify-center sm:justify-start flex-wrap">
-                      {form.socialLinks
-                        .split("\n")
-                        .filter(Boolean)
-                        .slice(0, 4)
-                        .map((link: string, i: number) => (
-                          <Badge key={i} variant="outline" className="text-[10px] gap-1">
-                            <ExternalLink className="h-3 w-3" />
-                            {link.replace(/https?:\/\//, "").split("/")[0]}
-                          </Badge>
-                        ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {form.skills && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.1 }}
-                  className="mb-8"
-                >
-                  <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
-                    <Code2 className="h-3.5 w-3.5 text-blue-500" /> Tech Skills
-                  </h3>
-                  <div className="flex flex-wrap gap-2">
-                    {form.skills.split(",").map((s: string, i: number) => (
-                      <motion.div
-                        key={i}
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: i * 0.03 }}
-                        whileHover={{ scale: 1.05, y: -2 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        <Badge variant="secondary" className="text-xs px-3 py-1.5 gap-2 pl-2 shadow-xs border border-border/50">
-                          <SkillLogo name={s.trim()} size={16} />
-                          <span className="font-medium">{s.trim()}</span>
-                        </Badge>
-                      </motion.div>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
-
-              {form.softSkills && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.15 }}
-                  className="mb-8"
-                >
-                  <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
-                    <Heart className="h-3.5 w-3.5 text-rose-500" /> Soft Skills
-                  </h3>
-                  <div className="flex flex-wrap gap-2">
-                    {form.softSkills.split(",").map((s: string, i: number) => (
-                      <motion.div
-                        key={i}
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: i * 0.03 }}
-                        whileHover={{ scale: 1.05, y: -2 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        <Badge
-                          variant="outline"
-                          className="text-xs border-rose-200 text-rose-600 bg-rose-50/50"
-                        >
-                          {s.trim()}
-                        </Badge>
-                      </motion.div>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
-
-              {form.tools && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.2 }}
-                  className="mb-8"
-                >
-                  <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
-                    <Settings className="h-3.5 w-3.5 text-amber-500" /> Tools
-                  </h3>
-                  <div className="flex flex-wrap gap-2">
-                    {form.tools.split(",").map((s: string, i: number) => (
-                      <motion.div
-                        key={i}
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: i * 0.03 }}
-                        whileHover={{ scale: 1.05, y: -2 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        <Badge
-                          variant="secondary"
-                          className="text-xs bg-amber-50/50 text-amber-700 border-amber-200"
-                        >
-                          {s.trim()}
-                        </Badge>
-                      </motion.div>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
-
-              {projects.filter((p) => p.name).length > 0 && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.25 }}
-                  className="mb-8"
-                >
-                  <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-                    Projects
-                  </h3>
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    {projects
-                      .filter((p) => p.name)
-                      .map((p, i) => (
-                        <motion.div
-                          key={i}
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: i * 0.1 }}
-                        >
-                          <Card className="overflow-hidden hover:shadow-lg transition-all group">
-                            {p.imageUrl && (
-                              <div className="h-40 overflow-hidden">
-                                <img
-                                  src={p.imageUrl}
-                                  alt={p.name}
-                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                />
-                              </div>
-                            )}
-                            <CardContent className="p-4">
-                              <div className="flex items-start justify-between gap-2">
-                                <div>
-                                  <h4 className="font-semibold">{p.name}</h4>
-                                  {p.description && (
-                                    <p className="text-sm text-muted-foreground mt-1">
-                                      {p.description}
-                                    </p>
-                                  )}
-                                  {p.techStack && (
-                                    <div className="flex flex-wrap gap-1.5 mt-2">
-                                      {p.techStack.split(",").map((t) => (
-                                        <Badge
-                                          key={t.trim()}
-                                          variant="outline"
-                                          className="text-[10px]"
-                                        >
-                                          {t.trim()}
-                                        </Badge>
-                                      ))}
-                                    </div>
-                                  )}
-                                </div>
-                                {p.githubUrl && (
-                                  <a
-                                    href={p.githubUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="shrink-0"
-                                  >
-                                    <Github className="h-5 w-5 text-muted-foreground hover:text-foreground transition" />
-                                  </a>
-                                )}
-                              </div>
-                            </CardContent>
-                          </Card>
-                        </motion.div>
-                      ))}
-                  </div>
-                </motion.div>
-              )}
-
-              {form.experience && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.3 }}
-                  className="mb-8"
-                >
-                  <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-                    Experience
-                  </h3>
-                  <div className="p-4 rounded-xl border bg-card">
-                    <p className="text-sm whitespace-pre-wrap">{form.experience}</p>
-                  </div>
-                </motion.div>
-              )}
-
-              {form.education && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.35 }}
-                >
-                  <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-                    Education
-                  </h3>
-                  <div className="p-4 rounded-xl border bg-card">
-                    <p className="text-sm">{form.education}</p>
-                  </div>
-                </motion.div>
-              )}
-
-              {!form.fullName && (
-                <div className="text-center py-12 text-muted-foreground">
-                  <FolderOpen className="h-12 w-12 mx-auto mb-3 opacity-30" />
-                  <p>Fill in the form to see your live preview.</p>
-                </div>
-              )}
-
-              <div className="flex flex-wrap justify-center gap-3 pt-6 border-t mt-8">
                 <Button
                   size="sm"
-                  onClick={() => setTab("ide")}
-                  className="gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold rounded-xl shadow-md cursor-pointer"
-                >
-                  <Code2 className="h-4 w-4" /> Open in Code Studio (IDE)
-                </Button>
-                <Button
-                  size="sm"
-                  onClick={handleExportZip}
-                  className="gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md cursor-pointer"
-                >
-                  <Download className="h-4 w-4" /> Download Full Website (ZIP)
-                </Button>
-                <Button
                   variant="outline"
-                  size="sm"
-                  onClick={handleExportHtml}
-                  className="gap-2 font-bold rounded-xl cursor-pointer"
+                  onClick={() => setTab("ide")}
+                  className="h-8 text-xs gap-1.5"
                 >
-                  <Download className="h-4 w-4" /> Export HTML
+                  <Code2 className="h-3.5 w-3.5 text-primary" /> Code Studio (IDE)
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleExportZip}
+                  className="h-8 text-xs gap-1.5"
+                >
+                  <Download className="h-3.5 w-3.5" /> Download ZIP
                 </Button>
                 <Button
                   size="sm"
                   onClick={handlePublish}
-                  className="gap-2 font-bold rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-md cursor-pointer"
+                  className="h-8 text-xs gap-1.5 bg-primary hover:bg-primary/90 text-primary-foreground font-medium"
                 >
-                  <Send className="h-4 w-4" /> {published ? "Update Publish" : "Publish Live URL"}
+                  <Send className="h-3.5 w-3.5" /> {published ? "Update Live URL" : "Publish Portfolio"}
                 </Button>
               </div>
             </div>
-          </motion.div>
+
+            <PortfolioLivePreview
+              compiledSrcDoc={canonicalSrcDoc}
+              portfolioData={form}
+              mode="standalone"
+              onRunRebuild={() => {
+                toast.success("Live preview synced with current portfolio details");
+              }}
+              onOpenPublished={handlePublish}
+            />
+          </div>
         </TabsContent>
       </Tabs>
     </div>
