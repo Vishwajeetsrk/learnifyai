@@ -80,6 +80,29 @@ interface TemplateConfig {
    TEMPLATE CONFIGS  (easily extensible to 30+)
 ─────────────────────────────────────────────── */
 const templates: Record<string, TemplateConfig> = {
+  engraved: {
+    id: "engraved",
+    label: "Engraved Rosette",
+    img: "/mockup/images/cert-16.png",
+    primary: "#1F3A30",
+    accent: "#D4A843",
+    certBg: "#DED6C2",
+    badgeBg: "#1F3A30",
+    badgeText: ["VERIFIED", "CREDENTIAL"],
+    badgeIcon: "crown",
+    decorStyle: "teal-sweep",
+    decorColor: "#1F3A30",
+    decorColor2: "#144C49",
+    verifyBg: "#1F3A30",
+    certIdColor: "#1F3A30",
+    nameColor: "#1F3A30",
+    features: [
+      { icon: "brain", title: "Autonomous Learning OS", sub: "Learn intelligently with AI." },
+      { icon: "layers", title: "Dual Guilloche Rosette", sub: "Tamper-proof physical engraving pass." },
+      { icon: "shield", title: "Verified Credential", sub: "Cryptographically verified on Supabase PG." },
+      { icon: "infinity", title: "Lifetime Portability", sub: "Share directly to LinkedIn and portfolio." },
+    ],
+  },
   navy: {
     id: "navy",
     label: "Navy Gold",

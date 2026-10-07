@@ -25,7 +25,7 @@ export type CertDesign = {
   corner_style?: "diagonal" | "ribbon" | "none" | string;
   background_pattern?: "none" | "dots" | "grid" | "diagonal" | "gradient" | string;
   accent_color_2?: string | null;
-  layout?: "classic" | "modern" | "elegant" | "minimal" | string;
+  layout?: "classic" | "modern" | "elegant" | "minimal" | "engraved" | string;
 };
 
 export const DEFAULT_DESIGN: CertDesign = {
@@ -76,7 +76,7 @@ export const FONT_OPTIONS = [
 export const BORDER_STYLES = ["double", "solid", "dashed", "ornate", "none"];
 export const CORNER_STYLES = ["diagonal", "ribbon", "none"];
 export const BACKGROUND_PATTERNS = ["none", "dots", "grid", "diagonal", "gradient"];
-export const LAYOUTS = ["classic", "modern", "elegant", "minimal"];
+export const LAYOUTS = ["classic", "modern", "elegant", "minimal", "engraved"];
 
 export type CertContext = {
   name: string;

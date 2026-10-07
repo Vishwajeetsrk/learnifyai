@@ -120,7 +120,7 @@ export default function IssueCertificate() {
     staleTime: 60_000,
   });
 
-  const { data: templates = [] } = useQuery({
+  const { data: rawTemplates = [] } = useQuery({
     queryKey: ["admin-cert-templates"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -132,6 +132,35 @@ export default function IssueCertificate() {
     },
     staleTime: 5 * 60_000,
   });
+
+  const templates = useMemo(() => {
+    const list = [...rawTemplates];
+    const hasEngraved = list.some((t) => t.layout === "engraved" || t.id === "engraved-rosette");
+    if (!hasEngraved) {
+      list.unshift({
+        id: "engraved-rosette",
+        name: "Engraved Rosette (ThreeUI 2D Canvas)",
+        layout: "engraved",
+        title_text: "Certificate of Completion",
+        subtitle: "This is to formally certify that",
+        body_template:
+          "has demonstrated technical mastery, evaluated practical execution, and successfully satisfied all rigorous curriculum requirements in {course} on {date}.",
+        signatory_name: "Vishwajeet",
+        signatory_title: "Founder & Chief AI Architect, Learnify AI",
+        accent_color: "#1f3a30",
+        bg_color: "#ded6c2",
+        text_color: "#1f3a30",
+        font_family: "Playfair Display",
+        logo_url: "/logo.png",
+        border_style: "ornate",
+        border_width: 8,
+        corner_style: "diagonal",
+        background_pattern: "none",
+        is_default: false,
+      } as TemplateRow);
+    }
+    return list;
+  }, [rawTemplates]);
 
   const { data: courses = [] } = useQuery({
     queryKey: ["admin-courses-min"],

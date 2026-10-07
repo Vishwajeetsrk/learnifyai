@@ -186,6 +186,16 @@ const verifyActivity: any[] = [];
 
 const MOCK_TEMPLATES = [
   {
+    name: "Engraved Rosette (ThreeUI Canvas)",
+    badge: "Official Live Engine",
+    badgeColor: "#065F46",
+    badgeBg: "#D1FAE5",
+    theme: "engraved",
+    rating: 5.0,
+    reviews: 1420,
+    downloads: "5.4k",
+  },
+  {
     name: "Executive Blue Gold",
     badge: "Premium",
     badgeColor: "#92400E",
