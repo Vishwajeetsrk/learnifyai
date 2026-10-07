@@ -189,6 +189,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         name: "google-site-verification",
         content: "Db6NEdI6bZznQUQMkJ78jEPpWnrob9JXegQ99O7s3z0",
       },
+      // Pinterest domain verification
+      {
+        name: "p:domain_verify",
+        content: "bf1ed5b241ee220c9ebf7f0068544d2e",
+      },
+      {
+        name: "pinterest-site-verification",
+        content: "bf1ed5b241ee220c9ebf7f0068544d2e",
+      },
       // Theme color
       { name: "theme-color", content: "#0f172a" },
     ],
