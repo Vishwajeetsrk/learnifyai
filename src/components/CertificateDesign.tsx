@@ -1,5 +1,6 @@
 import { forwardRef } from "react";
 import { Award, ShieldCheck } from "lucide-react";
+import { EngravedCertificate } from "@/shaders/neuform-isolated/NeuformCraftEffects";
 
 export type CertDesign = {
   title_text: string;
@@ -178,6 +179,13 @@ export const CertificateRender = forwardRef<HTMLDivElement, Props>(({ design, ct
         colorScheme: "light",
       }}
     >
+      {/* 2D Guilloche Engraved Background for engraved layout */}
+      {layout === "engraved" && (
+        <div className="absolute inset-0 pointer-events-none z-0 opacity-75">
+          <EngravedCertificate className="w-full h-full object-cover" />
+        </div>
+      )}
+
       {/* Ornate Border Extras */}
       {borderStyle === "ornate" && (
         <>
