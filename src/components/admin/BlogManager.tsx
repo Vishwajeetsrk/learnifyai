@@ -24,6 +24,7 @@ import {
   Upload,
   ImageIcon,
   X,
+  Calendar,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -70,6 +71,7 @@ export type BlogPost = {
   author_id: string | null;
   published: boolean;
   published_at: string | null;
+  scheduled_at?: string | null;
   created_at: string;
 };
 
@@ -230,6 +232,57 @@ function BlogEditorModal({
     }
   };
 
+  // Handle Schedule Release
+  const handleScheduleRelease = async () => {
+    if (!formData.title?.trim()) {
+      toast.error("Title is required to schedule release");
+      return;
+    }
+    if (!formData.scheduled_at) {
+      toast.error("Please pick a scheduled release date and time");
+      return;
+    }
+    const releaseTime = new Date(formData.scheduled_at).getTime();
+    if (releaseTime <= Date.now()) {
+      toast.error("Scheduled date must be in the future");
+      return;
+    }
+
+    setPublishing(true);
+    try {
+      const slug = formData.slug?.trim() || slugify(formData.title);
+      const payload = {
+        title: formData.title.trim(),
+        slug,
+        content: formData.content || "",
+        excerpt: formData.excerpt?.trim() || null,
+        featured_image: formData.featured_image?.trim() || null,
+        published: false,
+        scheduled_at: new Date(formData.scheduled_at).toISOString(),
+        published_at: null,
+      };
+
+      if (editing) {
+        await doAdminAction({
+          data: { table: "blog_posts", action: "update", id: editing.id, data: payload },
+        });
+      } else {
+        await doAdminAction({
+          data: { table: "blog_posts", action: "insert", data: payload },
+        });
+      }
+
+      await saveDraftNow();
+      toast.success(`Scheduled for release on ${format(new Date(formData.scheduled_at), "MMM d, yyyy 'at' h:mm a")}!`);
+      onSaved();
+      onOpenChange(false);
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to schedule release");
+    } finally {
+      setPublishing(false);
+    }
+  };
+
   // Handle Publish Live
   const handlePublishLive = async () => {
     if (!formData.title?.trim()) {
@@ -344,6 +397,21 @@ function BlogEditorModal({
                 className="font-mono text-xs"
               />
             </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label className="text-xs font-semibold flex items-center gap-1.5">
+              <Calendar className="h-3.5 w-3.5 text-sky-400" /> Schedule Release Date (Optional)
+            </Label>
+            <Input
+              type="datetime-local"
+              value={formData.scheduled_at ? formData.scheduled_at.slice(0, 16) : ""}
+              onChange={(e) => updateField("scheduled_at", e.target.value ? new Date(e.target.value).toISOString() : null)}
+              className="text-xs font-mono"
+            />
+            <p className="text-[10px] text-muted-foreground">
+              Set a future release time to automatically publish via the automated maintenance cron.
+            </p>
           </div>
 
           <div className="space-y-1.5">
@@ -517,6 +585,20 @@ function BlogEditorModal({
               )}
               Save Draft
             </Button>
+
+            {formData.scheduled_at && new Date(formData.scheduled_at).getTime() > Date.now() && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleScheduleRelease}
+                disabled={saving || publishing}
+                className="border-sky-500/30 hover:bg-sky-500/10 text-sky-400 font-medium"
+              >
+                <Calendar className="h-3.5 w-3.5 mr-1.5" />
+                Schedule Release
+              </Button>
+            )}
 
             <Button
               type="button"
@@ -806,10 +888,16 @@ export default function BlogManager() {
                         "text-[10px] px-2 py-0.5 rounded-full font-medium shrink-0",
                         post.published
                           ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                          : "bg-amber-500/10 text-amber-400 border border-amber-500/20"
+                          : post.scheduled_at && new Date(post.scheduled_at).getTime() > Date.now()
+                            ? "bg-sky-500/10 text-sky-400 border border-sky-500/20"
+                            : "bg-amber-500/10 text-amber-400 border border-amber-500/20"
                       )}
                     >
-                      {post.published ? "Published" : "Draft"}
+                      {post.published
+                        ? "Published"
+                        : post.scheduled_at && new Date(post.scheduled_at).getTime() > Date.now()
+                          ? `Scheduled (${format(new Date(post.scheduled_at), "MMM d, h:mm a")})`
+                          : "Draft"}
                     </span>
                   </div>
                   <p className="text-xs text-muted-foreground truncate max-w-md">
