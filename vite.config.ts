@@ -5,6 +5,11 @@
 //     error logger plugins, and sandbox detection (port/host/strictPort).
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Force production environment during Vercel builds to prevent jsxDEV runtime errors
 if (process.env.VERCEL || !process.env.NODE_ENV) {
@@ -26,6 +31,12 @@ export default defineConfig({
     serveStatic: true,
   },
   vite: {
+    resolve: {
+      alias: {
+        "@designcodeio/threeui/style.css": path.resolve(__dirname, "src/shaders/threeui.css"),
+        "@designcodeio/threeui": path.resolve(__dirname, "src/shaders/3d-paper/ThreeDPaper.tsx"),
+      },
+    },
     css: {
       transformer: "lightningcss",
     },

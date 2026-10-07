@@ -4,9 +4,13 @@ import React from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
-import { CheckCircle2, ChevronRight, ExternalLink } from "lucide-react";
+import { CheckCircle2, ChevronRight, ExternalLink, GitBranch, Terminal } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { LinkPreview } from "@/components/ui/link-preview";
+import { CodeBlockThemed } from "@/components/ui/code-block";
+import { N8nWorkflowBlock } from "@/components/ui/n8n-workflow-block-shadcnui";
+import { ThreeDPaperScene } from "@/components/blog/ThreeDPaperScene";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 interface BlogPostContentProps {
   content: string;
@@ -192,12 +196,63 @@ export function BlogPostContent({ content, postTitle }: BlogPostContentProps) {
                 </code>
               );
             }
+
+            const codeStr = String(children || "").replace(/\n$/, "");
+            const match = /language-(\w+)/.exec(className || "");
+            const lang = match ? match[1].toLowerCase() : "";
+
+            // 1. Interactive 3D Paper Certificate Shader
+            if (
+              lang === "threedpaper" ||
+              codeStr.includes("<ThreeDPaper") ||
+              codeStr.includes("ThreeDPaper variant=")
+            ) {
+              return <ThreeDPaperScene variant="certificate" />;
+            }
+
+            // 2. 2026 Production Architecture Blueprint or Diagram
+            if (
+              lang === "diagram" ||
+              codeStr.includes("[ React 19 + TanStack Start UI ]") ||
+              codeStr.includes("Autonomous Agent Graph")
+            ) {
+              return (
+                <div className="my-8 not-prose">
+                  <Tabs defaultValue="interactive" className="w-full">
+                    <div className="flex items-center justify-between pb-2.5 border-b border-border/50">
+                      <div className="text-xs font-semibold uppercase tracking-wider text-primary font-display flex items-center gap-1.5">
+                        <GitBranch className="h-3.5 w-3.5" /> 2026 Production Architecture
+                      </div>
+                      <TabsList className="h-8">
+                        <TabsTrigger value="interactive" className="text-xs px-3 h-6">
+                          Interactive Blueprint
+                        </TabsTrigger>
+                        <TabsTrigger value="schema" className="text-xs px-3 h-6">
+                          ASCII Schema
+                        </TabsTrigger>
+                      </TabsList>
+                    </div>
+                    <TabsContent value="interactive" className="mt-3">
+                      <N8nWorkflowBlock />
+                    </TabsContent>
+                    <TabsContent value="schema" className="mt-3">
+                      <CodeBlockThemed
+                        code={codeStr}
+                        language="text"
+                        title="Architecture Blueprint ASCII Schema"
+                      />
+                    </TabsContent>
+                  </Tabs>
+                </div>
+              );
+            }
+
+            // 3. Shiki syntax-highlighted code block with copy button
             return (
-              <pre className="my-6 overflow-x-auto rounded-2xl bg-slate-950 p-4 text-slate-100 text-xs sm:text-sm font-mono border border-slate-800 shadow-lg">
-                <code className={className} {...props}>
-                  {children}
-                </code>
-              </pre>
+              <CodeBlockThemed
+                code={codeStr}
+                language={lang || "tsx"}
+              />
             );
           },
 
