@@ -553,7 +553,10 @@ function CertificatePage() {
               row.v2?.certificate_templates?.signatory_title ||
               "Founder & Chief AI Architect, Learnify AI"
             }
-            logoUrl={row.issuer_org_logo_url || "/logo.png"}
+            logoUrl={
+              row.issuer_org_logo_url ||
+              "https://www.learnifyai.in/assets/learnify-logo-Dbtnnfk3.png"
+            }
             qrDataUrl={qrDataUrl}
             onDownloadPdf={handleDownloadPdf}
             onDownloadImage={handleDownloadImage}

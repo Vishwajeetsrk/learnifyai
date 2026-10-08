@@ -49,7 +49,7 @@ export const EngravedCertificateTemplate = React.forwardRef<
     initialCredentialId = "LRNAI-2026-9842X",
     initialSignatoryName = "Vishwajeet",
     initialSignatoryTitle = "Founder & Chief AI Architect, Learnify AI",
-    logoUrl = "/logo.png",
+    logoUrl = "https://www.learnifyai.in/assets/learnify-logo-Dbtnnfk3.png",
     qrDataUrl,
     className = "",
     onDownloadPdf,
@@ -83,16 +83,23 @@ export const EngravedCertificateTemplate = React.forwardRef<
     initialSignatoryTitle,
   ]);
 
-  // Shader color calibration
-  const [hue, setHue] = useState(0);
-  const [saturation, setSaturation] = useState(1);
-  const [brightness, setBrightness] = useState(1);
+  // Shader color calibration (Learnify Brand by default: Hue 215, Sat 1.25, Bright 1.05)
+  const [hue, setHue] = useState(215);
+  const [saturation, setSaturation] = useState(1.25);
+  const [brightness, setBrightness] = useState(1.05);
   const [isEditing, setIsEditing] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [activePreset, setActivePreset] = useState<string>("learnify");
 
   // Preset themes
-  const handlePreset = (name: "emerald" | "sapphire" | "obsidian" | "gold") => {
+  const handlePreset = (name: "learnify" | "emerald" | "sapphire" | "obsidian" | "gold") => {
+    setActivePreset(name);
     switch (name) {
+      case "learnify":
+        setHue(215);
+        setSaturation(1.25);
+        setBrightness(1.05);
+        break;
       case "emerald":
         setHue(0);
         setSaturation(1);
@@ -132,10 +139,11 @@ export const EngravedCertificateTemplate = React.forwardRef<
     setCredentialId(initialCredentialId);
     setSignatoryName(initialSignatoryName);
     setSignatoryTitle(initialSignatoryTitle);
-    setHue(0);
-    setSaturation(1);
-    setBrightness(1);
-    toast.info("Certificate reset to defaults");
+    setHue(215);
+    setSaturation(1.25);
+    setBrightness(1.05);
+    setActivePreset("learnify");
+    toast.info("Certificate reset to Learnify brand defaults");
   };
 
   return (
@@ -145,7 +153,7 @@ export const EngravedCertificateTemplate = React.forwardRef<
         <div className="flex items-center gap-2.5">
           <Badge
             variant="outline"
-            className="border-emerald-500/40 bg-emerald-500/10 text-emerald-400 font-mono text-[11px] px-2.5 py-0.5 uppercase tracking-wider"
+            className="border-indigo-500/40 bg-indigo-500/10 text-indigo-400 font-mono text-[11px] px-2.5 py-0.5 uppercase tracking-wider"
           >
             Engraved 2D Canvas
           </Badge>
@@ -158,26 +166,52 @@ export const EngravedCertificateTemplate = React.forwardRef<
         <div className="flex flex-wrap items-center gap-2">
           <div className="flex items-center gap-1 bg-muted/60 p-1 rounded-lg border border-border/40">
             <button
+              onClick={() => handlePreset("learnify")}
+              className={`text-[10px] px-2 py-0.5 rounded font-semibold transition-colors ${
+                activePreset === "learnify"
+                  ? "bg-indigo-600 text-white shadow-xs"
+                  : "text-indigo-400 hover:bg-background/80"
+              }`}
+            >
+              Learnify Brand
+            </button>
+            <button
               onClick={() => handlePreset("emerald")}
-              className="text-[10px] px-2 py-0.5 rounded font-medium text-emerald-400 hover:bg-background/80 transition-colors"
+              className={`text-[10px] px-2 py-0.5 rounded font-medium transition-colors ${
+                activePreset === "emerald"
+                  ? "bg-emerald-600 text-white shadow-xs"
+                  : "text-emerald-400 hover:bg-background/80"
+              }`}
             >
               Emerald
             </button>
             <button
               onClick={() => handlePreset("sapphire")}
-              className="text-[10px] px-2 py-0.5 rounded font-medium text-sky-400 hover:bg-background/80 transition-colors"
+              className={`text-[10px] px-2 py-0.5 rounded font-medium transition-colors ${
+                activePreset === "sapphire"
+                  ? "bg-sky-600 text-white shadow-xs"
+                  : "text-sky-400 hover:bg-background/80"
+              }`}
             >
               Sapphire
             </button>
             <button
               onClick={() => handlePreset("gold")}
-              className="text-[10px] px-2 py-0.5 rounded font-medium text-amber-400 hover:bg-background/80 transition-colors"
+              className={`text-[10px] px-2 py-0.5 rounded font-medium transition-colors ${
+                activePreset === "gold"
+                  ? "bg-amber-600 text-white shadow-xs"
+                  : "text-amber-400 hover:bg-background/80"
+              }`}
             >
               Gold
             </button>
             <button
               onClick={() => handlePreset("obsidian")}
-              className="text-[10px] px-2 py-0.5 rounded font-medium text-slate-300 hover:bg-background/80 transition-colors"
+              className={`text-[10px] px-2 py-0.5 rounded font-medium transition-colors ${
+                activePreset === "obsidian"
+                  ? "bg-slate-700 text-white shadow-xs"
+                  : "text-slate-300 hover:bg-background/80"
+              }`}
             >
               Obsidian
             </button>

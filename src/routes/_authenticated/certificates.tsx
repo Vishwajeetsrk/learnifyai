@@ -234,24 +234,19 @@ function CertsPage() {
                 return (
                   <div
                     key={badge.id}
-                    className="flex flex-col items-center p-3 rounded-2xl border border-border/60 bg-muted/20 hover:bg-muted/40 transition shrink-0 w-36 text-center group cursor-pointer"
+                    className="shrink-0 group cursor-pointer"
                     title={`${badge.badge_name}: ${def.description || "Verified Award"}`}
                   >
                     <AwardBadge
-                      name={badge.badge_name}
+                      title={badge.badge_name}
+                      subtitle="LEARNIFY AI"
                       iconName={badge.badge_icon || def.icon_name || "Award"}
-                      shape={def.shape || "circle"}
                       primaryColor={badge.badge_color || def.primary_color || "#4f46e5"}
                       accentColor={def.accent_color || "#a5b4fc"}
                       textColor={def.text_color || "#ffffff"}
-                      size={72}
+                      brandLogoUrl="https://www.learnifyai.in/assets/learnify-logo-Dbtnnfk3.png"
+                      className="w-56 sm:w-64"
                     />
-                    <span className="text-xs font-bold text-foreground mt-2 line-clamp-1">
-                      {badge.badge_name}
-                    </span>
-                    <span className="text-[10px] text-muted-foreground line-clamp-1">
-                      {badge.earned_at ? format(new Date(badge.earned_at), "MMM yyyy") : "Verified"}
-                    </span>
                   </div>
                 );
               })}

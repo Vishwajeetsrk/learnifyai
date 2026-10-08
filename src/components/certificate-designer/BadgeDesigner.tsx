@@ -335,16 +335,19 @@ export function BadgeDesigner() {
                 </span>
 
                 {/* Animated Badge Display */}
-                <div className="py-2 my-auto">
+                <div className="py-2 my-auto flex justify-center w-full">
                   <AwardBadge
                     name={b.name}
+                    title={b.name}
+                    subtitle={b.category || "LEARNIFY AI"}
+                    brandLogoUrl="https://www.learnifyai.in/assets/learnify-logo-Dbtnnfk3.png"
                     description={b.description}
                     iconName={b.icon_name}
                     shape={b.shape || "circle"}
                     primaryColor={b.primary_color || "#4f46e5"}
                     accentColor={b.accent_color || "#a5b4fc"}
                     textColor={b.text_color || "#ffffff"}
-                    size={96}
+                    size={200}
                   />
                 </div>
 
@@ -585,13 +588,16 @@ export function BadgeDesigner() {
                 </span>
                 <AwardBadge
                   name={name || "Preview Badge"}
+                  title={name || "Preview Badge"}
+                  subtitle={category || "LEARNIFY AI"}
+                  brandLogoUrl="https://www.learnifyai.in/assets/learnify-logo-Dbtnnfk3.png"
                   description={description}
                   iconName={iconName}
                   shape={shape}
                   primaryColor={primaryColor}
                   accentColor={accentColor}
                   textColor={textColor}
-                  size={120}
+                  size={240}
                 />
                 <p className="mt-3 text-xs font-semibold text-foreground">
                   {name || "Badge Title"}
