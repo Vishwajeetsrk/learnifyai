@@ -2,7 +2,7 @@
 
 <img src="src/assets/learnify-logo.png" alt="Learnify AI Logo" width="180" style="margin-bottom: 12px; filter: drop-shadow(0 4px 12px rgba(99, 102, 241, 0.25));" />
 
-# Learnify AI 5.0.0
+# Learnify AI 5.1.0
 
 **The AI-Native Learning & Career Operating System**
 
@@ -205,60 +205,67 @@ All major Career Studio tools now support **cross-browser-safe** multi-format ex
 
 ---
 
-## 🎨 Certificate Designer Studio
+## 🎨 Certificate Studio 2.0 & Luxury Master Credential Suite
 
-Full Canva-style certificate editor with **5 built-in templates** (Navy Gold, Navy Blue, Royal Purple, Forest Green, Crimson Gold). Interactive canvas with click-to-select elements, properties panel, and content manager.
+The **Learnify AI Certificate Studio 2.0** (`/admin/certificates` & `/certificates`) is a comprehensive credential management platform with vector security guilloche rosettes, 3D holographic achievement badges, cryptographic verification, and an 8-template luxury master suite.
 
-### How It Works
+### 🏛️ The 8 Master Luxury Templates Suite
 
-1. **Select Template** — Choose from 5 professionally designed templates with unique color schemes and decorations
-2. **Edit Content** — Use the Content Manager to update student name, course name, certificate ID, dates, and instructor details
-3. **Click to Select** — Click any element on the canvas to see its properties (font, color, alignment)
-4. **Dynamic Variables** — Use `{{student_name}}`, `{{course_name}}`, `{{cert_id}}`, `{{completion_date}}`, `{{verification_link}}`
-5. **Export** — Download as high-res PNG (2x) or PDF (A4 landscape) via html2canvas
-6. **Bulk Generate** — Upload CSV with student data for batch certificate issuance
+| # | Master Template | Visual Aesthetic & Palette | Target Credential |
+|---|---|---|---|
+| 1 | **The Grand Chancellor** | Executive Navy (`#0A1128`) & 24K Gold Foil (`#D4AF37`) with dual guilloche corner rosettes | Executive Master, MBA, Leadership Fellowships |
+| 2 | **The Silicon Laureate** | Obsidian Space (`#080B14`), Quantum Cyan (`#00F2FE`) & Violet (`#8B5CF6`) | Frontier AI, Machine Learning, Systems Architecture |
+| 3 | **The Oxfordian Imperial** | Heritage Ivory (`#FAF8F3`), Bronze Amber (`#8B6914`), and Imperial Crimson Wax Seal (`#991B1B`) | Academic Degrees, University Honors, Research Laureates |
+| 4 | **The Swiss Vanguard** | Architectural Minimalist Monolith (`#FFFFFF`, `#0F172A`) with International Typographic Grid | UI/UX Design, Modern Architecture, Product Engineering |
+| 5 | **The Emerald Sovereign** | Royal Forest Emerald (`#064E3B`), Mint Filigree (`#10B981`), and Banknote Engravings | Corporate Charter, ESG, Sustainability Programs |
+| 6 | **The Rose Royale** | Midnight Velvet (`#18181B`) & Rose Gold Foil (`#FB7185`) with calligraphic flourishes | Haute Couture, Digital Arts, Creative Excellence |
+| 7 | **The Quantum Cloud** | Enterprise Cobalt (`#0B1E36`), Celestial Azure (`#38BDF8`), and Circuit Vector Borders | Cloud Engineering, DevOps, Cybersecurity Systems |
+| 8 | **The Banknote Rosette** | Harmonic Lathe Banknote Field (`#050C1A`, `#48CAE4`) with mathematical moiré countermeasures | Quantitative Finance, Cryptography, Sovereign Trust |
 
-### Editor Features
+### ⚙️ Core Studio Capabilities
 
-| Feature                    | Description                                                        |
-| -------------------------- | ------------------------------------------------------------------ |
-| **5 Templates**            | Navy Gold, Navy Blue, Royal Purple, Forest Green, Crimson Gold     |
-| **Interactive Canvas**     | Click-to-select elements with visual selection handles             |
-| **Left Panel**             | Templates, Elements (badges/seals/dividers), Text presets, Uploads |
-| **Right Panel**            | Properties (font/color/position) + Content Manager (form fields)   |
-| **Background Decorations** | Per-template SVG sweeps, triangles, ribbons, gold borders          |
-| **Badge & Ribbon**         | Gold scallop seal with crown/trophy/code icons                     |
-| **Center Seal**            | Laurel wreath with Learnify AI logo                                |
-| **QR Code**                | Auto-generated verification QR with live URL                       |
-| **Bottom Features Bar**    | AI-Powered, Industry Relevant, Career Focused, Lifetime Access     |
-| **PNG Export**             | 2x resolution via html2canvas                                      |
-| **PDF Export**             | A4 landscape via browser print dialog                              |
+1. **Vector Guilloche Engine**: Native SVG mathematical harmonic rosettes, micro-hairline security borders, corner L-brackets, and 16-point starburst seals with twin ribbons rendered at 0ms latency.
+2. **ThreeUI Kinetic Lathe Engraved Engine**: Exact canonical canvas 2D plate field, dual guilloche rosettes, and drifting harmonic camera pass styled in Learnify brand palette (`#0A1128`, `#00A6FB`, `#1D4ED8`).
+3. **Decoupled Data Architecture**: Immutable credential snapshots (`credential_data`) stored independently of dynamic visual layouts (`template_design`) for permanent verification veracity.
+4. **Holographic 3D Badges**: Interactive `AwardBadge.tsx` with dynamic CSS `matrix3d` perspective tilt and metallic rainbow foil reflection.
+5. **Interactive Studio Workspace**: 50-step deep immutable undo/redo history stack (`Ctrl+Z`, `Ctrl+Y`), sample data toggle, keyboard shortcuts (`Ctrl+C`, `Ctrl+V`, arrow nudges), and responsive mobile drawer.
+6. **Cryptographic Verification (`/verify/:id`)**: SHA-256 integrity hash verification, live QR code scanning, structured JSON-LD SEO metadata, and 1-click LinkedIn Add-to-Profile credential integration.
 
-### Uploading Your 30+ Canva Templates
-
-To make all your Canva designs editable:
-
-1. **Export from Canva** — For each template, remove all text elements and export as PNG (background only)
-2. **Go to Admin → Certificates → Certificate Designer**
-3. **Click "Upload Template"** and select your background image
-4. **Position fields** — Add text elements and drag them to match your design
-5. **Save** — The template is stored in the `canva_templates` DB table
-6. **Repeat** for all 30+ templates
-
-### Database Schema
+### Database Architecture
 
 ```sql
+-- Certificate Studio 2.0 Core Tables
 CREATE TABLE canva_templates (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL,
-  category TEXT DEFAULT 'Professional',
-  bg_image_url TEXT NOT NULL,
-  thumbnail_url TEXT,
-  fields_json JSONB DEFAULT '{}',    -- field positions, fonts, colors
-  theme_colors JSONB DEFAULT '{}',   -- color scheme
+  category TEXT DEFAULT 'Executive',
+  bg_image_url TEXT DEFAULT '',
+  thumbnail_url TEXT DEFAULT '',
+  fields_json JSONB DEFAULT '{}',    -- percentage-based text coordinates, typography, variables
+  theme_colors JSONB DEFAULT '{}',   -- curated primary, accent, and background palettes
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now(),
   created_by UUID REFERENCES auth.users(id)
+);
+
+CREATE TABLE badge_definitions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  description TEXT,
+  icon TEXT DEFAULT 'award',
+  category TEXT DEFAULT 'achievement',
+  badge_color TEXT DEFAULT '#6366F1',
+  criteria JSONB DEFAULT '{"type": "score", "threshold": 80}'::jsonb,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE TABLE badge_awards (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  badge_id UUID NOT NULL REFERENCES badge_definitions(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL,
+  certificate_id UUID,
+  awarded_at TIMESTAMPTZ DEFAULT now()
 );
 ```
 
@@ -1652,6 +1659,18 @@ MIT License. See [LICENSE](LICENSE) for details.
   - **Resilient Fallback PDF Stream Parser**: Decodes octal escapes, hex strings, and TJ array operators when external PDF workers are restricted.
 - 🔗 **RESPONSIVE LINK PREVIEW ENGINE**:
   - Seamless desktop floating spring card + mobile backdrop peek popovers with curated instant previews for major learning hubs.
+
+### v5.1.0 (October 2026) — Major Release: Certificate Studio 2.0 & Luxury Master Credential Suite
+
+- 🎓 **CERTIFICATE STUDIO 2.0 ARCHITECTURAL OVERHAUL**:
+  - **8 Master Luxury Certificate Suite**: Replaced legacy dummy placeholders with 8 handcrafted, production-ready luxury templates (*The Grand Chancellor*, *The Silicon Laureate*, *The Oxfordian Imperial*, *The Swiss Vanguard*, *The Emerald Sovereign*, *The Rose Royale*, *The Quantum Cloud*, *The Banknote Rosette*).
+  - **High-Precision Guilloche Vector Engine**: Corner mathematical harmonic security rosettes, L-brackets, double micro-hairline borders, and authentic 16-point starburst security seal with twin ribbon tails rendered at zero latency via native SVG.
+  - **Decoupled Data-Design Architecture**: Immutable credential snapshots (`credential_data`) completely separated from visual design schemas (`template_design`) to guarantee historic certificate veracity.
+  - **ThreeUI Kinetic Lathe Engraved Engine**: Embedded exact canonical lathe shader engine with plate field, dual harmonic rosettes, and drifting camera pass styled in Learnify brand palette (`#0A1128`, `#00A6FB`, `#1D4ED8`).
+  - **Holographic 3D Achievement Badges**: Integrated `AwardBadge.tsx` with dynamic CSS `matrix3d` perspective tilt, metallic rainbow foils, and automated criteria evaluation engine (`BadgeCriteriaEngine.ts`).
+  - **Schema Resilience & Self-Healing Cache**: Defensive PostgREST schema cache handlers (`PGRST205`, `42P01`) across `badge.functions.ts` and `certificates.tsx` preventing unmigrated table cascades or 500 runtime crashes.
+  - **Enhanced Studio UX**: 50-step deep immutable undo/redo history stack, sample data preview toggle, keyboard shortcuts (`Ctrl+C`, `Ctrl+V`, `Ctrl+Z`, `Ctrl+Y`, arrow nudges), and mobile slide-up inspector bottom sheet.
+  - **Public Verification & Social Sharing**: Cryptographic SHA-256 integrity hash verification on `/verify/:id`, vector QR codes, structured JSON-LD for SEO, and 1-click LinkedIn Add-to-Profile integration.
 
 ### v5.0.0 (October 2026) — Major Release: Portfolio Builder 3.0 & Design System Upgrade
 
