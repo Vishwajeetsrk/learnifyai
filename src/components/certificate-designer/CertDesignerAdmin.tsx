@@ -2019,6 +2019,7 @@ function TemplatesScreen({
   handleSeed,
   handleEdit,
   handleDelete,
+  handleDuplicate,
   isLoading,
 }: {
   setTab: (t: string) => void;
@@ -2026,11 +2027,13 @@ function TemplatesScreen({
   handleSeed: () => void;
   handleEdit: (t: CanvaTemplate) => void;
   handleDelete: (id: string) => void;
+  handleDuplicate?: (t: CanvaTemplate) => void;
   isLoading: boolean;
 }) {
   const [activeChip, setActiveChip] = useState("All");
   const [searchT, setSearchT] = useState("");
   const [favorites, setFavorites] = useState<Set<number>>(new Set());
+  const [testTemplateModal, setTestTemplateModal] = useState<any | null>(null);
   const chips = [
     "All",
     "Professional",
@@ -2395,14 +2398,14 @@ function TemplatesScreen({
                 <div
                   style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}
                 >
-                  <div style={{ display: "flex", gap: 6 }}>
+                  <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         window.open(t.bg_image_url, "_blank");
                       }}
                       style={{
-                        padding: 4,
+                        padding: "5px 6px",
                         border: `1px solid ${BD}`,
                         borderRadius: 6,
                         background: "white",
@@ -2412,6 +2415,40 @@ function TemplatesScreen({
                     >
                       <Eye size={12} color={TX2} />
                     </button>
+                    {handleDuplicate && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDuplicate(t.dbTemplate);
+                        }}
+                        style={{
+                          padding: "5px 6px",
+                          border: `1px solid ${BD}`,
+                          borderRadius: 6,
+                          background: "white",
+                          cursor: "pointer",
+                        }}
+                        title="Duplicate Template"
+                      >
+                        <Copy size={12} color={TX2} />
+                      </button>
+                    )}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setTestTemplateModal(t);
+                      }}
+                      style={{
+                        padding: "5px 6px",
+                        border: `1px solid ${BD}`,
+                        borderRadius: 6,
+                        background: "#EEF2FF",
+                        cursor: "pointer",
+                      }}
+                      title="Test Preview with Sample Data"
+                    >
+                      <Sparkles size={12} color={P} />
+                    </button>
                   </div>
                   <Btn
                     variant="primary"
@@ -2419,15 +2456,70 @@ function TemplatesScreen({
                       e.stopPropagation();
                       handleEdit(t.dbTemplate);
                     }}
-                    style={{ fontSize: 11, padding: "4px 12px" }}
+                    style={{ fontSize: 11, padding: "5px 12px" }}
                   >
-                    Edit Certificate
+                    Edit & Use
                   </Btn>
                 </div>
               </div>
             </div>
           ))}
         </div>
+      )}
+
+      {/* Test Template with Sample Data Modal */}
+      {testTemplateModal && (
+        <Dialog open={!!testTemplateModal} onOpenChange={() => setTestTemplateModal(null)}>
+          <DialogContent className="max-w-2xl bg-white border border-slate-200 p-6">
+            <DialogHeader>
+              <DialogTitle className="text-sm font-bold text-slate-900 flex items-center justify-between">
+                <span>Test Preview: {testTemplateModal.name}</span>
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-semibold">
+                  Sample Data Validated
+                </span>
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 my-2">
+              <div className="relative w-full rounded-xl overflow-hidden border border-slate-200 bg-slate-100 flex items-center justify-center p-4">
+                {testTemplateModal.bg_image_url ? (
+                  <img
+                    src={testTemplateModal.bg_image_url}
+                    alt={testTemplateModal.name}
+                    className="max-h-[320px] max-w-full object-contain shadow-md rounded"
+                  />
+                ) : (
+                  <CertThumbnail theme={testTemplateModal.theme} w={450} h={300} />
+                )}
+                <div className="absolute bottom-6 right-6 bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-lg border border-slate-200 text-xs shadow-md">
+                  <div className="font-semibold text-slate-800">Alexandria Morgan</div>
+                  <div className="text-[10px] text-slate-500">LRN-DEMO-2026 • Verified 100%</div>
+                </div>
+              </div>
+              <div className="flex items-center justify-between pt-2 border-t text-xs text-slate-500">
+                <span>Sample Student: <strong>Alexandria Morgan</strong> (98% Score)</span>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setTestTemplateModal(null)}
+                    className="px-3 py-1.5 border border-slate-200 rounded-md text-slate-600 hover:bg-slate-50 text-xs"
+                  >
+                    Close
+                  </button>
+                  <Btn
+                    variant="primary"
+                    onClick={() => {
+                      const tmpl = testTemplateModal.dbTemplate;
+                      setTestTemplateModal(null);
+                      handleEdit(tmpl);
+                    }}
+                    style={{ fontSize: 12, padding: "6px 14px" }}
+                  >
+                    Open in Studio Designer
+                  </Btn>
+                </div>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       )}
     </div>
   );
@@ -4992,31 +5084,73 @@ function BulkIssueScreen({ courses = [], templates = [] }: { courses: any[]; tem
               style={{
                 background: SGL,
                 borderRadius: 8,
-                padding: "12px 16px",
+                padding: "16px 20px",
                 textAlign: "center",
+                display: "flex",
+                flexDirection: "column",
+                gap: 10,
               }}
             >
-              <CheckCircle size={24} color={SG} style={{ margin: "0 auto 6px" }} />
-              <div style={{ fontSize: 14, fontWeight: 700, color: TX }}>
-                ✓ {issueSummary.successCount} Certificates Issued Successfully!
+              <CheckCircle size={28} color={SG} style={{ margin: "0 auto" }} />
+              <div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: TX }}>
+                  ✓ {issueSummary.successCount} Certificates Issued Successfully!
+                </div>
+                <div style={{ fontSize: 12, color: TX2, marginTop: 2 }}>
+                  Recipients can verify credentials and receive email notifications.
+                </div>
               </div>
+
               {issueSummary.errors?.length > 0 && (
                 <div
                   style={{
                     fontSize: 11,
                     color: ER,
-                    marginTop: 6,
-                    maxHeight: 80,
+                    background: "#FEE2E2",
+                    borderRadius: 6,
+                    padding: "10px 12px",
+                    maxHeight: 120,
                     overflowY: "auto",
                     textAlign: "left",
                   }}
                 >
-                  <strong>Errors:</strong>
+                  <strong style={{ display: "block", marginBottom: 4 }}>
+                    Failed Items ({issueSummary.errors.length}):
+                  </strong>
                   {issueSummary.errors.map((e: string, idx: number) => (
-                    <div key={idx}>- {e}</div>
+                    <div key={idx}>• {e}</div>
                   ))}
                 </div>
               )}
+
+              <div style={{ display: "flex", gap: 8, justifyContent: "center", marginTop: 4 }}>
+                {issueSummary.errors?.length > 0 && (
+                  <Btn
+                    variant="outline"
+                    onClick={() => {
+                      setDone(false);
+                      handleIssue();
+                    }}
+                    style={{ fontSize: 12, borderColor: ER, color: ER }}
+                  >
+                    <RefreshCw size={12} /> Retry Failed
+                  </Btn>
+                )}
+                <Btn
+                  variant="primary"
+                  onClick={() => {
+                    setDone(false);
+                    setStep(1);
+                    setParsedRecipients([]);
+                    setCsvText("");
+                    setFileUploaded(false);
+                    setIssueSummary(null);
+                  }}
+                  style={{ fontSize: 12 }}
+                >
+                  Start New Batch
+                </Btn>
+              </div>
             </div>
           )}
         </div>
@@ -8670,6 +8804,32 @@ export function CertDesignerAdmin() {
     setShowDesignerWorkspace(true);
   };
 
+  const handleDuplicate = async (t: CanvaTemplate) => {
+    try {
+      const copyName = `${t.name} (Copy)`;
+      const res = await doSave({
+        data: {
+          name: copyName,
+          category: t.category || "Professional",
+          bg_image_url: t.bg_image_url,
+          thumbnail_url: t.thumbnail_url,
+          fields_json: t.fields_json || { elements: [], design: {} },
+        } as any,
+      });
+      toast.success(`Duplicated "${copyName}"!`);
+      qc.invalidateQueries({ queryKey: ["canva-cert-templates"] });
+      const newTemplate: CanvaTemplate = {
+        ...t,
+        id: res.id,
+        name: copyName,
+      };
+      setDesignerTemplate(newTemplate);
+      setShowDesignerWorkspace(true);
+    } catch (e: any) {
+      toast.error(`Duplicate failed: ${e.message}`);
+    }
+  };
+
   const handleNew = () => {
     setDesignerTemplate({
       id: "new",
@@ -8803,6 +8963,7 @@ export function CertDesignerAdmin() {
             handleSeed={handleSeed}
             handleEdit={handleEdit}
             handleDelete={handleDelete}
+            handleDuplicate={handleDuplicate}
             isLoading={isLoading}
           />
         );

@@ -12,6 +12,23 @@ type CertificatePreviewProps = {
   scale?: number;
   onDeleteElement: (id: string) => void;
   onDuplicateElement: (id: string) => void;
+  previewSampleData?: boolean;
+  sampleData?: Record<string, string>;
+};
+
+const DEFAULT_SAMPLE_DATA: Record<string, string> = {
+  "{student_name}": "Alexandria Morgan",
+  "{course_name}": "Full-Stack AI Engineering & Systems Design",
+  "{issue_date}": new Date().toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  }),
+  "{expiry_date}": "Lifetime Validity",
+  "{certificate_id}": "LRN-AI-8F92A-2026",
+  "{score}": "98%",
+  "{grade}": "Honors Distinction",
+  "{instructor_name}": "Dr. Sarah Lin, Lead AI Architect",
 };
 
 export function CertificatePreview({
@@ -24,9 +41,21 @@ export function CertificatePreview({
   scale = 1,
   onDeleteElement,
   onDuplicateElement,
+  previewSampleData = false,
+  sampleData,
 }: CertificatePreviewProps) {
   const canvasRef = useRef<HTMLDivElement>(null);
   const activeBgImage = design.show_bg_image !== false ? bgImageUrl : null;
+
+  const resolveContent = (text: string) => {
+    if (!previewSampleData) return text;
+    let resolved = text;
+    const merged = { ...DEFAULT_SAMPLE_DATA, ...sampleData };
+    for (const [key, val] of Object.entries(merged)) {
+      resolved = resolved.split(key).join(val);
+    }
+    return resolved;
+  };
 
   const getPatternStyle = (pattern: string, bg: string, accent: string): React.CSSProperties => {
     switch (pattern) {
@@ -412,7 +441,9 @@ export function CertificatePreview({
             >
               {el.type === "text" && (
                 <span
-                  dangerouslySetInnerHTML={{ __html: (el.content || "").replace(/\n/g, "<br/>") }}
+                  dangerouslySetInnerHTML={{
+                    __html: resolveContent(el.content || "").replace(/\n/g, "<br/>"),
+                  }}
                 />
               )}
 

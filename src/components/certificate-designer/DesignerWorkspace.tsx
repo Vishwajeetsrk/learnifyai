@@ -25,6 +25,7 @@ import {
   ZoomIn,
   ZoomOut,
   Maximize2,
+  Eye,
 } from "lucide-react";
 
 type DesignerWorkspaceProps = {
@@ -50,7 +51,9 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
   const [isSaving, setIsSaving] = useState(false);
   const [scale, setScale] = useState(0.75);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [previewSampleData, setPreviewSampleData] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const copiedElementRef = useRef<CertElement | null>(null);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -128,6 +131,36 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
       if (ctrl && e.key === "s") {
         e.preventDefault();
         handleSave();
+      }
+      // Copy shortcut (Ctrl+C)
+      if (ctrl && e.key === "c" && selectedId) {
+        const tag = document.activeElement?.tagName;
+        if (tag !== "INPUT" && tag !== "TEXTAREA") {
+          const target = elements.find((el) => el.id === selectedId);
+          if (target) {
+            copiedElementRef.current = target;
+            toast.info(`Copied ${target.type} element`);
+          }
+        }
+      }
+      // Paste shortcut (Ctrl+V)
+      if (ctrl && e.key === "v") {
+        const tag = document.activeElement?.tagName;
+        if (tag !== "INPUT" && tag !== "TEXTAREA" && copiedElementRef.current) {
+          e.preventDefault();
+          const target = copiedElementRef.current;
+          const newEl = {
+            ...target,
+            id: Date.now().toString(),
+            x: Math.min(842 - (target.width || 50), target.x + 20),
+            y: Math.min(595 - (target.height || 30), target.y + 20),
+          };
+          const next = [...elements, newEl];
+          setElements(next);
+          setSelectedId(newEl.id);
+          saveHistory(next, design);
+          toast.success("Pasted element");
+        }
       }
       if ((e.key === "Delete" || e.key === "Backspace") && selectedId) {
         const tag = document.activeElement?.tagName;
@@ -485,6 +518,24 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
           </div>
 
           <Button
+            variant={previewSampleData ? "default" : "outline"}
+            size="sm"
+            onClick={() => {
+              setPreviewSampleData(!previewSampleData);
+              toast.info(
+                previewSampleData
+                  ? "Showing template placeholder tokens"
+                  : "Showing realistic sample student credentials",
+              );
+            }}
+            className={`h-8 text-xs ${previewSampleData ? "bg-emerald-600 hover:bg-emerald-700 text-white border-transparent" : "text-slate-700"}`}
+            title="Toggle sample student data"
+          >
+            <Eye className="h-3.5 w-3.5 mr-1" />
+            {previewSampleData ? "Sample Data ON" : "Sample Data"}
+          </Button>
+
+          <Button
             variant="secondary"
             size="sm"
             onClick={onAiOptimize}
@@ -535,6 +586,7 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
               scale={scale}
               onDeleteElement={onDeleteElement}
               onDuplicateElement={onDuplicateElement}
+              previewSampleData={previewSampleData}
             />
           </div>
         </div>
