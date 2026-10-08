@@ -556,7 +556,7 @@ export function CertificatePreview({
                 <div className="w-full h-full bg-white p-1 rounded-md border border-slate-200 flex items-center justify-center shadow-sm">
                   <img
                     src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(
-                      window.location.origin +
+                      (typeof window !== "undefined" ? window.location.origin : "https://www.learnifyai.in") +
                         "/verify/certificate/" +
                         (el.content || "LAI-2026-000124"),
                     )}`}

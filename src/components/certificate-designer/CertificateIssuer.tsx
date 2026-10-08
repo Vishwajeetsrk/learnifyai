@@ -116,7 +116,8 @@ export function CertificateIssuer({
   };
 
   const certCode = issuedCert?.certCode || (existingCert as any)?.code || "";
-  const verifyUrl = certCode ? `${window.location.origin}/verify/${certCode}` : "";
+  const origin = typeof window !== "undefined" ? window.location.origin : "https://www.learnifyai.in";
+  const verifyUrl = certCode ? `${origin}/verify/${certCode}` : "";
   const isIssued = !!(existingCert || issuedCert);
 
   return (

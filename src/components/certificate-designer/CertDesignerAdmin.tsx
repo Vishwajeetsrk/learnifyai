@@ -791,6 +791,15 @@ function CertThumbnail({
 }
 
 function SparkLine({ data, color }: { data: { v: number; i: number }[]; color: string }) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return <div style={{ width: 60, height: 32, flexShrink: 0 }} />;
+  }
+
   return (
     <div style={{ width: 60, height: 32, flexShrink: 0 }}>
       <ResponsiveContainer width="100%" height="100%">
@@ -859,7 +868,7 @@ function KPICard({
   sparkData: { v: number; i: number }[];
   sparkColor: string;
 }) {
-  const pos = delta.startsWith("+");
+  const pos = typeof delta === "string" && delta.startsWith("+");
   return (
     <div
       style={{
@@ -892,16 +901,20 @@ function KPICard({
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize: 12, fontWeight: 500, color: TX2, marginBottom: 2 }}>{label}</div>
         <div style={{ fontSize: 24, fontWeight: 700, color: TX, lineHeight: 1 }}>{value}</div>
-        <div
-          style={{
-            fontSize: 12,
-            fontWeight: 600,
-            color: pos ? "#10B981" : "#EF4444",
-            marginTop: 2,
-          }}
-        >
-          {delta} this month
-        </div>
+        {delta ? (
+          <div
+            style={{
+              fontSize: 12,
+              fontWeight: 600,
+              color: pos ? "#10B981" : "#EF4444",
+              marginTop: 2,
+            }}
+          >
+            {delta} this month
+          </div>
+        ) : (
+          <div style={{ height: 16, marginTop: 2 }} />
+        )}
       </div>
       <SparkLine data={sparkData} color={sparkColor} />
     </div>
@@ -1550,8 +1563,11 @@ function AllCertsScreen({
   };
 
   const handleShare = (c: any) => {
-    const url = `${window.location.origin}/verify/certificate/${c.id}`;
-    navigator.clipboard.writeText(url);
+    const origin = typeof window !== "undefined" ? window.location.origin : "https://www.learnifyai.in";
+    const url = `${origin}/verify/certificate/${c.id}`;
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(url);
+    }
     toast.success("Verification link copied to clipboard!");
   };
 
@@ -1950,7 +1966,9 @@ function AllCertsScreen({
                 </div>
                 <img
                   src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(
-                    window.location.origin + "/verify/certificate/" + previewCert.id,
+                    (typeof window !== "undefined" ? window.location.origin : "https://www.learnifyai.in") +
+                      "/verify/certificate/" +
+                      previewCert.id,
                   )}`}
                   alt="Verification QR"
                   className="w-20 h-20"
@@ -2599,10 +2617,12 @@ function DesignerCanvasScreen() {
 
   const [canvasElements, setCanvasElements] = useState(() => {
     try {
-      const saved = localStorage.getItem("learnify_designer_canvas_v2");
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      if (typeof window !== "undefined" && window.localStorage) {
+        const saved = localStorage.getItem("learnify_designer_canvas_v2");
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
       }
     } catch {}
     return DEFAULT_ELEMENTS;
