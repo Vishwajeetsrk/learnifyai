@@ -138,11 +138,12 @@ function CertsPage() {
     queryKey: ["user-badges-hub", user?.id],
     queryFn: async () => {
       try {
-        const { data } = await (supabase as any)
+        const { data, error } = await (supabase as any)
           .from("badge_awards")
           .select("*, badge_definitions(name, description, icon_name, shape, primary_color, accent_color, text_color)")
           .eq("user_id", user!.id)
           .order("earned_at", { ascending: false });
+        if (error) return [];
         return data ?? [];
       } catch {
         return [];

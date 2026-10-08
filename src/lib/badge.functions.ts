@@ -84,10 +84,17 @@ export const listBadgeDefinitions = createServerFn({ method: "GET" })
       .select("*")
       .order("created_at", { ascending: false });
 
-    if (error && error.code !== "42P01") {
-      // Table might not exist yet — return empty gracefully
-      console.warn("[badge.functions] badge_definitions table not found:", error.message);
-      return [];
+    if (error) {
+      if (
+        error.code === "42P01" ||
+        error.code === "PGRST205" ||
+        error.message?.includes("schema cache") ||
+        error.message?.includes("does not exist")
+      ) {
+        console.warn("[badge.functions] badge_definitions table not in schema cache:", error.message);
+        return [];
+      }
+      throw new Error(error.message);
     }
     return (data ?? []) as any[];
   });
@@ -127,21 +134,35 @@ export const saveBadgeDefinition = createServerFn({ method: "POST" })
     await checkAdmin(context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    if (data.id) {
-      const { error } = await (supabaseAdmin as any)
-        .from("badge_definitions")
-        .update({ ...data, updated_at: new Date().toISOString() })
-        .eq("id", data.id);
-      if (error) throw new Error(error.message);
-      return { ok: true, id: data.id };
-    } else {
-      const { data: inserted, error } = await (supabaseAdmin as any)
-        .from("badge_definitions")
-        .insert({ ...data, created_by: context.userId })
-        .select("id")
-        .single();
-      if (error) throw new Error(error.message);
-      return { ok: true, id: inserted.id };
+    try {
+      if (data.id) {
+        const { error } = await (supabaseAdmin as any)
+          .from("badge_definitions")
+          .update({ ...data, updated_at: new Date().toISOString() })
+          .eq("id", data.id);
+        if (error) throw new Error(error.message);
+        return { ok: true, id: data.id };
+      } else {
+        const { data: inserted, error } = await (supabaseAdmin as any)
+          .from("badge_definitions")
+          .insert({ ...data, created_by: context.userId })
+          .select("id")
+          .single();
+        if (error) throw new Error(error.message);
+        return { ok: true, id: inserted.id };
+      }
+    } catch (err: any) {
+      if (
+        err.message?.includes("schema cache") ||
+        err.message?.includes("does not exist") ||
+        err.code === "PGRST205" ||
+        err.code === "42P01"
+      ) {
+        throw new Error(
+          "Table 'badge_definitions' is not yet initialized in Supabase. Please run the 20261008000000_certificate_studio_2.sql migration in Supabase SQL Editor.",
+        );
+      }
+      throw err;
     }
   });
 
@@ -151,12 +172,26 @@ export const deleteBadgeDefinition = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await checkAdmin(context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await (supabaseAdmin as any)
-      .from("badge_definitions")
-      .delete()
-      .eq("id", data.id);
-    if (error) throw new Error(error.message);
-    return { ok: true };
+    try {
+      const { error } = await (supabaseAdmin as any)
+        .from("badge_definitions")
+        .delete()
+        .eq("id", data.id);
+      if (error) throw new Error(error.message);
+      return { ok: true };
+    } catch (err: any) {
+      if (
+        err.message?.includes("schema cache") ||
+        err.message?.includes("does not exist") ||
+        err.code === "PGRST205" ||
+        err.code === "42P01"
+      ) {
+        throw new Error(
+          "Table 'badge_definitions' is not yet initialized in Supabase. Please run the migration first.",
+        );
+      }
+      throw err;
+    }
   });
 
 // ─── BADGE AWARDS ─────────────────────────────────────────────────────────────
@@ -191,9 +226,17 @@ export const awardBadgesForCertificate = createServerFn({ method: "POST" })
       .select("*")
       .eq("status", "active");
 
-    if (defsErr && defsErr.code !== "42P01") {
-      console.warn("[badge.functions] badge_definitions not found:", defsErr.message);
-      return { awarded: [], errors: [] };
+    if (defsErr) {
+      if (
+        defsErr.code === "42P01" ||
+        defsErr.code === "PGRST205" ||
+        defsErr.message?.includes("schema cache") ||
+        defsErr.message?.includes("does not exist")
+      ) {
+        console.warn("[badge.functions] badge_definitions not in schema cache:", defsErr.message);
+        return { awarded: [], errors: [] };
+      }
+      return { awarded: [], errors: [defsErr.message] };
     }
 
     const awarded: string[] = [];
@@ -375,21 +418,57 @@ export const seedDefaultBadges = createServerFn({ method: "POST" })
     ];
 
     let inserted = 0;
-    for (const badge of defaultBadges) {
-      const { data: existing } = await (supabaseAdmin as any)
-        .from("badge_definitions")
-        .select("id")
-        .eq("name", badge.name)
-        .maybeSingle();
-
-      if (!existing) {
-        await (supabaseAdmin as any)
+    try {
+      for (const badge of defaultBadges) {
+        const { data: existing, error: selErr } = await (supabaseAdmin as any)
           .from("badge_definitions")
-          .insert({ ...badge, created_by: context.userId })
+          .select("id")
+          .eq("name", badge.name)
           .maybeSingle();
-        inserted++;
-      }
-    }
 
-    return { inserted, message: `${inserted} default badges seeded` };
+        if (selErr) {
+          if (
+            selErr.code === "42P01" ||
+            selErr.code === "PGRST205" ||
+            selErr.message?.includes("schema cache") ||
+            selErr.message?.includes("does not exist")
+          ) {
+            return {
+              inserted: 0,
+              message:
+                "Table 'badge_definitions' is not yet created in Supabase. Please apply migration 20261008000000_certificate_studio_2.sql in your Supabase SQL Editor.",
+            };
+          }
+          throw new Error(selErr.message);
+        }
+
+        if (!existing) {
+          const { error: insErr } = await (supabaseAdmin as any)
+            .from("badge_definitions")
+            .insert({ ...badge, created_by: context.userId })
+            .maybeSingle();
+          if (insErr) {
+            console.warn("[badge.functions] seed badge error:", insErr.message);
+          } else {
+            inserted++;
+          }
+        }
+      }
+
+      return { inserted, message: `${inserted} default badges seeded` };
+    } catch (err: any) {
+      if (
+        err.message?.includes("schema cache") ||
+        err.message?.includes("does not exist") ||
+        err.code === "PGRST205" ||
+        err.code === "42P01"
+      ) {
+        return {
+          inserted: 0,
+          message:
+            "Table 'badge_definitions' is not yet created in Supabase. Please apply migration 20261008000000_certificate_studio_2.sql in your Supabase SQL Editor.",
+        };
+      }
+      throw err;
+    }
   });

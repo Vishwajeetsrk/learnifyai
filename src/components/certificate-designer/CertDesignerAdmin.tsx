@@ -484,147 +484,147 @@ function CertThumbnail({
   };
   const T: Record<string, TC> = {
     navy: {
-      bg1: "#0a0a2e",
-      bg2: "#12124e",
-      bd: "#C9A227",
-      bd2: "rgba(201,162,39,0.35)",
-      title: "#C9A227",
-      accent: "rgba(201,162,39,0.25)",
-      name: "#ffffff",
-      sub: "#C9A227",
-      seal: "#C9A227",
+      bg1: "#070D1E",
+      bg2: "#0F1A3A",
+      bd: "#D4AF37",
+      bd2: "rgba(212,175,55,0.4)",
+      title: "#D4AF37",
+      accent: "rgba(212,175,55,0.18)",
+      name: "#FFFFFF",
+      sub: "#E2BA69",
+      seal: "#D4AF37",
       light: false,
     },
     blue: {
-      bg1: "#0c2461",
-      bg2: "#1e3a8a",
-      bd: "#60a5fa",
-      bd2: "rgba(96,165,250,0.3)",
-      title: "#93c5fd",
-      accent: "rgba(96,165,250,0.15)",
-      name: "#ffffff",
-      sub: "#93c5fd",
-      seal: "#60a5fa",
+      bg1: "#0A2540",
+      bg2: "#133863",
+      bd: "#60A5FA",
+      bd2: "rgba(96,165,250,0.35)",
+      title: "#93C5FD",
+      accent: "rgba(96,165,250,0.18)",
+      name: "#FFFFFF",
+      sub: "#BFDBFE",
+      seal: "#60A5FA",
       light: false,
     },
     teal: {
-      bg1: "#004d40",
-      bg2: "#00695c",
-      bd: "#80cbc4",
-      bd2: "rgba(128,203,196,0.3)",
-      title: "#b2dfdb",
-      accent: "rgba(128,203,196,0.15)",
-      name: "#ffffff",
-      sub: "#80cbc4",
-      seal: "#80cbc4",
+      bg1: "#042F24",
+      bg2: "#064E3B",
+      bd: "#10B981",
+      bd2: "rgba(16,185,129,0.35)",
+      title: "#34D399",
+      accent: "rgba(16,185,129,0.18)",
+      name: "#FFFFFF",
+      sub: "#A7F3D0",
+      seal: "#10B981",
       light: false,
     },
     rose: {
-      bg1: "#4a0030",
-      bg2: "#880e4f",
-      bd: "#f48fb1",
-      bd2: "rgba(244,143,177,0.3)",
-      title: "#f48fb1",
-      accent: "rgba(244,143,177,0.15)",
-      name: "#ffffff",
-      sub: "#f48fb1",
-      seal: "#f48fb1",
+      bg1: "#1C1217",
+      bg2: "#2A1822",
+      bd: "#FB7185",
+      bd2: "rgba(251,113,133,0.35)",
+      title: "#FDA4AF",
+      accent: "rgba(251,113,133,0.18)",
+      name: "#FFFFFF",
+      sub: "#FECDD3",
+      seal: "#FB7185",
       light: false,
     },
     purple: {
-      bg1: "#1a0050",
-      bg2: "#4527a0",
-      bd: "#ce93d8",
-      bd2: "rgba(206,147,216,0.3)",
-      title: "#ce93d8",
-      accent: "rgba(206,147,216,0.15)",
-      name: "#ffffff",
-      sub: "#ce93d8",
-      seal: "#ce93d8",
+      bg1: "#150B24",
+      bg2: "#261442",
+      bd: "#C084FC",
+      bd2: "rgba(192,132,252,0.35)",
+      title: "#D8B4FE",
+      accent: "rgba(192,132,252,0.18)",
+      name: "#FFFFFF",
+      sub: "#E9D5FF",
+      seal: "#C084FC",
       light: false,
     },
     onyx: {
-      bg1: "#111111",
-      bg2: "#2d2d2d",
-      bd: "#d4d4d4",
-      bd2: "rgba(212,212,212,0.25)",
-      title: "#d4d4d4",
-      accent: "rgba(212,212,212,0.08)",
-      name: "#ffffff",
-      sub: "#aaaaaa",
-      seal: "#c0c0c0",
+      bg1: "#080B14",
+      bg2: "#111827",
+      bd: "#00F2FE",
+      bd2: "rgba(0,242,254,0.35)",
+      title: "#00F2FE",
+      accent: "rgba(0,242,254,0.12)",
+      name: "#FFFFFF",
+      sub: "#8B5CF6",
+      seal: "#8B5CF6",
       light: false,
     },
     ivory: {
-      bg1: "#fefce8",
-      bg2: "#fdf8e1",
-      bd: "#92400e",
-      bd2: "rgba(146,64,14,0.3)",
-      title: "#92400e",
-      accent: "rgba(146,64,14,0.08)",
-      name: "#3b1f0a",
-      sub: "#92400e",
-      seal: "#b45309",
+      bg1: "#FAF8F3",
+      bg2: "#F3EFE6",
+      bd: "#8B6914",
+      bd2: "rgba(139,105,20,0.35)",
+      title: "#5C3D11",
+      accent: "rgba(139,105,20,0.08)",
+      name: "#1C1917",
+      sub: "#8B6914",
+      seal: "#991B1B",
       light: true,
     },
     glass: {
-      bg1: "#0f172a",
-      bg2: "#1e293b",
-      bd: "rgba(255,255,255,0.5)",
-      bd2: "rgba(255,255,255,0.15)",
-      title: "rgba(255,255,255,0.9)",
-      accent: "rgba(255,255,255,0.06)",
-      name: "#ffffff",
-      sub: "rgba(255,255,255,0.7)",
-      seal: "rgba(255,255,255,0.8)",
+      bg1: "#050C1A",
+      bg2: "#0A1938",
+      bd: "#48CAE4",
+      bd2: "rgba(72,202,228,0.35)",
+      title: "#90E0EF",
+      accent: "rgba(72,202,228,0.15)",
+      name: "#FFFFFF",
+      sub: "#00B4D8",
+      seal: "#00B4D8",
       light: false,
     },
     minimal: {
-      bg1: "#ffffff",
-      bg2: "#f8fafc",
-      bd: "#1e293b",
-      bd2: "rgba(30,41,59,0.2)",
-      title: "#1e293b",
-      accent: "rgba(30,41,59,0.04)",
-      name: "#0f172a",
-      sub: "#334155",
-      seal: "#475569",
+      bg1: "#FFFFFF",
+      bg2: "#F8FAFC",
+      bd: "#0F172A",
+      bd2: "rgba(15,23,42,0.2)",
+      title: "#0F172A",
+      accent: "rgba(15,23,42,0.04)",
+      name: "#0F172A",
+      sub: "#2563EB",
+      seal: "#2563EB",
       light: true,
     },
     corporate: {
-      bg1: "#1565c0",
-      bg2: "#0d47a1",
-      bd: "#90caf9",
-      bd2: "rgba(144,202,249,0.3)",
-      title: "#bbdefb",
-      accent: "rgba(144,202,249,0.15)",
-      name: "#ffffff",
-      sub: "#90caf9",
-      seal: "#64b5f6",
+      bg1: "#0B1E36",
+      bg2: "#132B4F",
+      bd: "#38BDF8",
+      bd2: "rgba(56,189,248,0.35)",
+      title: "#7DD3FC",
+      accent: "rgba(56,189,248,0.15)",
+      name: "#FFFFFF",
+      sub: "#BAE6FD",
+      seal: "#0284C7",
       light: false,
     },
     classic: {
-      bg1: "#fdf6e3",
-      bg2: "#f5edd6",
+      bg1: "#FAF8F3",
+      bg2: "#F3EFE6",
       bd: "#8B6914",
-      bd2: "rgba(139,105,20,0.3)",
-      title: "#5c3d11",
+      bd2: "rgba(139,105,20,0.35)",
+      title: "#5C3D11",
       accent: "rgba(139,105,20,0.08)",
-      name: "#3b2709",
+      name: "#1C1917",
       sub: "#8B6914",
-      seal: "#a0752e",
+      seal: "#991B1B",
       light: true,
     },
     gradient: {
-      bg1: "#6B5BFB",
-      bg2: "#a855f7",
-      bd: "rgba(255,255,255,0.7)",
-      bd2: "rgba(255,255,255,0.2)",
-      title: "#ffffff",
-      accent: "rgba(255,255,255,0.12)",
-      name: "#ffffff",
-      sub: "rgba(255,255,255,0.85)",
-      seal: "#ffffff",
+      bg1: "#0F172A",
+      bg2: "#1E1B4B",
+      bd: "#C084FC",
+      bd2: "rgba(192,132,252,0.35)",
+      title: "#F472B6",
+      accent: "rgba(244,114,182,0.15)",
+      name: "#FFFFFF",
+      sub: "#A855F7",
+      seal: "#EC4899",
       light: false,
     },
   };
@@ -636,9 +636,10 @@ function CertThumbnail({
         width: w,
         height: h,
         flexShrink: 0,
-        borderRadius: 4,
+        borderRadius: 6,
         overflow: "hidden",
-        border: "1px solid #E5E7EB",
+        border: "1px solid #E2E8F0",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
       }}
     >
       <svg
@@ -660,131 +661,195 @@ function CertThumbnail({
             <stop offset="100%" stopColor={c.bg2} />
           </linearGradient>
         </defs>
+        {/* Background Canvas */}
         <rect
           width="400"
           height="280"
           fill={`url(#bg-${theme}-${w}-${name?.replace(/\s+/g, "") || "def"})`}
         />
-        <rect x="10" y="10" width="380" height="260" fill="none" stroke={c.bd} strokeWidth="2" />
-        <rect x="16" y="16" width="368" height="248" fill="none" stroke={c.bd2} strokeWidth="1" />
-        <rect x="10" y="10" width="380" height="36" fill={c.accent} />
+
+        {/* Security Borders */}
+        <rect x="10" y="10" width="380" height="260" rx="3" fill="none" stroke={c.bd} strokeWidth="1.4" />
+        <rect x="15" y="15" width="370" height="250" rx="2" fill="none" stroke={c.bd2} strokeWidth="0.6" strokeDasharray="3,1.5" />
+
+        {/* 4 Corner L-Brackets */}
+        <path
+          d="M 12 26 L 12 12 L 26 12 M 388 26 L 388 12 L 374 12 M 12 254 L 12 268 L 26 268 M 388 254 L 388 268 L 374 268"
+          fill="none"
+          stroke={c.bd}
+          strokeWidth="1.2"
+        />
+
+        {/* 4 Corner Guilloche Rosettes */}
+        {[
+          { cx: 25, cy: 25 },
+          { cx: 375, cy: 25 },
+          { cx: 25, cy: 255 },
+          { cx: 375, cy: 255 },
+        ].map((pt, idx) => (
+          <g key={idx} transform={`translate(${pt.cx}, ${pt.cy})`}>
+            <circle cx="0" cy="0" r="9" fill="none" stroke={c.bd} strokeWidth="0.5" strokeDasharray="1.5,1" />
+            <circle cx="0" cy="0" r="6" fill="none" stroke={c.bd2} strokeWidth="0.75" />
+            <path d="M-6,0 L6,0 M0,-6 L0,6 M-4,-4 L4,4 M-4,4 L4,-4" stroke={c.bd} strokeWidth="0.4" opacity="0.6" />
+            <circle cx="0" cy="0" r="2" fill={c.seal} opacity="0.9" />
+          </g>
+        ))}
+
+        {/* Learnify Council Brand Header */}
         <text
           x="200"
-          y="32"
+          y="34"
           textAnchor="middle"
           fill={c.title}
-          fontSize="8"
-          fontFamily="serif"
-          letterSpacing="3"
+          fontSize="7"
+          fontFamily="'Space Grotesk',sans-serif"
+          letterSpacing="3.5"
           fontWeight="700"
         >
-          LEARNIFY AI
+          ✦ LEARNIFY AI ACCREDITATION COUNCIL ✦
         </text>
+
+        {/* Certificate Display Title */}
         <text
           x="200"
-          y="70"
+          y="68"
           textAnchor="middle"
-          fill={lt ? "#0f172a" : "#ffffff"}
-          fontSize="22"
-          fontFamily="Playfair Display,Georgia,serif"
+          fill={lt ? "#0F172A" : "#FFFFFF"}
+          fontSize="20"
+          fontFamily="'Playfair Display',Georgia,serif"
           fontWeight="700"
-          letterSpacing="4"
+          letterSpacing="3"
         >
           CERTIFICATE
         </text>
         <text
           x="200"
-          y="87"
+          y="83"
           textAnchor="middle"
           fill={c.sub}
-          fontSize="8"
-          letterSpacing="5"
-          fontFamily="sans-serif"
+          fontSize="7"
+          letterSpacing="4"
+          fontFamily="'Space Grotesk',sans-serif"
+          fontWeight="600"
         >
-          OF COMPLETION
+          OF ACADEMIC EXCELLENCE
         </text>
-        <line x1="70" y1="96" x2="330" y2="96" stroke={c.bd} strokeWidth="0.8" />
+
+        {/* Divider with Center Diamond */}
+        <line x1="75" y1="91" x2="190" y2="91" stroke={c.bd2} strokeWidth="0.75" />
+        <polygon points="200,88 203,91 200,94 197,91" fill={c.seal} />
+        <line x1="210" y1="91" x2="325" y2="91" stroke={c.bd2} strokeWidth="0.75" />
+
         <text
           x="200"
-          y="118"
+          y="112"
           textAnchor="middle"
-          fill={lt ? "rgba(0,0,0,0.45)" : "rgba(255,255,255,0.55)"}
-          fontSize="8"
-          fontFamily="sans-serif"
-        >
-          This is to certify that
-        </text>
-        <text
-          x="200"
-          y="154"
-          textAnchor="middle"
-          fill={c.name}
-          fontSize="22"
-          fontFamily="Great Vibes,Georgia,serif"
-          fontStyle="italic"
-        >
-          {name || "Learner"}
-        </text>
-        <line x1="70" y1="165" x2="330" y2="165" stroke={c.bd2} strokeWidth="0.6" />
-        <text
-          x="200"
-          y="182"
-          textAnchor="middle"
-          fill={lt ? "rgba(0,0,0,0.45)" : "rgba(255,255,255,0.55)"}
+          fill={lt ? "#475569" : "rgba(255,255,255,0.6)"}
           fontSize="7.5"
           fontFamily="sans-serif"
         >
-          has successfully completed
+          This is to officially certify that
         </text>
+
+        {/* Recipient Name in Calligraphic Script */}
         <text
           x="200"
-          y="200"
+          y="146"
+          textAnchor="middle"
+          fill={c.name}
+          fontSize="21"
+          fontFamily="'Great Vibes',Georgia,cursive"
+          fontStyle="italic"
+        >
+          {name || "Alexandria Morgan"}
+        </text>
+        <line x1="85" y1="156" x2="315" y2="156" stroke={c.bd2} strokeWidth="0.6" strokeDasharray="3,2" />
+
+        <text
+          x="200"
+          y="172"
+          textAnchor="middle"
+          fill={lt ? "#475569" : "rgba(255,255,255,0.6)"}
+          fontSize="7.5"
+          fontFamily="sans-serif"
+        >
+          has successfully fulfilled all requirements for
+        </text>
+
+        {/* Course Title */}
+        <text
+          x="200"
+          y="191"
           textAnchor="middle"
           fill={c.sub}
           fontSize="10.5"
-          fontFamily="Playfair Display,Georgia,serif"
+          fontFamily="'Playfair Display',Georgia,serif"
           fontWeight="700"
         >
-          {course || "Full Stack Web Development"}
+          {course || "Full Stack Web Development & AI"}
         </text>
-        <circle cx="200" cy="240" r="20" fill={c.accent} stroke={c.bd} strokeWidth="1.2" />
-        <circle cx="200" cy="240" r="15" fill="none" stroke={c.bd2} strokeWidth="0.8" />
-        <text x="200" y="244" textAnchor="middle" fill={c.seal} fontSize="12" fontFamily="serif">
-          ✦
+
+        {/* Left Footer: Issuance Date */}
+        <text
+          x="75"
+          y="234"
+          textAnchor="middle"
+          fill={lt ? "#64748B" : "rgba(255,255,255,0.45)"}
+          fontSize="5.5"
+          fontFamily="sans-serif"
+          letterSpacing="0.5"
+        >
+          DATE OF ISSUANCE
         </text>
         <text
-          x="100"
-          y="228"
+          x="75"
+          y="244"
           textAnchor="middle"
-          fill={lt ? "rgba(0,0,0,0.4)" : "rgba(255,255,255,0.4)"}
-          fontSize="6"
+          fill={lt ? "#0F172A" : "#FFFFFF"}
+          fontSize="6.5"
+          fontWeight="600"
           fontFamily="sans-serif"
         >
-          {date || "May 25, 2026"}
+          {date || "October 2026"}
+        </text>
+        <line x1="45" y1="248" x2="105" y2="248" stroke={c.bd2} strokeWidth="0.5" />
+
+        {/* Center: 16-point Starburst Seal with Twin Ribbons */}
+        <g transform="translate(200, 236)">
+          <path d="M-6,14 L-12,30 L-5,26 L2,30 L-2,14 Z" fill={c.seal} opacity="0.85" />
+          <path d="M6,14 L12,30 L5,26 L-2,30 L2,14 Z" fill={c.seal} opacity="0.85" />
+          <circle cx="0" cy="0" r="17" fill={c.accent} stroke={c.bd} strokeWidth="1.2" />
+          <circle cx="0" cy="0" r="14" fill="none" stroke={c.bd} strokeWidth="0.5" strokeDasharray="2,1" />
+          <circle cx="0" cy="0" r="11" fill="none" stroke={c.bd2} strokeWidth="0.8" />
+          <text x="0" y="4" textAnchor="middle" fill={c.seal} fontSize="11" fontFamily="serif">
+            ✦
+          </text>
+        </g>
+
+        {/* Right Footer: Credential ID */}
+        <text
+          x="325"
+          y="234"
+          textAnchor="middle"
+          fill={lt ? "#64748B" : "rgba(255,255,255,0.45)"}
+          fontSize="5.5"
+          fontFamily="sans-serif"
+          letterSpacing="0.5"
+        >
+          CREDENTIAL ID
         </text>
         <text
-          x="300"
-          y="228"
+          x="325"
+          y="244"
           textAnchor="middle"
-          fill={lt ? "rgba(0,0,0,0.4)" : "rgba(255,255,255,0.4)"}
-          fontSize="6"
-          fontFamily="sans-serif"
+          fill={lt ? "#0F172A" : "#FFFFFF"}
+          fontSize="6.5"
+          fontWeight="600"
+          fontFamily="monospace"
         >
-          {certId || "LAI-2026-000124"}
+          {certId || "LRN-2026-X892"}
         </text>
-        <rect
-          x="352"
-          y="248"
-          width="22"
-          height="22"
-          fill={lt ? "rgba(0,0,0,0.08)" : "rgba(255,255,255,0.08)"}
-          stroke={c.bd2}
-          strokeWidth="0.5"
-          rx="2"
-        />
-        <text x="363" y="263" textAnchor="middle" fill={c.bd2} fontSize="7">
-          QR
-        </text>
+        <line x1="295" y1="248" x2="355" y2="248" stroke={c.bd2} strokeWidth="0.5" />
       </svg>
     </div>
   );
@@ -2054,99 +2119,288 @@ function TemplatesScreen({
   const [testTemplateModal, setTestTemplateModal] = useState<any | null>(null);
   const chips = [
     "All",
-    "Professional",
-    "Academic",
-    "Modern",
-    "Minimal",
-    "Luxury",
-    "Creative",
-    "Corporate",
+    "Executive",
     "Technology",
-    "AI",
-    "Workshop",
-    "Bootcamp",
+    "Academic",
+    "Design",
+    "Corporate",
+    "Creative",
+    "Finance",
   ];
 
-  // Merge DB templates with mock for display
-  const ALL_PUBLIC_SVG_TEMPLATES = useMemo(() => [
-    { folder: "02-Python-Programming", name: "Python Programming", count: 16, category: "Technology" },
-    { folder: "03-Web-Development", name: "Web Development", count: 18, category: "Technology" },
-    { folder: "04-Excel-Data-Analysis", name: "Excel & Data Analysis", count: 23, category: "Business" },
-    { folder: "05-Data-Structures", name: "Data Structures & Algorithms", count: 20, category: "Technology" },
-    { folder: "01-UIUX-Design", name: "UI/UX Design", count: 17, category: "Design" },
-    { folder: "06-Digital-Marketing", name: "Digital Marketing", count: 25, category: "Marketing" },
-    { folder: "07-AI-Fundamentals", name: "AI Fundamentals", count: 14, category: "AI & Data" },
-    { folder: "08-Data-Structures-2", name: "Advanced Data Structures", count: 20, category: "Technology" },
-  ].flatMap((cat) =>
-    Array.from({ length: cat.count }, (_, i) => {
-      const num = i + 1;
-      const url = `/templates/${cat.folder}/${num}.svg`;
-      return {
-        name: `${cat.name} #${num}`,
-        badge: num <= 3 ? "Premium" : "Professional",
-        badgeColor: num <= 3 ? "#92400E" : "#1E40AF",
-        badgeBg: num <= 3 ? "#FEF3C7" : "#DBEAFE",
-        bg_image_url: url,
-        thumbnail_url: url,
+  // 8 Master Luxury Templates Suite
+  const MASTER_UI_TEMPLATES = useMemo(
+    () => [
+      {
+        id: "tpl-grand-chancellor",
+        name: "The Grand Chancellor",
+        subtitle: "Executive Navy & 24K Gold Foil",
+        badge: "Executive Master",
+        badgeColor: "#92400E",
+        badgeBg: "#FEF3C7",
+        category: "Executive",
         theme: "navy",
-        rating: 4.8,
-        reviews: 450 + num * 12,
-        downloads: `${(1 + (num % 6) * 0.4).toFixed(1)}k`,
+        rating: 4.99,
+        reviews: 1480,
+        downloads: "18.4k",
+        description: "Presidential diploma aesthetic with 24K gold foil guilloche rosettes, deep midnight navy ground, and dual executive signatures.",
         dbTemplate: {
-          id: `${cat.folder}-${num}`,
-          name: `${cat.name} Template #${num}`,
-          category: cat.category,
-          bg_image_url: url,
-          thumbnail_url: url,
+          id: "tpl-grand-chancellor",
+          name: "The Grand Chancellor — Executive Navy & 24K Gold",
+          category: "Executive",
+          bg_image_url: "",
+          thumbnail_url: "",
+          theme_colors: { primary: "#0A1128", accent: "#D4AF37", background: "#FCFDFE", text: "#0F172A" },
           fields_json: null,
-          theme_colors: null,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
           created_by: null,
         } as CanvaTemplate,
-      };
-    }),
-  ), []);
+      },
+      {
+        id: "tpl-silicon-laureate",
+        name: "The Silicon Laureate",
+        subtitle: "Obsidian AI & Quantum Cyan",
+        badge: "AI Fellowship",
+        badgeColor: "#0369A1",
+        badgeBg: "#E0F2FE",
+        category: "Technology",
+        theme: "onyx",
+        rating: 4.98,
+        reviews: 1120,
+        downloads: "15.1k",
+        description: "Frontier AI & Systems credential featuring cybernetic lattice filigree, ultraviolet gradients, and cryptographic SHA-256 seal.",
+        dbTemplate: {
+          id: "tpl-silicon-laureate",
+          name: "The Silicon Laureate — Obsidian AI & Quantum Cyan",
+          category: "Technology",
+          bg_image_url: "",
+          thumbnail_url: "",
+          theme_colors: { primary: "#00F2FE", accent: "#8B5CF6", background: "#080B14", text: "#F8FAFC" },
+          fields_json: null,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          created_by: null,
+        } as CanvaTemplate,
+      },
+      {
+        id: "tpl-oxfordian-imperial",
+        name: "The Oxfordian Imperial",
+        subtitle: "Heritage Ivory & Crimson Wax",
+        badge: "Heritage Laureate",
+        badgeColor: "#991B1B",
+        badgeBg: "#FEE2E2",
+        category: "Academic",
+        theme: "classic",
+        rating: 4.97,
+        reviews: 890,
+        downloads: "11.6k",
+        description: "Classical university laureate certificate with warm handmade parchment texture, Roman capitals, and imperial crimson wax crest.",
+        dbTemplate: {
+          id: "tpl-oxfordian-imperial",
+          name: "The Oxfordian Imperial — Heritage Ivory & Crimson Vellum",
+          category: "Academic",
+          bg_image_url: "",
+          thumbnail_url: "",
+          theme_colors: { primary: "#8B6914", accent: "#991B1B", background: "#FAF8F3", text: "#1C1917" },
+          fields_json: null,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          created_by: null,
+        } as CanvaTemplate,
+      },
+      {
+        id: "tpl-swiss-vanguard",
+        name: "The Swiss Vanguard",
+        subtitle: "Architectural Minimalist Monolith",
+        badge: "Modern Minimal",
+        badgeColor: "#1E293B",
+        badgeBg: "#F1F5F9",
+        category: "Design",
+        theme: "minimal",
+        rating: 4.96,
+        reviews: 740,
+        downloads: "9.8k",
+        description: "International Typographic Style credential featuring high-contrast geometric typography, asymmetric structural grid, and micro-embossed seal.",
+        dbTemplate: {
+          id: "tpl-swiss-vanguard",
+          name: "The Swiss Vanguard — Architectural Minimalist Monolith",
+          category: "Design",
+          bg_image_url: "",
+          thumbnail_url: "",
+          theme_colors: { primary: "#0F172A", accent: "#2563EB", background: "#FFFFFF", text: "#0F172A" },
+          fields_json: null,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          created_by: null,
+        } as CanvaTemplate,
+      },
+      {
+        id: "tpl-emerald-sovereign",
+        name: "The Emerald Sovereign",
+        subtitle: "Royal Forest & Mint Guilloche",
+        badge: "Charter Sovereign",
+        badgeColor: "#065F46",
+        badgeBg: "#D1FAE5",
+        category: "Corporate",
+        theme: "teal",
+        rating: 4.95,
+        reviews: 620,
+        downloads: "8.3k",
+        description: "Prestige sustainability and business charter with banknote micro-engravings, regal forest green backdrop, and emerald starburst crest.",
+        dbTemplate: {
+          id: "tpl-emerald-sovereign",
+          name: "The Emerald Sovereign — Royal Forest & Mint Filigree",
+          category: "Corporate",
+          bg_image_url: "",
+          thumbnail_url: "",
+          theme_colors: { primary: "#064E3B", accent: "#10B981", background: "#F0FDF4", text: "#064E3B" },
+          fields_json: null,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          created_by: null,
+        } as CanvaTemplate,
+      },
+      {
+        id: "tpl-rose-royale",
+        name: "The Rose Royale",
+        subtitle: "Midnight Velvet & Rose Gold Leaf",
+        badge: "Haute Couture",
+        badgeColor: "#9D174D",
+        badgeBg: "#FCE7F3",
+        category: "Creative",
+        theme: "rose",
+        rating: 4.97,
+        reviews: 830,
+        downloads: "10.4k",
+        description: "Haute couture design credential combining velvet obsidian tone with warm rose-gold leaf framing and calligraphic title flourishes.",
+        dbTemplate: {
+          id: "tpl-rose-royale",
+          name: "The Rose Royale — Midnight Velvet & Rose Gold Foil",
+          category: "Creative",
+          bg_image_url: "",
+          thumbnail_url: "",
+          theme_colors: { primary: "#18181B", accent: "#FB7185", background: "#FFF1F2", text: "#18181B" },
+          fields_json: null,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          created_by: null,
+        } as CanvaTemplate,
+      },
+      {
+        id: "tpl-quantum-cloud",
+        name: "The Quantum Cloud",
+        subtitle: "Enterprise Cobalt & Horizon Azure",
+        badge: "Cloud Certified",
+        badgeColor: "#1E40AF",
+        badgeBg: "#DBEAFE",
+        category: "Technology",
+        theme: "corporate",
+        rating: 4.96,
+        reviews: 950,
+        downloads: "12.7k",
+        description: "Tier-1 cloud engineering certification credential with deep cobalt gradient, vector circuit paths, and ISO-grade security micro-border.",
+        dbTemplate: {
+          id: "tpl-quantum-cloud",
+          name: "The Quantum Cloud — Enterprise Cobalt & Sky Horizon",
+          category: "Technology",
+          bg_image_url: "",
+          thumbnail_url: "",
+          theme_colors: { primary: "#1D4ED8", accent: "#0284C7", background: "#EFF6FF", text: "#0F172A" },
+          fields_json: null,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          created_by: null,
+        } as CanvaTemplate,
+      },
+      {
+        id: "tpl-banknote-rosette",
+        name: "The Banknote Rosette",
+        subtitle: "Central Bank Harmonic Lathe Engine",
+        badge: "Sovereign Trust",
+        badgeColor: "#3730A3",
+        badgeBg: "#E0E7FF",
+        category: "Finance",
+        theme: "glass",
+        rating: 4.99,
+        reviews: 1640,
+        downloads: "21.9k",
+        description: "Central-bank security grade diploma featuring parametric harmonic rosette curves, holographic moiré counter-measures, and guilloche lathe corners.",
+        dbTemplate: {
+          id: "tpl-banknote-rosette",
+          name: "The Banknote Rosette — Mathematical Guilloche Engine",
+          category: "Finance",
+          bg_image_url: "",
+          thumbnail_url: "",
+          theme_colors: { primary: "#0A1128", accent: "#00A6FB", background: "#050C1A", text: "#FFFFFF" },
+          fields_json: null,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          created_by: null,
+        } as CanvaTemplate,
+      },
+    ],
+    [],
+  );
 
-  // Merge DB templates with public SVG templates (deduplicated)
+  // Merge DB templates with Master Suite templates (deduplicated)
   const displayTemplates = useMemo(() => {
     const seen = new Set<string>();
     const list: any[] = [];
     if (dbTemplates && dbTemplates.length > 0) {
       dbTemplates.forEach((t) => {
-        const key = (t.bg_image_url || t.name || "").trim().toLowerCase();
+        const key = (t.name || "").trim().toLowerCase();
         if (key && !seen.has(key)) {
           seen.add(key);
+          const matchedMaster = MASTER_UI_TEMPLATES.find((m) =>
+            key.includes(m.name.toLowerCase()) || m.name.toLowerCase().includes(key)
+          );
           list.push({
             name: t.name,
-            badge: t.category === "Premium" ? "Premium" : "Professional",
-            badgeColor: t.category === "Premium" ? "#92400E" : "#1E40AF",
-            badgeBg: t.category === "Premium" ? "#FEF3C7" : "#DBEAFE",
+            subtitle: matchedMaster?.subtitle || `${t.category || "Professional"} Certification`,
+            badge: matchedMaster?.badge || (t.category === "Premium" ? "Premium" : "Professional"),
+            badgeColor: matchedMaster?.badgeColor || (t.category === "Premium" ? "#92400E" : "#1E40AF"),
+            badgeBg: matchedMaster?.badgeBg || (t.category === "Premium" ? "#FEF3C7" : "#DBEAFE"),
+            category: t.category || matchedMaster?.category || "Professional",
             bg_image_url: t.bg_image_url,
             thumbnail_url: t.thumbnail_url || t.bg_image_url,
-            theme: "navy",
-            rating: 4.9,
-            reviews: 650,
-            downloads: "3.2k",
+            theme: matchedMaster?.theme || "navy",
+            rating: matchedMaster?.rating || 4.95,
+            reviews: matchedMaster?.reviews || 680,
+            downloads: matchedMaster?.downloads || "5.4k",
+            description: matchedMaster?.description || "Official Learnify AI accredited certificate template.",
             dbTemplate: t,
           });
         }
       });
     }
-    ALL_PUBLIC_SVG_TEMPLATES.forEach((t) => {
-      const key = (t.bg_image_url || t.name || "").trim().toLowerCase();
+    MASTER_UI_TEMPLATES.forEach((t) => {
+      const key = (t.name || "").trim().toLowerCase();
       if (key && !seen.has(key)) {
         seen.add(key);
         list.push(t);
       }
     });
     return list;
-  }, [dbTemplates, ALL_PUBLIC_SVG_TEMPLATES]);
+  }, [dbTemplates, MASTER_UI_TEMPLATES]);
 
   const filtered = displayTemplates.filter((t) => {
-    if (activeChip !== "All" && !t.name.toLowerCase().includes(activeChip.toLowerCase()))
-      return false;
-    if (searchT && !t.name.toLowerCase().includes(searchT.toLowerCase())) return false;
+    if (activeChip !== "All") {
+      const chipLower = activeChip.toLowerCase();
+      const match =
+        (t.category && t.category.toLowerCase().includes(chipLower)) ||
+        (t.name && t.name.toLowerCase().includes(chipLower)) ||
+        (t.badge && t.badge.toLowerCase().includes(chipLower));
+      if (!match) return false;
+    }
+    if (searchT) {
+      const sLower = searchT.toLowerCase();
+      const matchSearch =
+        (t.name && t.name.toLowerCase().includes(sLower)) ||
+        (t.subtitle && t.subtitle.toLowerCase().includes(sLower)) ||
+        (t.category && t.category.toLowerCase().includes(sLower));
+      if (!matchSearch) return false;
+    }
     return true;
   });
 
@@ -2333,19 +2587,20 @@ function TemplatesScreen({
                 e.currentTarget.style.transform = "scale(1)";
               }}
             >
-              <div style={{ position: "relative", width: "100%", height: 140, background: "#f8fafc" }}>
+              <div style={{ position: "relative", width: "100%", height: 140, background: "#0B1120" }}>
                 {t.bg_image_url ? (
                   <img
                     src={t.bg_image_url}
                     alt={t.name}
                     style={{ width: "100%", height: "100%", objectFit: "contain" }}
                     onError={(e) => {
-                      (e.target as HTMLElement).style.display = "none";
+                      (e.currentTarget as HTMLElement).style.display = "none";
                     }}
                   />
-                ) : (
-                  <CertThumbnail theme={t.theme} w={220} h={140} />
-                )}
+                ) : null}
+                <div style={{ position: t.bg_image_url ? "absolute" : "static", inset: 0, zIndex: 1 }}>
+                  <CertThumbnail theme={t.theme} w={260} h={140} course={t.name} />
+                </div>
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -2357,7 +2612,8 @@ function TemplatesScreen({
                     position: "absolute",
                     top: 8,
                     right: 8,
-                    background: "rgba(255,255,255,0.9)",
+                    background: "rgba(255,255,255,0.92)",
+                    backdropFilter: "blur(4px)",
                     border: "none",
                     borderRadius: "50%",
                     width: 28,
@@ -2366,6 +2622,7 @@ function TemplatesScreen({
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
+                    zIndex: 10,
                   }}
                 >
                   <Heart
@@ -2381,7 +2638,7 @@ function TemplatesScreen({
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "space-between",
-                    marginBottom: 8,
+                    marginBottom: 4,
                   }}
                 >
                   <span
@@ -2395,6 +2652,7 @@ function TemplatesScreen({
                       overflow: "hidden",
                       textOverflow: "ellipsis",
                     }}
+                    title={t.name}
                   >
                     {t.name}
                   </span>
@@ -2413,6 +2671,20 @@ function TemplatesScreen({
                     {t.badge}
                   </span>
                 </div>
+                {t.subtitle && (
+                  <p
+                    style={{
+                      fontSize: 11,
+                      color: TX2,
+                      margin: "0 0 8px 0",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    {t.subtitle}
+                  </p>
+                )}
                 <div
                   style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}
                 >
@@ -2420,7 +2692,11 @@ function TemplatesScreen({
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        window.open(t.bg_image_url, "_blank");
+                        if (t.bg_image_url && t.bg_image_url.startsWith("http")) {
+                          window.open(t.bg_image_url, "_blank");
+                        } else {
+                          setTestTemplateModal(t);
+                        }
                       }}
                       style={{
                         padding: "5px 6px",
@@ -2429,7 +2705,7 @@ function TemplatesScreen({
                         background: "white",
                         cursor: "pointer",
                       }}
-                      title="View SVG File"
+                      title="Inspect & Test Preview"
                     >
                       <Eye size={12} color={TX2} />
                     </button>
