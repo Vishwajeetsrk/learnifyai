@@ -24,6 +24,7 @@ import {
 } from "@/lib/certificate-admin.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { DesignerWorkspace } from "./DesignerWorkspace";
+import { BadgeDesigner } from "./BadgeDesigner";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import html2canvas from "html2canvas-pro";
@@ -1001,6 +1002,7 @@ const TABS = [
   { id: "bulk-issue", label: "Bulk Issue", icon: <Upload size={15} /> },
   { id: "verification", label: "Verification", icon: <ShieldCheck size={15} /> },
   { id: "analytics", label: "Analytics", icon: <BarChart2 size={15} /> },
+  { id: "badges", label: "Badges", icon: <Award size={15} /> },
   { id: "categories", label: "Categories", icon: <Tag size={15} /> },
   { id: "settings", label: "Settings", icon: <Settings size={15} /> },
 ];
@@ -8761,6 +8763,11 @@ export function CertDesignerAdmin() {
       title: "Certificate Categories",
       subtitle: "Organize and manage certificate categories and subcategories.",
     },
+    badges: {
+      icon: <Award size={22} color={P} />,
+      title: "Badge & Credential Studio",
+      subtitle: "Design and automate achievement badges for course completions and milestones.",
+    },
     settings: {
       icon: <Settings size={22} color={P} />,
       title: "Settings",
@@ -8807,6 +8814,8 @@ export function CertDesignerAdmin() {
         return <VerificationScreen stats={stats} certificates={certificates} />;
       case "analytics":
         return <AnalyticsScreen stats={stats} certificates={certificates} templates={templates} />;
+      case "badges":
+        return <BadgeDesigner />;
       case "categories":
         return <CategoriesScreen categories={categories} stats={stats} />;
       case "settings":

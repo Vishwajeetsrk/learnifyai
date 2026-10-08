@@ -1,3 +1,116 @@
+// ─────────────────────────────────────────────────────────
+// CERTIFICATE STUDIO 2.0 — DATA ARCHITECTURE
+// KEY PRINCIPLE: credential DATA is separate from template DESIGN.
+// Changing a template never retroactively changes issued credentials.
+// ─────────────────────────────────────────────────────────
+
+/**
+ * CredentialData — the immutable record of what was achieved.
+ * This is stored permanently at issuance time, never mutated.
+ */
+export type CredentialData = {
+  /** The stable certificate code shown to users, e.g. LRN-XLMQPO-ABC123 */
+  code: string;
+  recipientName: string;
+  recipientEmail?: string;
+  courseName: string;
+  courseCategory?: string;
+  courseId: string;
+  instructorName?: string;
+  organizationName: string;
+  score?: number;
+  total?: number;
+  grade?: string;
+  skills?: string[];
+  issueDate: string;
+  expiryDate?: string | null;
+  templateVersionId?: string;
+  /** Deterministic integrity hash: sha256(code + recipientName + courseId + issueDate) */
+  integrityHash?: string;
+  status: "active" | "revoked" | "expired";
+  revokedAt?: string | null;
+  revocationReason?: string | null;
+  verificationUrl: string;
+};
+
+/**
+ * TemplateVersion — an immutable snapshot of a design at publish time.
+ * Issued certs reference a specific version; editing a template creates v+1.
+ */
+export type TemplateVersion = {
+  id: string;
+  templateId: string;
+  version: number;
+  name: string;
+  configJson: { elements: CertElement[]; design: CertDesign };
+  publishedAt: string;
+  publishedBy: string;
+  status: "draft" | "published" | "archived";
+};
+
+/**
+ * BadgeDefinition — admin-configured achievement badge.
+ */
+export type BadgeShape =
+  | "circle"
+  | "shield"
+  | "medal"
+  | "ribbon"
+  | "seal"
+  | "pill"
+  | "hexagon";
+
+export type BadgeCriteriaType =
+  | "score_gte"
+  | "score_eq"
+  | "course_completed"
+  | "fast_learner"
+  | "project_approved"
+  | "community_contributions_gte"
+  | "custom";
+
+export type BadgeCriteria = {
+  type: BadgeCriteriaType;
+  threshold?: number; // e.g. score >= 90, contributions >= 10
+  customFn?: string;  // for "custom" — server-evaluated only, never eval'd client-side
+  description?: string;
+};
+
+export type BadgeDefinition = {
+  id: string;
+  name: string;
+  description: string;
+  category: string;
+  iconName: string;   // Lucide icon name
+  shape: BadgeShape;
+  primaryColor: string;
+  accentColor: string;
+  textColor: string;
+  criteria: BadgeCriteria[];
+  status: "active" | "inactive";
+  createdAt: string;
+};
+
+/**
+ * BadgeAward — a specific badge earned by a specific learner for a specific cert.
+ */
+export type BadgeAward = {
+  id: string;
+  badgeDefinitionId: string;
+  badgeName: string;
+  badgeIcon: string;
+  badgeColor: string;
+  certificateCode: string;
+  userId: string;
+  courseId: string;
+  earnedAt: string;
+  w3cVcJson?: object;  // Open Badge V3 credential
+};
+
+// ─────────────────────────────────────────────────────────
+// ELEMENT TYPES
+// ─────────────────────────────────────────────────────────
+
 export type CertElementType =
   | "text"
   | "image"
@@ -12,7 +125,16 @@ export type CertElementType =
   | "shape"
   | "date"
   | "table"
-  | "watermark";
+  | "watermark"
+  // Studio 2.0 new types
+  | "dynamic_text"   // renders a resolved dynamic field value
+  | "frame"          // decorative frame/border
+  | "icon"           // Lucide icon element
+  | "ribbon"         // decorative ribbon
+  | "award_seal"     // circular award seal
+  | "course_title"   // shorthand for dynamic course name
+  | "student_name"   // shorthand for dynamic student name
+  | "credential_id"; // shorthand for dynamic cert ID
 
 export type ShapeType =
   "rect" | "circle" | "triangle" | "diamond" | "line" | "hexagon" | "star" | "heart";
@@ -132,16 +254,62 @@ export type EditorHistory = {
 };
 
 export const DYNAMIC_FIELD_PLACEHOLDERS = [
-  { tag: "{student_name}", label: "Student Name", sample: "Alex Rivera" },
-  { tag: "{course_name}", label: "Course Name", sample: "Full Stack AI Engineering" },
-  { tag: "{issue_date}", label: "Issue Date", sample: "May 25, 2026" },
-  { tag: "{expiry_date}", label: "Expiry Date", sample: "Lifetime" },
-  { tag: "{certificate_id}", label: "Certificate ID", sample: "LAI-2026-000128" },
-  { tag: "{score}", label: "Score", sample: "98%" },
-  { tag: "{grade}", label: "Grade", sample: "Distinction" },
-  { tag: "{instructor_name}", label: "Instructor Name", sample: "Dr. Alex Morgan" },
-  { tag: "{organization_name}", label: "Organization Name", sample: "Learnify AI" },
+  // Primary credential fields
+  { tag: "{{student_name}}",      label: "Student Name",      sample: "Vishwajeet Sharma",           group: "Credential" },
+  { tag: "{{course_name}}",       label: "Course Name",       sample: "Full Stack Development",      group: "Credential" },
+  { tag: "{{certificate_id}}",    label: "Certificate ID",    sample: "LRN-XLMQPO-MRJ8YW92",        group: "Credential" },
+  { tag: "{{credential_id}}",     label: "Credential ID",     sample: "LFA-2026-000184",             group: "Credential" },
+  { tag: "{{issue_date}}",        label: "Issue Date",        sample: "08 October 2026",             group: "Credential" },
+  { tag: "{{expiry_date}}",       label: "Expiry Date",       sample: "Lifetime",                    group: "Credential" },
+  { tag: "{{score}}",             label: "Score",             sample: "94%",                         group: "Credential" },
+  { tag: "{{grade}}",             label: "Grade",             sample: "A+",                          group: "Credential" },
+  // Course & Institution
+  { tag: "{{course_category}}",   label: "Course Category",   sample: "Engineering",                 group: "Course" },
+  { tag: "{{duration}}",          label: "Duration",          sample: "40 hours",                    group: "Course" },
+  { tag: "{{instructor_name}}",   label: "Instructor Name",   sample: "Dr. Priya Mehta",             group: "Course" },
+  { tag: "{{organization_name}}", label: "Organization",      sample: "Learnify AI",                 group: "Course" },
+  { tag: "{{completion_date}}",   label: "Completion Date",   sample: "05 October 2026",             group: "Course" },
+  // Verification
+  { tag: "{{verification_url}}",  label: "Verification URL",  sample: "https://learnifyai.in/verify/LRN-XLMQPO-MRJ8YW92", group: "Verification" },
+  { tag: "{{qr_code}}",           label: "QR Code",           sample: "(auto-generated)",            group: "Verification" },
+  // Optional
+  { tag: "{{skills}}",            label: "Skills",            sample: "React, Next.js, TypeScript",  group: "Optional" },
+  { tag: "{{custom_field}}",      label: "Custom Field",      sample: "Custom value",                group: "Optional" },
 ];
+
+/** Groups for the dynamic field picker UI */
+export const DYNAMIC_FIELD_GROUPS = ["Credential", "Course", "Verification", "Optional"] as const;
+
+/**
+ * Resolves double-brace dynamic field tags in a string against a CredentialData object.
+ * Safe — no eval(), no arbitrary code execution.
+ */
+export function resolveDynamicFields(
+  text: string,
+  data: Partial<{
+    student_name: string;
+    course_name: string;
+    certificate_id: string;
+    credential_id: string;
+    issue_date: string;
+    expiry_date: string;
+    score: string;
+    grade: string;
+    course_category: string;
+    duration: string;
+    instructor_name: string;
+    organization_name: string;
+    completion_date: string;
+    verification_url: string;
+    skills: string;
+    custom_field: string;
+  }>
+): string {
+  return text.replace(/\{\{(\w+)\}\}/g, (_match, key) => {
+    const val = (data as Record<string, string | undefined>)[key];
+    return val !== undefined ? val : `{{${key}}}`;
+  });
+}
 
 export const DEFAULT_DESIGN: CertDesign = {
   accent_color: "#D4AF37",

@@ -15,6 +15,7 @@ import {
   X,
   FileCheck2,
   Lock,
+  Share2,
 } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
@@ -23,6 +24,8 @@ import { CertificatesListSkeleton } from "@/components/Skeletons";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
+import { AwardBadge } from "@/components/ui/AwardBadge";
+import { generateLinkedInCertUrl } from "@/lib/open-badges.functions";
 
 export const Route = createFileRoute("/_authenticated/certificates")({
   head: () => ({ meta: [{ title: "Certificates & Accreditations — Learnify AI" }] }),
@@ -130,6 +133,24 @@ function CertsPage() {
     });
   }, [certs, filterCat, searchTerm]);
 
+  const badgesQuery = useQuery({
+    enabled: !!user,
+    queryKey: ["user-badges-hub", user?.id],
+    queryFn: async () => {
+      try {
+        const { data } = await (supabase as any)
+          .from("badge_awards")
+          .select("*, badge_definitions(name, description, icon_name, shape, primary_color, accent_color, text_color)")
+          .eq("user_id", user!.id)
+          .order("earned_at", { ascending: false });
+        return data ?? [];
+      } catch {
+        return [];
+      }
+    },
+  });
+  const earnedBadges = badgesQuery.data ?? [];
+
   const handleCopyCode = (code: string, e: React.MouseEvent) => {
     e.stopPropagation();
     navigator.clipboard.writeText(code);
@@ -138,6 +159,19 @@ function CertsPage() {
     setTimeout(() => {
       setCopiedId(null);
     }, 2000);
+  };
+
+  const handleLinkedInShare = (cert: any, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const origin = typeof window !== "undefined" ? window.location.origin : "https://www.learnifyai.in";
+    const certUrl = `${origin}/verify/${cert.code}`;
+    const url = generateLinkedInCertUrl({
+      courseName: cert.courses?.title || "Professional Certificate",
+      certificateId: cert.code,
+      issueDate: cert.issued_at,
+      verificationUrl: certUrl,
+    });
+    window.open(url, "_blank", "noopener,noreferrer");
   };
 
   return (
@@ -174,6 +208,56 @@ function CertsPage() {
             </div>
           </div>
         </div>
+
+        {/* Earned Badges & Distinctions Showcase (Studio 2.0) */}
+        {earnedBadges.length > 0 && (
+          <div className="p-6 rounded-3xl border border-border/80 bg-card shadow-sm space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="p-1.5 rounded-xl bg-amber-500/10 text-amber-500 border border-amber-500/20">
+                  <Award className="w-4 h-4" />
+                </span>
+                <div>
+                  <h3 className="text-sm font-bold font-display text-foreground">
+                    Earned Achievement Badges ({earnedBadges.length})
+                  </h3>
+                  <p className="text-xs text-muted-foreground">
+                    Verifiable Open Badges awarded for curriculum mastery and distinctions.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4 overflow-x-auto pb-2 scrollbar-none pt-2">
+              {earnedBadges.map((badge: any) => {
+                const def = badge.badge_definitions || {};
+                return (
+                  <div
+                    key={badge.id}
+                    className="flex flex-col items-center p-3 rounded-2xl border border-border/60 bg-muted/20 hover:bg-muted/40 transition shrink-0 w-36 text-center group cursor-pointer"
+                    title={`${badge.badge_name}: ${def.description || "Verified Award"}`}
+                  >
+                    <AwardBadge
+                      name={badge.badge_name}
+                      iconName={badge.badge_icon || def.icon_name || "Award"}
+                      shape={def.shape || "circle"}
+                      primaryColor={badge.badge_color || def.primary_color || "#4f46e5"}
+                      accentColor={def.accent_color || "#a5b4fc"}
+                      textColor={def.text_color || "#ffffff"}
+                      size={72}
+                    />
+                    <span className="text-xs font-bold text-foreground mt-2 line-clamp-1">
+                      {badge.badge_name}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground line-clamp-1">
+                      {badge.earned_at ? format(new Date(badge.earned_at), "MMM yyyy") : "Verified"}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Filter and Search Bar */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-2.5 rounded-2xl bg-card border border-border/80 shadow-xs">
@@ -406,6 +490,15 @@ function CertsPage() {
                         >
                           <Download className="h-3.5 w-3.5" />
                         </Link>
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="text-xs rounded-xl px-3 cursor-pointer hover:bg-blue-500/10 hover:text-blue-600 hover:border-blue-500/30 transition-colors"
+                        title="Add to LinkedIn Profile"
+                        onClick={(e) => handleLinkedInShare(c, e)}
+                      >
+                        <Share2 className="h-3.5 w-3.5 text-blue-600" />
                       </Button>
                     </div>
                   </div>

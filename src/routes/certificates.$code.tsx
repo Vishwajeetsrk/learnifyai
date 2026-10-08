@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useRef, useState } from "react";
 import QRCode from "qrcode";
-import { Loader2, Award, Printer, Share2, Download, Mail } from "lucide-react";
+import { Loader2, Award, Printer, Share2, Download, Mail, ShieldCheck } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -359,6 +359,17 @@ function CertificatePage() {
             )}
           </div>
           <div className="flex items-center gap-2 flex-wrap">
+            <Button
+              asChild
+              size="sm"
+              variant="outline"
+              className="gap-1.5 text-xs rounded-xl bg-emerald-500/10 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20 cursor-pointer"
+            >
+              <Link to="/verify/$id" params={{ id: row.code }}>
+                <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
+                <span>Verify Credential</span>
+              </Link>
+            </Button>
             <Button
               size="sm"
               variant="outline"
