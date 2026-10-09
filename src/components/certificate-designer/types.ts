@@ -225,6 +225,13 @@ export type CertTemplate = {
   config_json: { elements: CertElement[]; design: CertDesign };
 };
 
+export type CertificateDocument = {
+  id: string;
+  dimensions: { width: number; height: number }; // Default e.g. 1123x794 (A4 Landscape) or 1200x800
+  design: CertDesign;
+  elements: CertElement[];
+};
+
 export type Certificate = {
   id: string;
   title: string;

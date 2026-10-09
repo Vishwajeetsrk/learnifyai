@@ -200,7 +200,7 @@ All major Career Studio tools now support **cross-browser-safe** multi-format ex
 | 💻 **Code Playground & Exercises** | Monaco editor with 25+ language runtimes, AI debug panel, in-lesson runnable coding challenges with Piston execution and AI grading. |
 | 💳 **Dual Payment Gateways & Invoices** | Cashfree & Razorpay integration supporting UPI, NetBanking, and cards with automatic 18% GST invoices (jsPDF), wallet top-ups, and subscription management. |
 | 🧱 **No-Code Notion-Style Course Builder** | Notion-style drag-and-drop course builder with 10 block types, live video embeds, code runner, and real-time auto-saving. |
-| 🎨 **Canva-Style Certificate Designer** | html2canvas certificate editor with 5 built-in templates (*Navy Gold*, *Navy Blue*, *Royal Purple*, *Forest Green*, *Crimson Gold*), QR verification, and bulk CSV generation. |
+| 🎨 **Canva-Style Certificate Designer** | Data-driven WYSIWYG editor with drag-and-drop elements, custom web fonts, and 8 luxury master templates. Includes interactive scaling, dynamic variable substitution, and bulk CSV generation. |
 | ⚖️ **Legal Center & Sponsorship Management** | Full admin control to hide/unhide and edit all 11 canonical policies (`/legal`) and the Support Us / Sponsor campaign (`/support-us`) with live preview, Razorpay, and direct UPI integration (`/admin/content`). |
 
 ---

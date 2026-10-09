@@ -24,6 +24,7 @@ import {
 } from "@/lib/certificate-admin.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { DesignerWorkspace } from "./DesignerWorkspace";
+import { CertificatePreview } from "./CertificatePreview";
 import { BadgeDesigner } from "./BadgeDesigner";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -461,6 +462,7 @@ function CertThumbnail({
   course,
   date,
   certId,
+  template,
 }: {
   theme?: string;
   w?: number;
@@ -469,7 +471,27 @@ function CertThumbnail({
   course?: string;
   date?: string;
   certId?: string;
+  template?: any;
 }) {
+  if (template?.fields_json?.elements) {
+    return (
+      <div style={{ width: w, height: h, position: 'relative', overflow: 'hidden', flexShrink: 0 }}>
+        <div style={{ transform: `scale(${w / 842})`, transformOrigin: 'top left', width: 842, height: 595 }}>
+          <CertificatePreview
+            elements={template.fields_json.elements}
+            design={template.fields_json.design}
+            bgImageUrl={template.bg_image_url}
+            selectedId={null}
+            onSelect={() => {}}
+            onUpdateElement={() => {}}
+            onDeleteElement={() => {}}
+            onDuplicateElement={() => {}}
+          />
+        </div>
+      </div>
+    );
+  }
+
   type TC = {
     bg1: string;
     bg2: string;
@@ -2599,7 +2621,7 @@ function TemplatesScreen({
                   />
                 ) : null}
                 <div style={{ position: t.bg_image_url ? "absolute" : "static", inset: 0, zIndex: 1 }}>
-                  <CertThumbnail theme={t.theme} w={260} h={140} course={t.name} />
+                  <CertThumbnail theme={t.theme} w={260} h={140} course={t.name} template={t} />
                 </div>
                 <button
                   onClick={(e) => {
@@ -5638,6 +5660,7 @@ function VerificationScreen({ stats, certificates = [] }: { stats: any; certific
                 <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
                   <CertThumbnail
                     theme={item.theme}
+                    template={item}
                     w={42}
                     h={30}
                     name={item.name}
@@ -6212,7 +6235,7 @@ function AnalyticsTemplates({ BD, TX, TX2, SG, SGL, P }: any) {
                 borderBottom: `1px solid ${BD}`,
               }}
             >
-              <CertThumbnail theme={t.theme} w={140} h={100} />
+              <CertThumbnail theme={t.theme} w={140} h={100} template={t} />
             </div>
             <div style={{ padding: 16, flex: 1, display: "flex", flexDirection: "column", gap: 8 }}>
               <div
@@ -7150,7 +7173,7 @@ function AnalyticsScreen({ stats, certificates = [], templates = [] }: { stats: 
                     >
                       {t.rank}
                     </span>
-                    <CertThumbnail theme={t.theme} w={36} h={26} />
+                    <CertThumbnail theme={t.theme} w={36} h={26} template={t} />
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div
                         style={{
@@ -9194,11 +9217,7 @@ export function CertDesignerAdmin() {
       title: "Certificate Templates",
       subtitle: "Browse, create and manage certificate templates.",
     },
-    designer: {
-      icon: <Pen size={22} color={P} />,
-      title: "Certificate Designer",
-      subtitle: "Design beautiful, verifiable certificates with ease.",
-    },
+
     "bulk-issue": {
       icon: <Upload size={22} color={P} />,
       title: "Bulk Issue Certificates",
@@ -9263,8 +9282,7 @@ export function CertDesignerAdmin() {
             isLoading={isLoading}
           />
         );
-      case "designer":
-        return <DesignerCanvasScreen />;
+
       case "bulk-issue":
         return <BulkIssueScreen courses={courses} templates={templates} />;
       case "verification":
