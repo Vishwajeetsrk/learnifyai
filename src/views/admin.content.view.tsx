@@ -3186,14 +3186,14 @@ function CertTemplatesManager() {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-2 pb-4 border-b">
-        <Button variant="default" size="sm" onClick={() => navigate({ to: "/admin/certificates" })}>
+        <Button variant="default" size="sm" onClick={() => navigate({ to: "/admin/certificates", search: {} as any })}>
           <ShieldCheck className="h-4 w-4 mr-2" />
           Full Designer
         </Button>
         <Button
           variant="outline"
           size="sm"
-          onClick={() => window.open("/admin/certificates?tab=canva", "_self")}
+          onClick={() => window.open("/admin/certificates?tab=templates", "_self")}
         >
           <LayoutTemplate className="h-4 w-4 mr-2" />
           Canva Templates
@@ -3240,7 +3240,7 @@ function CertTemplatesManager() {
         <Button variant="outline" onClick={loadPresets}>
           Load preset templates
         </Button>
-        <Button variant="outline" onClick={() => navigate({ to: "/admin/certificates" })}>
+        <Button variant="outline" onClick={() => navigate({ to: "/admin/certificates", search: {} as any })}>
           <ShieldCheck className="h-4 w-4 mr-2" />
           Open Designer
         </Button>
@@ -3275,7 +3275,7 @@ function CertTemplatesManager() {
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => navigate({ to: "/admin/certificates" })}
+                    onClick={() => navigate({ to: "/admin/certificates", search: {} as any })}
                     title="Edit in Certificate Designer"
                   >
                     <ShieldCheck className="h-3.5 w-3.5" />

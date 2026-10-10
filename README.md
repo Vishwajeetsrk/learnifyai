@@ -631,6 +631,13 @@ MIT License. See [LICENSE](LICENSE) for details.
 
 ## 📋 Changelog
 
+### v5.8.6 (October 2026) — Security Hardening, Dynamic Pricing & Certificate UX
+
+- ✅ **Subscription Pricing Integrity**: Fixed a critical billing flaw where yearly plan discounts were miscalculated against monthly base prices. The system now seamlessly generates dynamic Razorpay plans for coupon-applied subscriptions to guarantee accurate charges.
+- ✅ **Database RLS Lockdown**: Identified and patched a severe Supabase vulnerability (`user_subscriptions` table) where users could manually insert rows to grant themselves free active premium subscriptions. This was fully secured by restricting `INSERT` strictly to `supabaseAdmin` service role contexts.
+- ✅ **Certificate Studio Fluid UX**: Overhauled the `DesignerCanvas` `react-rnd` component to remove the "pre-select to drag" friction. Creators can now instantly click-and-drag certificate elements across the canvas in a single fluid motion.
+- ✅ **Template Resilience**: Repaired Zod validation crashes and unhandled UUID states in `CertDesignerAdmin.tsx` that broke the template duplicate/save logic when fields were empty or image backgrounds were absent.
+
 ### v5.8.5 (October 2026) — Portfolio Builder IDE, Live Diff Review & Shimmer States
 
 - ✅ **Controlled Diff Review Lifecycle**: Resolved "Canceled" diff bug in `EditTool.tsx` by turning approval actions into a controlled state pattern with parent lifecycle state synchronization (`idle` -> `generating` -> `review` -> `applying` -> `applied`/`discarded`/`failed`).

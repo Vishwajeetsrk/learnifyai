@@ -37,11 +37,15 @@ import {
   Shield,
   Link as LinkIcon,
   Languages,
+  Mail,
+  Users,
+  ShieldAlert,
 } from "lucide-react";
 import { SkillBadge, SKILL_LOGOS } from "@/components/SkillBadge";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
+import { PricingPlanUpgrade } from "@/components/PricingPlanUpgrade";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -1376,36 +1380,54 @@ export default function SettingsPage() {
           <p className="text-muted-foreground mt-1 text-sm">{t("settings.page.subtitle")}</p>
         </div>
 
-        <Tabs defaultValue="profile" className="w-full">
+        <Tabs defaultValue="general" className="w-full">
           <TabsList
-            className={`${isPhone ? "grid grid-cols-2" : isAdmin ? "grid grid-cols-5" : "grid grid-cols-4"} w-full md:w-auto`}
+            className="flex w-full justify-start overflow-x-auto scrollbar-hide h-auto p-1 bg-muted/50 rounded-lg"
           >
-            <TabsTrigger value="profile">
-              <UserIcon className="h-4 w-4" />
-              <span className="ml-1.5">{t("settings.tabs.profile")}</span>
-            </TabsTrigger>
-            <TabsTrigger value="billing">
-              <Wallet className="h-4 w-4" />
-              <span className="ml-1.5">{t("settings.tabs.billing")}</span>
-            </TabsTrigger>
-            <TabsTrigger value="notifications">
-              <Bell className="h-4 w-4" />
-              <span className="ml-1.5">{t("settings.tabs.notifications")}</span>
-            </TabsTrigger>
-            <TabsTrigger value="settings">
+            <TabsTrigger value="general" className="flex-shrink-0">
               <SettingsIcon className="h-4 w-4" />
-              <span className="ml-1.5">{t("settings.tabs.settings")}</span>
+              <span className="ml-1.5">General</span>
+            </TabsTrigger>
+            <TabsTrigger value="billing" className="flex-shrink-0">
+              <Wallet className="h-4 w-4" />
+              <span className="ml-1.5">Billing</span>
+            </TabsTrigger>
+            <TabsTrigger value="notification" className="flex-shrink-0">
+              <Bell className="h-4 w-4" />
+              <span className="ml-1.5">Notification</span>
+            </TabsTrigger>
+            <TabsTrigger value="security" className="flex-shrink-0">
+              <ShieldAlert className="h-4 w-4" />
+              <span className="ml-1.5">Security</span>
             </TabsTrigger>
             {isAdmin && (
-              <TabsTrigger value="branding">
+              <TabsTrigger value="branding" className="flex-shrink-0">
                 <Building2 className="h-4 w-4" />
-                <span className="ml-1.5">{t("settings.tabs.branding")}</span>
+                <span className="ml-1.5">Branding</span>
+              </TabsTrigger>
+            )}
+            {isAdmin && (
+              <TabsTrigger value="email" className="flex-shrink-0">
+                <Mail className="h-4 w-4" />
+                <span className="ml-1.5">Email</span>
+              </TabsTrigger>
+            )}
+            {isAdmin && (
+              <TabsTrigger value="domain" className="flex-shrink-0">
+                <Globe className="h-4 w-4" />
+                <span className="ml-1.5">Domain</span>
+              </TabsTrigger>
+            )}
+            {isAdmin && (
+              <TabsTrigger value="team" className="flex-shrink-0">
+                <Users className="h-4 w-4" />
+                <span className="ml-1.5">Team</span>
               </TabsTrigger>
             )}
           </TabsList>
 
-          {/* ═══ PROFILE ═══ */}
-          <TabsContent value="profile" className="mt-6 space-y-6">
+          {/* ═══ GENERAL (formerly Profile) ═══ */}
+          <TabsContent value="general" className="mt-6 space-y-6">
             <div className="rounded-2xl border bg-card p-5 sm:p-6 shadow-sm space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4">
                 <h2 className="font-display font-semibold flex items-center gap-2 text-lg">
@@ -2827,12 +2849,21 @@ export default function SettingsPage() {
                   </div>
                 </div>
               ) : (
-                <p className="text-sm text-muted-foreground">
-                  No active subscription.{" "}
-                  <a href="/pricing" className="text-primary hover:underline">
-                    View plans
-                  </a>
-                </p>
+                <div className="flex flex-col items-start gap-3">
+                  <p className="text-sm text-muted-foreground">
+                    No active subscription.
+                  </p>
+                  <PricingPlanUpgrade>
+                    <Button>Upgrade Plan</Button>
+                  </PricingPlanUpgrade>
+                </div>
+              )}
+              {subQ.data && (
+                <div className="mt-4 pt-4 border-t">
+                  <PricingPlanUpgrade>
+                    <Button variant="outline" size="sm">Change Plan / Switch to Yearly</Button>
+                  </PricingPlanUpgrade>
+                </div>
               )}
             </div>
 
@@ -2857,7 +2888,7 @@ export default function SettingsPage() {
                     <DialogHeader>
                       <DialogTitle>Add money to wallet</DialogTitle>
                       <DialogDescription>
-                        Top up via Cashfree (card/UPI/netbanking).
+                        Top up via Razorpay (card/UPI/netbanking).
                       </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-5">
@@ -2888,7 +2919,7 @@ export default function SettingsPage() {
                       </div>
                       <div className="text-xs text-emerald-800 rounded-lg bg-emerald-50 dark:bg-emerald-950 dark:text-emerald-300 p-3 border border-emerald-200 dark:border-emerald-800 flex items-center gap-2">
                         <CreditCard className="h-4 w-4 shrink-0" />
-                        Secure payment via Cashfree
+                        Secure payment via Razorpay
                       </div>
                     </div>
                     <DialogFooter>
@@ -2962,7 +2993,7 @@ export default function SettingsPage() {
                   <ArrowDownToLine className="h-4 w-4 text-primary" /> Creator withdrawals
                 </h2>
                 <p className="text-xs text-muted-foreground">
-                  Withdraw earnings via Cashfree. Available: <b>{inr(balance)}</b>
+                  Withdraw earnings via Razorpay. Available: <b>{inr(balance)}</b>
                 </p>
                 <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
                   <span>
@@ -2971,7 +3002,7 @@ export default function SettingsPage() {
                   <span>·</span>
                   <span>{(wdHistoryQ.data ?? []).length} total</span>
                   <span>·</span>
-                  <span>Wallet debited upfront via Cashfree Payouts</span>
+                  <span>Wallet debited upfront via Razorpay Payouts</span>
                 </div>
                 <Dialog open={wdOpen} onOpenChange={setWdOpen}>
                   <DialogTrigger asChild>
@@ -3091,7 +3122,7 @@ export default function SettingsPage() {
           </TabsContent>
 
           {/* ═══ NOTIFICATIONS ═══ */}
-          <TabsContent value="notifications" className="mt-6">
+          <TabsContent value="notification" className="mt-6">
             <div className="rounded-2xl border bg-card p-5 sm:p-6 shadow-sm space-y-4">
               <h2 className="font-display font-semibold flex items-center gap-2">
                 <Bell className="h-4 w-4 text-primary" /> Notification preferences
@@ -3136,8 +3167,8 @@ export default function SettingsPage() {
             </div>
           </TabsContent>
 
-          {/* ═══ SETTINGS ═══ */}
-          <TabsContent value="settings" className="mt-6 space-y-6">
+          {/* ═══ SECURITY (formerly Settings) ═══ */}
+          <TabsContent value="security" className="mt-6 space-y-6">
             {/* ─── Language & Regional Preferences (Requirement 16) ─── */}
             <div className="rounded-2xl border bg-card p-5 sm:p-6 shadow-sm space-y-4 max-w-xl">
               <h2 className="font-display font-semibold flex items-center gap-2">
@@ -3558,6 +3589,51 @@ export default function SettingsPage() {
                   {savingBranding ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Save
                   Branding
                 </Button>
+              </div>
+            </TabsContent>
+          )}
+
+          {/* ═══ EMAIL ═══ */}
+          {isAdmin && (
+            <TabsContent value="email" className="mt-6 space-y-6">
+              <div className="rounded-2xl border bg-card p-5 sm:p-6 shadow-sm space-y-6">
+                <h2 className="font-display font-semibold flex items-center gap-2 text-lg">
+                  <Mail className="h-4.5 w-4.5 text-primary" /> Email Settings
+                </h2>
+                <p className="text-sm text-muted-foreground">Configure SMTP and email templates.</p>
+                <div className="text-sm font-medium p-4 bg-muted/30 rounded-lg border border-dashed">
+                  Feature coming soon in Learnify AI OS 3.1
+                </div>
+              </div>
+            </TabsContent>
+          )}
+
+          {/* ═══ DOMAIN ═══ */}
+          {isAdmin && (
+            <TabsContent value="domain" className="mt-6 space-y-6">
+              <div className="rounded-2xl border bg-card p-5 sm:p-6 shadow-sm space-y-6">
+                <h2 className="font-display font-semibold flex items-center gap-2 text-lg">
+                  <Globe className="h-4.5 w-4.5 text-primary" /> Custom Domain
+                </h2>
+                <p className="text-sm text-muted-foreground">Manage your custom domain (e.g. academy.yourbrand.com).</p>
+                <div className="text-sm font-medium p-4 bg-muted/30 rounded-lg border border-dashed">
+                  Domain configuration requires enterprise tier. Contact support.
+                </div>
+              </div>
+            </TabsContent>
+          )}
+
+          {/* ═══ TEAM ═══ */}
+          {isAdmin && (
+            <TabsContent value="team" className="mt-6 space-y-6">
+              <div className="rounded-2xl border bg-card p-5 sm:p-6 shadow-sm space-y-6">
+                <h2 className="font-display font-semibold flex items-center gap-2 text-lg">
+                  <Users className="h-4.5 w-4.5 text-primary" /> Team Management
+                </h2>
+                <p className="text-sm text-muted-foreground">Invite admins, instructors, and support staff.</p>
+                <div className="text-sm font-medium p-4 bg-muted/30 rounded-lg border border-dashed">
+                  Feature coming soon in Learnify AI OS 3.1
+                </div>
               </div>
             </TabsContent>
           )}

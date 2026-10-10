@@ -50,21 +50,25 @@ ALTER TABLE public.coaches ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.creators ENABLE ROW LEVEL SECURITY;
 
 -- RLS: Public can view only published, non-demo coaches and creators
+DROP POLICY IF EXISTS "Public can view published real coaches" ON public.coaches;
 CREATE POLICY "Public can view published real coaches"
     ON public.coaches FOR SELECT
     USING (visibility = 'published' AND is_demo = false);
 
+DROP POLICY IF EXISTS "Public can view published real creators" ON public.creators;
 CREATE POLICY "Public can view published real creators"
     ON public.creators FOR SELECT
     USING (visibility = 'published' AND is_demo = false);
 
 -- RLS: Admins have full access
+DROP POLICY IF EXISTS "Admins full access coaches" ON public.coaches;
 CREATE POLICY "Admins full access coaches"
     ON public.coaches FOR ALL
     TO authenticated
     USING (public.has_role(auth.uid(), 'admin') OR public.has_role(auth.uid(), 'super_admin'))
     WITH CHECK (public.has_role(auth.uid(), 'admin') OR public.has_role(auth.uid(), 'super_admin'));
 
+DROP POLICY IF EXISTS "Admins full access creators" ON public.creators;
 CREATE POLICY "Admins full access creators"
     ON public.creators FOR ALL
     TO authenticated

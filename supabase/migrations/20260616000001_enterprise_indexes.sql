@@ -15,4 +15,4 @@ CREATE INDEX IF NOT EXISTS idx_pricing_plans_active_order ON pricing_plans(activ
 -- Assuming tables exist, else these will safely skip or be applied when tables are present.
 
 -- 5. Index on coaching slots to speed up date queries
-CREATE INDEX IF NOT EXISTS idx_coaching_slots_starts_at ON coaching_slots(starts_at);
+CREATE INDEX IF NOT EXISTS idx_coaching_slots_start_time ON coaching_slots(start_time);

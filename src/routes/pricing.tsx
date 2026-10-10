@@ -332,6 +332,96 @@ const TESTIMONIALS = [
     avatar: vikramAvatar,
     linkedin: "https://linkedin.com/in/vikram-singh",
   },
+  {
+    name: "Neha Gupta",
+    college: "VIT Vellore",
+    role: "Frontend Developer",
+    rating: 5,
+    review:
+      "The Template Mastery Studio helped me build an insane portfolio. The AI tutor was always there when I got stuck with React hooks.",
+    achievement: "Placed at Amazon",
+  },
+  {
+    name: "Rahul Desai",
+    college: "BITS Pilani",
+    role: "Data Analyst",
+    rating: 5,
+    review:
+      "Learnify AI's Python and Data Science tracks are top-notch. The ATS Checker fixed my resume and I started getting callbacks almost instantly.",
+    achievement: "Got 3 Job Offers",
+  },
+  {
+    name: "Sneha Reddy",
+    college: "JNTU Hyderabad",
+    role: "IT Student",
+    rating: 5,
+    review:
+      "I was struggling with DSA for months. The visual breakdowns and AI explanations made complex topics click for me. Best platform ever!",
+    achievement: "Cracked TCS Digital",
+  },
+  {
+    name: "Aditya Patil",
+    college: "COEP Pune",
+    role: "Full Stack Dev",
+    rating: 5,
+    review:
+      "The AI Mock Interview Simulator gave me the exact feedback I needed to fix my communication skills. The recording feature is brilliant.",
+    achievement: "Landed Startup Role",
+  },
+  {
+    name: "Kavya Menon",
+    college: "Manipal Institute",
+    role: "UI/UX Designer",
+    rating: 5,
+    review:
+      "While my focus is design, Learnify AI helped me grasp the frontend basics quickly. The certificates added huge value to my LinkedIn profile.",
+    achievement: "Freelance Designer",
+  },
+  {
+    name: "Arjun Nair",
+    college: "NIT Calicut",
+    role: "Backend Engineer",
+    rating: 5,
+    review:
+      "Unbelievable value for money. The API design and backend architecture labs are something you won't find on regular learning sites.",
+    achievement: "Placed at Zoho",
+  },
+  {
+    name: "Pooja Joshi",
+    college: "Thapar University",
+    role: "Pre-Final Year",
+    rating: 5,
+    review:
+      "I used the Resume Builder to export a perfect LaTeX resume. It cleared the ATS screening for all the product-based companies I applied to.",
+    achievement: "Summer Internship Secured",
+  },
+  {
+    name: "Siddharth Rao",
+    college: "PES University",
+    role: "CS Senior",
+    rating: 5,
+    review:
+      "If you are confused about your career path, just follow their AI Roadmap. It breaks down exactly what you need to learn week by week.",
+    achievement: "Placed at Atlassian",
+  },
+  {
+    name: "Divya Singh",
+    college: "KIIT Bhubaneswar",
+    role: "BCA Graduate",
+    rating: 5,
+    review:
+      "I thought I couldn't compete with B.Tech students, but Learnify AI leveled the playing field. The interview prep tools are incredible.",
+    achievement: "Hired as Software Dev",
+  },
+  {
+    name: "Karan Mehta",
+    college: "NMIMS Mumbai",
+    role: "MBA Tech",
+    rating: 5,
+    review:
+      "Great platform for understanding tech from a business perspective too. The AI tutor simplifies everything without dumbing it down.",
+    achievement: "Product Management Role",
+  }
 ];
 
 const FAQ_CATEGORIES = ["Plans", "Billing", "Features", "Technical", "Students"] as const;
@@ -531,11 +621,12 @@ function PricingPage() {
   });
 
   const calculatedSavingsPct = useMemo(() => {
-    const paidList = (tiers || DEFAULT_TIERS).filter((t) => t.price_inr > 0 && t.yearly_price);
-    if (!paidList.length) return 17;
+    const paidList = (tiers || DEFAULT_TIERS).filter((t) => t.price_inr > 0);
+    if (!paidList.length) return 30;
     const p = paidList[0];
     const annualSum = p.price_inr * 12;
-    return Math.max(Math.round((1 - p.yearly_price! / annualSum) * 100), 10);
+    const yPrice = p.yearly_price || Math.round(annualSum * 0.7);
+    return Math.max(Math.round((1 - yPrice / annualSum) * 100), 10);
   }, [tiers]);
 
   const currentSub = useQuery({

@@ -70,6 +70,11 @@ class StudioErrorBoundary extends Component<StudioErrorBoundaryProps, StudioErro
 }
 
 export const Route = createFileRoute("/_authenticated/admin/certificates")({
+  validateSearch: (search: Record<string, unknown>) => {
+    return {
+      tab: (search.tab as string) || undefined,
+    };
+  },
   head: () => ({
     meta: [
       { title: "Learnify Credential OS 3.0 — Admin" },
@@ -85,6 +90,7 @@ export const Route = createFileRoute("/_authenticated/admin/certificates")({
 
 function AdminCertificatesPage() {
   const { isAdmin, loading } = useAuth();
+  const { tab } = Route.useSearch();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -137,7 +143,7 @@ function AdminCertificatesPage() {
             </div>
           }
         >
-          <CertDesignerAdmin />
+          <CertDesignerAdmin initialTab={tab || "overview"} />
         </React.Suspense>
       </StudioErrorBoundary>
     </AppShell>

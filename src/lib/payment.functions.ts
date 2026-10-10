@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import crypto from "node:crypto";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
@@ -304,4 +305,86 @@ export const processPendingPayouts = createServerFn({ method: "POST" })
       failed,
       note: `Batch processed: ${processed} paid, ${failed} failed.`,
     };
+  });
+
+export const createRazorpayWalletOrder = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((d: { amountInr: number; email?: string }) =>
+    z.object({ amountInr: z.number(), email: z.string().optional() }).parse(d)
+  )
+  .handler(async ({ data: { amountInr, email }, context }) => {
+    if (!context.userId) throw new Error("Unauthorized");
+    
+    const keyId = process.env.RAZORPAY_KEY_ID || process.env.VITE_RAZORPAY_KEY_ID;
+    const keySecret = process.env.RAZORPAY_KEY_SECRET;
+    if (!keyId || !keySecret) throw new Error("Razorpay credentials missing");
+
+    const amountInPaise = Math.round(amountInr * 100);
+    const receipt = `rcpt_${context.userId.slice(0, 8)}_${Date.now()}`;
+
+    const res = await fetch("https://api.razorpay.com/v1/orders", {
+      method: "POST",
+      headers: {
+        Authorization: `Basic ${Buffer.from(`${keyId}:${keySecret}`).toString("base64")}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        amount: amountInPaise,
+        currency: "INR",
+        receipt,
+        notes: { userId: context.userId, type: "wallet_topup" },
+      }),
+    });
+
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error(`Razorpay order failed: ${err}`);
+    }
+
+    const data = await res.json();
+    return { order_id: data.id, order_amount: amountInr, key_id: keyId };
+  });
+
+export const verifyRazorpayWalletPayment = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((d: { amountInr: number; method: string; razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }) =>
+    z.object({
+      amountInr: z.number(),
+      method: z.string(),
+      razorpay_order_id: z.string(),
+      razorpay_payment_id: z.string(),
+      razorpay_signature: z.string(),
+    }).parse(d)
+  )
+  .handler(async ({ data, context }) => {
+    const keySecret = process.env.RAZORPAY_KEY_SECRET;
+    if (!keySecret) throw new Error("Razorpay credentials missing");
+
+    const hmac = crypto.createHmac("sha256", keySecret);
+    hmac.update(`${data.razorpay_order_id}|${data.razorpay_payment_id}`);
+    const generatedSignature = hmac.digest("hex");
+
+    if (generatedSignature !== data.razorpay_signature) {
+      throw new Error("Security Error: Razorpay signature mismatch.");
+    }
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: existingTx } = await (supabaseAdmin as any)
+      .from("wallet_transactions")
+      .select("id")
+      .eq("description", `Top-up via ${data.method} (Razorpay: ${data.razorpay_order_id})`)
+      .maybeSingle();
+
+    if (existingTx) return { success: true, already_processed: true };
+
+    const { error } = await (supabaseAdmin as any).from("wallet_transactions").insert({
+      user_id: context.userId,
+      amount_inr: data.amountInr,
+      type: "credit",
+      status: "completed",
+      description: `Top-up via ${data.method} (Razorpay: ${data.razorpay_order_id})`,
+    });
+    if (error) throw new Error(error.message);
+    return { success: true };
   });

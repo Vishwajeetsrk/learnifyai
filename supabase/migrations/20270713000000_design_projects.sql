@@ -24,6 +24,5 @@ ON public.design_projects FOR ALL
 TO authenticated
 USING (
   (auth.jwt() ->> 'role') = 'admin' OR 
-  (SELECT is_admin FROM public.profiles WHERE id = auth.uid()) = true OR
   (SELECT email FROM public.profiles WHERE id = auth.uid()) = 'vishwajeetsrk@gmail.com'
 );

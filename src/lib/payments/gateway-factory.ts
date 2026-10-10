@@ -142,7 +142,11 @@ export async function executeAtomicPaymentActivation(params: ActivationParams): 
   // 5. INVARIANT 2: Atomic Activation of Verified Payment
   const now = new Date();
   const periodEnd = new Date(now);
-  periodEnd.setDate(periodEnd.getDate() + 30); // 30 days active period
+  if (params.billingCycle === "yearly") {
+    periodEnd.setFullYear(periodEnd.getFullYear() + 1);
+  } else {
+    periodEnd.setMonth(periodEnd.getMonth() + 1);
+  }
 
   // A. Upsert User Subscription
   const { error: subErr } = await (supabaseAdmin as any)
@@ -194,7 +198,7 @@ export async function executeAtomicPaymentActivation(params: ActivationParams): 
       description: `Learnify AI ${planName} Subscription (${params.provider.toUpperCase()})`,
       line_items: [
         {
-          name: `${planName} Plan Monthly Access`,
+          name: `${planName} Plan ${params.billingCycle === "yearly" ? "Yearly" : "Monthly"} Access`,
           quantity: 1,
           amount: params.amountInr,
         },

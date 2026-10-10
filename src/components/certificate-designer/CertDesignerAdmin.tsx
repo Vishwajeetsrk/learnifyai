@@ -13,6 +13,7 @@ import {
   saveCanvaTemplate,
   deleteCanvaTemplate,
   seedAllTemplates,
+  fieldsToElements,
 } from "@/lib/canva-cert.functions";
 import {
   getCertificateStats,
@@ -2123,6 +2124,7 @@ function TemplatesScreen({
   dbTemplates,
   handleSeed,
   handleEdit,
+  handleNew,
   handleDelete,
   handleDuplicate,
   isLoading,
@@ -2131,6 +2133,7 @@ function TemplatesScreen({
   dbTemplates: CanvaTemplate[];
   handleSeed: () => void;
   handleEdit: (t: CanvaTemplate) => void;
+  handleNew: () => void;
   handleDelete: (id: string) => void;
   handleDuplicate?: (t: CanvaTemplate) => void;
   isLoading: boolean;
@@ -2150,9 +2153,35 @@ function TemplatesScreen({
     "Finance",
   ];
 
-  // 8 Master Luxury Templates Suite
+  // Master Luxury Templates Suite
   const MASTER_UI_TEMPLATES = useMemo(
     () => [
+      {
+        id: "tpl-learnify-signature",
+        name: "Learnify Signature",
+        subtitle: "Official Learnify AI Credential",
+        badge: "Official",
+        badgeColor: "#00A6FB",
+        badgeBg: "#00A6FB20",
+        category: "Technology",
+        theme: "navy",
+        rating: 5.0,
+        reviews: 2150,
+        downloads: "24.1k",
+        description: "The official Learnify AI Signature credential featuring brand colors, dynamic grid layouts, and advanced verification badges.",
+        dbTemplate: {
+          id: "tpl-learnify-signature",
+          name: "Learnify AI Signature — Modern Academic",
+          category: "Technology",
+          bg_image_url: "",
+          thumbnail_url: "",
+          theme_colors: { primary: "#0A1128", accent: "#00A6FB", background: "#FFFFFF", text: "#0A1128" },
+          fields_json: null,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          created_by: null,
+        } as CanvaTemplate,
+      },
       {
         id: "tpl-grand-chancellor",
         name: "The Grand Chancellor",
@@ -2400,7 +2429,21 @@ function TemplatesScreen({
       const key = (t.name || "").trim().toLowerCase();
       if (key && !seen.has(key)) {
         seen.add(key);
-        list.push(t);
+        list.push({
+          ...t,
+          dbTemplate: {
+            id: t.id || "new",
+            name: t.name,
+            category: t.category || "Professional",
+            bg_image_url: "",
+            thumbnail_url: null,
+            fields_json: { design: { theme: t.theme } },
+            theme_colors: null,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            created_by: null,
+          } as CanvaTemplate,
+        });
       }
     });
     return list;
@@ -2496,7 +2539,7 @@ function TemplatesScreen({
             <RefreshCw size={13} />
             Seed Templates
           </Btn>
-          <Btn variant="primary" onClick={() => setTab("designer")}>
+          <Btn variant="primary" onClick={handleNew}>
             <Plus size={14} />
             New Template
           </Btn>
@@ -2747,6 +2790,24 @@ function TemplatesScreen({
                         title="Duplicate Template"
                       >
                         <Copy size={12} color={TX2} />
+                      </button>
+                    )}
+                    {handleDelete && t.dbTemplate.id !== "new" && !t.dbTemplate.id.startsWith("tpl-") && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(t.dbTemplate.id);
+                        }}
+                        style={{
+                          padding: "5px 6px",
+                          border: `1px solid ${BD}`,
+                          borderRadius: 6,
+                          background: "white",
+                          cursor: "pointer",
+                        }}
+                        title="Delete Template"
+                      >
+                        <Trash2 size={12} color={ER} />
                       </button>
                     )}
                     <button
@@ -5504,7 +5565,14 @@ function VerificationScreen({ stats, certificates = [] }: { stats: any; certific
       }))
     : VERIFY_LIST;
 
-  const v = verifyList[selectedV] ?? verifyList[0] ?? VERIFY_LIST[0];
+  const v = verifyList[selectedV] ?? verifyList[0] ?? VERIFY_LIST[0] ?? {
+    name: "No certificates issued yet",
+    email: "—",
+    id: "—",
+    status: "pending",
+    time: "—",
+    theme: "navy",
+  };
 
   const totalCerts = stats?.totalCerts ?? certificates.length ?? 0;
   const verifiedCount = stats?.pieStatusData?.find((s: any) => s.name === "Verified")?.value ?? 0;
@@ -8535,8 +8603,9 @@ function SettingsScreen({
         ))}
       </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-        <SectionCard title="General Settings">
+      <div style={{ display: "flex", flexDirection: "column", gap: 16, width: "100%" }}>
+        {settingsNav === "General" && (
+          <SectionCard title="General Settings">
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
               <div>
@@ -8658,8 +8727,10 @@ function SettingsScreen({
             </div>
           </div>
         </SectionCard>
+        )}
 
-        <SectionCard title="Notifications & Automation">
+        {settingsNav === "Notifications" && (
+          <SectionCard title="Notifications & Automation">
           <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
             {[
               {
@@ -8731,8 +8802,10 @@ function SettingsScreen({
             </div>
           </div>
         </SectionCard>
+        )}
 
-        <SectionCard title="Security">
+        {settingsNav === "Security" && (
+          <SectionCard title="Security">
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             {[
               {
@@ -8804,7 +8877,37 @@ function SettingsScreen({
               </div>
             ))}
           </div>
-        </SectionCard>
+          </SectionCard>
+        )}
+
+        {settingsNav === "Branding" && (
+          <SectionCard title="Branding">
+            <div style={{ padding: 20, color: TX2, fontSize: 14 }}>
+              Branding settings are currently managed via the main theme configuration.
+            </div>
+          </SectionCard>
+        )}
+        {settingsNav === "Email" && (
+          <SectionCard title="Email">
+            <div style={{ padding: 20, color: TX2, fontSize: 14 }}>
+              Configure SMTP and sender email preferences here.
+            </div>
+          </SectionCard>
+        )}
+        {settingsNav === "Domain" && (
+          <SectionCard title="Domain">
+            <div style={{ padding: 20, color: TX2, fontSize: 14 }}>
+              Custom domain configuration is available on Pro plans.
+            </div>
+          </SectionCard>
+        )}
+        {settingsNav === "Team" && (
+          <SectionCard title="Team">
+            <div style={{ padding: 20, color: TX2, fontSize: 14 }}>
+              Manage team members and role-based access control.
+            </div>
+          </SectionCard>
+        )}
       </div>
     </div>
   );
@@ -8935,9 +9038,9 @@ const DEFAULT_FIELDS = {
 };
 
 // ─── Main Component ───────────────────────────────────────────────────────────
-export function CertDesignerAdmin() {
+export function CertDesignerAdmin({ initialTab = "overview" }: { initialTab?: string }) {
   const qc = useQueryClient();
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [designerTemplate, setDesignerTemplate] = useState<CanvaTemplate | null>(null);
   const [showDesignerWorkspace, setShowDesignerWorkspace] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -9130,7 +9233,7 @@ export function CertDesignerAdmin() {
         data: {
           name: copyName,
           category: t.category || "Professional",
-          bg_image_url: t.bg_image_url,
+          bg_image_url: t.bg_image_url || "https://placehold.co/842x595/0a1628/ffffff?text=No+Background",
           thumbnail_url: t.thumbnail_url,
           fields_json: t.fields_json || { elements: [], design: {} },
         } as any,
@@ -9186,12 +9289,17 @@ export function CertDesignerAdmin() {
           type: designerTemplate.category || "Certificate",
           layout: designerTemplate.fields_json?.design?.layout || "classic",
           bg_image_url: designerTemplate.bg_image_url || "",
-          config_json: designerTemplate.fields_json || { elements: [], design: {} },
+          config_json: designerTemplate.fields_json?.elements 
+            ? designerTemplate.fields_json 
+            : (Object.keys(designerTemplate.fields_json || {}).length > 0 ? fieldsToElements(designerTemplate.fields_json || {}) : { elements: [], design: {} }),
         }}
         onSave={async (tmpl) => {
-          await doSave({
-            data: { ...designerTemplate, ...tmpl, fields_json: tmpl.config_json } as any,
-          });
+          const payload: any = { ...designerTemplate, ...tmpl, fields_json: tmpl.config_json };
+          if (payload.id === "new" || !payload.id || payload.id.startsWith("tpl-")) delete payload.id;
+          if (!payload.bg_image_url) {
+            payload.bg_image_url = "https://placehold.co/842x595/0a1628/ffffff?text=No+Background";
+          }
+          await doSave({ data: payload });
           qc.invalidateQueries({ queryKey: ["canva-cert-templates"] });
           toast.success("Saved!");
           setShowDesignerWorkspace(false);
@@ -9277,6 +9385,7 @@ export function CertDesignerAdmin() {
             dbTemplates={templates}
             handleSeed={handleSeed}
             handleEdit={handleEdit}
+            handleNew={handleNew}
             handleDelete={handleDelete}
             handleDuplicate={handleDuplicate}
             isLoading={isLoading}

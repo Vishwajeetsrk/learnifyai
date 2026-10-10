@@ -1,0 +1,1 @@
+ALTER TABLE public.pricing_plans ADD COLUMN IF NOT EXISTS razorpay_yearly_plan_id text;

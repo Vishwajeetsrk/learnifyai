@@ -42,7 +42,7 @@ CREATE INDEX IF NOT EXISTS idx_cert_template_versions_status
 -- RLS for certificate_template_versions
 ALTER TABLE certificate_template_versions ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY IF NOT EXISTS "Admins can manage template versions"
+CREATE POLICY "Admins can manage template versions"
   ON certificate_template_versions
   FOR ALL
   TO authenticated
@@ -54,7 +54,7 @@ CREATE POLICY IF NOT EXISTS "Admins can manage template versions"
     )
   );
 
-CREATE POLICY IF NOT EXISTS "Anyone can read published template versions"
+CREATE POLICY "Anyone can read published template versions"
   ON certificate_template_versions
   FOR SELECT
   TO anon, authenticated
@@ -84,7 +84,7 @@ CREATE INDEX IF NOT EXISTS idx_badge_definitions_status ON badge_definitions (st
 
 ALTER TABLE badge_definitions ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY IF NOT EXISTS "Admins can manage badge definitions"
+CREATE POLICY "Admins can manage badge definitions"
   ON badge_definitions
   FOR ALL
   TO authenticated
@@ -96,7 +96,7 @@ CREATE POLICY IF NOT EXISTS "Admins can manage badge definitions"
     )
   );
 
-CREATE POLICY IF NOT EXISTS "Anyone can read active badge definitions"
+CREATE POLICY "Anyone can read active badge definitions"
   ON badge_definitions
   FOR SELECT
   TO anon, authenticated
@@ -124,13 +124,13 @@ CREATE INDEX IF NOT EXISTS idx_badge_awards_course_id ON badge_awards (course_id
 
 ALTER TABLE badge_awards ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY IF NOT EXISTS "Users can read their own badge awards"
+CREATE POLICY "Users can read their own badge awards"
   ON badge_awards
   FOR SELECT
   TO authenticated
   USING (user_id = auth.uid());
 
-CREATE POLICY IF NOT EXISTS "Admins can manage badge awards"
+CREATE POLICY "Admins can manage badge awards"
   ON badge_awards
   FOR ALL
   TO authenticated
@@ -143,7 +143,7 @@ CREATE POLICY IF NOT EXISTS "Admins can manage badge awards"
   );
 
 -- Public read for certificate verification page (no auth)
-CREATE POLICY IF NOT EXISTS "Badge awards are readable by certificate code"
+CREATE POLICY "Badge awards are readable by certificate code"
   ON badge_awards
   FOR SELECT
   TO anon

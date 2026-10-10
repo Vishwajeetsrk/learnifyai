@@ -1235,7 +1235,7 @@ function AdminOverview() {
                 variant="ghost"
                 size="sm"
                 className="justify-start h-8 px-2 text-xs w-full cursor-pointer hover:bg-muted"
-                onClick={() => navigate({ to: "/admin/certificates" })}
+                onClick={() => navigate({ to: "/admin/certificates", search: {} as any })}
               >
                 <Award className="h-3.5 w-3.5 mr-2 text-emerald-500" /> Certificates
               </Button>

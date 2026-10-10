@@ -13,7 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { getCleanBannerUrl } from "@/lib/utils";
 import { checkoutCart, getActiveCoupons, type CouponDef } from "@/lib/course.functions";
-import { createCashfreeOrder, verifyCashfreePayment } from "@/lib/payment.functions";
+import { createRazorpayWalletOrder, verifyRazorpayWalletPayment } from "@/lib/payment.functions";
 import { CelebrationOverlay } from "@/components/CelebrationOverlay";
 import { PaymentLoader } from "@/components/PaymentLoader";
 import { ContextualLegalNotice } from "@/components/legal/ContextualLegalNotice";
@@ -23,11 +23,11 @@ export const Route = createFileRoute("/_authenticated/cart")({
   component: CartPage,
 });
 
-const loadCashfree = () =>
+const loadRazorpay = () =>
   new Promise((resolve) => {
-    if ((window as any).Cashfree) return resolve(true);
+    if ((window as any).Razorpay) return resolve(true);
     const script = document.createElement("script");
-    script.src = "https://sdk.cashfree.com/js/v3/cashfree.js";
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
     script.onload = () => resolve(true);
     script.onerror = () => resolve(false);
     document.body.appendChild(script);
@@ -47,8 +47,8 @@ function CartPage() {
   const qc = useQueryClient();
   const navigate = useNavigate();
   const checkout = useServerFn(checkoutCart);
-  const createOrder = useServerFn(createCashfreeOrder);
-  const verifyTopup = useServerFn(verifyCashfreePayment);
+  const createOrder = useServerFn(createRazorpayWalletOrder);
+  const verifyTopup = useServerFn(verifyRazorpayWalletPayment);
   const fetchCoupons = useServerFn(getActiveCoupons);
   const [paying, setPaying] = useState(false);
   const [celebration, setCelebration] = useState<{
@@ -149,33 +149,51 @@ function CartPage() {
     try {
       const order = await createOrder({ data: { amountInr: total, email: user?.email } });
 
-      const loaded = await loadCashfree();
-      if (!loaded) throw new Error("Cashfree SDK failed to load");
+      const loaded = await loadRazorpay();
+      if (!loaded) throw new Error("Razorpay SDK failed to load");
 
-      const cashfree = new (window as any).Cashfree({ mode: "production" });
-      const result = await cashfree.checkout({
-        paymentSessionId: order.payment_session_id,
-        redirectTarget: "_modal",
-      });
-
-      const msg = result?.paymentDetails?.paymentMessage;
-      if (!msg || msg === "USER_DROPPED") {
-        toast.info("Payment cancelled.");
-        return;
-      }
-      if (msg === "FAILED") {
-        throw new Error("Payment failed. Please try again.");
-      }
-
-      await verifyTopup({
-        data: {
-          amountInr: total,
-          method: "online",
-          cashfree_order_id: order.order_id,
+      const options = {
+        key: order.key_id,
+        amount: Math.round(total * 100),
+        currency: "INR",
+        name: "Learnify AI",
+        description: "Course Enrollment",
+        order_id: order.order_id,
+        prefill: {
+          email: user?.email,
+          contact: "+91",
         },
+        theme: { color: "#6366f1" },
+        handler: async function (response: any) {
+          try {
+            await verifyTopup({
+              data: {
+                amountInr: total,
+                method: "online",
+                razorpay_order_id: order.order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+              },
+            });
+            await handleCheckoutSuccess(true);
+          } catch (e: any) {
+            toast.error(e?.message ?? "Checkout verification failed");
+          }
+        },
+        modal: {
+          ondismiss: function () {
+            toast.info("Payment cancelled.");
+          },
+        },
+      };
+
+      const rzp = new (window as any).Razorpay(options);
+      rzp.on("payment.failed", function (response: any) {
+        toast.error(response.error.description || "Payment failed. Please try again.");
       });
-      // skipWallet: Cashfree already collected the payment, no need to debit wallet
-      await handleCheckoutSuccess(true);
+      rzp.open();
+      
+      return; // wait for handler
     } catch (e: any) {
       toast.error(e?.message ?? "Checkout failed");
     } finally {

@@ -206,7 +206,10 @@ export function DesignerCanvas({
               bottomLeft: isSelected && !isLocked,
               topLeft: isSelected && !isLocked,
             }}
-            disableDragging={!isSelected || isLocked}
+            disableDragging={isLocked}
+            onDragStart={() => {
+              if (!isSelected) onSelect(el.id);
+            }}
             onClick={(e: any) => {
               e.stopPropagation();
               onSelect(el.id);

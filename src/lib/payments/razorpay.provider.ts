@@ -79,19 +79,21 @@ export class RazorpayProvider implements PaymentProvider {
   async createSubscription(params: CreateSubscriptionParams): Promise<CreateSubscriptionResult> {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    // Fetch plan from DB to check for stored razorpay_plan_id
+    // Fetch plan from DB to check for stored razorpay_plan_id and yearly equivalent
     const { data: dbPlan } = await (supabaseAdmin as any)
       .from("pricing_plans")
-      .select("id, name, razorpay_plan_id, price_inr")
+      .select("id, name, razorpay_plan_id, razorpay_yearly_plan_id, price_inr, yearly_price")
       .eq("id", params.planId)
       .maybeSingle();
 
-    let rzpPlanId = dbPlan?.razorpay_plan_id;
+    const isYearly = params.interval === "year";
+    const basePrice = isYearly ? (dbPlan?.yearly_price ?? (dbPlan?.price_inr * 10)) : (dbPlan?.price_inr ?? 0);
+    let rzpPlanId = isYearly ? dbPlan?.razorpay_yearly_plan_id : dbPlan?.razorpay_plan_id;
     const amountInPaise = Math.round(params.amountInr * 100);
 
     // If no Razorpay plan exists or discounted amount differs from base plan, create plan
-    if (!rzpPlanId || (dbPlan && dbPlan.price_inr !== params.amountInr)) {
-      const cleanPlanName = `Learnify ${params.planName.trim().slice(0, 30)} - ₹${params.amountInr}/mo`;
+    if (!rzpPlanId || (dbPlan && basePrice !== params.amountInr)) {
+      const cleanPlanName = `Learnify ${params.planName.trim().slice(0, 30)} - ₹${params.amountInr}/${isYearly ? "yr" : "mo"}`;
       const planRes = await fetch("https://api.razorpay.com/v1/plans", {
         method: "POST",
         headers: {
@@ -99,7 +101,7 @@ export class RazorpayProvider implements PaymentProvider {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          period: params.interval === "year" ? "yearly" : "monthly",
+          period: isYearly ? "yearly" : "monthly",
           interval: 1,
           item: {
             name: cleanPlanName,
@@ -120,10 +122,10 @@ export class RazorpayProvider implements PaymentProvider {
       rzpPlanId = createdPlan.id;
 
       // Cache plan ID on DB if standard price
-      if (dbPlan && dbPlan.price_inr === params.amountInr) {
+      if (dbPlan && basePrice === params.amountInr) {
         await (supabaseAdmin as any)
           .from("pricing_plans")
-          .update({ razorpay_plan_id: rzpPlanId })
+          .update({ [isYearly ? "razorpay_yearly_plan_id" : "razorpay_plan_id"]: rzpPlanId })
           .eq("id", params.planId);
       }
     }
@@ -143,6 +145,7 @@ export class RazorpayProvider implements PaymentProvider {
           userId: params.userId,
           planId: params.planId,
           couponCode: params.couponCode || "",
+          billingCycle: params.interval === "year" ? "yearly" : "monthly",
         },
       }),
     });

@@ -179,31 +179,31 @@ function CertsPage() {
     <AppShell>
       <div className="px-4 sm:px-6 lg:px-10 py-10 max-w-6xl mx-auto space-y-10">
         {/* Apple Keynote Style Hero */}
-        <div className="relative overflow-hidden rounded-3xl p-8 sm:p-12 bg-neutral-950 border border-white/10 shadow-2xl text-white">
-          <div className="absolute top-0 right-1/4 w-96 h-96 rounded-full bg-gradient-to-b from-indigo-500/15 via-emerald-500/5 to-transparent blur-3xl pointer-events-none" />
+        <div className="relative overflow-hidden rounded-3xl p-8 sm:p-12 bg-[#0A1128] border border-[#00A6FB]/20 shadow-2xl text-white">
+          <div className="absolute top-0 right-1/4 w-96 h-96 rounded-full bg-gradient-to-b from-[#00A6FB]/20 via-blue-500/5 to-transparent blur-3xl pointer-events-none" />
           <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="space-y-3 max-w-xl">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-[11px] font-mono uppercase tracking-widest bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 backdrop-blur-md">
-                <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-[11px] font-mono uppercase tracking-widest bg-[#00A6FB]/10 text-[#00A6FB] border border-[#00A6FB]/30 backdrop-blur-md">
+                <ShieldCheck className="h-3.5 w-3.5 text-[#00A6FB]" />
                 <span>Learnify Credential Hub</span>
-                <span className="w-1 h-1 rounded-full bg-emerald-400" />
-                <span className="text-neutral-400">Verifiable Registry</span>
+                <span className="w-1 h-1 rounded-full bg-[#00A6FB]" />
+                <span className="text-white/50">Verifiable Registry</span>
               </div>
-              <h1 className="text-3xl sm:text-4xl font-display font-semibold tracking-tight text-neutral-100">
+              <h1 className="text-3xl sm:text-4xl font-display font-semibold tracking-tight text-white">
                 Your Credentials & Accreditations
               </h1>
-              <p className="text-sm text-neutral-400 leading-relaxed">
+              <p className="text-sm text-white/70 leading-relaxed">
                 Cryptographically attested, tamper-proof certifications issued upon mastering production-grade engineering curricula. Verified against industry benchmarks and verifiable worldwide.
               </p>
             </div>
             <div className="flex items-center gap-5 bg-white/5 border border-white/10 p-5 rounded-2xl backdrop-blur-xl shadow-lg">
-              <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-amber-500/20 to-amber-600/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shadow-inner">
+              <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-[#00A6FB]/20 to-blue-600/10 border border-[#00A6FB]/30 flex items-center justify-center text-[#00A6FB] shadow-inner">
                 <Award className="h-7 w-7" />
               </div>
               <div>
                 <div className="text-3xl font-display font-bold text-white tracking-tight">{certs.length}</div>
-                <div className="text-xs text-neutral-400 font-medium flex items-center gap-1.5">
-                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" /> Earned Credentials
+                <div className="text-xs text-white/60 font-medium flex items-center gap-1.5">
+                  <CheckCircle2 className="h-3.5 w-3.5 text-[#00A6FB]" /> Earned Credentials
                 </div>
               </div>
             </div>
@@ -215,7 +215,7 @@ function CertsPage() {
           <div className="p-6 rounded-3xl border border-border/80 bg-card shadow-sm space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="p-1.5 rounded-xl bg-amber-500/10 text-amber-500 border border-amber-500/20">
+                <span className="p-1.5 rounded-xl bg-[#00A6FB]/10 text-[#00A6FB] border border-[#00A6FB]/20">
                   <Award className="w-4 h-4" />
                 </span>
                 <div>
@@ -242,10 +242,10 @@ function CertsPage() {
                       title={badge.badge_name}
                       subtitle="LEARNIFY AI"
                       iconName={badge.badge_icon || def.icon_name || "Award"}
-                      primaryColor={badge.badge_color || def.primary_color || "#4f46e5"}
-                      accentColor={def.accent_color || "#a5b4fc"}
+                      primaryColor={badge.badge_color || def.primary_color || "#00A6FB"}
+                      accentColor={def.accent_color || "#0A1128"}
                       textColor={def.text_color || "#ffffff"}
-                      brandLogoUrl="https://www.learnifyai.in/assets/learnify-logo-Dbtnnfk3.png"
+                      brandLogoUrl="/src/assets/learnify-logo.png"
                       className="w-56 sm:w-64"
                     />
                   </div>
@@ -369,7 +369,7 @@ function CertsPage() {
                     <div className="relative flex items-center justify-between z-10">
                       <div className="flex items-center gap-2">
                         <img
-                          src="/logo.png"
+                          src="/src/assets/learnify-logo.png"
                           alt="Learnify AI"
                           className="h-5 w-auto object-contain filter drop-shadow"
                           onError={(e) => {

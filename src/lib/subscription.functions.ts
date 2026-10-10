@@ -56,51 +56,62 @@ async function doSyncPlan(planId: string): Promise<string> {
     .single();
   const p = plan as any;
   if (!p) throw new Error("Plan not found");
-  if (!p.interval || !p.price_inr || p.price_inr <= 0)
-    throw new Error("Plan has no interval or price");
+  if (!p.price_inr || p.price_inr <= 0)
+    throw new Error("Plan has no price");
 
-  const { appId, secretKey } = getCreds();
-  const cfPlanId = `plan_${p.id.slice(0, 8)}`;
+  const keyId = process.env.RAZORPAY_KEY_ID || process.env.VITE_RAZORPAY_KEY_ID;
+  const keySecret = process.env.RAZORPAY_KEY_SECRET;
+  if (!keyId || !keySecret) throw new Error("Razorpay credentials missing");
 
   const cleanPlanName = (p.name || "Pro Plan")
     .replace(/[^a-zA-Z0-9\s_-]/g, "")
     .trim()
     .slice(0, 50);
-  const cleanPlanNote = (p.description || "Learnify AI Subscription Plan")
-    .replace(/[^a-zA-Z0-9\s_-]/g, "")
-    .trim()
-    .slice(0, 100);
 
-  const res = await fetch(`${getCashfreeApi()}/plans`, {
-    method: "POST",
-    headers: cfHeaders(appId, secretKey),
-    body: JSON.stringify({
-      plan_id: cfPlanId,
-      plan_name: cleanPlanName,
-      plan_type: "PERIODIC",
-      plan_currency: "INR",
-      plan_recurring_amount: p.price_inr,
-      plan_max_amount: p.price_inr * 12,
-      plan_max_cycles: 0,
-      plan_intervals: 1,
-      plan_interval_type: p.interval?.startsWith("month") ? "MONTH" : "YEAR",
-      plan_note: cleanPlanNote,
-    }),
-  });
+  const createRzpPlan = async (period: "monthly" | "yearly", amount: number, nameSuffix: string) => {
+    const res = await fetch("https://api.razorpay.com/v1/plans", {
+      method: "POST",
+      headers: {
+        Authorization: `Basic ${Buffer.from(`${keyId}:${keySecret}`).toString("base64")}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        period,
+        interval: 1,
+        item: {
+          name: `${cleanPlanName} ${nameSuffix}`.trim().slice(0, 50),
+          amount: amount * 100, // in paise
+          currency: "INR",
+          description: p.description?.slice(0, 255) || "Subscription Plan",
+        },
+      }),
+    });
 
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`Cashfree plan creation failed: ${err}`);
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error(`Razorpay plan creation failed: ${err}`);
+    }
+
+    const rzp = await res.json();
+    return rzp.id;
+  };
+
+  const monthlyPlanId = await createRzpPlan("monthly", p.price_inr, "Monthly");
+  let yearlyPlanId = null;
+  
+  if (p.yearly_price && p.yearly_price > 0) {
+    yearlyPlanId = await createRzpPlan("yearly", p.yearly_price, "Yearly");
   }
 
-  const cf = await res.json();
-  const cashfreePlanId = cf.plan_id || cfPlanId;
   await supabaseAdmin
     .from("pricing_plans")
-    .update({ cashfree_plan_id: cashfreePlanId } as any)
+    .update({ 
+      razorpay_plan_id: monthlyPlanId,
+      razorpay_yearly_plan_id: yearlyPlanId
+    } as any)
     .eq("id", planId);
 
-  return cashfreePlanId;
+  return monthlyPlanId;
 }
 
 export const syncPlanToCashfree = createServerFn({ method: "POST" })
@@ -113,8 +124,8 @@ export const syncPlanToCashfree = createServerFn({ method: "POST" })
 
 export const createSubscription = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((d: { planId: string; couponCode?: string }) =>
-    z.object({ planId: z.string(), couponCode: z.string().optional() }).parse(d),
+  .validator((d: { planId: string; couponCode?: string; billingPeriod?: "monthly" | "yearly" }) =>
+    z.object({ planId: z.string(), couponCode: z.string().optional(), billingPeriod: z.enum(["monthly", "yearly"]).optional().default("monthly") }).parse(d),
   )
   .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -176,13 +187,20 @@ export const createSubscription = createServerFn({ method: "POST" })
       return { auth_link: null, subscription_id: null, free: true };
     }
 
-    // Paid plan — sync to Cashfree if needed
-    if (!p.cashfree_plan_id) {
-      p.cashfree_plan_id = await doSyncPlan(data.planId);
+    // Paid plan — sync to Razorpay if needed
+    let targetRzpPlanId = data.billingPeriod === "yearly" ? p.razorpay_yearly_plan_id : p.razorpay_plan_id;
+    if (!targetRzpPlanId) {
+      await doSyncPlan(data.planId);
+      const { data: refreshedPlan } = await supabaseAdmin.from("pricing_plans").select("*").eq("id", data.planId).single();
+      const rp = refreshedPlan as any;
+      p.razorpay_plan_id = rp.razorpay_plan_id;
+      p.razorpay_yearly_plan_id = rp.razorpay_yearly_plan_id;
+      targetRzpPlanId = data.billingPeriod === "yearly" ? rp.razorpay_yearly_plan_id : rp.razorpay_plan_id;
     }
 
     // Apply coupon discount if provided
-    let finalAmount = p.price_inr;
+    const basePrice = data.billingPeriod === "yearly" ? (p.yearly_price || p.price_inr * 10) : p.price_inr;
+    let finalAmount = basePrice;
     let appliedCoupon: string | null = null;
 
     // Auto-apply student discount for verified students
@@ -214,9 +232,9 @@ export const createSubscription = createServerFn({ method: "POST" })
           (!coupon.applicable_plan_ids || coupon.applicable_plan_ids.includes(data.planId))
         ) {
           if (coupon.discount_percent) {
-            finalAmount = Math.round(p.price_inr * (1 - coupon.discount_percent / 100));
+            finalAmount = Math.round(basePrice * (1 - coupon.discount_percent / 100));
           } else if (coupon.discount_amount_inr) {
-            finalAmount = Math.max(1, p.price_inr - coupon.discount_amount_inr);
+            finalAmount = Math.max(1, basePrice - coupon.discount_amount_inr);
           }
           appliedCoupon = data.couponCode.toUpperCase();
           // Increment usage
@@ -228,6 +246,39 @@ export const createSubscription = createServerFn({ method: "POST" })
       }
     }
 
+    const keyId = process.env.RAZORPAY_KEY_ID || process.env.VITE_RAZORPAY_KEY_ID;
+    const keySecret = process.env.RAZORPAY_KEY_SECRET;
+    if (!keyId || !keySecret) throw new Error("Razorpay credentials missing");
+
+    if (finalAmount !== basePrice) {
+      const cleanPlanName = (p.name || "Pro Plan").replace(/[^a-zA-Z0-9\s_-]/g, "").trim().slice(0, 30);
+      const planNameSuffix = `${data.billingPeriod === "yearly" ? "Yearly" : "Monthly"} (${appliedCoupon})`;
+      const planRes = await fetch("https://api.razorpay.com/v1/plans", {
+        method: "POST",
+        headers: {
+          Authorization: `Basic ${Buffer.from(`${keyId}:${keySecret}`).toString("base64")}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          period: data.billingPeriod === "yearly" ? "yearly" : "monthly",
+          interval: 1,
+          item: {
+            name: `${cleanPlanName} ${planNameSuffix}`.trim().slice(0, 50),
+            amount: finalAmount * 100, // Razorpay expects paise
+            currency: "INR",
+            description: `Discounted Subscription Plan via ${appliedCoupon}`,
+          },
+        }),
+      });
+
+      if (!planRes.ok) {
+        const err = await planRes.text();
+        throw new Error(`Failed to create discounted Razorpay plan: ${err}`);
+      }
+      const rzp = await planRes.json();
+      targetRzpPlanId = rzp.id;
+    }
+
     const { data: profile } = await (supabaseAdmin as any)
       .from("profiles")
       .select("*")
@@ -237,39 +288,24 @@ export const createSubscription = createServerFn({ method: "POST" })
     const realEmail = (profile as any)?.email || "support.learnifyai@gmail.com";
     const realPhone = (profile as any)?.phone || (profile as any)?.phone_number || "9918231234";
 
-    const { appId, secretKey } = getCreds();
-    const subId = `sub_${uid.slice(0, 8)}_${Date.now()}`;
     const baseUrl = process.env.VITE_APP_URL || "https://www.learnifyai.in";
-    const returnUrl = `${baseUrl}/pricing?subscribe=ok`;
-    const notifyUrl = `${baseUrl}/api/webhooks/cashfree-subscription`;
-    const idempotencyKey = `sub_create_${uid}_${data.planId}_${Date.now()}`;
+    const subId = `sub_${uid.slice(0, 8)}_${Date.now()}`;
 
-    const res = await fetch(`${getCashfreeApi()}/subscriptions`, {
+    const res = await fetch("https://api.razorpay.com/v1/subscriptions", {
       method: "POST",
-      headers: cfHeaders(appId, secretKey, idempotencyKey),
+      headers: {
+        Authorization: `Basic ${Buffer.from(`${keyId}:${keySecret}`).toString("base64")}`,
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({
-        subscription_id: subId,
-        customer_details: {
-          customer_id: uid,
-          customer_name: realName,
-          customer_email: realEmail,
-          customer_phone: realPhone,
+        plan_id: targetRzpPlanId, // Razorpay Plan ID
+        total_count: 120, // 10 years
+        customer_notify: 1,
+        notes: {
+          user_id: uid,
+          plan_id: data.planId,
+          coupon: appliedCoupon || undefined,
         },
-        plan_details: {
-          plan_id: p.cashfree_plan_id,
-        },
-        authorization_details: {
-          authorization_amount: 1,
-          authorization_amount_refund: true,
-          payment_methods: ["enach", "pnach", "upi", "card"],
-        },
-        subscription_meta: {
-          return_url: returnUrl,
-          notification_channel: ["EMAIL"],
-        },
-        subscription_expiry_time: new Date(Date.now() + 86400000).toISOString(),
-        subscription_first_charge_time: new Date(Date.now() + 86400000).toISOString(),
-        subscription_note: `${p.name} plan - Rs${finalAmount}/${p.interval}`,
       }),
     });
 
@@ -277,54 +313,45 @@ export const createSubscription = createServerFn({ method: "POST" })
 
     if (!res.ok) {
       const err = await res.text();
-      if (err.includes("plan_not_found") || err.toLowerCase().includes("plan does not exist")) {
-        console.log(`Plan ${p.cashfree_plan_id} not found on Cashfree. Re-syncing plan...`);
+      if (err.includes("plan_id") || err.toLowerCase().includes("not found")) {
+        console.log(`Plan ${targetRzpPlanId} not found on Razorpay. Re-syncing plan...`);
         // Reset local cached plan ID
         await supabaseAdmin
           .from("pricing_plans")
-          .update({ cashfree_plan_id: null } as any)
+          .update({ razorpay_plan_id: null, razorpay_yearly_plan_id: null } as any)
           .eq("id", data.planId);
 
-        // Try to re-sync plan to Cashfree
-        const newCfPlanId = await doSyncPlan(data.planId);
+        // Try to re-sync plan to Razorpay
+        await doSyncPlan(data.planId);
+        const { data: retryPlan } = await supabaseAdmin.from("pricing_plans").select("*").eq("id", data.planId).single();
+        const newRzpPlanId = data.billingPeriod === "yearly" ? (retryPlan as any).razorpay_yearly_plan_id : (retryPlan as any).razorpay_plan_id;
 
         // Retry subscription creation
-        const retryRes = await fetch(`${getCashfreeApi()}/subscriptions`, {
+        const retryRes = await fetch("https://api.razorpay.com/v1/subscriptions", {
           method: "POST",
-          headers: cfHeaders(appId, secretKey, idempotencyKey + "_retry"),
+          headers: {
+            Authorization: `Basic ${Buffer.from(`${keyId}:${keySecret}`).toString("base64")}`,
+            "Content-Type": "application/json",
+          },
           body: JSON.stringify({
-            subscription_id: subId,
-            customer_details: {
-              customer_id: uid,
-              customer_name: realName,
-              customer_email: realEmail,
-              customer_phone: "9999999999", // Required by Cashfree API; TODO: add phone field to profiles table
+            plan_id: newRzpPlanId,
+            total_count: 120,
+            customer_notify: 1,
+            notes: {
+              user_id: uid,
+              plan_id: data.planId,
+              coupon: appliedCoupon || undefined,
             },
-            plan_details: {
-              plan_id: newCfPlanId,
-            },
-            authorization_details: {
-              authorization_amount: 1,
-              authorization_amount_refund: true,
-              payment_methods: ["enach", "pnach", "upi", "card"],
-            },
-            subscription_meta: {
-              return_url: returnUrl,
-              notification_channel: ["EMAIL"],
-            },
-            subscription_expiry_time: new Date(Date.now() + 86400000).toISOString(),
-            subscription_first_charge_time: new Date(Date.now() + 86400000).toISOString(),
-            subscription_note: `${p.name} plan - Rs${finalAmount}/${p.interval}`,
           }),
         });
 
         if (!retryRes.ok) {
           const retryErr = await retryRes.text();
-          throw new Error(`Cashfree subscription creation failed after plan sync: ${retryErr}`);
+          throw new Error(`Razorpay subscription creation failed after plan sync: ${retryErr}`);
         }
         sub = await retryRes.json();
       } else {
-        throw new Error(`Cashfree subscription creation failed: ${err}`);
+        throw new Error(`Razorpay subscription creation failed: ${err}`);
       }
     } else {
       sub = await res.json();
@@ -337,8 +364,7 @@ export const createSubscription = createServerFn({ method: "POST" })
     const { error: insErr } = await supabaseAdmin.from("user_subscriptions").insert({
       user_id: uid,
       plan_id: data.planId,
-      cashfree_subscription_id: sub.subscription_id || subId,
-      cashfree_order_id: sub.cf_subscription_id || null,
+      cashfree_subscription_id: sub.id, // Using the same column name for Razorpay ID
       status: "pending",
       current_period_start: new Date().toISOString(),
       current_period_end: periodEnd.toISOString(),
@@ -347,10 +373,8 @@ export const createSubscription = createServerFn({ method: "POST" })
     if (insErr) throw new Error(insErr.message);
 
     return {
-      auth_link: sub.subscription_session_id
-        ? `https://www.cashfree.com/checkout/post/subscription?subscription_session_id=${sub.subscription_session_id}`
-        : (sub as any).auth_link,
-      subscription_id: sub.subscription_id || subId,
+      auth_link: sub.short_url,
+      subscription_id: sub.id,
     };
   });
 
@@ -368,14 +392,16 @@ export const cancelSubscription = createServerFn({ method: "POST" })
     if (!sub) throw new Error("No active subscription found");
 
     if (sub.cashfree_subscription_id) {
-      const { appId, secretKey } = getCreds();
-      const idempotencyKey = `sub_cancel_${sub.id}_${Date.now()}`;
-      await fetch(`${getCashfreeApi()}/subscriptions/${sub.cashfree_subscription_id}/manage`, {
+      const keyId = process.env.RAZORPAY_KEY_ID || process.env.VITE_RAZORPAY_KEY_ID;
+      const keySecret = process.env.RAZORPAY_KEY_SECRET;
+      await fetch(`https://api.razorpay.com/v1/subscriptions/${sub.cashfree_subscription_id}/cancel`, {
         method: "POST",
-        headers: cfHeaders(appId, secretKey, idempotencyKey),
+        headers: {
+          Authorization: `Basic ${Buffer.from(`${keyId}:${keySecret}`).toString("base64")}`,
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
-          subscription_id: sub.cashfree_subscription_id,
-          action: "CANCEL",
+          cancel_at_cycle_end: 1, // Optional: cancel at end of cycle instead of immediately
         }),
       }).catch(() => {});
     }
@@ -411,17 +437,17 @@ export const resumeSubscription = createServerFn({ method: "POST" })
     if (!sub) throw new Error("No cancellable subscription found");
 
     if (sub.cashfree_subscription_id) {
-      const { appId, secretKey } = getCreds();
-      const idempotencyKey = `sub_resume_${sub.id}_${Date.now()}`;
+      const keyId = process.env.RAZORPAY_KEY_ID || process.env.VITE_RAZORPAY_KEY_ID;
+      const keySecret = process.env.RAZORPAY_KEY_SECRET;
       const res = await fetch(
-        `${getCashfreeApi()}/subscriptions/${sub.cashfree_subscription_id}/manage`,
+        `https://api.razorpay.com/v1/subscriptions/${sub.cashfree_subscription_id}/resume`,
         {
           method: "POST",
-          headers: cfHeaders(appId, secretKey, idempotencyKey),
-          body: JSON.stringify({
-            subscription_id: sub.cashfree_subscription_id,
-            action: "RESUME",
-          }),
+          headers: {
+            Authorization: `Basic ${Buffer.from(`${keyId}:${keySecret}`).toString("base64")}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ resume_at: "now" }),
         },
       );
 
@@ -494,17 +520,18 @@ export const upgradeDowngrade = createServerFn({ method: "POST" })
 
     // For upgrade: cancel old, create new
     if (currentSub.cashfree_subscription_id) {
-      const { appId, secretKey } = getCreds();
+      const keyId = process.env.RAZORPAY_KEY_ID || process.env.VITE_RAZORPAY_KEY_ID;
+      const keySecret = process.env.RAZORPAY_KEY_SECRET;
       await fetch(
-        `${getCashfreeApi()}/subscriptions/${currentSub.cashfree_subscription_id}/manage`,
+        `https://api.razorpay.com/v1/subscriptions/${currentSub.cashfree_subscription_id}/cancel`,
         {
           method: "POST",
-          headers: cfHeaders(appId, secretKey),
-          body: JSON.stringify({
-            subscription_id: currentSub.cashfree_subscription_id,
-            action: "CANCEL",
-          }),
-        },
+          headers: {
+            Authorization: `Basic ${Buffer.from(`${keyId}:${keySecret}`).toString("base64")}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ cancel_at_cycle_end: 1 }),
+        }
       ).catch(() => {});
     }
 
@@ -721,6 +748,7 @@ export const getAdminSubscriptionAnalytics = createServerFn({ method: "GET" })
     const [
       { data: mrrResult },
       { count: activeSubs },
+      { data: activeSubDetails },
       { count: totalUsers },
       { data: plans },
       { data: recentSubs },
@@ -737,6 +765,10 @@ export const getAdminSubscriptionAnalytics = createServerFn({ method: "GET" })
       supabaseAdmin
         .from("user_subscriptions")
         .select("*", { count: "exact", head: true })
+        .eq("status", "active"),
+      supabaseAdmin
+        .from("user_subscriptions")
+        .select("razorpay_subscription_id, cashfree_subscription_id, razorpay_order_id, cashfree_order_id")
         .eq("status", "active"),
       supabaseAdmin.from("profiles").select("*", { count: "exact", head: true }),
       supabaseAdmin.from("pricing_plans").select("id, name, price_inr, interval, cashfree_plan_id"),
@@ -784,6 +816,13 @@ export const getAdminSubscriptionAnalytics = createServerFn({ method: "GET" })
       totalUserCount > 0 ? Math.round((activeSubCount / totalUserCount) * 100) : 0;
     const churnRate = activeSubCount > 0 ? Math.round((cancelledCount / activeSubCount) * 100) : 0;
     const arpu = activeSubCount > 0 ? Math.round(totalMrr / activeSubCount) : 0;
+
+    const razorpayCount = (activeSubDetails || []).filter(
+      (s: any) => s.razorpay_subscription_id || s.razorpay_order_id
+    ).length;
+    const cashfreeCount = (activeSubDetails || []).filter(
+      (s: any) => s.cashfree_subscription_id || s.cashfree_order_id
+    ).length;
 
     // Build plan breakdown from pricing_plans + user_subscriptions counts
     // Group by plan name to handle duplicate rows
@@ -908,6 +947,10 @@ export const getAdminSubscriptionAnalytics = createServerFn({ method: "GET" })
       arpu,
       revenueHistory,
       subscriberHistory,
+      gatewayMetrics: {
+        razorpay: razorpayCount,
+        cashfree: cashfreeCount,
+      },
     };
   });
 

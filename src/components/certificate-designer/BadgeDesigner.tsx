@@ -292,6 +292,10 @@ export function BadgeDesigner() {
           <h3 className="text-lg font-semibold text-foreground">No badges created yet</h3>
           <p className="text-sm text-muted-foreground max-w-md mx-auto mt-1 mb-5">
             Add custom achievement badges for high scores, fast completion, or special recognitions.
+            <br />
+            <span className="text-xs text-rose-500 font-medium mt-2 block">
+              If you see a database error or nothing happens when you click Seed Default Badges, please ensure you've applied the <b>certificate_studio_2.sql</b> migration to your Supabase instance to create the <code>badge_definitions</code> table.
+            </span>
           </p>
           <div className="flex items-center justify-center gap-3">
             <Button

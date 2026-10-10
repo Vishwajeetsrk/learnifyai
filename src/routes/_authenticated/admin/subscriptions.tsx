@@ -12,6 +12,7 @@ import {
   RefreshCw,
   XCircle,
   CheckCircle2,
+  ShieldCheck,
   Clock,
   DollarSign,
   UserPlus,
@@ -234,6 +235,20 @@ function AdminSubscriptionsPage() {
           icon: UserX,
           color: "text-red-500",
           bgColor: "bg-red-500/10",
+        },
+        {
+          label: "Razorpay Subs",
+          value: data.gatewayMetrics?.razorpay.toLocaleString() || "0",
+          icon: ShieldCheck,
+          color: "text-indigo-500",
+          bgColor: "bg-indigo-500/10",
+        },
+        {
+          label: "Cashfree Subs",
+          value: data.gatewayMetrics?.cashfree.toLocaleString() || "0",
+          icon: ShieldCheck,
+          color: "text-orange-500",
+          bgColor: "bg-orange-500/10",
         },
         {
           label: "Expired",

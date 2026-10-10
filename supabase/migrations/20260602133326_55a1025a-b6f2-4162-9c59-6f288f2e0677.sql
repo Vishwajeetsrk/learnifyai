@@ -79,6 +79,9 @@ AS $$
     WHERE active = true AND closes_at IS NOT NULL AND closes_at < now();
 $$;
 
+-- Ensure cron extension exists
+CREATE EXTENSION IF NOT EXISTS pg_cron;
+
 -- Schedule daily cleanup at 03:00 UTC
 SELECT cron.schedule(
   'cleanup-expired-events-daily',

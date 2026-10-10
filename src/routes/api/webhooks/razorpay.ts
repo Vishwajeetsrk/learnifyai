@@ -223,13 +223,13 @@ export const Route = createFileRoute("/api/webhooks/razorpay")({
                 user_id: userId,
                 event_type: "PAYMENT_FAILED",
                 status: "failed",
-                amount: amountInr,
                 idempotency_key: idempotencyKey,
                 request_payload: {
                   provider: "razorpay",
                   payment_id: paymentEntity?.id,
                   order_id: paymentEntity?.order_id,
                   error: errorDesc,
+                  amount: amountInr,
                 },
               });
 

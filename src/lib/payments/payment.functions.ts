@@ -42,9 +42,11 @@ export const initiateCheckout = createServerFn({ method: "POST" })
     }
 
     const priceInr = Number(dbPlan?.price_inr ?? 0);
+    const yearlyPriceInr = Number(dbPlan?.yearly_price ?? priceInr * 10);
+    const baseAmount = data.billingCycle === "yearly" ? yearlyPriceInr : priceInr;
 
     // 2. Free Plan: Immediate Free Activation (Invariant 9: 100 credits/mo)
-    if (priceInr <= 0) {
+    if (baseAmount <= 0) {
       const periodEnd = new Date();
       periodEnd.setFullYear(periodEnd.getFullYear() + 1);
 
@@ -91,7 +93,7 @@ export const initiateCheckout = createServerFn({ method: "POST" })
     const customerPhone = profile?.phone || profile?.phone_number || "9999999999";
 
     // 4. Calculate Final Amount (Check for student verification discount)
-    let finalAmount = priceInr;
+    let finalAmount = baseAmount;
     let appliedCoupon = data.couponCode?.toUpperCase();
 
     const { data: studentCheck } = await (supabaseAdmin as any)
@@ -102,28 +104,45 @@ export const initiateCheckout = createServerFn({ method: "POST" })
 
     if (studentCheck?.student_verified && !appliedCoupon) {
       appliedCoupon = "STUDENT20";
-      finalAmount = Math.max(1, Math.round(priceInr * 0.8)); // 20% academic discount
+      finalAmount = Math.max(1, Math.round(baseAmount * 0.8)); // 20% academic discount
     }
 
     // 5. Select Provider & Create Order (Razorpay primary, Cashfree secondary)
     const provider = getPaymentProvider(data.provider);
     const orderRef = `ord_${userId.slice(0, 8)}_${Date.now()}`;
 
-    const orderResult = await provider.createOrder({
-      userId,
-      amountInr: finalAmount,
-      currency: "INR",
-      receiptId: orderRef,
-      notes: {
+    let orderResult: any;
+
+    if (data.billingCycle === "monthly" || data.billingCycle === "yearly") {
+      orderResult = await provider.createSubscription({
         userId,
         planId: data.planId,
-        billingCycle: data.billingCycle,
+        planName,
+        amountInr: finalAmount,
+        interval: data.billingCycle === "yearly" ? "year" : "month",
+        customerEmail,
+        customerName,
         couponCode: appliedCoupon || "",
-      },
-      customerName,
-      customerEmail,
-      customerPhone,
-    });
+      });
+      // provider.createSubscription returns { subscriptionId, ... } but we map it to orderId for compatibility
+      orderResult.orderId = (orderResult as any).subscriptionId;
+    } else {
+      orderResult = await provider.createOrder({
+        userId,
+        amountInr: finalAmount,
+        currency: "INR",
+        receiptId: orderRef,
+        notes: {
+          userId,
+          planId: data.planId,
+          billingCycle: data.billingCycle,
+          couponCode: appliedCoupon || "",
+        },
+        customerName,
+        customerEmail,
+        customerPhone,
+      });
+    }
 
     // 6. Record Pending Subscription (INVARIANT 19 & 20: Payment Pending, never Active before verified)
     const periodEnd = new Date();
@@ -158,13 +177,14 @@ export const initiateCheckout = createServerFn({ method: "POST" })
       provider: data.provider,
       orderId: orderResult.orderId,
       amount: finalAmount,
-      baseAmount: priceInr,
-      discountAmount: Math.max(0, priceInr - finalAmount),
+      baseAmount: baseAmount,
+      discountAmount: Math.max(0, baseAmount - finalAmount),
       appliedCoupon: appliedCoupon || null,
       currency: "INR",
       keyId: data.provider === "razorpay" ? (process.env.RAZORPAY_KEY_ID || "") : undefined,
       paymentSessionId: orderResult.paymentSessionId,
       checkoutUrl: orderResult.checkoutUrl,
+      subscriptionId: (orderResult as any).subscriptionId,
       prefill: {
         name: customerName,
         email: customerEmail,
@@ -173,8 +193,8 @@ export const initiateCheckout = createServerFn({ method: "POST" })
       notes: {
         planName,
         planId: data.planId,
-        basePrice: `₹${priceInr}`,
-        discount: priceInr > finalAmount ? `-₹${priceInr - finalAmount}` : "₹0",
+        basePrice: `₹${baseAmount}`,
+        discount: baseAmount > finalAmount ? `-₹${baseAmount - finalAmount}` : "₹0",
         payable: `₹${finalAmount}`,
       },
     };
@@ -199,8 +219,10 @@ export const verifyClientPayment = createServerFn({ method: "POST" })
     const provider = getPaymentProvider(data.provider);
 
     // 1. Strict Server-Side Signature Verification (Invariant 16)
+    const isSubscription = data.orderId.startsWith("sub_");
     const isValidSignature = await provider.verifyPaymentSignature({
-      orderId: data.orderId,
+      orderId: isSubscription ? undefined : data.orderId,
+      subscriptionId: isSubscription ? data.orderId : undefined,
       paymentId: data.paymentId,
       signature: data.signature,
     });
