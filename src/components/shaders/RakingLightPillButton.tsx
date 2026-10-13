@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { shaderRendererManager } from "./ShaderRendererManager";
 
 import type { NeuformIsolatedEffectProps } from "./NeuformIsolatedEffects";
 
@@ -231,6 +232,9 @@ export function RakingLightPillButton({
           onError?.("WebGL unsupported or context quota exhausted");
           return;
         }
+
+        shaderRendererManager.registerCanvas(canvas!);
+        shaderRendererManager.registerGl(gl);
 
         vertexShader = createShader(gl, gl.VERTEX_SHADER, VERTEX_SHADER);
         fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, FRAGMENT_SHADER);

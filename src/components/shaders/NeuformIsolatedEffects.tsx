@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, type CSSProperties } from "react";
+import { shaderRendererManager } from "./ShaderRendererManager";
 
 import aetherisLabsSource from "./sources/aetheris-labs.html?raw";
 const audioWordmarkSource = "";
@@ -1799,6 +1800,10 @@ ${introWordmarkStyle}
     }
 
     isolated = true;
+    if (observer) {
+      try { observer.disconnect(); } catch (e) {}
+      observer = null;
+    }
     roots.forEach(function (root) {
       var placeholderLink = root.matches('a[href="#"]') ? root : root.querySelector('a[href="#"]');
       if (placeholderLink) placeholderLink.addEventListener('click', function (event) { event.preventDefault(); });
@@ -1822,7 +1827,17 @@ ${introWordmarkStyle}
     });
   }
 
-  function scheduleIsolation() { setTimeout(isolate, 50); }
+  var observer = null;
+  try {
+    if (typeof MutationObserver !== 'undefined' && document.documentElement) {
+      observer = new MutationObserver(function () {
+        if (!isolated) isolate();
+      });
+      observer.observe(document.documentElement, { childList: true, subtree: true });
+    }
+  } catch (e) {}
+
+  function scheduleIsolation() { setTimeout(isolate, 40); }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', scheduleIsolation, { once: true });
   } else {
@@ -1867,6 +1882,9 @@ function NeuformIsolatedEffect({
   // Disposal on unmount: explicitly signal WebGL context release & wipe srcDoc
   useEffect(() => {
     const frame = frameRef.current;
+    if (frame) {
+      shaderRendererManager.registerIframe(frame);
+    }
     return () => {
       try {
         if (frame?.contentWindow) {

@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { ShaderButtons, type ShaderButtonVariant } from "./ShaderButtons";
 import { SHADER_REGISTRY, SHADER_VARIANTS_LIST, type ShaderVariantMetadata } from "./shaderRegistry";
+import { shaderRendererManager } from "./ShaderRendererManager";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 
@@ -38,10 +39,11 @@ export function ShaderShowcase({ className = "" }: { className?: string }) {
   const currentVariantInfo: ShaderVariantMetadata =
     SHADER_REGISTRY[selectedVariant] || SHADER_REGISTRY["raking-light-pill"];
 
-  // Handle switching shader variant safely with generational token
+  // Handle switching shader variant safely with generational token and unified manager
   const handleSelectVariant = useCallback((variantId: ShaderButtonVariant) => {
     if (variantId === selectedVariant) return;
-    generationRef.current += 1;
+    const nextGen = shaderRendererManager.startSwitch(variantId);
+    generationRef.current = nextGen;
     const nextMeta = SHADER_REGISTRY[variantId];
 
     setRendererState("switching");
@@ -58,18 +60,21 @@ export function ShaderShowcase({ className = "" }: { className?: string }) {
   }, [selectedVariant]);
 
   const handleShaderReady = useCallback(() => {
+    shaderRendererManager.markReady(generationRef.current);
     setRendererState("ready");
     setErrorMessage(null);
   }, []);
 
   const handleShaderError = useCallback((err: string) => {
+    shaderRendererManager.reportError(err, generationRef.current);
     console.warn(`[ShaderShowcase] Error for ${selectedVariant}:`, err);
     setRendererState("error");
     setErrorMessage(err);
   }, [selectedVariant]);
 
   const handleRetry = useCallback(() => {
-    generationRef.current += 1;
+    const nextGen = shaderRendererManager.startSwitch(selectedVariant);
+    generationRef.current = nextGen;
     setRendererState("initializing");
     setErrorMessage(null);
     // Force re-trigger by resetting to default dials
@@ -77,7 +82,7 @@ export function ShaderShowcase({ className = "" }: { className?: string }) {
     setSaturation(currentVariantInfo.defaultSaturation);
     setMode(currentVariantInfo.defaultMode);
     toast.info("Retrying shader initialization…");
-  }, [currentVariantInfo]);
+  }, [currentVariantInfo, selectedVariant]);
 
   // Code to display and copy: actual GLSL shader and source for active variant
   const activeCode = currentVariantInfo.glslFragment

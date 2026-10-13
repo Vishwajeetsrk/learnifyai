@@ -4,6 +4,7 @@ export * from "./SelectedButtonStudies";
 export * from "./NeuformIsolatedEffects";
 export * from "./ShaderShowcase";
 export * from "./shaderRegistry";
+export * from "./ShaderRendererManager";
 export * from "./3d-paper/ThreeDPaper";
 import "./threeui.css";
 
