@@ -91,7 +91,7 @@ export function GitHubAuditorView({ defaultUsername = "" }: { defaultUsername?: 
           <Input
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            placeholder="Enter GitHub handle (e.g. torvalds or Vishwajeetsrk)..."
+            placeholder="Enter GitHub handle or repo (e.g. Vishwajeetsrk or Vishwajeetsrk/learnifyai)..."
             className="pl-9 h-11 bg-card text-sm border-border"
           />
         </div>

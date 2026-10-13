@@ -42,13 +42,33 @@ export interface GitHubAuditReport {
 }
 
 const AuditInput = z.object({
-  username: z.string().min(1).max(100).trim(),
+  username: z.string().min(1).max(200).trim(),
 });
 
 export const auditGitHubProfile = createServerFn({ method: "POST" })
   .validator((d: unknown) => AuditInput.parse(d || {}))
   .handler(async ({ data }) => {
-    const rawUsername = data.username.replace(/^https?:\/\/github\.com\//, "").replace(/\/$/, "").trim();
+    // Robust GitHub input normalization:
+    // Handles:
+    // - "https://github.com/Vishwajeetsrk/learnifyai" -> username: "Vishwajeetsrk", targetRepo: "learnifyai"
+    // - "https://www.github.com/Vishwajeetsrk" -> username: "Vishwajeetsrk"
+    // - "github.com/Vishwajeetsrk/learnifyai" -> username: "Vishwajeetsrk"
+    // - "Vishwajeetsrk/learnifyai" -> username: "Vishwajeetsrk"
+    // - "@Vishwajeetsrk" -> username: "Vishwajeetsrk"
+    // - "Vishwajeetsrk" -> username: "Vishwajeetsrk"
+    let cleaned = data.username.trim();
+    cleaned = cleaned.replace(/^https?:\/\/(?:www\.)?github\.com\//i, "");
+    cleaned = cleaned.replace(/^github\.com\//i, "");
+    cleaned = cleaned.replace(/^@+/, "");
+    cleaned = cleaned.split("?")[0].split("#")[0].replace(/\/+$/, "");
+
+    const segments = cleaned.split("/").filter(Boolean);
+    const rawUsername = segments[0] || "";
+    const targetRepo = segments[1] || undefined;
+
+    if (!rawUsername) {
+      throw new Error("Please provide a valid GitHub username or repository link.");
+    }
 
     // 1. Fetch GitHub User Profile
     const headers: Record<string, string> = {
@@ -191,9 +211,16 @@ export const auditGitHubProfile = createServerFn({ method: "POST" })
       actionItems.push("Pin your top 4 best full-stack projects featuring live deployment links.");
     }
 
-    // Top Repos
-    const topRepos: GitHubRepoSummary[] = [...sourceRepos]
-      .sort((a, b) => (b.stargazers_count || 0) - (a.stargazers_count || 0))
+    // Top Repos (prioritizing targetRepo if provided)
+    const sortedRepos = [...sourceRepos].sort((a, b) => {
+      if (targetRepo) {
+        if (a.name.toLowerCase() === targetRepo.toLowerCase()) return -1;
+        if (b.name.toLowerCase() === targetRepo.toLowerCase()) return 1;
+      }
+      return (b.stargazers_count || 0) - (a.stargazers_count || 0);
+    });
+
+    const topRepos: GitHubRepoSummary[] = sortedRepos
       .slice(0, 6)
       .map((r) => ({
         name: r.name,
