@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Sparkles,
@@ -10,75 +10,17 @@ import {
   Moon,
   RotateCcw,
   Sliders,
-  ExternalLink,
   Cpu,
+  AlertTriangle,
+  RefreshCw,
+  Terminal,
 } from "lucide-react";
 import { ShaderButtons, type ShaderButtonVariant } from "./ShaderButtons";
+import { SHADER_REGISTRY, SHADER_VARIANTS_LIST, type ShaderVariantMetadata } from "./shaderRegistry";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 
-const SHADER_VARIANTS: { id: ShaderButtonVariant; label: string; desc: string; type: string }[] = [
-  {
-    id: "raking-light-pill",
-    label: "Raking Light Pill",
-    desc: "Raw WebGL GLSL raking light bands, procedural twinkle motes, and soft glowing border.",
-    type: "Raw WebGL GLSL",
-  },
-  {
-    id: "ignition-button",
-    label: "Ignition Terminal",
-    desc: "Sub-atomic ignition terminal glow with particle acceleration.",
-    type: "Three.js / Canvas",
-  },
-  {
-    id: "thinking-button",
-    label: "Thinking State",
-    desc: "AI cognitive braille spinner and glowing border microinteraction.",
-    type: "Canvas 2D / Microinteraction",
-  },
-  {
-    id: "star-portal",
-    label: "Star Portal",
-    desc: "Deep-space cosmic portal with orbiting stars and gravitational drift.",
-    type: "WebGL Starfield",
-  },
-  {
-    id: "plasma-button",
-    label: "Plasma Reactor",
-    desc: "High-energy plasma reactor with ionized light trails.",
-    type: "WebGL Fluid",
-  },
-  {
-    id: "tactile-button",
-    label: "Nexus Tactile",
-    desc: "Tactile haptic surface simulation with raymarching depth.",
-    type: "Raymarching Study",
-  },
-  {
-    id: "glassy-split",
-    label: "Glassy Split",
-    desc: "Frosted refractive glass split button with realistic caustics.",
-    type: "CSS + WebGL Caustics",
-  },
-  {
-    id: "generate-site",
-    label: "Generate Site",
-    desc: "Cinematic prompt trigger button with prismatic perimeter sweep.",
-    type: "Prismatic Microinteraction",
-  },
-  {
-    id: "chrome-upload",
-    label: "Chrome Upload",
-    desc: "Specular chrome edge with dynamic specular reflection on cursor move.",
-    type: "Chrome Shader",
-  },
-  {
-    id: "iridescent-glass",
-    label: "Iridescent Glass",
-    desc: "Multi-layered thin-film interference with prismatic color dispersion.",
-    type: "Thin-Film Shader",
-  },
-];
+type RendererState = "initializing" | "compiling" | "ready" | "switching" | "error";
 
 export function ShaderShowcase({ className = "" }: { className?: string }) {
   const [selectedVariant, setSelectedVariant] = useState<ShaderButtonVariant>("raking-light-pill");
@@ -88,37 +30,117 @@ export function ShaderShowcase({ className = "" }: { className?: string }) {
   const [brightness, setBrightness] = useState<number>(1);
   const [copied, setCopied] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<"canvas" | "code">("canvas");
+  const [rendererState, setRendererState] = useState<RendererState>("ready");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const currentVariantInfo =
-    SHADER_VARIANTS.find((v) => v.id === selectedVariant) || SHADER_VARIANTS[0];
+  const generationRef = useRef<number>(0);
 
-  const codeSnippet = `import { ShaderButtons } from "@/components/shaders";
-import "@/components/shaders/threeui.css";
+  const currentVariantInfo: ShaderVariantMetadata =
+    SHADER_REGISTRY[selectedVariant] || SHADER_REGISTRY["raking-light-pill"];
 
-export function HeroCta() {
+  // Handle switching shader variant safely with generational token
+  const handleSelectVariant = useCallback((variantId: ShaderButtonVariant) => {
+    if (variantId === selectedVariant) return;
+    generationRef.current += 1;
+    const nextMeta = SHADER_REGISTRY[variantId];
+
+    setRendererState("switching");
+    setErrorMessage(null);
+    setSelectedVariant(variantId);
+
+    // Synchronize dials with the new shader defaults to prevent stale leak
+    if (nextMeta) {
+      setMode(nextMeta.defaultMode);
+      setHue(nextMeta.defaultHue);
+      setSaturation(nextMeta.defaultSaturation);
+      setBrightness(nextMeta.defaultBrightness);
+    }
+  }, [selectedVariant]);
+
+  const handleShaderReady = useCallback(() => {
+    setRendererState("ready");
+    setErrorMessage(null);
+  }, []);
+
+  const handleShaderError = useCallback((err: string) => {
+    console.warn(`[ShaderShowcase] Error for ${selectedVariant}:`, err);
+    setRendererState("error");
+    setErrorMessage(err);
+  }, [selectedVariant]);
+
+  const handleRetry = useCallback(() => {
+    generationRef.current += 1;
+    setRendererState("initializing");
+    setErrorMessage(null);
+    // Force re-trigger by resetting to default dials
+    setHue(currentVariantInfo.defaultHue);
+    setSaturation(currentVariantInfo.defaultSaturation);
+    setMode(currentVariantInfo.defaultMode);
+    toast.info("Retrying shader initialization…");
+  }, [currentVariantInfo]);
+
+  // Code to display and copy: actual GLSL shader and source for active variant
+  const activeCode = currentVariantInfo.glslFragment
+    ? `// ============================================================================
+// ${currentVariantInfo.label} — Live GLSL Fragment Shader
+// Renderer: ${currentVariantInfo.type}
+// ============================================================================
+
+${currentVariantInfo.glslFragment}
+
+// Vertex Shader:
+${currentVariantInfo.glslVertex || `attribute vec2 aPosition;
+varying vec2 vUv;
+void main() {
+  vUv = aPosition * 0.5 + 0.5;
+  gl_Position = vec4(aPosition, 0.0, 1.0);
+}`}
+
+// React Integration:
+import { ShaderButtons } from "@/components/shaders";
+
+export function HeroButton() {
   return (
-    <div className="shader-frame">
-      <ShaderButtons
-        variant="${selectedVariant}"
-        mode="${mode}"
-        ${hue !== 0 ? `hue={${hue}}\n        ` : ""}${saturation !== 1 ? `saturation={${saturation}}\n        ` : ""}${brightness !== 1 ? `brightness={${brightness}}\n        ` : ""}
-      />
-    </div>
+    <ShaderButtons
+      variant="${selectedVariant}"
+      mode="${mode}"
+      ${hue !== 0 ? `hue={${hue}}\n      ` : ""}${saturation !== 1 ? `saturation={${saturation}}\n      ` : ""}
+    />
+  );
+}`
+    : `// ============================================================================
+// ${currentVariantInfo.label} — Implementation Source
+// Renderer: ${currentVariantInfo.type}
+// ============================================================================
+
+${currentVariantInfo.sourceCode}
+
+// React Integration:
+import { ShaderButtons } from "@/components/shaders";
+
+export function HeroButton() {
+  return (
+    <ShaderButtons
+      variant="${selectedVariant}"
+      mode="${mode}"
+      ${hue !== 0 ? `hue={${hue}}\n      ` : ""}${saturation !== 1 ? `saturation={${saturation}}\n      ` : ""}
+    />
   );
 }`;
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(codeSnippet);
+    navigator.clipboard.writeText(activeCode);
     setCopied(true);
-    toast.success("Shader component code copied to clipboard!");
+    toast.success(`${currentVariantInfo.label} shader code copied to clipboard!`);
     setTimeout(() => setCopied(false), 2000);
   };
 
   const handleReset = () => {
-    setHue(0);
-    setSaturation(1);
-    setBrightness(1);
-    toast.info("Shader dials reset to default values");
+    setHue(currentVariantInfo.defaultHue);
+    setSaturation(currentVariantInfo.defaultSaturation);
+    setBrightness(currentVariantInfo.defaultBrightness);
+    setMode(currentVariantInfo.defaultMode);
+    toast.info("Shader dials restored to default configuration");
   };
 
   return (
@@ -138,7 +160,7 @@ export function HeroCta() {
               ThreeUI WebGL & Shader Lab
             </span>
             <span className="text-xs px-2.5 py-0.5 rounded-full bg-secondary text-muted-foreground font-mono">
-              v1.0 (WebGL + GLSL)
+              Production Runtime (WebGL + Three.js + GLSL)
             </span>
           </div>
           <h2 className="text-2xl sm:text-3xl font-display font-bold tracking-tight text-foreground">
@@ -155,7 +177,7 @@ export function HeroCta() {
           <div className="flex rounded-xl bg-muted/60 p-1 border border-border/60">
             <button
               onClick={() => setActiveTab("canvas")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                 activeTab === "canvas"
                   ? "bg-background text-foreground shadow-sm"
                   : "text-muted-foreground hover:text-foreground"
@@ -165,7 +187,7 @@ export function HeroCta() {
             </button>
             <button
               onClick={() => setActiveTab("code")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                 activeTab === "code"
                   ? "bg-background text-foreground shadow-sm"
                   : "text-muted-foreground hover:text-foreground"
@@ -179,7 +201,7 @@ export function HeroCta() {
             size="sm"
             variant="outline"
             onClick={handleCopy}
-            className="gap-1.5 text-xs h-9 border-border/70"
+            className="gap-1.5 text-xs h-9 border-border/70 cursor-pointer"
           >
             {copied ? (
               <Check className="h-3.5 w-3.5 text-emerald-400" />
@@ -196,17 +218,17 @@ export function HeroCta() {
         {/* Left column: Variant selectors */}
         <div className="lg:col-span-4 space-y-2.5 order-2 lg:order-1">
           <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground px-1 flex items-center justify-between">
-            <span>Available Shader Variants ({SHADER_VARIANTS.length})</span>
+            <span>Available Shader Variants ({SHADER_VARIANTS_LIST.length})</span>
             <Cpu className="h-3.5 w-3.5 text-primary" />
           </div>
 
-          <div className="space-y-1.5 max-h-[460px] overflow-y-auto pr-1 focus-visible:outline-none">
-            {SHADER_VARIANTS.map((v) => {
+          <div className="space-y-1.5 max-h-[480px] overflow-y-auto pr-1 focus-visible:outline-none">
+            {SHADER_VARIANTS_LIST.map((v) => {
               const isActive = selectedVariant === v.id;
               return (
                 <button
                   key={v.id}
-                  onClick={() => setSelectedVariant(v.id)}
+                  onClick={() => handleSelectVariant(v.id)}
                   className={`w-full text-left p-3 rounded-2xl border transition-all flex flex-col gap-1 cursor-pointer ${
                     isActive
                       ? "border-primary bg-primary/10 shadow-sm ring-1 ring-primary/30"
@@ -215,7 +237,7 @@ export function HeroCta() {
                 >
                   <div className="flex items-center justify-between">
                     <span className="font-semibold text-sm text-foreground flex items-center gap-1.5">
-                      {isActive && <span className="h-1.5 w-1.5 rounded-full bg-primary" />}
+                      {isActive && <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />}
                       {v.label}
                     </span>
                     <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-secondary/80 text-muted-foreground">
@@ -232,31 +254,80 @@ export function HeroCta() {
         {/* Right column: Interactive Stage & Customizer */}
         <div className="lg:col-span-8 flex flex-col gap-4 order-1 lg:order-2">
           {/* Stage Viewport */}
-          <div className="relative rounded-2xl overflow-hidden border border-border/80 bg-zinc-950 min-h-[340px] sm:min-h-[380px] flex flex-col items-center justify-center p-6 shadow-inner">
-            {activeTab === "canvas" ? (
-              <div className="w-full h-full flex flex-col items-center justify-center my-auto">
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={`${selectedVariant}-${mode}`}
-                    initial={{ opacity: 0, scale: 0.96 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.96 }}
-                    transition={{ duration: 0.25 }}
-                    className="w-full flex items-center justify-center py-8"
-                  >
-                    <div className="w-full max-w-sm flex items-center justify-center">
-                      <ShaderButtons
-                        variant={selectedVariant}
-                        mode={mode}
-                        hue={hue}
-                        saturation={saturation}
-                        brightness={brightness}
-                      />
-                    </div>
-                  </motion.div>
-                </AnimatePresence>
+          <div className="relative rounded-2xl overflow-hidden border border-border/80 bg-zinc-950 min-h-[380px] sm:min-h-[440px] flex flex-col shadow-inner">
+            {/* Stage Status Bar */}
+            <div className="w-full px-4 py-2.5 bg-zinc-900/80 border-b border-white/5 flex items-center justify-between text-xs">
+              <div className="flex items-center gap-2">
+                <span className="font-medium text-foreground">{currentVariantInfo.label}</span>
+                <span className="text-[11px] font-mono text-muted-foreground">({currentVariantInfo.type})</span>
+              </div>
+              <div className="flex items-center gap-2">
+                {rendererState === "error" ? (
+                  <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-destructive/20 text-destructive text-[11px] font-medium">
+                    <AlertTriangle className="h-3 w-3" /> Error
+                  </span>
+                ) : rendererState === "switching" || rendererState === "initializing" ? (
+                  <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 text-[11px] font-medium">
+                    <RefreshCw className="h-3 w-3 animate-spin" /> Compiling WebGL
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 text-[11px] font-medium">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    Live Renderer Ready
+                  </span>
+                )}
+              </div>
+            </div>
 
-                <div className="mt-auto pt-4 flex flex-wrap items-center justify-center gap-2 text-center text-xs text-muted-foreground/80">
+            {activeTab === "canvas" ? (
+              <div className="relative w-full flex-1 flex flex-col items-center justify-center p-4">
+                {/* Error recovery overlay if renderer fails */}
+                {rendererState === "error" ? (
+                  <div className="flex flex-col items-center justify-center gap-3 p-6 text-center max-w-md my-auto">
+                    <AlertTriangle className="h-10 w-10 text-amber-400" />
+                    <h3 className="text-base font-semibold text-foreground">
+                      Shader Initialization Interrupted
+                    </h3>
+                    <p className="text-xs text-muted-foreground">
+                      {errorMessage || "The WebGL context could not be acquired or context quota was exceeded."}
+                    </p>
+                    <div className="flex items-center gap-2 pt-2">
+                      <Button size="sm" onClick={handleRetry} className="gap-1.5 text-xs">
+                        <RefreshCw className="h-3.5 w-3.5" /> Retry Renderer
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={handleReset} className="gap-1.5 text-xs">
+                        <RotateCcw className="h-3.5 w-3.5" /> Reset Dials
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="w-full h-full min-h-[340px] flex items-center justify-center my-auto">
+                    <AnimatePresence mode="wait">
+                      <motion.div
+                        key={`${selectedVariant}-${generationRef.current}`}
+                        initial={{ opacity: 0, scale: 0.98 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.98 }}
+                        transition={{ duration: 0.2 }}
+                        className="w-full h-full min-h-[340px] flex items-center justify-center"
+                      >
+                        <ShaderButtons
+                          variant={selectedVariant}
+                          mode={mode}
+                          hue={hue}
+                          saturation={saturation}
+                          brightness={brightness}
+                          onReady={handleShaderReady}
+                          onError={handleShaderError}
+                          className="w-full h-full"
+                        />
+                      </motion.div>
+                    </AnimatePresence>
+                  </div>
+                )}
+
+                {/* Footer hints */}
+                <div className="mt-auto pt-3 flex flex-wrap items-center justify-center gap-2 text-center text-[11px] text-muted-foreground/80">
                   <span>Hover to intensify light bands</span>
                   <span>•</span>
                   <span>Click to interact</span>
@@ -265,18 +336,21 @@ export function HeroCta() {
                 </div>
               </div>
             ) : (
-              <div className="w-full h-full flex flex-col">
-                <div className="flex items-center justify-between pb-3 border-b border-white/10 text-xs text-zinc-400">
-                  <span className="font-mono">React Component Integration</span>
+              <div className="w-full flex-1 flex flex-col overflow-hidden">
+                <div className="flex items-center justify-between px-4 py-2 border-b border-white/10 text-xs text-zinc-400 bg-zinc-900/50">
+                  <span className="font-mono flex items-center gap-1.5">
+                    <Terminal className="h-3.5 w-3.5 text-primary" />
+                    {currentVariantInfo.label} — GLSL / Source Architecture
+                  </span>
                   <button
                     onClick={handleCopy}
-                    className="hover:text-white transition flex items-center gap-1"
+                    className="hover:text-white transition flex items-center gap-1 cursor-pointer"
                   >
                     <Copy className="h-3 w-3" /> Copy
                   </button>
                 </div>
-                <pre className="p-4 font-mono text-xs text-emerald-400 overflow-x-auto whitespace-pre leading-relaxed select-all">
-                  {codeSnippet}
+                <pre className="p-4 font-mono text-xs text-emerald-400 overflow-auto max-h-[380px] whitespace-pre leading-relaxed select-all bg-black/60">
+                  {activeCode}
                 </pre>
               </div>
             )}
@@ -294,7 +368,7 @@ export function HeroCta() {
               <button
                 type="button"
                 onClick={() => setMode("dark")}
-                className={`p-1.5 rounded-lg text-xs font-medium flex items-center gap-1 transition ${
+                className={`p-1.5 rounded-lg text-xs font-medium flex items-center gap-1 transition cursor-pointer ${
                   mode === "dark"
                     ? "bg-background text-foreground shadow-sm"
                     : "text-muted-foreground hover:text-foreground"
@@ -307,7 +381,7 @@ export function HeroCta() {
               <button
                 type="button"
                 onClick={() => setMode("light")}
-                className={`p-1.5 rounded-lg text-xs font-medium flex items-center gap-1 transition ${
+                className={`p-1.5 rounded-lg text-xs font-medium flex items-center gap-1 transition cursor-pointer ${
                   mode === "light"
                     ? "bg-background text-foreground shadow-sm"
                     : "text-muted-foreground hover:text-foreground"
@@ -353,8 +427,8 @@ export function HeroCta() {
               size="sm"
               variant="ghost"
               onClick={handleReset}
-              className="h-8 px-2.5 text-xs text-muted-foreground hover:text-foreground"
-              title="Reset Dials"
+              className="h-8 px-2.5 text-xs text-muted-foreground hover:text-foreground cursor-pointer"
+              title="Reset Dials to Default"
             >
               <RotateCcw className="h-3.5 w-3.5 mr-1" /> Reset
             </Button>

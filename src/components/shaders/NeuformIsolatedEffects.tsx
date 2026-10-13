@@ -89,6 +89,8 @@ export type NeuformIsolatedEffectProps = {
   brightness?: number;
   className?: string;
   style?: CSSProperties;
+  onReady?: () => void;
+  onError?: (error: string) => void;
 };
 
 export const NEUFORM_ISOLATED_DEFAULTS = {
@@ -1711,12 +1713,41 @@ ${introWordmarkStyle}
 (function () {
   document.documentElement.dataset.sfMode = ${modeJson};
   var isolated = false;
+  var attempts = 0;
+  var maxAttempts = 30;
+
+  function disposeAllWebGL() {
+    try {
+      var canvases = document.querySelectorAll('canvas');
+      for (var i = 0; i < canvases.length; i++) {
+        var c = canvases[i];
+        try {
+          var gl = c.getContext('webgl') || c.getContext('experimental-webgl');
+          if (gl) {
+            var ext = gl.getExtension('WEBGL_lose_context');
+            if (ext) ext.loseContext();
+          }
+        } catch (e) {}
+      }
+    } catch (err) {}
+  }
+
+  window.addEventListener('beforeunload', disposeAllWebGL);
+  window.addEventListener('pagehide', disposeAllWebGL);
+  window.addEventListener('message', function (ev) {
+    if (ev && ev.data && ev.data.threeuiDispose) {
+      disposeAllWebGL();
+    }
+  });
+
   function isolate() {
     if (isolated) return;
+    attempts++;
     var specs = ${targetJson};
     var hiddenSelectors = ${hiddenTargetJson};
     var introWordmark = ${introWordmarkJson};
     var roots = [];
+
     hiddenSelectors.forEach(function (selector) {
       document.querySelectorAll(selector).forEach(function (element) {
         element.setAttribute('data-threeui-hidden', '');
@@ -1724,6 +1755,7 @@ ${introWordmarkStyle}
         if ('inert' in element) element.inert = true;
       });
     });
+
     specs.forEach(function (spec) {
       var element = document.querySelector(spec.selector);
       if (!element) return;
@@ -1732,6 +1764,7 @@ ${introWordmarkStyle}
       if (spec.preserveTransform) element.setAttribute('data-threeui-preserve-transform', '');
       if (!roots.some(function (root) { return root.contains(element); })) roots.push(element);
     });
+
     if (introWordmark) {
       var introScene = document.querySelector(introWordmark.sceneSelector);
       var introText = introScene && introScene.querySelector('.tx');
@@ -1759,25 +1792,42 @@ ${introWordmarkStyle}
       }
       requestAnimationFrame(renderIntroWordmark);
     }
-    if (!roots.length) return;
+
+    if (!roots.length && attempts < maxAttempts) {
+      setTimeout(isolate, 50);
+      return;
+    }
+
     isolated = true;
     roots.forEach(function (root) {
       var placeholderLink = root.matches('a[href="#"]') ? root : root.querySelector('a[href="#"]');
       if (placeholderLink) placeholderLink.addEventListener('click', function (event) { event.preventDefault(); });
       document.body.appendChild(root);
     });
+
     Array.from(document.body.children).forEach(function (element) {
       if (roots.indexOf(element) !== -1) return;
       element.setAttribute('data-threeui-residual', '');
       element.setAttribute('aria-hidden', 'true');
       if ('inert' in element) element.inert = true;
     });
+
     document.body.setAttribute('data-threeui-ready', '');
-    requestAnimationFrame(function () { window.dispatchEvent(new Event('resize')); });
+    try {
+      window.parent.postMessage({ threeuiReady: true }, '*');
+    } catch (e) {}
+
+    requestAnimationFrame(function () {
+      window.dispatchEvent(new Event('resize'));
+    });
   }
-  function scheduleIsolation() { setTimeout(isolate, 100); }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', scheduleIsolation, { once: true });
-  else scheduleIsolation();
+
+  function scheduleIsolation() { setTimeout(isolate, 50); }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', scheduleIsolation, { once: true });
+  } else {
+    scheduleIsolation();
+  }
   window.addEventListener('load', isolate, { once: true });
 })();
 </script>`;
@@ -1796,6 +1846,8 @@ function NeuformIsolatedEffect({
   trackPointerHover,
   className,
   style,
+  onReady,
+  onError,
 }: NeuformIsolatedEffectProps & {
   definition: EffectDefinition;
   runtime?: Readonly<Record<string, number | string>>;
@@ -1811,6 +1863,41 @@ function NeuformIsolatedEffect({
   const filter = safeHue === 0 && safeSaturation === 1 && safeBrightness === 1
     ? undefined
     : `hue-rotate(${safeHue}deg) saturate(${safeSaturation}) brightness(${safeBrightness})`;
+
+  // Disposal on unmount: explicitly signal WebGL context release & wipe srcDoc
+  useEffect(() => {
+    const frame = frameRef.current;
+    return () => {
+      try {
+        if (frame?.contentWindow) {
+          frame.contentWindow.postMessage({ threeuiDispose: true }, "*");
+        }
+        if (frame) {
+          frame.src = "about:blank";
+        }
+      } catch (e) {}
+    };
+  }, []);
+
+  // Listen for iframe ready message
+  useEffect(() => {
+    const frame = frameRef.current;
+    const handleMessage = (event: MessageEvent) => {
+      if (frame && event.source === frame.contentWindow && event.data?.threeuiReady) {
+        onReady?.();
+      }
+    };
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, [onReady]);
+
+  // Frame load handler as safety fallback
+  const handleFrameLoad = () => {
+    const timer = setTimeout(() => {
+      onReady?.();
+    }, 200);
+    return () => clearTimeout(timer);
+  };
 
   /* the leave edge is a handshake. The frame announces that the pointer arrived,
      because the host document sees no moves at all while the pointer is over the
@@ -1872,10 +1959,12 @@ function NeuformIsolatedEffect({
       srcDoc={source}
       sandbox="allow-scripts"
       loading="eager"
+      onLoad={handleFrameLoad}
       style={{
         display: "block",
         width: "100%",
         height: "100%",
+        minHeight: "360px",
         border: 0,
         background,
         filter,

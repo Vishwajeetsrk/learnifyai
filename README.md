@@ -2,7 +2,7 @@
 
 <img src="src/assets/learnify-logo.png" alt="Learnify AI Logo" width="180" style="margin-bottom: 12px; filter: drop-shadow(0 4px 12px rgba(99, 102, 241, 0.25));" />
 
-# Learnify AI 5.8.7
+# Learnify AI 5.8.8
 
 **The AI-Native Learning & Career Operating System**
 
@@ -1673,6 +1673,16 @@ MIT License. See [LICENSE](LICENSE) for details.
   - **Resilient Fallback PDF Stream Parser**: Decodes octal escapes, hex strings, and TJ array operators when external PDF workers are restricted.
 - 🔗 **RESPONSIVE LINK PREVIEW ENGINE**:
   - Seamless desktop floating spring card + mobile backdrop peek popovers with curated instant previews for major learning hubs.
+
+### v5.8.8 (October 2026) — Master WebGL & ThreeUI Shader Lab Hardening
+
+- 🔮 **THREEUI SHADER LAB & WEBGL ENGINE RESILIENCE**:
+  - **Eliminated Black/Blank Canvas Glitches**: Solved WebGL context exhaustion caused by Chrome's 16 active context limit. Injected proactive unmount teardown, `WEBGL_lose_context.loseContext()` invocations, and iframe `about:blank` resource clearing across all shader stages.
+  - **Single Source of Truth Shader Registry (`shaderRegistry.ts`)**: Built strongly typed metadata, default uniforms, controls, and real GLSL shader source codes (vertex, fragment, and component wrappers) for all 10 shader variants (*Raking Light Pill*, *Ignition Terminal*, *Thinking Button*, *Star Portal*, *Plasma Reactor*, *Tactile Button*, *Glassy Split*, *Generate Site*, *Chrome Upload*, and *Iridescent Glass*).
+  - **Synchronized Code & Shaders Inspector**: Connected the "Code & Shaders" viewer and 1-click clipboard copy button to display and copy actual GLSL math and implementation source code for whichever variant is currently selected.
+  - **Adaptive Polling Isolation Script**: Replaced brittle 100ms one-shot timeout with a robust 30-attempt polling loop and guaranteed safety fallback, ensuring `data-threeui-ready` is set without leaving iframes hidden in a blank void.
+  - **Responsive Stage Geometry**: Replaced collapsing unconstrained containers with guaranteed minimum stage heights (`min-h-[380px] sm:min-h-[440px]`), DPR clamps (`Math.min(devicePixelRatio, 2)`), and luxury shimmer loading fallbacks.
+  - **Gallery Card & Sandboxing Polish**: Eliminated nested scrollbars on 46 interactive design gallery cards using `scrolling="no"` and `overflow-hidden`, and upgraded blocked-iframe fallbacks to luxury glassmorphism cards with new-tab launch triggers.
 
 ### v5.1.0 (October 2026) — Major Release: Certificate Studio 2.0 & Luxury Master Credential Suite
 

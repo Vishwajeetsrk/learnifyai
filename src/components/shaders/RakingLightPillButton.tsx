@@ -155,12 +155,14 @@ const STYLES = `
   }
 `;
 
-function createShader(gl: WebGLRenderingContext, type: number, source: string) {
+function createShader(gl: WebGLRenderingContext, type: number, source: string): WebGLShader | null {
   const shader = gl.createShader(type);
   if (!shader) return null;
   gl.shaderSource(shader, source);
   gl.compileShader(shader);
   if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+    const info = gl.getShaderInfoLog(shader);
+    console.warn("[RakingLightPill] Shader compile failure:", info);
     gl.deleteShader(shader);
     return null;
   }
@@ -176,7 +178,14 @@ export function RakingLightPillButton({
   style,
   children,
   onClick,
-}: NeuformIsolatedEffectProps & { children?: React.ReactNode; onClick?: () => void }) {
+  onReady,
+  onError,
+}: NeuformIsolatedEffectProps & {
+  children?: React.ReactNode;
+  onClick?: () => void;
+  onReady?: () => void;
+  onError?: (error: string) => void;
+}) {
   const stageRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const hoverTargetRef = useRef(0);
@@ -186,90 +195,174 @@ export function RakingLightPillButton({
     const stage = stageRef.current;
     if (!canvas || !stage) return undefined;
 
-    const gl = canvas.getContext("webgl", {
-      alpha: true,
-      antialias: true,
-      depth: false,
-      premultipliedAlpha: true,
-    });
-    if (!gl) return undefined;
-
-    const vertexShader = createShader(gl, gl.VERTEX_SHADER, VERTEX_SHADER);
-    const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, FRAGMENT_SHADER);
-    if (!vertexShader || !fragmentShader) return undefined;
-
-    const program = gl.createProgram();
-    if (!program) return undefined;
-    gl.attachShader(program, vertexShader);
-    gl.attachShader(program, fragmentShader);
-    gl.linkProgram(program);
-    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) return undefined;
-
-    const positionBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
-
-    const position = gl.getAttribLocation(program, "aPosition");
-    const timeUniform = gl.getUniformLocation(program, "uTime");
-    const hoverUniform = gl.getUniformLocation(program, "uHover");
-    const lightUniform = gl.getUniformLocation(program, "uLight");
-    const sizeUniform = gl.getUniformLocation(program, "uSize");
-    gl.useProgram(program);
-    gl.enableVertexAttribArray(position);
-    gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
-    gl.enable(gl.BLEND);
-    gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-
-    let width = 1;
-    let height = 1;
-    const resize = () => {
-      const rect = canvas.getBoundingClientRect();
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      width = Math.max(1, rect.width);
-      height = Math.max(1, rect.height);
-      canvas.width = Math.max(1, Math.round(width * dpr));
-      canvas.height = Math.max(1, Math.round(height * dpr));
-      gl.viewport(0, 0, canvas.width, canvas.height);
-    };
-    resize();
-
-    const resizeObserver = new ResizeObserver(resize);
-    resizeObserver.observe(canvas);
-
-    const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-    let visible = true;
-    const visibilityObserver = new IntersectionObserver(([entry]) => {
-      visible = entry?.isIntersecting ?? true;
-    }, { rootMargin: "80px" });
-    visibilityObserver.observe(stage);
-
-    const startedAt = performance.now();
-    let hover = 0;
+    let gl: WebGLRenderingContext | null = null;
     let animationFrame = 0;
-    const render = (now: number) => {
-      hover += (hoverTargetRef.current - hover) * 0.085;
-      if (visible && !document.hidden) {
-        gl.clearColor(0, 0, 0, 0);
-        gl.clear(gl.COLOR_BUFFER_BIT);
-        gl.useProgram(program);
-        gl.uniform1f(timeUniform, motionQuery.matches ? 2.4 : (now - startedAt) / 1000);
-        gl.uniform1f(hoverUniform, hover);
-        gl.uniform1f(lightUniform, mode === "light" ? 1 : 0);
-        gl.uniform2f(sizeUniform, width, height);
-        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-      }
-      animationFrame = requestAnimationFrame(render);
+    let resizeObserver: ResizeObserver | null = null;
+    let visibilityObserver: IntersectionObserver | null = null;
+    let positionBuffer: WebGLBuffer | null = null;
+    let program: WebGLProgram | null = null;
+    let vertexShader: WebGLShader | null = null;
+    let fragmentShader: WebGLShader | null = null;
+    let isDisposed = false;
+
+    const handleContextLost = (e: Event) => {
+      e.preventDefault();
+      cancelAnimationFrame(animationFrame);
+      onError?.("WebGL context lost");
     };
-    animationFrame = requestAnimationFrame(render);
+
+    const handleContextRestored = () => {
+      if (!isDisposed) init();
+    };
+
+    canvas.addEventListener("webglcontextlost", handleContextLost);
+    canvas.addEventListener("webglcontextrestored", handleContextRestored);
+
+    function init() {
+      try {
+        gl = canvas!.getContext("webgl", {
+          alpha: true,
+          antialias: true,
+          depth: false,
+          premultipliedAlpha: true,
+        });
+
+        if (!gl) {
+          onError?.("WebGL unsupported or context quota exhausted");
+          return;
+        }
+
+        vertexShader = createShader(gl, gl.VERTEX_SHADER, VERTEX_SHADER);
+        fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, FRAGMENT_SHADER);
+
+        // Fallback for devices without highp precision in fragment shader
+        if (!fragmentShader) {
+          const fallbackFragment = FRAGMENT_SHADER.replace("precision highp float;", "precision mediump float;");
+          fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fallbackFragment);
+        }
+
+        if (!vertexShader || !fragmentShader) {
+          onError?.("Failed to compile WebGL shaders for RakingLightPill");
+          return;
+        }
+
+        program = gl.createProgram();
+        if (!program) {
+          onError?.("Failed to allocate WebGL program");
+          return;
+        }
+
+        gl.attachShader(program, vertexShader);
+        gl.attachShader(program, fragmentShader);
+        gl.linkProgram(program);
+
+        if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+          const linkInfo = gl.getProgramInfoLog(program);
+          onError?.(`Failed to link WebGL program: ${linkInfo}`);
+          return;
+        }
+
+        positionBuffer = gl.createBuffer();
+        if (!positionBuffer) {
+          onError?.("Failed to allocate position buffer");
+          return;
+        }
+        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+
+        const position = gl.getAttribLocation(program, "aPosition");
+        const timeUniform = gl.getUniformLocation(program, "uTime");
+        const hoverUniform = gl.getUniformLocation(program, "uHover");
+        const lightUniform = gl.getUniformLocation(program, "uLight");
+        const sizeUniform = gl.getUniformLocation(program, "uSize");
+
+        gl.useProgram(program);
+        gl.enableVertexAttribArray(position);
+        gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
+        gl.enable(gl.BLEND);
+        gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+
+        let width = 1;
+        let height = 1;
+
+        const resize = () => {
+          if (!canvas || !gl || isDisposed) return;
+          const rect = canvas.getBoundingClientRect();
+          const dpr = Math.min(window.devicePixelRatio || 1, 2);
+          width = Math.max(1, rect.width || 120);
+          height = Math.max(1, rect.height || 45);
+          canvas.width = Math.max(1, Math.round(width * dpr));
+          canvas.height = Math.max(1, Math.round(height * dpr));
+          gl.viewport(0, 0, canvas.width, canvas.height);
+        };
+        resize();
+
+        resizeObserver = new ResizeObserver(resize);
+        if (canvas) {
+          resizeObserver.observe(canvas);
+        }
+
+        const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+        let visible = true;
+        visibilityObserver = new IntersectionObserver(([entry]) => {
+          visible = entry?.isIntersecting ?? true;
+        }, { rootMargin: "80px" });
+        visibilityObserver.observe(stage!);
+
+        const startedAt = performance.now();
+        let hover = 0;
+        let firstFrame = true;
+
+        const render = (now: number) => {
+          if (isDisposed || !gl) return;
+          hover += (hoverTargetRef.current - hover) * 0.085;
+          if (visible && !document.hidden && gl) {
+            gl.clearColor(0, 0, 0, 0);
+            gl.clear(gl.COLOR_BUFFER_BIT);
+            gl.useProgram(program);
+            gl.uniform1f(timeUniform, motionQuery.matches ? 2.4 : (now - startedAt) / 1000);
+            gl.uniform1f(hoverUniform, hover);
+            gl.uniform1f(lightUniform, mode === "light" ? 1 : 0);
+            gl.uniform2f(sizeUniform, width, height);
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+            if (firstFrame) {
+              firstFrame = false;
+              onReady?.();
+            }
+          }
+          animationFrame = requestAnimationFrame(render);
+        };
+        animationFrame = requestAnimationFrame(render);
+      } catch (err: any) {
+        console.error("[RakingLightPill] Initialization error:", err);
+        onError?.(err?.message || "WebGL initialization error");
+      }
+    }
+
+    init();
 
     return () => {
+      isDisposed = true;
       cancelAnimationFrame(animationFrame);
-      visibilityObserver.disconnect();
-      resizeObserver.disconnect();
-      gl.deleteBuffer(positionBuffer);
-      gl.deleteProgram(program);
-      gl.deleteShader(vertexShader);
-      gl.deleteShader(fragmentShader);
+      canvas.removeEventListener("webglcontextlost", handleContextLost);
+      canvas.removeEventListener("webglcontextrestored", handleContextRestored);
+      if (visibilityObserver) visibilityObserver.disconnect();
+      if (resizeObserver) resizeObserver.disconnect();
+
+      if (gl) {
+        try {
+          if (positionBuffer) gl.deleteBuffer(positionBuffer);
+          if (program) gl.deleteProgram(program);
+          if (vertexShader) gl.deleteShader(vertexShader);
+          if (fragmentShader) gl.deleteShader(fragmentShader);
+          // Explicitly release hardware WebGL context to prevent context quota exhaustion
+          const loseContext = gl.getExtension("WEBGL_lose_context");
+          if (loseContext) loseContext.loseContext();
+        } catch (e) {
+          // ignore teardown errors
+        }
+      }
     };
   }, [mode]);
 

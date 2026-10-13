@@ -248,45 +248,60 @@ function ProjectCard({
         {/* Lazy-mounted Live Iframe Cover */}
         {isVisible && !iframeError && (
           <div
-            className={`absolute inset-0 transition-opacity duration-700 ${
+            className={`absolute inset-0 overflow-hidden transition-opacity duration-700 ${
               iframeLoaded ? "opacity-100" : "opacity-0"
             }`}
           >
-            <iframe
-              src={p.path}
-              title={p.name}
-              className="border-0 pointer-events-none select-none"
-              style={{
-                width: "200%",
-                height: "200%",
-                transform: "scale(0.5)",
-                transformOrigin: "top left",
-              }}
-              loading="lazy"
-              sandbox="allow-scripts allow-same-origin allow-popups"
-              onLoad={() => {
-                iframeLoadedRef.current = true;
-                setIframeLoaded(true);
-                setIframeError(false);
-              }}
-            />
+            {/* Security validation: only allow http, https, or relative paths */}
+            {p.path && !p.path.toLowerCase().startsWith("javascript:") && (
+              <iframe
+                src={p.path}
+                title={p.name}
+                scrolling="no"
+                className="border-0 pointer-events-none select-none overflow-hidden"
+                style={{
+                  width: "200%",
+                  height: "200%",
+                  transform: "scale(0.5)",
+                  transformOrigin: "top left",
+                  overflow: "hidden",
+                }}
+                loading="lazy"
+                sandbox="allow-scripts allow-same-origin allow-popups"
+                onLoad={() => {
+                  iframeLoadedRef.current = true;
+                  setIframeLoaded(true);
+                  setIframeError(false);
+                }}
+              />
+            )}
           </div>
         )}
 
-        {/* Fallback when iframe cannot load (X-Frame-Options deny, etc.) */}
+        {/* Polished Fallback when iframe cannot load (X-Frame-Options deny, CSP, etc.) */}
         {isVisible && iframeError && (
-          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-black/70 to-black/90">
-            <div className="flex flex-col items-center gap-2 text-center px-4">
-              <Lock className="h-6 w-6 text-amber-400" />
-              <span className="text-xs text-white/80">Preview blocked by site</span>
+          <div className="absolute inset-0 flex flex-col items-center justify-center p-6 bg-gradient-to-br from-zinc-950/90 via-zinc-900/80 to-zinc-950/90 text-center select-none backdrop-blur-sm">
+            <div className="flex flex-col items-center gap-2.5 max-w-[260px]">
+              <div className="h-10 w-10 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shadow-sm">
+                <Globe className="h-5 w-5" />
+              </div>
+              <div className="space-y-0.5">
+                <span className="text-xs font-semibold text-foreground tracking-tight block">
+                  Preview Unavailable
+                </span>
+                <p className="text-[11px] text-muted-foreground leading-snug">
+                  This interactive site prevents embedded iframes.
+                </p>
+              </div>
               <button
+                type="button"
                 onClick={(e) => {
                   e.stopPropagation();
-                  window.open(p.path, "_blank");
+                  window.open(p.path, "_blank", "noopener,noreferrer");
                 }}
-                className="flex items-center gap-1 text-[10px] font-semibold text-white bg-primary/80 hover:bg-primary px-3 py-1.5 rounded-lg transition-all"
+                className="mt-1 flex items-center gap-1.5 text-xs font-medium text-primary-foreground bg-primary hover:bg-primary/90 px-3.5 py-1.5 rounded-xl shadow-sm transition hover:scale-105 cursor-pointer"
               >
-                <ExternalLink className="h-3 w-3" /> Open in new tab
+                <ExternalLink className="h-3.5 w-3.5" /> Open in new tab
               </button>
             </div>
           </div>
