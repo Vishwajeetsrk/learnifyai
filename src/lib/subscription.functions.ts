@@ -313,7 +313,7 @@ export const createSubscription = createServerFn({ method: "POST" })
 
     if (!res.ok) {
       const err = await res.text();
-      if (err.includes("plan_id") || err.toLowerCase().includes("not found")) {
+      if (err.includes("plan_id") || err.toLowerCase().includes("not found") || err.toLowerCase().includes("could not be found") || err.includes("BAD_REQUEST_ERROR")) {
         console.log(`Plan ${targetRzpPlanId} not found on Razorpay. Re-syncing plan...`);
         // Reset local cached plan ID
         await supabaseAdmin

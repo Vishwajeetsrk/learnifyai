@@ -2,7 +2,7 @@
 
 <img src="src/assets/learnify-logo.png" alt="Learnify AI Logo" width="180" style="margin-bottom: 12px; filter: drop-shadow(0 4px 12px rgba(99, 102, 241, 0.25));" />
 
-# Learnify AI 5.1.0
+# Learnify AI 5.8.7
 
 **The AI-Native Learning & Career Operating System**
 
@@ -630,6 +630,12 @@ MIT License. See [LICENSE](LICENSE) for details.
 ---
 
 ## 📋 Changelog
+
+### v5.8.7 (October 2026) — Live Razorpay Integration & Subscription Auto-Recovery
+
+- ✅ **Live Razorpay Gateway Deployment**: Configured and activated live production Razorpay credentials (`rzp_live_*`) for real-time payments, subscriptions, and wallet reloads.
+- ✅ **Resilient Subscription Auto-Recovery**: Overhauled Razorpay error interception in `src/lib/subscription.functions.ts` to automatically detect both `could not be found` and `BAD_REQUEST_ERROR` responses from Razorpay. When a plan ID is missing or out-of-sync, the system silently triggers `doSyncPlan`, regenerates the Razorpay plan on the fly, and retries subscription checkout without disrupting the user flow.
+- ✅ **Engine & Build Harmonization**: Resolved Node engine warnings (`@supabase/*` packages) and cleaned package-lock dependencies for smooth zero-warning local and CI execution.
 
 ### v5.8.6 (October 2026) — Security Hardening, Dynamic Pricing & Certificate UX
 
