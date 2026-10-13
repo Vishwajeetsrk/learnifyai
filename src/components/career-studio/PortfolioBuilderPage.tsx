@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import {
   FolderOpen,
@@ -21,6 +21,21 @@ import {
   X,
   Eye,
   Globe,
+  Copy,
+  Layers,
+  Layout,
+  Palette,
+  Type,
+  Rocket,
+  FileText,
+  CheckCircle2,
+  ShieldCheck,
+  RefreshCw,
+  Terminal,
+  Lock,
+  Unlock,
+  ArrowRight,
+  FileCode,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -51,7 +66,17 @@ import { HoloTiltCard } from "./HoloTiltCard";
 import { PortfolioIdeView } from "./PortfolioIdeView";
 import { PortfolioLivePreview } from "./portfolio/PortfolioLivePreview";
 import { PortfolioFactoryControls } from "./portfolio/PortfolioFactoryControls";
-import type { FactoryGenerationConfig } from "@/lib/portfolio-factory";
+import {
+  DESIGN_FAMILIES,
+  COLOR_PALETTES,
+  TYPOGRAPHY_PAIRINGS,
+  detectPersona,
+  type FactoryGenerationConfig,
+  type DesignLocks,
+  type DesignFamilyId,
+  type ColorPaletteId,
+  type TypographyPairingId,
+} from "@/lib/portfolio-factory";
 import { generateCanonicalPortfolioFiles, compilePortfolioToSingleHtml } from "@/lib/portfolioRenderer";
 import { LearnifyMascot } from "@/components/brand/LearnifyMascot";
 import { TechnologyIcon, getTechnologyRawSvg } from "@/components/icons/TechnologyIcon";
@@ -162,6 +187,132 @@ export function PortfolioBuilderPage({ embedded = false }: { embedded?: boolean 
   const canonicalFiles = generateCanonicalPortfolioFiles(form, projects, photoPreview, factoryConfig);
   const canonicalSrcDoc = compilePortfolioToSingleHtml(canonicalFiles);
   const [exportFormat, setExportFormat] = useState<"md" | "html">("md");
+  const [planViewMode, setPlanViewMode] = useState<"blueprint" | "markdown">("blueprint");
+
+  const personaInfo = useMemo(
+    () => detectPersona({ ...form, projects }),
+    [form, projects],
+  );
+
+  const activeFamilyId = (factoryConfig.familyId || personaInfo.recommendedFamily) as DesignFamilyId;
+  const activeFamily = DESIGN_FAMILIES[activeFamilyId] || DESIGN_FAMILIES["full-stack-dev"] || DESIGN_FAMILIES["premium-saas"];
+  const activePaletteId = (factoryConfig.paletteId || activeFamily?.defaultPalette || "learnify-brand") as ColorPaletteId;
+  const activePalette = COLOR_PALETTES[activePaletteId] || COLOR_PALETTES["learnify-brand"];
+  const activeTypographyId = (factoryConfig.typographyId || activeFamily?.defaultTypography || "modern-sans") as TypographyPairingId;
+  const activeTypography = TYPOGRAPHY_PAIRINGS[activeTypographyId] || TYPOGRAPHY_PAIRINGS["modern-sans"];
+  const designLocks: DesignLocks = factoryConfig.locks || { content: true };
+
+  const parsedSkillsList = useMemo(() => {
+    return form.skills
+      ? form.skills.split(",").map((s: string) => s.trim()).filter(Boolean)
+      : [];
+  }, [form.skills]);
+
+  const activeProjectsList = useMemo(() => {
+    return projects.filter((p: ProjectEntry) => p.name);
+  }, [projects]);
+
+  const effectivePlan = useMemo(() => {
+    if (result) return result;
+
+    return `# ${form.fullName || "Developer"} — Portfolio Architecture Blueprint
+**Target Persona:** 🎯 ${personaInfo.label} (${Math.round(personaInfo.confidence * 100)}% match)  
+**Engineering Focus:** ${personaInfo.reasoning}  
+**Positioning Headline:** ${form.tagline || "Full-Stack Software Engineer"}  
+
+---
+
+## 🎨 1. Design System & Visual Strategy
+- **Design Family:** **${activeFamily?.name || activeFamilyId}** — *"${activeFamily?.subtitle || ""}"*
+- **Aesthetic Description:** ${activeFamily?.description || "Curated modern developer interface."}
+- **Color Palette:** **${activePaletteId}**
+  - Primary Accent: \`${activePalette.primary}\`
+  - Background: \`${activePalette.background}\`
+  - Text: \`${activePalette.text}\`
+  - Border: \`${activePalette.border}\`
+- **Typography Pairing:** **${activeTypographyId}**
+  - Display / Headings: \`${activeTypography.displayFont}\`
+  - Body Copy: \`${activeTypography.bodyFont}\`
+  - Code / Terminal: \`${activeTypography.codeFont}\`
+- **Design Locks:**
+  - Color Lock: ${designLocks.color ? "🔒 Enabled" : "🔓 Dynamic"}
+  - Font Lock: ${designLocks.font ? "🔒 Enabled" : "🔓 Dynamic"}
+  - Layout Lock: ${designLocks.layout ? "🔒 Enabled" : "🔓 Dynamic"}
+
+---
+
+## 🧱 2. Information Architecture & Section Matrix
+1. **Hero Header:**
+   - Identity: **${form.fullName || "Your Name"}**
+   - Value Proposition: *${form.tagline || "Software Engineer & Builder"}*
+   - Bio: ${form.bio || "Crafting robust frontend systems and modern software."}
+   - Avatar / Profile Photo: ${photoPreview ? "Custom uploaded profile photograph" : "Initials monogram badge"}
+   - Direct Actions: Quick contact trigger, GitHub/LinkedIn external badges
+
+2. **Technical Skills Cloud:**
+   - Total Core Technologies: ${parsedSkillsList.length}
+   - Active Stack: ${parsedSkillsList.length > 0 ? parsedSkillsList.join(", ") : "React, TypeScript, Next.js, Node.js"}
+
+3. **Featured Projects Showcase:**
+   - Total Active Showcase Projects: ${activeProjectsList.length}
+${
+  activeProjectsList.length > 0
+    ? activeProjectsList
+        .map(
+          (p: ProjectEntry, i: number) => `   - **Project ${i + 1}: ${p.name}**  
+     - Stack: \`${p.techStack || "TypeScript, React"}\`  
+     - Overview: ${p.description || "Production-ready web application"}  
+     - Repos / Links: ${p.githubUrl ? `[GitHub](${p.githubUrl})` : "Local"} ${p.liveUrl ? `| [Live Demo](${p.liveUrl})` : ""}`,
+        )
+        .join("\n")
+    : "   - *No projects added yet — add projects in Build tab*"
+}
+
+4. **Experience & Milestones:**
+   - Summary: ${form.experience || "Engineering leadership, product development, and full-stack architecture."}
+
+5. **Education & Verification:**
+   - Academic Record: ${form.education || "Computer Science / Software Engineering degree."}
+   - Verifiable Credentials: Live certificate verification supported.
+
+---
+
+## 📂 3. Codebase File Manifest
+- \`index.html\`: Semantic HTML5, accessible tags, viewport meta, SEO OpenGraph tags
+- \`css/style.css\`: Design tokens, responsive CSS Grid / Flexbox, dark/light theme variables
+- \`js/script.js\`: Navigation scroll, micro-animations, copy button feedback
+- \`README.md\`: Setup instructions, deployment guide, and build metadata
+
+---
+
+## 🚀 4. Deployment Strategy
+- **Static Hosting:** Compatible with GitHub Pages, Vercel, Netlify, Cloudflare Pages.
+- **Learnify AI Live Subpath:** Publishable at \`https://www.learnifyai.in/p/${
+      form.fullName
+        ? form.fullName
+            .toLowerCase()
+            .replace(/\s+/g, "-")
+            .replace(/[^a-z0-9-]/g, "")
+        : "username"
+    }\`.
+- **Standalone ZIP:** 1-click download with organized folders (\`index.html\`, \`css/\`, \`js/\`, \`assets/\`).
+`;
+  }, [
+    result,
+    form,
+    projects,
+    activeFamily,
+    activeFamilyId,
+    activePalette,
+    activePaletteId,
+    activeTypography,
+    activeTypographyId,
+    designLocks,
+    personaInfo,
+    photoPreview,
+    parsedSkillsList,
+    activeProjectsList,
+  ]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -314,8 +465,12 @@ export function PortfolioBuilderPage({ embedded = false }: { embedded?: boolean 
     try {
       const res = await generateFn({ data: portfolioForm });
       setResult(res.content || (res as any).rawContent);
-      setTab("ide");
-      toast.success("Portfolio generated! Workspace loaded in Code Studio.");
+      if (tab === "form") {
+        setTab("ide");
+        toast.success("Portfolio generated! Workspace loaded in Code Studio.");
+      } else {
+        toast.success("AI Strategic Plan generated! Architecture updated.");
+      }
     } catch (err: any) {
       toast.error(err.message || "Failed to generate portfolio");
     } finally {
@@ -324,12 +479,13 @@ export function PortfolioBuilderPage({ embedded = false }: { embedded?: boolean 
   };
 
   const handleDownload = () => {
-    if (!result) return;
-    const blob = new Blob([result], { type: "text/markdown" });
+    const textToDownload = effectivePlan || result;
+    if (!textToDownload) return;
+    const blob = new Blob([textToDownload], { type: "text/markdown" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `${form.fullName.replace(/\s+/g, "_")}_Portfolio.md`;
+    a.download = `${(form.fullName || "Developer").replace(/\s+/g, "_")}_Portfolio_Plan.md`;
     a.click();
     URL.revokeObjectURL(url);
     toast.success("Portfolio plan downloaded!");
@@ -1182,81 +1338,524 @@ This portfolio website was generated with Learnify AI Portfolio Builder.
           </motion.div>
         </TabsContent>
 
-        <TabsContent value="preview" className="pt-4">
-          {result ? (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="space-y-4"
-            >
-              <div className="flex items-center gap-2 flex-wrap">
-                <div className="flex gap-1 bg-muted rounded-lg p-0.5">
+        <TabsContent value="preview" className="pt-2 sm:pt-4 space-y-4">
+          {/* TOP TOOLBAR */}
+          <div className="flex flex-wrap items-center justify-between gap-3 bg-card border rounded-xl p-3 px-4 shadow-2xs">
+            <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex gap-1 bg-muted rounded-lg p-0.5 border border-border/40">
+                <Button
+                  size="sm"
+                  variant={planViewMode === "blueprint" ? "default" : "ghost"}
+                  onClick={() => setPlanViewMode("blueprint")}
+                  className="text-xs h-7 gap-1.5 font-medium cursor-pointer"
+                >
+                  <Layout className="h-3.5 w-3.5" />
+                  Visual Blueprint
+                </Button>
+                <Button
+                  size="sm"
+                  variant={planViewMode === "markdown" ? "default" : "ghost"}
+                  onClick={() => setPlanViewMode("markdown")}
+                  className="text-xs h-7 gap-1.5 font-medium cursor-pointer"
+                >
+                  <FileText className="h-3.5 w-3.5" />
+                  Markdown Spec
+                </Button>
+              </div>
+
+              {planViewMode === "markdown" && (
+                <div className="flex gap-1 bg-muted/70 rounded-lg p-0.5 border border-border/30">
                   <Button
                     size="sm"
-                    variant={exportFormat === "md" ? "default" : "ghost"}
+                    variant={exportFormat === "md" ? "secondary" : "ghost"}
                     onClick={() => setExportFormat("md")}
-                    className="text-xs h-7"
+                    className="text-xs h-6 px-2 text-[11px] cursor-pointer"
                   >
-                    Markdown
+                    MD
                   </Button>
                   <Button
                     size="sm"
-                    variant={exportFormat === "html" ? "default" : "ghost"}
+                    variant={exportFormat === "html" ? "secondary" : "ghost"}
                     onClick={() => setExportFormat("html")}
-                    className="text-xs h-7"
+                    className="text-xs h-6 px-2 text-[11px] cursor-pointer"
                   >
                     HTML
                   </Button>
                 </div>
-                <Button
-                  onClick={exportFormat === "html" ? handleExportHtml : handleDownload}
-                  size="sm"
-                >
-                  <Download className="h-4 w-4 mr-1.5" /> Export{" "}
-                  {exportFormat === "html" ? "HTML+CSS" : "MD"}
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    navigator.clipboard.writeText(result);
-                    toast.success("Copied!");
-                  }}
-                  size="sm"
-                >
-                  <Check className="h-4 w-4 mr-1.5" /> Copy
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => setTab("ide")}
-                  size="sm"
-                  className="gap-1.5 text-indigo-400 border-indigo-500/30 hover:bg-indigo-500/10"
-                >
-                  <Code2 className="h-4 w-4" /> Open in Code Studio (IDE)
-                </Button>
-                <Button variant="ghost" onClick={() => setTab("form")} size="sm">
-                  <ChevronRight className="h-4 w-4 mr-1.5" /> Edit Form
-                </Button>
+              )}
+            </div>
+
+            <div className="flex items-center gap-2 flex-wrap">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleGenerate}
+                disabled={loading}
+                className="h-8 text-xs gap-1.5 bg-gradient-to-r from-primary/10 to-indigo-500/10 hover:from-primary/20 hover:to-indigo-500/20 text-primary border-primary/30 cursor-pointer"
+              >
+                {loading ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Sparkles className="h-3.5 w-3.5" />
+                )}
+                {result ? "Regenerate AI Strategy" : "Enhance with AI"}
+              </Button>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  navigator.clipboard.writeText(effectivePlan);
+                  toast.success("Portfolio plan copied to clipboard!");
+                }}
+                className="h-8 text-xs gap-1.5 cursor-pointer"
+              >
+                <Copy className="h-3.5 w-3.5" /> Copy
+              </Button>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={exportFormat === "html" ? handleExportHtml : handleDownload}
+                className="h-8 text-xs gap-1.5 cursor-pointer"
+              >
+                <Download className="h-3.5 w-3.5" /> Export {exportFormat === "html" ? "HTML" : "MD"}
+              </Button>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setTab("ide")}
+                className="h-8 text-xs gap-1.5 text-indigo-400 border-indigo-500/30 hover:bg-indigo-500/10 cursor-pointer"
+              >
+                <Code2 className="h-3.5 w-3.5" /> Code Studio (IDE)
+              </Button>
+
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setTab("live")}
+                className="h-8 text-xs gap-1.5 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/10 cursor-pointer"
+              >
+                <Eye className="h-3.5 w-3.5" /> Live Preview
+              </Button>
+            </div>
+          </div>
+
+          {/* VIEW: VISUAL BLUEPRINT */}
+          {planViewMode === "blueprint" ? (
+            <motion.div
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.18 }}
+              className="space-y-4"
+            >
+              {/* TOP PERSONA INTELLIGENCE BANNER */}
+              <div className="relative overflow-hidden rounded-2xl border border-primary/25 bg-gradient-to-r from-primary/10 via-indigo-500/5 to-purple-500/10 p-4 sm:p-5 shadow-2xs">
+                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-xl">🎯</span>
+                      <h2 className="text-base sm:text-lg font-bold tracking-tight text-foreground font-display">
+                        {personaInfo.label}
+                      </h2>
+                      <Badge
+                        variant="secondary"
+                        className="bg-emerald-500/15 text-emerald-500 dark:text-emerald-400 border border-emerald-500/30 font-mono text-xs px-2.5 py-0.5"
+                      >
+                        {Math.round(personaInfo.confidence * 100)}% match
+                      </Badge>
+                      {result ? (
+                        <Badge
+                          variant="outline"
+                          className="bg-indigo-500/10 text-indigo-400 border-indigo-500/30 text-xs px-2.5 py-0.5 gap-1"
+                        >
+                          <CheckCircle2 className="h-3 w-3" /> AI Deep Strategy Synced
+                        </Badge>
+                      ) : (
+                        <Badge
+                          variant="outline"
+                          className="bg-amber-500/10 text-amber-500 dark:text-amber-400 border-amber-500/30 text-xs px-2.5 py-0.5 gap-1"
+                        >
+                          <Sparkles className="h-3 w-3" /> Real-Time Factory Blueprint
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed max-w-2xl">
+                      {personaInfo.reasoning}
+                    </p>
+                    {((personaInfo.matchedKeywords && personaInfo.matchedKeywords.length > 0) || parsedSkillsList.length > 0) && (
+                      <div className="flex items-center gap-1.5 flex-wrap pt-0.5">
+                        <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mr-1">
+                          Identified Focus:
+                        </span>
+                        {(personaInfo.matchedKeywords && personaInfo.matchedKeywords.length > 0
+                          ? personaInfo.matchedKeywords
+                          : parsedSkillsList.slice(0, 4)
+                        ).map((kw: string) => (
+                          <Badge
+                            key={kw}
+                            variant="secondary"
+                            className="text-[11px] font-mono px-2 py-0 bg-muted/80 text-foreground border border-border/40"
+                          >
+                            {kw}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex flex-row md:flex-col items-center md:items-end gap-2 shrink-0">
+                    <Button
+                      size="sm"
+                      onClick={() => setTab("form")}
+                      variant="outline"
+                      className="text-xs h-8 gap-1.5 cursor-pointer"
+                    >
+                      <RefreshCw className="h-3.5 w-3.5" /> Adjust Details
+                    </Button>
+                    <div className="text-[11px] text-muted-foreground text-right hidden md:block">
+                      {form.fullName || "Developer"} • {activeProjectsList.length} Projects
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className="border rounded-xl p-6 bg-card prose prose-sm dark:prose-invert max-w-none">
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>{result}</ReactMarkdown>
+
+              {/* 4-PILLAR ARCHITECTURE BLUEPRINT GRID */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* PILLAR 1: DESIGN SYSTEM STRATEGY */}
+                <Card className="border-border/70 bg-card/80 backdrop-blur-sm shadow-2xs">
+                  <CardContent className="p-4 sm:p-5 space-y-3.5">
+                    <div className="flex items-center justify-between border-b border-border/40 pb-2.5">
+                      <div className="flex items-center gap-2">
+                        <Palette className="h-4 w-4 text-primary" />
+                        <h3 className="text-sm font-bold text-foreground">
+                          Design System & Visual Strategy
+                        </h3>
+                      </div>
+                      <Badge variant="outline" className="text-[10px] font-mono uppercase">
+                        {activeFamily.category}
+                      </Badge>
+                    </div>
+
+                    <div className="space-y-3 text-xs">
+                      <div className="flex items-start justify-between gap-2 p-2.5 rounded-lg bg-muted/40 border border-border/30">
+                        <div>
+                          <div className="font-semibold text-foreground flex items-center gap-1.5">
+                            <Layers className="h-3.5 w-3.5 text-primary" />
+                            {activeFamily.name}
+                          </div>
+                          <div className="text-[11px] text-muted-foreground mt-0.5">
+                            {activeFamily.subtitle}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* PALETTE SWATCHES */}
+                      <div className="space-y-1.5 p-2.5 rounded-lg bg-muted/40 border border-border/30">
+                        <div className="flex items-center justify-between text-[11px]">
+                          <span className="font-medium text-foreground">Color Palette</span>
+                          <span className="font-mono text-muted-foreground">{activePaletteId}</span>
+                        </div>
+                        <div className="grid grid-cols-4 gap-2 pt-1">
+                          <div className="flex flex-col items-center gap-1 text-[10px]">
+                            <div
+                              className="h-7 w-full rounded-md border border-white/20 shadow-xs"
+                              style={{ backgroundColor: activePalette.primary }}
+                            />
+                            <span className="font-mono text-[9px] text-muted-foreground">Primary</span>
+                          </div>
+                          <div className="flex flex-col items-center gap-1 text-[10px]">
+                            <div
+                              className="h-7 w-full rounded-md border border-white/20 shadow-xs"
+                              style={{ backgroundColor: activePalette.background }}
+                            />
+                            <span className="font-mono text-[9px] text-muted-foreground">Surface</span>
+                          </div>
+                          <div className="flex flex-col items-center gap-1 text-[10px]">
+                            <div
+                              className="h-7 w-full rounded-md border border-white/20 shadow-xs"
+                              style={{ backgroundColor: activePalette.text }}
+                            />
+                            <span className="font-mono text-[9px] text-muted-foreground">Text</span>
+                          </div>
+                          <div className="flex flex-col items-center gap-1 text-[10px]">
+                            <div
+                              className="h-7 w-full rounded-md border border-white/20 shadow-xs"
+                              style={{ backgroundColor: activePalette.border }}
+                            />
+                            <span className="font-mono text-[9px] text-muted-foreground">Border</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* TYPOGRAPHY */}
+                      <div className="flex items-center justify-between p-2.5 rounded-lg bg-muted/40 border border-border/30">
+                        <div className="flex items-center gap-2">
+                          <Type className="h-3.5 w-3.5 text-primary" />
+                          <div>
+                            <div className="font-semibold text-foreground">
+                              {activeTypography.displayFont} + {activeTypography.bodyFont}
+                            </div>
+                            <div className="text-[10px] text-muted-foreground font-mono">
+                              Terminal / Code: {activeTypography.codeFont}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* DESIGN LOCKS STATUS */}
+                      <div className="flex items-center justify-between text-[11px] pt-1 px-1">
+                        <span className="text-muted-foreground">Design Locks:</span>
+                        <div className="flex items-center gap-2">
+                          <span className={cn("flex items-center gap-1 text-[10px] font-mono", designLocks.color ? "text-amber-400" : "text-muted-foreground")}>
+                            {designLocks.color ? <Lock className="h-2.5 w-2.5" /> : <Unlock className="h-2.5 w-2.5" />} Color
+                          </span>
+                          <span className={cn("flex items-center gap-1 text-[10px] font-mono", designLocks.font ? "text-amber-400" : "text-muted-foreground")}>
+                            {designLocks.font ? <Lock className="h-2.5 w-2.5" /> : <Unlock className="h-2.5 w-2.5" />} Font
+                          </span>
+                          <span className={cn("flex items-center gap-1 text-[10px] font-mono", designLocks.layout ? "text-amber-400" : "text-muted-foreground")}>
+                            {designLocks.layout ? <Lock className="h-2.5 w-2.5" /> : <Unlock className="h-2.5 w-2.5" />} Layout
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* PILLAR 2: INFORMATION ARCHITECTURE */}
+                <Card className="border-border/70 bg-card/80 backdrop-blur-sm shadow-2xs">
+                  <CardContent className="p-4 sm:p-5 space-y-3.5">
+                    <div className="flex items-center justify-between border-b border-border/40 pb-2.5">
+                      <div className="flex items-center gap-2">
+                        <Layout className="h-4 w-4 text-emerald-400" />
+                        <h3 className="text-sm font-bold text-foreground">
+                          Information Architecture (6 Sections)
+                        </h3>
+                      </div>
+                      <Badge variant="secondary" className="text-[10px] font-mono">
+                        {parsedSkillsList.length} Skills • {activeProjectsList.length} Projects
+                      </Badge>
+                    </div>
+
+                    <div className="space-y-2 text-xs">
+                      {/* SECTION 1: HERO */}
+                      <div className="flex items-center justify-between p-2 rounded-lg bg-muted/40 border border-border/30">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
+                          <span className="font-semibold text-foreground">1. Hero Header & Bio</span>
+                        </div>
+                        <span className="text-[11px] text-muted-foreground truncate max-w-[140px]">
+                          {form.fullName || "Name pending"}
+                        </span>
+                      </div>
+
+                      {/* SECTION 2: SKILLS */}
+                      <div className="flex items-center justify-between p-2 rounded-lg bg-muted/40 border border-border/30">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
+                          <span className="font-semibold text-foreground">2. Technical Skills Cloud</span>
+                        </div>
+                        <span className="text-[11px] text-muted-foreground">
+                          {parsedSkillsList.length} Technologies
+                        </span>
+                      </div>
+
+                      {/* SECTION 3: PROJECTS */}
+                      <div className="flex items-center justify-between p-2 rounded-lg bg-muted/40 border border-border/30">
+                        <div className="flex items-center gap-2">
+                          {activeProjectsList.length > 0 ? (
+                            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
+                          ) : (
+                            <Sparkles className="h-3.5 w-3.5 text-amber-400" />
+                          )}
+                          <span className="font-semibold text-foreground">3. Featured Projects Showcase</span>
+                        </div>
+                        <span className="text-[11px] text-muted-foreground">
+                          {activeProjectsList.length} Showcased
+                        </span>
+                      </div>
+
+                      {/* SECTION 4: EXPERIENCE */}
+                      <div className="flex items-center justify-between p-2 rounded-lg bg-muted/40 border border-border/30">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
+                          <span className="font-semibold text-foreground">4. Professional Experience</span>
+                        </div>
+                        <span className="text-[11px] text-muted-foreground">
+                          {form.experience ? "Configured" : "Auto-filled"}
+                        </span>
+                      </div>
+
+                      {/* SECTION 5: EDUCATION */}
+                      <div className="flex items-center justify-between p-2 rounded-lg bg-muted/40 border border-border/30">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
+                          <span className="font-semibold text-foreground">5. Education & Verification</span>
+                        </div>
+                        <span className="text-[11px] text-muted-foreground">
+                          Credentials Ready
+                        </span>
+                      </div>
+
+                      {/* SECTION 6: CONTACT */}
+                      <div className="flex items-center justify-between p-2 rounded-lg bg-muted/40 border border-border/30">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
+                          <span className="font-semibold text-foreground">6. Direct Reach & Social Links</span>
+                        </div>
+                        <span className="text-[11px] text-muted-foreground">
+                          Socials Connected
+                        </span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* PILLAR 3: CODEBASE MANIFEST */}
+                <Card className="border-border/70 bg-card/80 backdrop-blur-sm shadow-2xs">
+                  <CardContent className="p-4 sm:p-5 space-y-3.5">
+                    <div className="flex items-center justify-between border-b border-border/40 pb-2.5">
+                      <div className="flex items-center gap-2">
+                        <Code2 className="h-4 w-4 text-indigo-400" />
+                        <h3 className="text-sm font-bold text-foreground">
+                          Codebase Manifest & Bundler
+                        </h3>
+                      </div>
+                      <Badge variant="outline" className="text-[10px] font-mono">
+                        4 Files • Zero Dependencies
+                      </Badge>
+                    </div>
+
+                    <div className="space-y-2 text-xs font-mono">
+                      <div className="flex items-center justify-between p-2 rounded-lg bg-muted/40 border border-border/30">
+                        <span className="text-indigo-400 flex items-center gap-1.5">
+                          <FileCode className="h-3.5 w-3.5" /> index.html
+                        </span>
+                        <span className="text-[11px] text-muted-foreground font-sans">
+                          Semantic HTML5, ARIA, SEO
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between p-2 rounded-lg bg-muted/40 border border-border/30">
+                        <span className="text-emerald-400 flex items-center gap-1.5">
+                          <Palette className="h-3.5 w-3.5" /> css/style.css
+                        </span>
+                        <span className="text-[11px] text-muted-foreground font-sans">
+                          Tokens, responsive grid, theme
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between p-2 rounded-lg bg-muted/40 border border-border/30">
+                        <span className="text-amber-400 flex items-center gap-1.5">
+                          <Terminal className="h-3.5 w-3.5" /> js/script.js
+                        </span>
+                        <span className="text-[11px] text-muted-foreground font-sans">
+                          Interactions, mobile drawer
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between p-2 rounded-lg bg-muted/40 border border-border/30">
+                        <span className="text-sky-400 flex items-center gap-1.5">
+                          <FileText className="h-3.5 w-3.5" /> README.md
+                        </span>
+                        <span className="text-[11px] text-muted-foreground font-sans">
+                          Deployment instructions & docs
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 pt-1">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setTab("ide")}
+                        className="text-xs h-8 gap-1.5 flex-1 cursor-pointer"
+                      >
+                        <Terminal className="h-3.5 w-3.5 text-indigo-400" /> Open Code Studio
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={handleExportZip}
+                        className="text-xs h-8 gap-1.5 flex-1 cursor-pointer"
+                      >
+                        <Download className="h-3.5 w-3.5" /> Download ZIP
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* PILLAR 4: DEPLOYMENT ROADMAP */}
+                <Card className="border-border/70 bg-card/80 backdrop-blur-sm shadow-2xs">
+                  <CardContent className="p-4 sm:p-5 space-y-3.5">
+                    <div className="flex items-center justify-between border-b border-border/40 pb-2.5">
+                      <div className="flex items-center gap-2">
+                        <Rocket className="h-4 w-4 text-purple-400" />
+                        <h3 className="text-sm font-bold text-foreground">
+                          Deployment & Distribution
+                        </h3>
+                      </div>
+                      <Badge variant="secondary" className="text-[10px] font-mono">
+                        Global CDN Ready
+                      </Badge>
+                    </div>
+
+                    <div className="space-y-2.5 text-xs">
+                      <div className="p-3 rounded-lg bg-primary/5 border border-primary/20 space-y-1.5">
+                        <div className="font-semibold text-foreground flex items-center gap-1.5">
+                          <Globe className="h-3.5 w-3.5 text-primary" />
+                          Learnify AI Live Subpath
+                        </div>
+                        <p className="text-[11px] text-muted-foreground font-mono truncate">
+                          https://www.learnifyai.in/p/
+                          {form.fullName
+                            ? form.fullName
+                                .toLowerCase()
+                                .replace(/\s+/g, "-")
+                                .replace(/[^a-z0-9-]/g, "")
+                            : "developer"}
+                        </p>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2 text-[11px]">
+                        <div className="p-2.5 rounded-lg bg-muted/40 border border-border/30">
+                          <div className="font-medium text-foreground">GitHub Pages</div>
+                          <div className="text-[10px] text-muted-foreground">
+                            Static commit ready
+                          </div>
+                        </div>
+                        <div className="p-2.5 rounded-lg bg-muted/40 border border-border/30">
+                          <div className="font-medium text-foreground">Vercel / Netlify</div>
+                          <div className="text-[10px] text-muted-foreground">
+                            1-Click drag & drop
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="pt-1">
+                      <Button
+                        size="sm"
+                        onClick={handlePublish}
+                        className="w-full text-xs h-8 gap-1.5 bg-primary hover:bg-primary/90 text-primary-foreground font-medium cursor-pointer"
+                      >
+                        <Send className="h-3.5 w-3.5" /> {published ? "Update Live Portfolio" : "Publish to Learnify AI Live"}
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
             </motion.div>
           ) : (
-            <div className="rounded-xl border border-dashed border-border/80 p-8 sm:p-12 text-center space-y-3 bg-card/50 max-w-2xl mx-auto">
-              <FolderOpen className="h-10 w-10 text-muted-foreground/50 mx-auto" />
-              <h3 className="font-semibold text-foreground text-sm">No Portfolio Plan Generated Yet</h3>
-              <p className="text-xs text-muted-foreground max-w-sm mx-auto">
-                Fill in your details in the Build tab and click &quot;Generate Portfolio&quot; to synthesize your structured markdown roadmap and full code export.
-              </p>
-              <div className="flex items-center justify-center gap-2 pt-2">
-                <Button size="sm" onClick={() => setTab("form")}>
-                  <Sparkles className="h-3.5 w-3.5 mr-1.5" /> Go to Build Tab
-                </Button>
-                <Button size="sm" variant="outline" onClick={() => setTab("ide")}>
-                  <Code2 className="h-3.5 w-3.5 mr-1.5" /> Open Code Studio
-                </Button>
+            /* VIEW: MARKDOWN SPECIFICATION */
+            <motion.div
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.18 }}
+              className="space-y-4"
+            >
+              <div className="border rounded-xl p-6 bg-card prose prose-sm dark:prose-invert max-w-none shadow-2xs">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{effectivePlan}</ReactMarkdown>
               </div>
-            </div>
+            </motion.div>
           )}
         </TabsContent>
 

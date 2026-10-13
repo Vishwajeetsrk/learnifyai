@@ -203,6 +203,7 @@ export interface PersonaDetectionResult {
   reasoning: string;
   recommendedFamily: DesignFamilyId;
   alternativeFamilies: [DesignFamilyId, DesignFamilyId];
+  matchedKeywords?: string[];
 }
 
 export interface ValidationIssue {

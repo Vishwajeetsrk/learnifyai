@@ -185,5 +185,6 @@ export function detectPersona(data: Partial<PortfolioData>): PersonaDetectionRes
     reasoning,
     recommendedFamily: matchedRule.recommendedFamily,
     alternativeFamilies: matchedRule.alternatives,
+    matchedKeywords: topKw,
   };
 }
