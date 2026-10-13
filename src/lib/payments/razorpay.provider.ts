@@ -131,7 +131,7 @@ export class RazorpayProvider implements PaymentProvider {
     }
 
     // Create the native recurring subscription
-    const subRes = await fetch("https://api.razorpay.com/v1/subscriptions", {
+    let subRes = await fetch("https://api.razorpay.com/v1/subscriptions", {
       method: "POST",
       headers: {
         Authorization: this.getAuthHeader(),
@@ -152,7 +152,75 @@ export class RazorpayProvider implements PaymentProvider {
 
     if (!subRes.ok) {
       const err = await subRes.text();
-      throw new Error(`Razorpay subscription creation failed: ${err}`);
+      // Auto-recover if plan ID doesn't exist on the active Razorpay credentials
+      if (
+        err.includes("plan_id") ||
+        err.toLowerCase().includes("not found") ||
+        err.toLowerCase().includes("could not be found") ||
+        err.includes("BAD_REQUEST_ERROR")
+      ) {
+        console.warn(`[Razorpay Provider] Plan ${rzpPlanId} not found on Razorpay account. Creating fresh plan...`);
+        const cleanPlanName = `Learnify ${params.planName.trim().slice(0, 30)} - ₹${params.amountInr}/${isYearly ? "yr" : "mo"}`;
+        const newPlanRes = await fetch("https://api.razorpay.com/v1/plans", {
+          method: "POST",
+          headers: {
+            Authorization: this.getAuthHeader(),
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            period: isYearly ? "yearly" : "monthly",
+            interval: 1,
+            item: {
+              name: cleanPlanName,
+              amount: amountInPaise,
+              currency: "INR",
+              description: `Learnify AI ${params.planName} Subscription`,
+            },
+            notes: { planId: params.planId },
+          }),
+        });
+
+        if (!newPlanRes.ok) {
+          const planErr = await newPlanRes.text();
+          throw new Error(`Razorpay plan creation failed during recovery: ${planErr}`);
+        }
+
+        const freshPlan = await newPlanRes.json();
+        rzpPlanId = freshPlan.id;
+
+        // Update database with fresh plan ID
+        await (supabaseAdmin as any)
+          .from("pricing_plans")
+          .update({ [isYearly ? "razorpay_yearly_plan_id" : "razorpay_plan_id"]: rzpPlanId })
+          .eq("id", params.planId);
+
+        // Retry subscription creation with fresh plan
+        subRes = await fetch("https://api.razorpay.com/v1/subscriptions", {
+          method: "POST",
+          headers: {
+            Authorization: this.getAuthHeader(),
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            plan_id: rzpPlanId,
+            total_count: params.interval === "year" ? 10 : 120,
+            customer_notify: 1,
+            notes: {
+              userId: params.userId,
+              planId: params.planId,
+              couponCode: params.couponCode || "",
+              billingCycle: params.interval === "year" ? "yearly" : "monthly",
+            },
+          }),
+        });
+
+        if (!subRes.ok) {
+          const retryErr = await subRes.text();
+          throw new Error(`Razorpay subscription creation failed after plan recovery: ${retryErr}`);
+        }
+      } else {
+        throw new Error(`Razorpay subscription creation failed: ${err}`);
+      }
     }
 
     const subscription = await subRes.json();

@@ -99,8 +99,9 @@ async function doSyncPlan(planId: string): Promise<string> {
   const monthlyPlanId = await createRzpPlan("monthly", p.price_inr, "Monthly");
   let yearlyPlanId = null;
   
-  if (p.yearly_price && p.yearly_price > 0) {
-    yearlyPlanId = await createRzpPlan("yearly", p.yearly_price, "Yearly");
+  const yearlyAmount = p.yearly_price && p.yearly_price > 0 ? p.yearly_price : Math.round(p.price_inr * 10);
+  if (yearlyAmount > 0) {
+    yearlyPlanId = await createRzpPlan("yearly", yearlyAmount, "Yearly");
   }
 
   await supabaseAdmin

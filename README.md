@@ -634,8 +634,9 @@ MIT License. See [LICENSE](LICENSE) for details.
 ### v5.8.7 (October 2026) — Live Razorpay Integration & Subscription Auto-Recovery
 
 - ✅ **Live Razorpay Gateway Deployment**: Configured and activated live production Razorpay credentials (`rzp_live_*`) for real-time payments, subscriptions, and wallet reloads.
-- ✅ **Resilient Subscription Auto-Recovery**: Overhauled Razorpay error interception in `src/lib/subscription.functions.ts` to automatically detect both `could not be found` and `BAD_REQUEST_ERROR` responses from Razorpay. When a plan ID is missing or out-of-sync, the system silently triggers `doSyncPlan`, regenerates the Razorpay plan on the fly, and retries subscription checkout without disrupting the user flow.
-- ✅ **Engine & Build Harmonization**: Resolved Node engine warnings (`@supabase/*` packages) and cleaned package-lock dependencies for smooth zero-warning local and CI execution.
+- ✅ **Fixed Razorpay Modal Error**: Repaired `pricing.tsx` Checkout options to pass `subscription_id` rather than `order_id` for recurring plans. Passing a `sub_` ID as `order_id` triggered Razorpay's `"The ID provided is invalid or could not be found"` error modal ("Uh! oh! Something went wrong").
+- ✅ **Resilient Subscription Auto-Recovery**: Overhauled Razorpay error interception in both `razorpay.provider.ts` and `subscription.functions.ts` to automatically detect missing plan IDs. If a plan is missing or was recreated on Razorpay, the backend transparently creates a fresh plan on the fly and retries checkout with zero interruption.
+- ✅ **Build & Bundle Optimization**: Increased `build.chunkSizeWarningLimit` to 5000 in `vite.config.ts` and normalized path separators in `manualChunks` to prevent oversized chunk warnings on Windows.
 
 ### v5.8.6 (October 2026) — Security Hardening, Dynamic Pricing & Certificate UX
 

@@ -674,61 +674,75 @@ function PricingPage() {
         return;
       }
 
-      if (checkout.provider === "razorpay" && checkout.keyId && checkout.orderId) {
+      if (checkout.provider === "razorpay" && checkout.keyId && (checkout.orderId || (checkout as any).subscriptionId)) {
         const scriptLoaded = await loadRazorpay();
         if (!scriptLoaded) {
           toast.error("Unable to load Razorpay payment SDK. Please refresh or try again.");
           return;
         }
 
-        const options = {
+        const isSubscription = Boolean(
+          (checkout as any).subscriptionId ||
+          (checkout.orderId && checkout.orderId.startsWith("sub_"))
+        );
+        const subId = (checkout as any).subscriptionId || (isSubscription ? checkout.orderId : undefined);
+
+        const options: any = {
           key: checkout.keyId,
-          amount: Math.round(checkout.amount * 100),
-          currency: "INR",
           name: "Learnify AI",
           description:
             checkout.discountAmount && checkout.discountAmount > 0
               ? `${checkout.notes?.planName || "Plan"} (Base: ₹${checkout.baseAmount} - ₹${checkout.discountAmount} discount)`
               : `${checkout.notes?.planName || "Plan"} Subscription`,
-          order_id: checkout.orderId,
           prefill: checkout.prefill,
           notes: checkout.notes,
           theme: { color: "#6366f1" },
-          handler: async function (response: any) {
-            try {
-              setLoadingPlan(planId);
-              // Server-side verification & atomic activation (Invariant 1, 2, 16)
-              const verified = await doVerifyPayment({
-                data: {
-                  provider: "razorpay",
-                  orderId: checkout.orderId!,
-                  paymentId: response.razorpay_payment_id,
-                  signature: response.razorpay_signature,
-                  planId,
-                  billingCycle,
-                  amountInr: checkout.amount,
-                },
-              });
-              if (verified.success) {
-                toast.success("Payment verified! Subscription active.");
-                qc.invalidateQueries({ queryKey: ["my-subscription"] });
-                navigate({ to: "/pricing", search: { subscribe: "ok" } as any });
-              } else {
-                toast.error(verified.message || "Payment verification incomplete.");
-              }
-            } catch (err: any) {
-              toast.error(err?.message || "Failed to verify payment with server.");
-            } finally {
-              setLoadingPlan(null);
+        };
+
+        if (isSubscription) {
+          options.subscription_id = subId;
+        } else {
+          options.order_id = checkout.orderId;
+          options.amount = Math.round(checkout.amount * 100);
+          options.currency = "INR";
+        }
+
+        options.handler = async function (response: any) {
+          try {
+            setLoadingPlan(planId);
+            // Server-side verification & atomic activation (Invariant 1, 2, 16)
+            const verified = await doVerifyPayment({
+              data: {
+                provider: "razorpay",
+                orderId: response.razorpay_subscription_id || subId || checkout.orderId!,
+                paymentId: response.razorpay_payment_id,
+                signature: response.razorpay_signature,
+                planId,
+                billingCycle,
+                amountInr: checkout.amount,
+              },
+            });
+            if (verified.success) {
+              toast.success("Payment verified! Subscription active.");
+              qc.invalidateQueries({ queryKey: ["my-subscription"] });
+              navigate({ to: "/pricing", search: { subscribe: "ok" } as any });
+            } else {
+              toast.error(verified.message || "Payment verification incomplete.");
             }
-          },
-          modal: {
-            ondismiss: function () {
-              setLoadingPlan(null);
-              toast.info("Checkout dismissed. You can retry anytime.");
-            },
+          } catch (err: any) {
+            toast.error(err?.message || "Failed to verify payment with server.");
+          } finally {
+            setLoadingPlan(null);
+          }
+        };
+
+        options.modal = {
+          ondismiss: function () {
+            setLoadingPlan(null);
+            toast.info("Checkout dismissed. You can retry anytime.");
           },
         };
+
         const rzp = new (window as any).Razorpay(options);
         rzp.open();
       } else if (checkout.checkoutUrl) {

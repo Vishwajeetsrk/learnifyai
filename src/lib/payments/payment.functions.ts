@@ -124,8 +124,9 @@ export const initiateCheckout = createServerFn({ method: "POST" })
         customerName,
         couponCode: appliedCoupon || "",
       });
-      // provider.createSubscription returns { subscriptionId, ... } but we map it to orderId for compatibility
+      // provider.createSubscription returns { subscriptionId, ... } but we map both for maximum compatibility
       orderResult.orderId = (orderResult as any).subscriptionId;
+      orderResult.subscriptionId = (orderResult as any).subscriptionId;
     } else {
       orderResult = await provider.createOrder({
         userId,
