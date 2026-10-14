@@ -122,6 +122,10 @@ class ShaderRendererManagerClass {
     this.activeCanvases.add(canvas);
   }
 
+  public unregisterCanvas(canvas: HTMLCanvasElement): void {
+    this.activeCanvases.delete(canvas);
+  }
+
   /**
    * Register a WebGL context for explicit loseContext disposal
    */
@@ -129,11 +133,19 @@ class ShaderRendererManagerClass {
     this.activeGlContexts.add(gl);
   }
 
+  public unregisterGl(gl: WebGLRenderingContext | WebGL2RenderingContext): void {
+    this.activeGlContexts.delete(gl);
+  }
+
   /**
    * Register an iframe for src="about:blank" disposal
    */
   public registerIframe(frame: HTMLIFrameElement): void {
     this.activeIframes.add(frame);
+  }
+
+  public unregisterIframe(frame: HTMLIFrameElement): void {
+    this.activeIframes.delete(frame);
   }
 
   /**

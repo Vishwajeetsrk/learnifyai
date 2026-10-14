@@ -1715,15 +1715,34 @@ ${introWordmarkStyle}
   document.documentElement.dataset.sfMode = ${modeJson};
   var isolated = false;
   var attempts = 0;
-  var maxAttempts = 30;
+  var maxAttempts = 60;
+  var activeContexts = [];
+
+  try {
+    var origGetContext = HTMLCanvasElement.prototype.getContext;
+    HTMLCanvasElement.prototype.getContext = function (type) {
+      var ctx = origGetContext.apply(this, arguments);
+      if (ctx && (type === 'webgl' || type === 'webgl2' || type === 'experimental-webgl')) {
+        if (activeContexts.indexOf(ctx) === -1) activeContexts.push(ctx);
+      }
+      return ctx;
+    };
+  } catch (e) {}
 
   function disposeAllWebGL() {
     try {
+      activeContexts.forEach(function (gl) {
+        try {
+          var ext = gl.getExtension('WEBGL_lose_context');
+          if (ext) ext.loseContext();
+        } catch (e) {}
+      });
+      activeContexts = [];
       var canvases = document.querySelectorAll('canvas');
       for (var i = 0; i < canvases.length; i++) {
         var c = canvases[i];
         try {
-          var gl = c.getContext('webgl') || c.getContext('experimental-webgl');
+          var gl = c.getContext('webgl2') || c.getContext('webgl') || c.getContext('experimental-webgl');
           if (gl) {
             var ext = gl.getExtension('WEBGL_lose_context');
             if (ext) ext.loseContext();
@@ -1796,6 +1815,27 @@ ${introWordmarkStyle}
 
     if (!roots.length && attempts < maxAttempts) {
       setTimeout(isolate, 50);
+      return;
+    }
+
+    // Safety fallback: if no roots matched the strict selector after maxAttempts, auto-discover primary canvas or main
+    if (!roots.length) {
+      var fallbackCanvas = document.querySelector('canvas') || document.querySelector('[class*="canvas"]') || document.querySelector('main') || document.body.firstElementChild;
+      if (fallbackCanvas) {
+        fallbackCanvas.setAttribute('data-threeui-role', 'visual');
+        fallbackCanvas.setAttribute('data-threeui-fit', 'contain-square');
+        roots.push(fallbackCanvas);
+      }
+    }
+
+    // If still no roots, reveal body so canvas is never permanently blacked out
+    if (!roots.length) {
+      isolated = true;
+      document.body.setAttribute('data-threeui-ready', '');
+      Array.from(document.body.children).forEach(function (element) {
+        element.setAttribute('data-threeui-role', 'visual');
+      });
+      try { window.parent.postMessage({ threeuiReady: true }, '*'); } catch (e) {}
       return;
     }
 
@@ -1891,6 +1931,7 @@ function NeuformIsolatedEffect({
           frame.contentWindow.postMessage({ threeuiDispose: true }, "*");
         }
         if (frame) {
+          shaderRendererManager.unregisterIframe(frame);
           frame.src = "about:blank";
         }
       } catch (e) {}

@@ -355,6 +355,8 @@ export function RakingLightPillButton({
       if (resizeObserver) resizeObserver.disconnect();
 
       if (gl) {
+        shaderRendererManager.unregisterGl(gl);
+        if (canvas) shaderRendererManager.unregisterCanvas(canvas);
         try {
           if (positionBuffer) gl.deleteBuffer(positionBuffer);
           if (program) gl.deleteProgram(program);
