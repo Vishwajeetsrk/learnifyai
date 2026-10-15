@@ -851,7 +851,7 @@ This portfolio website was generated with Learnify AI Portfolio Builder.
               <Code2 className="h-3.5 w-3.5 mr-1.5 text-indigo-500 dark:text-indigo-400" /> Code Studio (IDE)
             </TabsTrigger>
             <TabsTrigger
-              value="preview"
+              value="plan"
               className="text-xs sm:text-sm shrink-0 font-medium text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:text-slate-950 dark:data-[state=active]:text-white data-[state=active]:shadow-xs transition-all"
             >
               <FolderOpen className="h-3.5 w-3.5 mr-1.5 text-amber-500 dark:text-amber-400" /> Plan
@@ -1338,7 +1338,7 @@ This portfolio website was generated with Learnify AI Portfolio Builder.
           </motion.div>
         </TabsContent>
 
-        <TabsContent value="preview" className="pt-2 sm:pt-4 space-y-4">
+        <TabsContent value="plan" className="pt-2 sm:pt-4 space-y-4">
           {/* TOP TOOLBAR */}
           <div className="flex flex-wrap items-center justify-between gap-3 bg-card border rounded-xl p-3 px-4 shadow-2xs">
             <div className="flex items-center gap-2 flex-wrap">
@@ -1874,6 +1874,14 @@ This portfolio website was generated with Learnify AI Portfolio Builder.
                 </div>
               </div>
               <div className="flex items-center gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setTab("plan")}
+                  className="h-8 text-xs gap-1.5"
+                >
+                  <FolderOpen className="h-3.5 w-3.5 text-amber-500" /> Plan
+                </Button>
                 <Button
                   size="sm"
                   variant="outline"
