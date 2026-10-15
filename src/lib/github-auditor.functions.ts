@@ -12,6 +12,7 @@ export interface GitHubRepoSummary {
   topics: string[];
   hasReadme?: boolean;
   hasLicense?: boolean;
+  isTargeted?: boolean;
 }
 
 export interface GitHubAuditReport {
@@ -39,6 +40,7 @@ export interface GitHubAuditReport {
   strengths: string[];
   redFlags: string[];
   actionItems: string[];
+  targetRepo?: string;
 }
 
 const AuditInput = z.object({
@@ -98,6 +100,22 @@ export const auditGitHubProfile = createServerFn({ method: "POST" })
       { headers },
     );
     const repos: any[] = reposRes.ok ? await reposRes.json() : [];
+
+    // If a specific repository was requested and is missing from recent repos, fetch it directly
+    if (targetRepo && !repos.some((r) => r.name.toLowerCase() === targetRepo.toLowerCase())) {
+      try {
+        const singleRepoRes = await fetch(
+          `https://api.github.com/repos/${rawUsername}/${targetRepo}`,
+          { headers },
+        );
+        if (singleRepoRes.ok) {
+          const singleRepo = await singleRepoRes.json();
+          repos.unshift(singleRepo);
+        }
+      } catch {
+        // Non-blocking fallback
+      }
+    }
 
     // Filter out forks for quality analysis
     const sourceRepos = repos.filter((r) => !r.fork);
@@ -234,6 +252,7 @@ export const auditGitHubProfile = createServerFn({ method: "POST" })
           year: "numeric",
         }),
         topics: r.topics || [],
+        isTargeted: Boolean(targetRepo && r.name.toLowerCase() === targetRepo.toLowerCase()),
       }));
 
     return {
@@ -261,5 +280,6 @@ export const auditGitHubProfile = createServerFn({ method: "POST" })
       strengths,
       redFlags,
       actionItems,
+      targetRepo: targetRepo || undefined,
     };
   });

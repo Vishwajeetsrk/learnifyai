@@ -221,12 +221,15 @@ export function RakingLightPillButton({
 
     function init() {
       try {
-        gl = canvas!.getContext("webgl", {
+        const glOpts: WebGLContextAttributes = {
           alpha: true,
           antialias: true,
           depth: false,
           premultipliedAlpha: true,
-        });
+        };
+        gl = (canvas!.getContext("webgl", glOpts) ||
+          canvas!.getContext("webgl2", glOpts) ||
+          canvas!.getContext("experimental-webgl", glOpts)) as WebGLRenderingContext | null;
 
         if (!gl) {
           onError?.("WebGL unsupported or context quota exhausted");
@@ -281,8 +284,10 @@ export function RakingLightPillButton({
         const sizeUniform = gl.getUniformLocation(program, "uSize");
 
         gl.useProgram(program);
-        gl.enableVertexAttribArray(position);
-        gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
+        if (position !== -1) {
+          gl.enableVertexAttribArray(position);
+          gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
+        }
         gl.enable(gl.BLEND);
         gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 

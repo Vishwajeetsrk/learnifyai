@@ -152,6 +152,7 @@ const TABS = [
 ];
 
 function CareerStudioHub() {
+  const { user } = useAuth();
   const search: { tab?: string } = useSearch({ strict: false });
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<string>(() => {
@@ -222,7 +223,7 @@ function CareerStudioHub() {
       case "job-board":
         return <JobBoardView />;
       case "github-audit":
-        return <GitHubAuditorView />;
+        return <GitHubAuditorView defaultUsername={user?.user_metadata?.user_name || user?.user_metadata?.preferred_username || ""} />;
       case "guides":
         return <GuidesDocsView />;
       case "agents":

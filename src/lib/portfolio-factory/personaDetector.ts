@@ -107,6 +107,16 @@ const PERSONA_RULES: KeywordRule[] = [
       "api", "backend", "web development", "cloud",
     ],
   },
+  {
+    persona: "general-builder",
+    label: "Generalist Software Builder",
+    recommendedFamily: "minimal-editorial",
+    alternatives: ["modern-swiss", "bento-grid"],
+    keywords: [
+      "generalist", "builder", "maker", "polyglot", "engineer", "software", "tech",
+      "web", "solutions", "coder", "programmer", "architect", "systems", "platform",
+    ],
+  },
 ];
 
 export function detectPersona(data: Partial<PortfolioData>): PersonaDetectionResult {

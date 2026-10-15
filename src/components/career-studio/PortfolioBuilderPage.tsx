@@ -36,6 +36,7 @@ import {
   Unlock,
   ArrowRight,
   FileCode,
+  Target,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -124,7 +125,16 @@ function skillHtmlLogo(name: string): string {
 export function PortfolioBuilderPage({ embedded = false }: { embedded?: boolean }) {
   const generateFn = useServerFn(generatePortfolio);
   const extractFn = useServerFn(extractResumeFields);
-  const [tab, setTab] = useState("form");
+  const [tab, setTab] = useState(() => {
+    if (typeof window !== "undefined") {
+      const search = new URLSearchParams(window.location.search);
+      const urlTab = search.get("builderTab") || search.get("subtab");
+      if (urlTab && ["form", "ide", "plan", "live"].includes(urlTab)) {
+        return urlTab;
+      }
+    }
+    return "form";
+  });
   const [loading, setLoading] = useState(false);
   const [extracting, setExtracting] = useState(false);
   const [result, setResult] = useState<string | null>(null);
@@ -184,6 +194,20 @@ export function PortfolioBuilderPage({ embedded = false }: { embedded?: boolean 
     localStorage.setItem("portfolio_factory_config", JSON.stringify(factoryConfig));
   }, [factoryConfig]);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const handleDataUpdate = () => {
+      try {
+        const savedForm = localStorage.getItem("portfolio_builder_form");
+        if (savedForm) setForm(JSON.parse(savedForm));
+        const savedProjects = localStorage.getItem("portfolio_builder_projects");
+        if (savedProjects) setProjects(JSON.parse(savedProjects));
+      } catch {}
+    };
+    window.addEventListener("portfolio_data_updated", handleDataUpdate);
+    return () => window.removeEventListener("portfolio_data_updated", handleDataUpdate);
+  }, []);
+
   const canonicalFiles = generateCanonicalPortfolioFiles(form, projects, photoPreview, factoryConfig);
   const canonicalSrcDoc = compilePortfolioToSingleHtml(canonicalFiles);
   const [exportFormat, setExportFormat] = useState<"md" | "html">("md");
@@ -216,13 +240,13 @@ export function PortfolioBuilderPage({ embedded = false }: { embedded?: boolean 
     if (result) return result;
 
     return `# ${form.fullName || "Developer"} — Portfolio Architecture Blueprint
-**Target Persona:** 🎯 ${personaInfo.label} (${Math.round(personaInfo.confidence * 100)}% match)  
+**Target Persona:** ${personaInfo.label} (${Math.round(personaInfo.confidence * 100)}% match)  
 **Engineering Focus:** ${personaInfo.reasoning}  
 **Positioning Headline:** ${form.tagline || "Full-Stack Software Engineer"}  
 
 ---
 
-## 🎨 1. Design System & Visual Strategy
+## 1. Design System & Visual Strategy
 - **Design Family:** **${activeFamily?.name || activeFamilyId}** — *"${activeFamily?.subtitle || ""}"*
 - **Aesthetic Description:** ${activeFamily?.description || "Curated modern developer interface."}
 - **Color Palette:** **${activePaletteId}**
@@ -235,13 +259,13 @@ export function PortfolioBuilderPage({ embedded = false }: { embedded?: boolean 
   - Body Copy: \`${activeTypography.bodyFont}\`
   - Code / Terminal: \`${activeTypography.codeFont}\`
 - **Design Locks:**
-  - Color Lock: ${designLocks.color ? "🔒 Enabled" : "🔓 Dynamic"}
-  - Font Lock: ${designLocks.font ? "🔒 Enabled" : "🔓 Dynamic"}
-  - Layout Lock: ${designLocks.layout ? "🔒 Enabled" : "🔓 Dynamic"}
+  - Color Lock: ${designLocks.color ? "Locked" : "Dynamic"}
+  - Font Lock: ${designLocks.font ? "Locked" : "Dynamic"}
+  - Layout Lock: ${designLocks.layout ? "Locked" : "Dynamic"}
 
 ---
 
-## 🧱 2. Information Architecture & Section Matrix
+## 2. Information Architecture & Section Matrix
 1. **Hero Header:**
    - Identity: **${form.fullName || "Your Name"}**
    - Value Proposition: *${form.tagline || "Software Engineer & Builder"}*
@@ -277,7 +301,7 @@ ${
 
 ---
 
-## 📂 3. Codebase File Manifest
+## 3. Codebase File Manifest
 - \`index.html\`: Semantic HTML5, accessible tags, viewport meta, SEO OpenGraph tags
 - \`css/style.css\`: Design tokens, responsive CSS Grid / Flexbox, dark/light theme variables
 - \`js/script.js\`: Navigation scroll, micro-animations, copy button feedback
@@ -285,7 +309,7 @@ ${
 
 ---
 
-## 🚀 4. Deployment Strategy
+## 4. Deployment Strategy
 - **Static Hosting:** Compatible with GitHub Pages, Vercel, Netlify, Cloudflare Pages.
 - **Learnify AI Live Subpath:** Publishable at \`https://www.learnifyai.in/p/${
       form.fullName
@@ -1455,7 +1479,7 @@ This portfolio website was generated with Learnify AI Portfolio Builder.
                 <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-xl">🎯</span>
+                      <Target className="h-5 w-5 text-primary shrink-0" />
                       <h2 className="text-base sm:text-lg font-bold tracking-tight text-foreground font-display">
                         {personaInfo.label}
                       </h2>
