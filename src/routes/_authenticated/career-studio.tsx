@@ -1,5 +1,6 @@
 import { createFileRoute, useSearch, useNavigate } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
+import { CareerStudioModuleSkeleton } from "@/components/Skeletons";
 import React from "react";
 
 const ResumeBuilderPage = React.lazy(() =>
@@ -324,12 +325,7 @@ function CareerStudioHub() {
               aria-hidden={!isCurrent}
             >
               <React.Suspense
-                fallback={
-                  <div className="p-16 text-center text-sm font-bold text-muted-foreground flex flex-col items-center justify-center gap-3">
-                    <Loader2 className="h-7 w-7 animate-spin text-primary" />
-                    <span>Loading {t.label}...</span>
-                  </div>
-                }
+                fallback={<CareerStudioModuleSkeleton />}
               >
                 {renderModuleContent(t.id)}
               </React.Suspense>

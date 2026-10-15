@@ -8,6 +8,7 @@ import { CreatorTabs } from "@/components/CreatorTabs";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
@@ -96,8 +97,17 @@ function CreatorCommentsPage() {
 
         <Card className="mt-6 p-0 overflow-hidden">
           {q.isLoading ? (
-            <div className="py-16 grid place-items-center">
-              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            <div className="divide-y">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="p-4 flex gap-3">
+                  <Skeleton className="h-9 w-9 rounded-full shrink-0" />
+                  <div className="space-y-2 flex-1">
+                    <Skeleton className="h-3.5 w-40 rounded" />
+                    <Skeleton className="h-4 w-3/4 rounded" />
+                    <Skeleton className="h-3 w-28 rounded" />
+                  </div>
+                </div>
+              ))}
             </div>
           ) : !q.data?.comments.length ? (
             <div className="py-16 text-center text-sm text-muted-foreground">No comments yet.</div>

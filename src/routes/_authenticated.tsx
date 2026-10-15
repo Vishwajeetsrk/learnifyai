@@ -1,8 +1,8 @@
 import { createFileRoute, Outlet, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
+import { AppShellSkeleton } from "@/components/Skeletons";
 
 export const Route = createFileRoute("/_authenticated")({
   component: AuthenticatedLayout,
@@ -74,11 +74,7 @@ function AuthenticatedLayout() {
   }, [user, loading, navigate]);
 
   if (loading || !isAuthenticated || checkingOnboarding) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-      </div>
-    );
+    return <AppShellSkeleton />;
   }
   return <Outlet />;
 }

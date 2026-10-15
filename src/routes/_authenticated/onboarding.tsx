@@ -48,6 +48,7 @@ import {
 import { STUDENT_TOUR, CREATOR_TOUR, ADMIN_TOUR } from "@/components/ProductTour";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import { OnboardingSkeleton } from "@/components/Skeletons";
 
 export const Route = createFileRoute("/_authenticated/onboarding")({
   head: () => ({ meta: [{ title: "Onboarding — Learnify AI" }] }),
@@ -266,11 +267,7 @@ function OnboardingPage() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-      </div>
-    );
+    return <OnboardingSkeleton />;
   }
 
   const step = ONBOARDING_STEPS[currentStep];
@@ -278,7 +275,7 @@ function OnboardingPage() {
   const progress = ((currentStep + 1) / ONBOARDING_STEPS.length) * 100;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+    <div className="min-h-[100dvh] bg-gradient-to-br from-background via-background to-primary/5">
       {/* Header */}
       <div className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-3 sm:py-4">

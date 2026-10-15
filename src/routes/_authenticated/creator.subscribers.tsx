@@ -7,6 +7,7 @@ import { CreatorTabs } from "@/components/CreatorTabs";
 
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 
@@ -59,8 +60,19 @@ function SubscribersPage() {
 
         <Card className="mt-6 p-0 overflow-hidden">
           {q.isLoading ? (
-            <div className="py-16 grid place-items-center">
-              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            <div className="divide-y">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="p-4 flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <Skeleton className="h-10 w-10 rounded-full" />
+                    <div className="space-y-1.5">
+                      <Skeleton className="h-4 w-32 rounded" />
+                      <Skeleton className="h-3 w-44 rounded" />
+                    </div>
+                  </div>
+                  <Skeleton className="h-3 w-16 rounded" />
+                </div>
+              ))}
             </div>
           ) : !q.data?.length ? (
             <div className="py-16 text-center text-sm text-muted-foreground">

@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate, redirect } from "@tanstack/react-router";
 import { useState, useRef, useEffect, useMemo, lazy, Suspense } from "react";
 import { AppShell } from "@/components/AppShell";
+import { IDESkeleton } from "@/components/Skeletons";
 import { AIPanel } from "@/components/playground/AIPanel";
 import { AIAssistantPanel } from "@/components/playground/AIAssistantPanel";
 import { APITesterPanel } from "@/components/playground/APITesterPanel";
@@ -442,9 +443,7 @@ function PlaygroundEditor() {
         <div className="flex-1 flex overflow-hidden flex-col lg:flex-row relative">
           <div className="flex-1 overflow-hidden relative">
             {loadingProject || loadingFiles ? (
-              <div className="h-full flex items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-              </div>
+              <IDESkeleton />
             ) : !project ? (
               <div className="h-full flex items-center justify-center text-muted-foreground text-sm flex-col gap-2">
                 <p>Project not found or failed to load.</p>
@@ -454,11 +453,7 @@ function PlaygroundEditor() {
               </div>
             ) : (
               <Suspense
-                fallback={
-                  <div className="h-full flex items-center justify-center">
-                    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                  </div>
-                }
+                fallback={<IDESkeleton />}
               >
                 {isWebProject ? (
                   <WebIDE

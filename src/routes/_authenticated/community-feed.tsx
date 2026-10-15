@@ -1,14 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { lazy, Suspense } from "react";
-import { Loader2 } from "lucide-react";
+import { AppShell } from "@/components/AppShell";
+import { CommunityFeedSkeleton } from "@/components/Skeletons";
 
 const CommunityPage = lazy(() => import("@/views/community-feed.view"));
 
 function CommunityFallback() {
   return (
-    <div className="flex items-center justify-center h-64">
-      <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-    </div>
+    <AppShell>
+      <CommunityFeedSkeleton />
+    </AppShell>
   );
 }
 

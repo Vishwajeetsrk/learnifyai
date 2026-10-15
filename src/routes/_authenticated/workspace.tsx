@@ -20,6 +20,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AppShell } from "@/components/AppShell";
+import { WorkspaceBoardSkeleton } from "@/components/Skeletons";
 import {
   Dialog,
   DialogContent,
@@ -171,7 +172,7 @@ function WorkspacePage() {
 
   return (
     <AppShell>
-      <div className="flex h-[calc(100vh-64px)]">
+      <div className="flex h-[calc(100dvh-64px)] min-h-[calc(100dvh-64px)]">
         {/* Sidebar */}
         <div className="w-64 border-r bg-slate-50/50 p-4 flex flex-col gap-4">
           <div className="flex items-center gap-2 px-2 py-1 mb-2">
@@ -242,7 +243,10 @@ function WorkspacePage() {
               </div>
 
               {/* Kanban Board */}
-              <div className="flex-1 overflow-x-auto p-6 flex gap-6 items-start">
+              {tasksQ.isLoading ? (
+                <WorkspaceBoardSkeleton />
+              ) : (
+                <div className="flex-1 overflow-x-auto p-6 flex gap-6 items-start">
                 {COLUMNS.map((col) => (
                   <div
                     key={col.id}
@@ -355,6 +359,7 @@ function WorkspacePage() {
                   </div>
                 ))}
               </div>
+              )}
             </>
           ) : (
             <div className="flex-1 flex flex-col items-center justify-center text-center p-10 text-muted-foreground">

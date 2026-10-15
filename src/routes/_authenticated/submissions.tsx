@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { FilePreview } from "@/components/FilePreview";
+import { SubmissionsSkeleton } from "@/components/Skeletons";
 
 export const Route = createFileRoute("/_authenticated/submissions")({
   head: () => ({ meta: [{ title: "My Submissions — Learnify AI" }] }),
@@ -63,9 +64,7 @@ function SubmissionsPage() {
         </p>
 
         {q.isLoading ? (
-          <div className="py-20 grid place-items-center">
-            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-          </div>
+          <SubmissionsSkeleton />
         ) : (q.data ?? []).length === 0 ? (
           <div className="mt-8 rounded-2xl border bg-card p-12 text-center shadow-card text-sm text-muted-foreground">
             No submissions yet. Submit assignments from any enrolled course.

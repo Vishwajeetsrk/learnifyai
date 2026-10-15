@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const Route = createFileRoute("/_authenticated/apply-creator")({
   head: () => ({ meta: [{ title: "Apply to Creator Program — Learnify AI" }] }),
@@ -114,8 +115,10 @@ function ApplyCreator() {
         </p>
 
         {appQuery.isLoading ? (
-          <div className="mt-8">
-            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+          <div className="mt-8 rounded-2xl border border-border/70 bg-card p-6 space-y-4">
+            <Skeleton className="h-6 w-48 rounded" />
+            <Skeleton className="h-4 w-full rounded" />
+            <Skeleton className="h-10 w-32 rounded-xl" />
           </div>
         ) : existing ? (
           <div className="mt-8 rounded-2xl border bg-card p-6 shadow-card">

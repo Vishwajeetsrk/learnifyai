@@ -1,14 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { lazy, Suspense } from "react";
-import { Loader2 } from "lucide-react";
+import { AppShell } from "@/components/AppShell";
+import { SettingsSkeleton } from "@/components/Skeletons";
 
 const SettingsPage = lazy(() => import("@/views/settings.view"));
 
 function SettingsFallback() {
   return (
-    <div className="flex items-center justify-center h-64">
-      <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-    </div>
+    <AppShell>
+      <SettingsSkeleton />
+    </AppShell>
   );
 }
 

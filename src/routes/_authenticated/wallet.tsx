@@ -18,6 +18,7 @@ import {
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
+import { TransactionRowsSkeleton } from "@/components/Skeletons";
 import { useAuth } from "@/hooks/use-auth";
 import { useServerFn } from "@tanstack/react-start";
 import {
@@ -442,9 +443,7 @@ function WalletPage() {
             <span className="text-xs text-muted-foreground">{txs.length} entries</span>
           </div>
           {txQuery.isLoading ? (
-            <div className="p-8 grid place-items-center">
-              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-            </div>
+            <TransactionRowsSkeleton />
           ) : txs.length === 0 ? (
             <div className="p-12 text-center">
               <WalletIcon className="h-10 w-10 mx-auto text-muted-foreground" />

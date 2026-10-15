@@ -33,6 +33,7 @@ import { format } from "date-fns";
 
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
@@ -450,7 +451,17 @@ function HistoryPanel() {
       </div>
 
       {q.isLoading ? (
-        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground mx-auto my-12" />
+        <div className="grid gap-2">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="border border-border/70 rounded-lg p-3 sm:p-4 flex items-center justify-between">
+              <div className="space-y-1.5 flex-1">
+                <Skeleton className="h-4 w-28 rounded" />
+                <Skeleton className="h-3 w-48 rounded" />
+              </div>
+              <Skeleton className="h-8 w-16 rounded-md" />
+            </div>
+          ))}
+        </div>
       ) : (q.data ?? []).length === 0 ? (
         <p className="text-sm text-muted-foreground text-center py-12">
           No history yet — run a tool to start saving.

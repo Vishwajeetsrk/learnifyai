@@ -54,6 +54,7 @@ import { getCourseBrands } from "@/components/courses/CourseCardVisual";
 import { formatCourseDuration } from "@/lib/brand-registry";
 import { InteractiveLessonContent } from "@/components/courses/InteractiveLessonContent";
 import { AppShell } from "@/components/AppShell";
+import { CourseDetailSkeleton, QuizSkeleton } from "@/components/Skeletons";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -697,9 +698,7 @@ function CourseDetail() {
   if (courseQuery.isLoading) {
     return (
       <AppShell>
-        <div className="py-20 grid place-items-center">
-          <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-        </div>
+        <CourseDetailSkeleton />
       </AppShell>
     );
   }
@@ -2864,10 +2863,10 @@ function FinalTestDialog({
             </Button>
           </div>
 
-          <div className="p-6 space-y-4">
-            {q.isLoading ? (
-              <Loader2 className="h-5 w-5 animate-spin mx-auto" />
-            ) : (
+          {q.isLoading ? (
+            <QuizSkeleton />
+          ) : (
+            <div className="p-6 space-y-4">
               <>
                 {submitted && (
                   <div
@@ -2940,8 +2939,8 @@ function FinalTestDialog({
                   </Button>
                 )}
               </>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </div>
     </>

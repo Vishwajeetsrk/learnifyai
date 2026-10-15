@@ -22,6 +22,7 @@ import {
   FolderOpen,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { PlaygroundProjectsSkeleton } from "@/components/Skeletons";
 import { formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
 import { useState } from "react";
@@ -148,9 +149,7 @@ function ProjectsPage() {
         </div>
 
         {isLoading ? (
-          <div className="py-20 grid place-items-center">
-            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-          </div>
+          <PlaygroundProjectsSkeleton />
         ) : !projects?.length ? (
           <div className="rounded-2xl border bg-card p-12 text-center">
             <FolderOpen className="h-10 w-10 mx-auto text-muted-foreground" />

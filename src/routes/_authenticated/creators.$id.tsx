@@ -3,7 +3,8 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { SafeImage } from "@/components/ui/SafeImage";
-import { CreatorProfileSkeleton } from "@/components/Skeletons";
+import { CreatorProfileSkeleton, StatCardSkeleton } from "@/components/Skeletons";
+import { Skeleton } from "@/components/ui/skeleton";
 import { getCleanBannerUrl } from "@/lib/utils";
 import {
   Bell,
@@ -355,9 +356,21 @@ function CreatorAnalyticsBlock({ creatorId, canSee }: { creatorId: string; canSe
   if (!canSee) return null;
   if (q.isLoading)
     return (
-      <div className="mt-12 rounded-2xl border bg-card p-8 text-center">
-        <Loader2 className="h-6 w-6 animate-spin text-primary mx-auto" />
-      </div>
+      <section className="mt-12 space-y-6">
+        <div className="flex items-center gap-3">
+          <Skeleton className="h-5 w-5 rounded" />
+          <Skeleton className="h-6 w-32 rounded" />
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <StatCardSkeleton key={i} />
+          ))}
+        </div>
+        <div className="rounded-2xl border bg-card p-6 space-y-4">
+          <Skeleton className="h-5 w-44 rounded" />
+          <Skeleton className="h-48 w-full rounded-xl" />
+        </div>
+      </section>
     );
   const d = q.data;
   if (!d) return null;

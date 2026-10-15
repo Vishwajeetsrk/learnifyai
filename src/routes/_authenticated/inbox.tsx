@@ -19,6 +19,7 @@ import { format } from "date-fns";
 import { toast } from "sonner";
 import { useState } from "react";
 import { AppShell } from "@/components/AppShell";
+import { NotificationsSkeleton } from "@/components/Skeletons";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -216,7 +217,7 @@ export function InboxPage({ embedded = false }: { embedded?: boolean }) {
 
         <TabsContent value="notifs" className="space-y-2 pt-4">
           {notifs.isLoading ? (
-            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground mx-auto my-12" />
+            <NotificationsSkeleton />
           ) : (notifs.data ?? []).length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-12">No notifications yet.</p>
           ) : (
@@ -300,7 +301,7 @@ export function InboxPage({ embedded = false }: { embedded?: boolean }) {
 
         <TabsContent value="reminders" className="space-y-2 pt-4">
           {reminders.isLoading ? (
-            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground mx-auto my-12" />
+            <NotificationsSkeleton />
           ) : (reminders.data ?? []).length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-12">
               No scheduled reminders. Create one from{" "}

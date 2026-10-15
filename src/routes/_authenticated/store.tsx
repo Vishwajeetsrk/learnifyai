@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import React, { useState, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AppShell } from "@/components/AppShell";
+import { StoreProductsSkeleton } from "@/components/Skeletons";
 import { cn } from "@/lib/utils";
 import {
   ShoppingCart,
@@ -404,10 +405,7 @@ export default function StorePage() {
 
             {/* Products Grid */}
             {itemsLoading ? (
-              <div className="text-center py-20">
-                <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-3" />
-                <p className="text-sm text-muted-foreground">Loading digital products...</p>
-              </div>
+              <StoreProductsSkeleton />
             ) : filteredItems.length === 0 ? (
               <div className="text-center py-20 px-4 border border-dashed rounded-3xl bg-card/50 max-w-xl mx-auto space-y-4">
                 <div className="h-16 w-16 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mx-auto">

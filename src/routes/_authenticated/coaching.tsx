@@ -1,14 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { lazy, Suspense } from "react";
-import { Loader2 } from "lucide-react";
+import { AppShell } from "@/components/AppShell";
+import { CoachingSkeleton } from "@/components/Skeletons";
 
 const CoachingDashboard = lazy(() => import("@/views/coaching.view"));
 
 function CoachingFallback() {
   return (
-    <div className="flex items-center justify-center h-64">
-      <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-    </div>
+    <AppShell>
+      <CoachingSkeleton />
+    </AppShell>
   );
 }
 

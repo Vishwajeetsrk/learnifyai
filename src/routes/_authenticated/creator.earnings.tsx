@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ArrowDownToLine, IndianRupee, Loader2, TrendingUp, Wallet } from "lucide-react";
 import { format } from "date-fns";
 import { AppShell } from "@/components/AppShell";
+import { TransactionRowsSkeleton } from "@/components/Skeletons";
 import { CreatorGate } from "@/components/CreatorGate";
 import { CreatorTabs } from "@/components/CreatorTabs";
 import { Badge } from "@/components/ui/badge";
@@ -127,9 +128,7 @@ function CreatorEarningsPage() {
             </Badge>
           </div>
           {txQuery.isLoading ? (
-            <div className="p-10 grid place-items-center">
-              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-            </div>
+            <TransactionRowsSkeleton />
           ) : creatorCredits.length === 0 ? (
             <div className="p-10 text-center text-sm text-muted-foreground">
               No paid course earnings yet.

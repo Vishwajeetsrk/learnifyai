@@ -19,6 +19,7 @@ import "highlight.js/styles/github-dark.css";
 import { AppShell } from "@/components/AppShell";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
@@ -641,8 +642,17 @@ function AIPage() {
           <div ref={scrollRef} className="flex-1 overflow-y-auto">
             <div className="max-w-3xl mx-auto px-6 py-8 space-y-6">
               {loadingMessages ? (
-                <div className="flex justify-center py-12">
-                  <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                <div className="space-y-6">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className={`flex gap-3 ${i % 2 === 1 ? "justify-end" : ""}`}>
+                      {i % 2 === 0 && <Skeleton className="h-8 w-8 rounded-full shrink-0" />}
+                      <div className="space-y-2 max-w-[70%] flex-1">
+                        <Skeleton className="h-4 w-3/4 rounded" />
+                        <Skeleton className="h-12 w-full rounded-2xl" />
+                      </div>
+                      {i % 2 === 1 && <Skeleton className="h-8 w-8 rounded-full shrink-0" />}
+                    </div>
+                  ))}
                 </div>
               ) : messages.length === 0 ? (
                 <div className="text-center py-20">
@@ -710,7 +720,11 @@ function AIPage() {
                             {m.content}
                           </ReactMarkdown>
                         ) : (
-                          <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                          <div className="flex items-center gap-1.5 py-1 px-1">
+                            <span className="w-2 h-2 rounded-full bg-primary/70 animate-pulse" />
+                            <span className="w-2 h-2 rounded-full bg-primary/70 animate-pulse delay-150" />
+                            <span className="w-2 h-2 rounded-full bg-primary/70 animate-pulse delay-300" />
+                          </div>
                         )}
                       </div>
                     </div>

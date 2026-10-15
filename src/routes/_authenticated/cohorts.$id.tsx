@@ -15,6 +15,7 @@ import {
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
+import { CohortDetailSkeleton } from "@/components/Skeletons";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -221,9 +222,7 @@ function CohortDetail() {
   if (cohortQuery.isLoading)
     return (
       <AppShell>
-        <div className="py-20 grid place-items-center">
-          <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-        </div>
+        <CohortDetailSkeleton />
       </AppShell>
     );
   if (!data)

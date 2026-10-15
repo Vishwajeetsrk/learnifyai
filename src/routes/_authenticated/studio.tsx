@@ -6,11 +6,13 @@ import { Button } from "@/components/ui/button";
 
 const StudioPage = lazy(() => import("@/views/studio.view"));
 
+import { StudioSkeleton } from "@/components/Skeletons";
+
 function StudioFallback() {
   return (
-    <div className="flex items-center justify-center h-64">
-      <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-    </div>
+    <AppShell>
+      <StudioSkeleton />
+    </AppShell>
   );
 }
 

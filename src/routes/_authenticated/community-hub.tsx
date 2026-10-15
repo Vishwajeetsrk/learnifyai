@@ -130,12 +130,10 @@ const TABS = [
   { id: "inbox", label: "Inbox", icon: <BellIcon /> },
 ];
 
+import { CommunityFeedSkeleton } from "@/components/Skeletons";
+
 function ViewFallback() {
-  return (
-    <div className="flex items-center justify-center min-h-[50vh]">
-      <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-    </div>
-  );
+  return <CommunityFeedSkeleton />;
 }
 
 function CommunityHubPage() {

@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { Award, Loader2, Trophy, Medal, TrendingUp, Code2, Star } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { LeaderboardSkeleton } from "@/components/Skeletons";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/playground/leaderboard")({
@@ -60,9 +61,7 @@ function LeaderboardPage() {
         </div>
 
         {isLoading ? (
-          <div className="py-20 grid place-items-center">
-            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-          </div>
+          <LeaderboardSkeleton />
         ) : !entries?.length ? (
           <div className="rounded-2xl border bg-card p-12 text-center text-muted-foreground">
             <Trophy className="h-10 w-10 mx-auto mb-3 opacity-30" />

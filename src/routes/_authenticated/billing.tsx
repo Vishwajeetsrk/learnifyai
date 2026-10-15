@@ -33,6 +33,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
+import { TransactionRowsSkeleton } from "@/components/Skeletons";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { useServerFn } from "@tanstack/react-start";
@@ -576,8 +577,8 @@ function BillingPage() {
                 </Badge>
               </div>
               {payments.isLoading ? (
-                <div className="p-10 text-center">
-                  <Loader2 className="h-6 w-6 animate-spin mx-auto text-primary" />
+                <div className="p-4">
+                  <TransactionRowsSkeleton />
                 </div>
               ) : !payments.data?.length ? (
                 <div className="p-12 text-center text-muted-foreground">
@@ -918,8 +919,8 @@ function BillingPage() {
                 <h3 className="font-semibold">Credit Purchase History</h3>
               </div>
               {creditPurchases.isLoading ? (
-                <div className="p-8 text-center">
-                  <Loader2 className="h-5 w-5 animate-spin mx-auto" />
+                <div className="p-4">
+                  <TransactionRowsSkeleton />
                 </div>
               ) : !creditPurchases.data?.length ? (
                 <div className="p-8 text-center text-muted-foreground">
