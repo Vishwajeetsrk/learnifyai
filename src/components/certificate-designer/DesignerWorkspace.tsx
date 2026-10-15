@@ -8,12 +8,13 @@ import {
   CertDesign,
   DEFAULT_DESIGN,
   ShapeType,
-  COLOR_PALETTES,
 } from "./types";
 import { useServerFn } from "@tanstack/react-start";
 import { aiOptimizeDesign } from "@/lib/canva-cert.functions";
 import { CertificatePreview } from "./CertificatePreview";
 import { PropertiesPanel } from "./PropertiesPanel";
+import { CanvaFormatBar } from "./CanvaFormatBar";
+import { CanvaLeftDock } from "./CanvaLeftDock";
 import { Button } from "@/components/ui/button";
 import {
   ArrowLeft,
@@ -26,7 +27,19 @@ import {
   ZoomOut,
   Maximize2,
   Eye,
+  Printer,
+  FileJson,
+  UploadCloud,
+  SlidersHorizontal,
+  ChevronDown,
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 type DesignerWorkspaceProps = {
   initialTemplate: CertTemplate;
@@ -53,15 +66,20 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [previewSampleData, setPreviewSampleData] = useState(false);
   const [mobileInspectorOpen, setMobileInspectorOpen] = useState(false);
+  const [desktopInspectorOpen, setDesktopInspectorOpen] = useState(true);
+  const [showGrid, setShowGrid] = useState(false);
+  const [snapToGrid, setSnapToGrid] = useState(true);
+
   const containerRef = useRef<HTMLDivElement>(null);
   const copiedElementRef = useRef<CertElement | null>(null);
+  const jsonInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!containerRef.current) return;
     const observer = new ResizeObserver((entries) => {
       for (let entry of entries) {
         const { width } = entry.contentRect;
-        const availableWidth = width - 64;
+        const availableWidth = width - 48;
         const newScale = Math.min(1, Math.max(0.2, availableWidth / 842));
         setScale(newScale);
       }
@@ -170,6 +188,13 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
           onDeleteElement(selectedId);
         }
       }
+      // Toggle Grid (G key)
+      if (e.key === "g" && !ctrl) {
+        const tag = document.activeElement?.tagName;
+        if (tag !== "INPUT" && tag !== "TEXTAREA") {
+          setShowGrid((prev) => !prev);
+        }
+      }
       // Nudge arrow keys shortcut
       if (selectedId && ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(e.key)) {
         const tag = document.activeElement?.tagName;
@@ -213,9 +238,9 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
     [elements, saveHistory],
   );
 
-  const onAddElement = (type: CertElement["type"]) => {
+  const onAddElement = (type: CertElement["type"], overrides?: Partial<CertElement>) => {
     const defaults: Record<string, { w: number; h: number; content?: string }> = {
-      text: { w: 300, h: 40, content: "Sample Text" },
+      text: { w: 320, h: 44, content: "Sample Text" },
       image: { w: 200, h: 150 },
       org_logo: { w: 120, h: 50 },
       qr: { w: 80, h: 80 },
@@ -230,13 +255,16 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
       table: { w: 250, h: 120 },
     };
     const d = defaults[type] || { w: 200, h: 40 };
+    const targetW = overrides?.width ?? d.w;
+    const targetH = overrides?.height ?? d.h;
+
     const newEl: CertElement = {
       id: Date.now().toString(),
       type,
-      x: Math.round((842 - d.w) / 2),
-      y: Math.round((595 - d.h) / 2),
-      width: d.w,
-      height: d.h,
+      x: Math.round((842 - targetW) / 2),
+      y: Math.round((595 - targetH) / 2),
+      width: targetW,
+      height: targetH,
       content: d.content,
       fontSize: type === "text" ? 20 : undefined,
       color: type === "text" ? design.text_color : undefined,
@@ -261,6 +289,7 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
       ...(type === "table"
         ? { rows: 3, cols: 2, cellPadding: 4, borderColor: design.accent_color }
         : {}),
+      ...overrides,
     };
     const next = [...elements, newEl];
     setElements(next);
@@ -300,7 +329,7 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
     }
   };
 
-  // Export
+  // Canva Export Suite
   const onExportPNG = async () => {
     try {
       toast.info("Generating PNG...");
@@ -344,6 +373,130 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
     } catch (e: any) {
       toast.error("Export failed: " + e.message);
     }
+  };
+
+  const onExportSVG = () => {
+    try {
+      toast.info("Generating SVG Vector...");
+      const svgParts: string[] = [];
+      // Background rect
+      svgParts.push(`<rect width="842" height="595" fill="${design.bg_color}" />`);
+      // Border rect
+      if (design.border_style !== "none") {
+        svgParts.push(
+          `<rect x="14" y="14" width="814" height="567" fill="none" stroke="${design.accent_color}" stroke-width="${design.border_width}" />`,
+        );
+      }
+      // Elements
+      elements.forEach((el) => {
+        if (el.hidden) return;
+        if (
+          el.type === "text" ||
+          el.type === "date" ||
+          el.type === "student_name" ||
+          el.type === "course_title"
+        ) {
+          const anchor = el.align === "center" ? "middle" : el.align === "right" ? "end" : "start";
+          const posX =
+            el.x + (el.align === "center" ? (el.width || 100) / 2 : el.align === "right" ? (el.width || 100) : 0);
+          const posY = el.y + (el.fontSize || 20);
+          const cleanText = (el.content || "").replace(/[<>&'"]/g, "");
+          svgParts.push(
+            `<text x="${posX}" y="${posY}" font-family="${el.fontFamily || design.font_family}" font-size="${el.fontSize || 20}" fill="${el.color || design.text_color}" text-anchor="${anchor}">${cleanText}</text>`,
+          );
+        } else if (el.type === "divider_line") {
+          svgParts.push(
+            `<line x1="${el.x}" y1="${el.y}" x2="${el.x + (el.width || 400)}" y2="${el.y}" stroke="${el.color || design.accent_color}" stroke-width="${el.height || 2}" />`,
+          );
+        } else if (el.type === "shape") {
+          if (el.shapeType === "circle") {
+            const r = Math.min(el.width || 100, el.height || 100) / 2;
+            svgParts.push(
+              `<circle cx="${el.x + r}" cy="${el.y + r}" r="${r}" fill="${el.fillColor || "transparent"}" stroke="${el.strokeColor || design.accent_color}" stroke-width="${el.strokeWidth || 2}" />`,
+            );
+          } else {
+            svgParts.push(
+              `<rect x="${el.x}" y="${el.y}" width="${el.width || 100}" height="${el.height || 100}" rx="${el.borderRadius || 0}" fill="${el.fillColor || "transparent"}" stroke="${el.strokeColor || design.accent_color}" stroke-width="${el.strokeWidth || 2}" />`,
+            );
+          }
+        }
+      });
+
+      const fullSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 842 595" width="842" height="595">${svgParts.join("")}</svg>`;
+      const blob = new Blob([fullSvg], { type: "image/svg+xml;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${templateName || "certificate"}.svg`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success("Downloaded SVG!");
+    } catch (e: any) {
+      toast.error("SVG export failed: " + e.message);
+    }
+  };
+
+  const onExportJSON = () => {
+    try {
+      const templateBundle = {
+        version: "canva-cert-v2",
+        name: templateName,
+        bg_image_url: bgImageUrl,
+        design,
+        elements,
+        exportedAt: new Date().toISOString(),
+      };
+      const jsonStr = JSON.stringify(templateBundle, null, 2);
+      const blob = new Blob([jsonStr], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${templateName || "certificate"}.cert.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success("Exported template as JSON!");
+    } catch (e: any) {
+      toast.error("JSON export failed: " + e.message);
+    }
+  };
+
+  const onImportJSON = (file: File) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = JSON.parse(e.target?.result as string);
+        if (data.elements && Array.isArray(data.elements)) {
+          setElements(data.elements);
+          if (data.design) setDesign(data.design);
+          if (data.name) setTemplateName(data.name);
+          if (data.bg_image_url !== undefined) setBgImageUrl(data.bg_image_url || "");
+          saveHistory(data.elements, data.design || design);
+          toast.success("Template imported successfully!");
+        } else {
+          toast.error("Invalid template JSON structure.");
+        }
+      } catch (err: any) {
+        toast.error("Failed to parse JSON template: " + err.message);
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  const onPrint = () => {
+    window.print();
+  };
+
+  const onApplyTemplatePreset = (preset: any) => {
+    onUpdateDesign({
+      bg_color: preset.bg_color,
+      accent_color: preset.accent_color,
+      text_color: preset.text_color,
+      font_family: preset.font_family,
+      border_style: preset.border_style,
+      border_width: preset.border_width,
+      corner_style: preset.corner_style,
+      background_pattern: preset.background_pattern,
+    });
   };
 
   const onAiOptimize = async () => {
@@ -400,6 +553,7 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
       y: Math.round((595 - 60) / 2),
       width: 60,
       height: 60,
+      label: name,
     };
     const next = [...elements, newEl];
     setElements(next);
@@ -407,15 +561,16 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
     saveHistory(next, design);
   };
 
-  const onAddDivider = () => {
+  const onAddDivider = (thickness: number = 4, style: string = "solid") => {
     const newEl: CertElement = {
       id: Date.now().toString(),
       type: "divider_line",
       x: Math.round((842 - 400) / 2),
       y: Math.round(595 / 2),
       width: 400,
-      height: 4,
+      height: thickness,
       color: design.accent_color,
+      label: `Divider (${style})`,
     };
     const next = [...elements, newEl];
     setElements(next);
@@ -443,21 +598,21 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
   const selectedEl = elements.find((e) => e.id === selectedId);
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#F8FAFC] flex flex-col md:flex-row overflow-hidden">
-      {/* Top Bar */}
-      <header className="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-4 shrink-0 z-10">
-        <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onClose}>
+    <div className="fixed inset-0 z-50 bg-[#F8FAFC] dark:bg-slate-950 flex flex-col overflow-hidden">
+      {/* 1. TOP MASTER HEADER */}
+      <header className="h-14 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-3 shrink-0 z-20">
+        <div className="flex items-center gap-2.5">
+          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onClose} title="Back to Templates">
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <div className="h-6 w-px bg-slate-200" />
+          <div className="h-5 w-px bg-slate-200 dark:bg-slate-800" />
           <input
             value={templateName}
             onChange={(e) => setTemplateName(e.target.value)}
-            className="font-semibold text-sm text-slate-900 bg-transparent border-transparent hover:border-input focus:border-input focus-visible:ring-1 px-2 py-1 rounded-md w-48"
+            className="font-semibold text-xs text-slate-900 dark:text-slate-100 bg-transparent border-transparent hover:border-input focus:border-input focus-visible:ring-1 px-2 py-1 rounded-md w-44 md:w-56"
             placeholder="Template Name"
           />
-          <div className="h-6 w-px bg-slate-200" />
+          <div className="h-5 w-px bg-slate-200 dark:bg-slate-800" />
           <div className="flex items-center gap-1">
             <Button
               variant="ghost"
@@ -483,26 +638,18 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Mobile hide/show inspector toggle */}
-          <Button
-            variant={mobileInspectorOpen ? "default" : "outline"}
-            size="sm"
-            className="md:hidden text-xs h-7 px-2.5 font-medium"
-            onClick={() => setMobileInspectorOpen(!mobileInspectorOpen)}
-          >
-            {mobileInspectorOpen ? "Close Inspector" : "Inspector / Edit"}
-          </Button>
-
-          <div className="hidden md:flex items-center gap-1 bg-slate-100 rounded-lg px-2 py-1">
+          {/* Zoom controls */}
+          <div className="hidden lg:flex items-center gap-1 bg-slate-100 dark:bg-slate-800 rounded-lg px-2 py-1">
             <Button
               variant="ghost"
               size="icon"
               className="h-6 w-6"
               onClick={() => setScale((s) => Math.max(s - 0.1, 0.3))}
+              title="Zoom out"
             >
               <ZoomOut className="h-3 w-3" />
             </Button>
-            <span className="text-[10px] font-mono w-10 text-center">
+            <span className="text-[10px] font-mono w-9 text-center">
               {Math.round(scale * 100)}%
             </span>
             <Button
@@ -510,14 +657,16 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
               size="icon"
               className="h-6 w-6"
               onClick={() => setScale((s) => Math.min(s + 0.1, 2))}
+              title="Zoom in"
             >
               <ZoomIn className="h-3 w-3" />
             </Button>
-            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setScale(1)}>
+            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setScale(1)} title="Reset zoom">
               <Maximize2 className="h-3 w-3" />
             </Button>
           </div>
 
+          {/* Sample Data Toggle */}
           <Button
             variant={previewSampleData ? "default" : "outline"}
             size="sm"
@@ -529,83 +678,200 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
                   : "Showing realistic sample student credentials",
               );
             }}
-            className={`h-8 text-xs ${previewSampleData ? "bg-emerald-600 hover:bg-emerald-700 text-white border-transparent" : "text-slate-700"}`}
+            className={`h-8 text-xs ${previewSampleData ? "bg-emerald-600 hover:bg-emerald-700 text-white border-transparent" : "text-slate-700 dark:text-slate-300"}`}
             title="Toggle sample student data"
           >
             <Eye className="h-3.5 w-3.5 mr-1" />
-            {previewSampleData ? "Sample Data ON" : "Sample Data"}
+            {previewSampleData ? "Sample ON" : "Sample Data"}
           </Button>
 
+          {/* AI Optimize */}
           <Button
             variant="secondary"
             size="sm"
             onClick={onAiOptimize}
-            className="h-8 text-xs bg-indigo-50 text-indigo-600 hover:bg-indigo-100 border border-indigo-200"
+            className="h-8 text-xs bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-950 border border-indigo-200 dark:border-indigo-800"
           >
             <Sparkles className="h-3.5 w-3.5 mr-1" /> AI Upgrade
           </Button>
 
-          <Button variant="outline" size="sm" onClick={onExportPNG} className="h-8 text-xs">
-            <Download className="h-3.5 w-3.5 mr-1" /> PNG
-          </Button>
-          <Button variant="outline" size="sm" onClick={onExportPDF} className="h-8 text-xs">
-            <Download className="h-3.5 w-3.5 mr-1" /> PDF
+          {/* Import JSON button */}
+          <input
+            ref={jsonInputRef}
+            type="file"
+            accept=".json,.cert.json"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) onImportJSON(file);
+            }}
+          />
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => jsonInputRef.current?.click()}
+            className="h-8 text-xs hidden md:flex"
+            title="Import custom .cert.json template file"
+          >
+            <UploadCloud className="h-3.5 w-3.5 mr-1" /> Import
           </Button>
 
+          {/* Canva Complete Export Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="h-8 text-xs font-medium">
+                <Download className="h-3.5 w-3.5 mr-1.5" /> Export
+                <ChevronDown className="h-3 w-3 ml-1 opacity-50" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-52">
+              <DropdownMenuItem onClick={onExportPNG} className="text-xs">
+                <Download className="h-3.5 w-3.5 mr-2" /> High-Resolution PNG (3x)
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={onExportPDF} className="text-xs">
+                <Download className="h-3.5 w-3.5 mr-2" /> Print-Ready PDF (A4)
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={onExportSVG} className="text-xs">
+                <Download className="h-3.5 w-3.5 mr-2" /> Scalable Vector Graphic (SVG)
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={onExportJSON} className="text-xs">
+                <FileJson className="h-3.5 w-3.5 mr-2" /> Export Template (.cert.json)
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={onPrint} className="text-xs">
+                <Printer className="h-3.5 w-3.5 mr-2" /> Print Certificate (A4)
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* Inspector Toggle Button */}
+          <Button
+            variant={desktopInspectorOpen ? "default" : "outline"}
+            size="sm"
+            onClick={() => {
+              setDesktopInspectorOpen(!desktopInspectorOpen);
+              setMobileInspectorOpen(!mobileInspectorOpen);
+            }}
+            className="h-8 text-xs hidden md:flex"
+            title="Toggle Right Inspector"
+          >
+            <SlidersHorizontal className="h-3.5 w-3.5 mr-1" /> Inspector
+          </Button>
+
+          {/* Mobile inspector toggle */}
+          <Button
+            variant={mobileInspectorOpen ? "default" : "outline"}
+            size="sm"
+            className="md:hidden text-xs h-8 px-2"
+            onClick={() => setMobileInspectorOpen(!mobileInspectorOpen)}
+          >
+            {mobileInspectorOpen ? "Close Inspector" : "Inspector"}
+          </Button>
+
+          {/* Save Button */}
           <Button
             size="sm"
             onClick={handleSave}
             disabled={isSaving}
-            className="h-8 text-xs bg-[#6B5BFB] hover:bg-[#5a4be0] text-white"
+            className="h-8 text-xs bg-[#6B5BFB] hover:bg-[#5a4be0] text-white shadow-xs font-semibold"
           >
             <Save className="h-3.5 w-3.5 mr-1" /> {isSaving ? "Saving..." : "Save Template"}
           </Button>
         </div>
       </header>
 
-      {/* Split View */}
-      <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
-        {/* Left: Preview (Centered & Scaled) */}
-        <div
-          ref={containerRef}
-          className="flex-1 bg-slate-100 overflow-hidden flex items-center justify-center p-8 min-h-[300px] md:min-h-0"
-        >
+      {/* 2. MAIN WORKSPACE WITH CANVA DOCK & FORMAT BAR */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* Left: Canva Tool Dock (Templates, Text, Elements, Badges, Signatures, Background, Layers) */}
+        <CanvaLeftDock
+          elements={elements}
+          design={design}
+          selectedId={selectedId}
+          onSelect={(id) => {
+            setSelectedId(id);
+            if (id) setMobileInspectorOpen(true);
+          }}
+          onAddElement={onAddElement}
+          onAddShape={onAddShape}
+          onAddSvg={onAddSvg}
+          onAddDivider={onAddDivider}
+          onUploadImage={onUploadImage}
+          onUpdateElement={onUpdateElement}
+          onDeleteElement={onDeleteElement}
+          onDuplicateElement={onDuplicateElement}
+          onUpdateDesign={onUpdateDesign}
+          onUpdateBgImageUrl={setBgImageUrl}
+          bgImageUrl={bgImageUrl}
+          onApplyTemplatePreset={onApplyTemplatePreset}
+        />
+
+        {/* Center: Format Bar + Canvas Workspace */}
+        <div className="flex-1 flex flex-col overflow-hidden bg-slate-100/90 dark:bg-slate-950/90">
+          {/* Top Contextual Format Bar */}
+          <CanvaFormatBar
+            selectedElement={selectedEl}
+            design={design}
+            onUpdateElement={onUpdateElement}
+            onUpdateDesign={onUpdateDesign}
+            onDuplicateElement={onDuplicateElement}
+            onDeleteElement={onDeleteElement}
+            canvasWidth={CANVAS_WIDTH}
+            canvasHeight={CANVAS_HEIGHT}
+            showGrid={showGrid}
+            onToggleGrid={() => setShowGrid(!showGrid)}
+            snapToGrid={snapToGrid}
+            onToggleSnap={() => setSnapToGrid(!snapToGrid)}
+            totalElementsCount={elements.length}
+          />
+
+          {/* Canvas Viewport */}
           <div
-            style={{
-              transform: `scale(${scale})`,
-              transformOrigin: "center center",
-              transition: "transform 0.1s ease-out",
-            }}
+            ref={containerRef}
+            className="flex-1 overflow-auto flex items-center justify-center p-6 min-h-[300px]"
           >
-            <CertificatePreview
-              elements={elements}
-              design={design}
-              bgImageUrl={bgImageUrl}
-              selectedId={selectedId}
-              onSelect={(id) => {
-                setSelectedId(id);
-                if (id) setMobileInspectorOpen(true);
+            <div
+              style={{
+                transform: `scale(${scale})`,
+                transformOrigin: "center center",
+                transition: "transform 0.1s ease-out",
               }}
-              onUpdateElement={onUpdateElement}
-              scale={scale}
-              onDeleteElement={onDeleteElement}
-              onDuplicateElement={onDuplicateElement}
-              previewSampleData={previewSampleData}
-            />
+            >
+              <CertificatePreview
+                elements={elements}
+                design={design}
+                bgImageUrl={bgImageUrl}
+                selectedId={selectedId}
+                onSelect={(id) => {
+                  setSelectedId(id);
+                  if (id) setMobileInspectorOpen(true);
+                }}
+                onUpdateElement={onUpdateElement}
+                scale={scale}
+                onDeleteElement={onDeleteElement}
+                onDuplicateElement={onDuplicateElement}
+                previewSampleData={previewSampleData}
+                showGrid={showGrid}
+                snapToGrid={snapToGrid}
+              />
+            </div>
           </div>
         </div>
 
-        {/* Right: Properties Panel (Desktop: sidebar, Mobile: bottom slide-up drawer) */}
+        {/* Right: Collapsible Inspector Properties Panel */}
         <div
-          className={`w-full md:w-[380px] shrink-0 border-t md:border-t-0 md:border-l border-slate-200 bg-white overflow-auto transition-all ${
+          className={`w-full md:w-[380px] shrink-0 border-t md:border-t-0 md:border-l border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-auto transition-all ${
             mobileInspectorOpen
               ? "fixed inset-x-0 bottom-0 z-40 max-h-[70vh] rounded-t-2xl shadow-2xl border-t-2 border-primary/20 md:static md:max-h-none md:rounded-none md:shadow-none md:border-t-0"
-              : "hidden md:block"
+              : desktopInspectorOpen
+                ? "hidden md:block"
+                : "hidden"
           }`}
         >
           {mobileInspectorOpen && (
-            <div className="md:hidden flex items-center justify-between px-4 py-2 border-b bg-slate-50 sticky top-0 z-50">
-              <span className="text-xs font-semibold text-slate-800">Element Inspector</span>
+            <div className="md:hidden flex items-center justify-between px-4 py-2 border-b bg-slate-50 dark:bg-slate-950 sticky top-0 z-50">
+              <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">
+                Element Inspector
+              </span>
               <Button
                 variant="ghost"
                 size="sm"

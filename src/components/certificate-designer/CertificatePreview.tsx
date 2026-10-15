@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { CertElement, CertDesign } from "./types";
 import { Lock, Unlock, ChevronRight, Copy, Trash2 } from "lucide-react";
 
@@ -14,6 +14,8 @@ type CertificatePreviewProps = {
   onDuplicateElement: (id: string) => void;
   previewSampleData?: boolean;
   sampleData?: Record<string, string>;
+  showGrid?: boolean;
+  snapToGrid?: boolean;
 };
 
 const DEFAULT_SAMPLE_DATA: Record<string, string> = {
@@ -43,8 +45,12 @@ export function CertificatePreview({
   onDuplicateElement,
   previewSampleData = false,
   sampleData,
+  showGrid = false,
+  snapToGrid = false,
 }: CertificatePreviewProps) {
   const canvasRef = useRef<HTMLDivElement>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingValue, setEditingValue] = useState<string>("");
   const activeBgImage = design.show_bg_image !== false ? bgImageUrl : null;
 
   const resolveContent = (text: string) => {
@@ -132,9 +138,23 @@ export function CertificatePreview({
         border: borderCss,
       }}
       onClick={(e) => {
-        if (e.target === canvasRef.current) onSelect(null);
+        if (e.target === canvasRef.current) {
+          onSelect(null);
+          setEditingId(null);
+        }
       }}
     >
+      {/* Grid Guidelines Overlay */}
+      {showGrid && (
+        <div
+          className="absolute inset-0 pointer-events-none z-[2]"
+          style={{
+            backgroundImage: `linear-gradient(to right, rgba(148, 163, 184, 0.22) 1px, transparent 1px), linear-gradient(to bottom, rgba(148, 163, 184, 0.22) 1px, transparent 1px)`,
+            backgroundSize: "20px 20px",
+          }}
+        />
+      )}
+
       {/* Corner Styles */}
       {!activeBgImage && design.corner_style !== "none" && (
         <>
@@ -186,10 +206,11 @@ export function CertificatePreview({
         if (el.hidden) return null;
         const isSelected = selectedId === el.id;
         const isLocked = el.locked === true;
+        const isEditing = editingId === el.id;
         const rotation = el.rotation || 0;
 
         const handleMouseDown = (e: React.MouseEvent) => {
-          if (isLocked) return;
+          if (isLocked || isEditing) return;
           e.stopPropagation();
           onSelect(el.id);
 
@@ -201,8 +222,19 @@ export function CertificatePreview({
           const handleMouseMove = (moveEvent: MouseEvent) => {
             const dx = moveEvent.clientX - startX;
             const dy = moveEvent.clientY - startY;
-            const nextX = elemX + dx / scale;
-            const nextY = elemY + dy / scale;
+            let nextX = elemX + dx / scale;
+            let nextY = elemY + dy / scale;
+
+            if (snapToGrid) {
+              const gridSize = 10;
+              nextX = Math.round(nextX / gridSize) * gridSize;
+              nextY = Math.round(nextY / gridSize) * gridSize;
+              // Center magnetic snap
+              const elW = el.width || 100;
+              const elH = el.height || 40;
+              if (Math.abs(nextX + elW / 2 - 421) < 8) nextX = 421 - elW / 2;
+              if (Math.abs(nextY + elH / 2 - 297.5) < 8) nextY = 297.5 - elH / 2;
+            }
 
             const maxW = 842 - (el.width || 50);
             const maxH = 595 - (el.height || 30);
@@ -225,7 +257,7 @@ export function CertificatePreview({
         };
 
         const handleTouchStart = (e: React.TouchEvent) => {
-          if (isLocked) return;
+          if (isLocked || isEditing) return;
           e.stopPropagation();
           onSelect(el.id);
 
@@ -239,8 +271,14 @@ export function CertificatePreview({
             const touchMove = moveEvent.touches[0];
             const dx = touchMove.clientX - startX;
             const dy = touchMove.clientY - startY;
-            const nextX = elemX + dx / scale;
-            const nextY = elemY + dy / scale;
+            let nextX = elemX + dx / scale;
+            let nextY = elemY + dy / scale;
+
+            if (snapToGrid) {
+              const gridSize = 10;
+              nextX = Math.round(nextX / gridSize) * gridSize;
+              nextY = Math.round(nextY / gridSize) * gridSize;
+            }
 
             const maxW = 842 - (el.width || 50);
             const maxH = 595 - (el.height || 30);
@@ -334,6 +372,20 @@ export function CertificatePreview({
             }}
             onMouseDown={handleMouseDown}
             onTouchStart={handleTouchStart}
+            onDoubleClick={(e) => {
+              e.stopPropagation();
+              if (isLocked) return;
+              if (
+                el.type === "text" ||
+                el.type === "dynamic_text" ||
+                el.type === "student_name" ||
+                el.type === "course_title" ||
+                el.type === "credential_id"
+              ) {
+                setEditingId(el.id);
+                setEditingValue(el.content || "");
+              }
+            }}
             onClick={(e) => {
               e.stopPropagation();
             }}
@@ -439,13 +491,46 @@ export function CertificatePreview({
                   : "none",
               }}
             >
-              {el.type === "text" && (
-                <span
-                  dangerouslySetInnerHTML={{
-                    __html: resolveContent(el.content || "").replace(/\n/g, "<br/>"),
-                  }}
-                />
-              )}
+              {el.type === "text" &&
+                (isEditing ? (
+                  <textarea
+                    autoFocus
+                    value={editingValue}
+                    onChange={(e) => setEditingValue(e.target.value)}
+                    onBlur={() => {
+                      onUpdateElement(el.id, { content: editingValue });
+                      setEditingId(null);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        onUpdateElement(el.id, { content: editingValue });
+                        setEditingId(null);
+                      } else if (e.key === "Escape") {
+                        setEditingId(null);
+                      }
+                    }}
+                    onMouseDown={(e) => e.stopPropagation()}
+                    className="w-full h-full bg-white/95 dark:bg-slate-900/95 text-inherit border-2 border-primary rounded p-1 resize-none focus:outline-none focus:ring-2 focus:ring-primary shadow-xl z-50 font-inherit"
+                    style={{
+                      fontSize: el.fontSize,
+                      fontFamily: el.fontFamily || design.font_family,
+                      color: el.color || design.text_color,
+                      textAlign: el.align,
+                      fontWeight: el.fontWeight || "normal",
+                      fontStyle: el.fontStyle || "normal",
+                      lineHeight: el.lineHeight || 1.2,
+                      letterSpacing: el.letterSpacing ? `${el.letterSpacing}px` : "normal",
+                      textTransform: el.textTransform || "none",
+                    }}
+                  />
+                ) : (
+                  <span
+                    dangerouslySetInnerHTML={{
+                      __html: resolveContent(el.content || "").replace(/\n/g, "<br/>"),
+                    }}
+                  />
+                ))}
 
               {el.type === "date" && (
                 <span className="flex items-center gap-1">

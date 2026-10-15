@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { downloadInvoicePdf } from "@/lib/invoice-pdf";
@@ -749,9 +749,9 @@ function CreatorWithdrawSection({ balance }: { balance: number }) {
                 {!payoutQuery.data && (
                   <p className="text-[11px] text-muted-foreground">
                     Tip: save your details in{" "}
-                    <a href="/creator/settings" className="text-primary hover:underline">
-                      Creator settings
-                    </a>{" "}
+                    <Link to="/settings" className="text-primary hover:underline">
+                      Account settings
+                    </Link>{" "}
                     to autofill next time.
                   </p>
                 )}
