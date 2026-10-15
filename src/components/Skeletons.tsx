@@ -932,4 +932,67 @@ export function WorkspaceBoardSkeleton() {
   );
 }
 
+export function CertificateStudioSkeleton() {
+  return (
+    <div className="min-h-[100dvh] bg-background space-y-6">
+      {/* Studio Header Bar */}
+      <div className="border-b bg-card/60 px-6 py-5 flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <Skeleton className="h-10 w-10 rounded-xl" />
+          <div className="space-y-1.5">
+            <Skeleton className="h-6 w-52 rounded" />
+            <Skeleton className="h-3.5 w-72 rounded" />
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <Skeleton className="h-9 w-32 rounded-lg" />
+          <Skeleton className="h-9 w-28 rounded-lg" />
+          <Skeleton className="h-9 w-32 rounded-lg" />
+        </div>
+      </div>
+
+      {/* Tabs Row */}
+      <div className="border-b px-6 flex items-center gap-6 overflow-x-auto">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <Skeleton key={i} className="h-8 w-24 rounded my-2 shrink-0" />
+        ))}
+      </div>
+
+      {/* Main Content Area */}
+      <div className="p-6 max-w-7xl mx-auto space-y-6">
+        {/* Metric Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="rounded-2xl border border-border/70 bg-card p-5 space-y-3">
+              <div className="flex items-center justify-between">
+                <Skeleton className="h-4 w-28 rounded" />
+                <Skeleton className="h-8 w-8 rounded-lg" />
+              </div>
+              <Skeleton className="h-8 w-20 rounded" />
+              <Skeleton className="h-3 w-32 rounded" />
+            </div>
+          ))}
+        </div>
+
+        {/* Templates / Items Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="rounded-2xl border border-border/70 bg-card overflow-hidden space-y-3 p-4">
+              <Skeleton className="aspect-[1.414] w-full rounded-xl" />
+              <div className="flex items-center justify-between">
+                <Skeleton className="h-5 w-36 rounded" />
+                <Skeleton className="h-5 w-16 rounded-full" />
+              </div>
+              <div className="flex items-center justify-between pt-2 border-t">
+                <Skeleton className="h-8 w-20 rounded-md" />
+                <Skeleton className="h-8 w-20 rounded-md" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 

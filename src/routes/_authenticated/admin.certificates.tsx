@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/use-auth";
 import { AppShell } from "@/components/AppShell";
+import { CertificateStudioSkeleton } from "@/components/Skeletons";
 import React, { Component, useState, useEffect, type ReactNode } from "react";
 import { Loader2, AlertCircle, RefreshCw, Home, ShieldAlert } from "lucide-react";
 
@@ -135,14 +136,7 @@ function AdminCertificatesPage() {
   return (
     <AppShell>
       <StudioErrorBoundary>
-        <React.Suspense
-          fallback={
-            <div className="p-16 text-center text-sm font-bold text-muted-foreground flex flex-col items-center justify-center gap-3">
-              <Loader2 className="h-7 w-7 animate-spin text-primary" />
-              <span>Loading Certificate OS Studio...</span>
-            </div>
-          }
-        >
+        <React.Suspense fallback={<CertificateStudioSkeleton />}>
           <CertDesignerAdmin initialTab={tab || "overview"} />
         </React.Suspense>
       </StudioErrorBoundary>
