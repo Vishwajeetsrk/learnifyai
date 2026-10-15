@@ -32,6 +32,9 @@ import {
   UploadCloud,
   SlidersHorizontal,
   ChevronDown,
+  Copy,
+  Image as ImageIcon,
+  Check,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -350,6 +353,79 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
       toast.success("Downloaded PNG!");
     } catch (e: any) {
       toast.error("Export failed: " + e.message);
+    }
+  };
+
+  const onExportJPEG = async () => {
+    try {
+      toast.info("Generating JPEG...");
+      setSelectedId(null);
+      const prevScale = scale;
+      setScale(1);
+      await new Promise((r) => setTimeout(r, 150));
+      const el =
+        document.getElementById("certificate-preview-export") ||
+        document.getElementById("certificate-canvas-export");
+      if (!el) throw new Error("Canvas not found");
+      const canvas = await html2canvas(el, { scale: 3, useCORS: true, backgroundColor: "#ffffff" });
+      setScale(prevScale);
+      const link = document.createElement("a");
+      link.download = `${templateName || "certificate"}.jpg`;
+      link.href = canvas.toDataURL("image/jpeg", 0.95);
+      link.click();
+      toast.success("Downloaded JPEG!");
+    } catch (e: any) {
+      toast.error("Export failed: " + e.message);
+    }
+  };
+
+  const onExportWebP = async () => {
+    try {
+      toast.info("Generating WebP...");
+      setSelectedId(null);
+      const prevScale = scale;
+      setScale(1);
+      await new Promise((r) => setTimeout(r, 150));
+      const el =
+        document.getElementById("certificate-preview-export") ||
+        document.getElementById("certificate-canvas-export");
+      if (!el) throw new Error("Canvas not found");
+      const canvas = await html2canvas(el, { scale: 3, useCORS: true, backgroundColor: null });
+      setScale(prevScale);
+      const link = document.createElement("a");
+      link.download = `${templateName || "certificate"}.webp`;
+      link.href = canvas.toDataURL("image/webp", 0.95);
+      link.click();
+      toast.success("Downloaded WebP!");
+    } catch (e: any) {
+      toast.error("Export failed: " + e.message);
+    }
+  };
+
+  const onCopyToClipboard = async () => {
+    try {
+      toast.info("Copying image to clipboard...");
+      setSelectedId(null);
+      const prevScale = scale;
+      setScale(1);
+      await new Promise((r) => setTimeout(r, 150));
+      const el =
+        document.getElementById("certificate-preview-export") ||
+        document.getElementById("certificate-canvas-export");
+      if (!el) throw new Error("Canvas not found");
+      const canvas = await html2canvas(el, { scale: 2, useCORS: true, backgroundColor: null });
+      setScale(prevScale);
+      canvas.toBlob(async (blob) => {
+        if (!blob) throw new Error("Failed to create image blob");
+        if (navigator.clipboard && window.ClipboardItem) {
+          await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+          toast.success("Certificate image copied to clipboard!");
+        } else {
+          toast.error("Clipboard API not supported in this browser.");
+        }
+      }, "image/png");
+    } catch (e: any) {
+      toast.error("Clipboard copy failed: " + e.message);
     }
   };
 
@@ -724,17 +800,26 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
                 <ChevronDown className="h-3 w-3 ml-1 opacity-50" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-52">
+            <DropdownMenuContent align="end" className="w-56">
               <DropdownMenuItem onClick={onExportPNG} className="text-xs">
-                <Download className="h-3.5 w-3.5 mr-2" /> High-Resolution PNG (3x)
+                <Download className="h-3.5 w-3.5 mr-2 text-indigo-500" /> High-Resolution PNG (3x)
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={onExportWebP} className="text-xs">
+                <Download className="h-3.5 w-3.5 mr-2 text-cyan-500" /> Modern WebP Image
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={onExportJPEG} className="text-xs">
+                <Download className="h-3.5 w-3.5 mr-2 text-amber-500" /> High-Quality JPEG (95%)
               </DropdownMenuItem>
               <DropdownMenuItem onClick={onExportPDF} className="text-xs">
-                <Download className="h-3.5 w-3.5 mr-2" /> Print-Ready PDF (A4)
+                <Download className="h-3.5 w-3.5 mr-2 text-rose-500" /> Print-Ready PDF (A4)
               </DropdownMenuItem>
               <DropdownMenuItem onClick={onExportSVG} className="text-xs">
-                <Download className="h-3.5 w-3.5 mr-2" /> Scalable Vector Graphic (SVG)
+                <Download className="h-3.5 w-3.5 mr-2 text-emerald-500" /> Scalable Vector Graphic (SVG)
               </DropdownMenuItem>
               <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={onCopyToClipboard} className="text-xs">
+                <Copy className="h-3.5 w-3.5 mr-2 text-primary" /> Copy Image to Clipboard
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={onExportJSON} className="text-xs">
                 <FileJson className="h-3.5 w-3.5 mr-2" /> Export Template (.cert.json)
               </DropdownMenuItem>

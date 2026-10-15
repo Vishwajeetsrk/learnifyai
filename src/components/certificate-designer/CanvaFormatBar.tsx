@@ -739,6 +739,161 @@ export function CanvaFormatBar({
               </PopoverContent>
             </Popover>
 
+            {/* Canva Element Effects (Shadow, Glow, Aura) */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant={el.shadowColor ? "default" : "ghost"}
+                  size="sm"
+                  className={`h-8 px-2 text-xs ${el.shadowColor ? "bg-primary text-primary-foreground font-medium" : "text-slate-600 dark:text-slate-300"}`}
+                  title="Shadow & Glow Effects"
+                >
+                  <Sparkles className="h-3.5 w-3.5 mr-1" />
+                  {el.shadowColor ? "Effects (On)" : "Effects"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-72 p-4 space-y-4" align="end">
+                <div className="flex items-center justify-between border-b pb-2">
+                  <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">
+                    Shadow & Glow Effects
+                  </span>
+                  {el.shadowColor && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 text-[11px] px-2 text-rose-500 hover:text-rose-600"
+                      onClick={() =>
+                        onUpdateElement(el.id, {
+                          shadowColor: undefined,
+                          shadowBlur: undefined,
+                          shadowOffsetX: undefined,
+                          shadowOffsetY: undefined,
+                        })
+                      }
+                    >
+                      Reset
+                    </Button>
+                  )}
+                </div>
+
+                {/* Presets */}
+                <div className="grid grid-cols-3 gap-2">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      onUpdateElement(el.id, {
+                        shadowColor: "rgba(0,0,0,0.45)",
+                        shadowBlur: 6,
+                        shadowOffsetX: 2,
+                        shadowOffsetY: 3,
+                      })
+                    }
+                    className="p-2 border rounded-lg text-center hover:bg-slate-50 dark:hover:bg-slate-800 text-[11px] font-medium"
+                  >
+                    Drop Shadow
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      onUpdateElement(el.id, {
+                        shadowColor: "rgba(212,175,55,0.75)",
+                        shadowBlur: 14,
+                        shadowOffsetX: 0,
+                        shadowOffsetY: 0,
+                      })
+                    }
+                    className="p-2 border rounded-lg text-center hover:bg-slate-50 dark:hover:bg-slate-800 text-[11px] font-medium text-amber-600"
+                  >
+                    Gold Glow
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      onUpdateElement(el.id, {
+                        shadowColor: "rgba(79,70,229,0.75)",
+                        shadowBlur: 16,
+                        shadowOffsetX: 0,
+                        shadowOffsetY: 0,
+                      })
+                    }
+                    className="p-2 border rounded-lg text-center hover:bg-slate-50 dark:hover:bg-slate-800 text-[11px] font-medium text-indigo-600"
+                  >
+                    Neon Aura
+                  </button>
+                </div>
+
+                {/* Sliders */}
+                <div className="space-y-3 pt-1">
+                  <div>
+                    <div className="flex justify-between text-xs mb-1">
+                      <span>Blur Radius</span>
+                      <span className="font-mono text-muted-foreground">{el.shadowBlur ?? 4}px</span>
+                    </div>
+                    <Slider
+                      value={[el.shadowBlur ?? 4]}
+                      min={0}
+                      max={30}
+                      step={1}
+                      onValueChange={([val]) =>
+                        onUpdateElement(el.id, {
+                          shadowBlur: val,
+                          shadowColor: el.shadowColor || "rgba(0,0,0,0.5)",
+                        })
+                      }
+                    />
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between text-xs mb-1">
+                      <span>Offset X</span>
+                      <span className="font-mono text-muted-foreground">{el.shadowOffsetX ?? 0}px</span>
+                    </div>
+                    <Slider
+                      value={[el.shadowOffsetX ?? 0]}
+                      min={-20}
+                      max={20}
+                      step={1}
+                      onValueChange={([val]) =>
+                        onUpdateElement(el.id, {
+                          shadowOffsetX: val,
+                          shadowColor: el.shadowColor || "rgba(0,0,0,0.5)",
+                        })
+                      }
+                    />
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between text-xs mb-1">
+                      <span>Offset Y</span>
+                      <span className="font-mono text-muted-foreground">{el.shadowOffsetY ?? 2}px</span>
+                    </div>
+                    <Slider
+                      value={[el.shadowOffsetY ?? 2]}
+                      min={-20}
+                      max={20}
+                      step={1}
+                      onValueChange={([val]) =>
+                        onUpdateElement(el.id, {
+                          shadowOffsetY: val,
+                          shadowColor: el.shadowColor || "rgba(0,0,0,0.5)",
+                        })
+                      }
+                    />
+                  </div>
+
+                  <div>
+                    <div className="text-xs mb-1.5 font-medium">Effect Color</div>
+                    <input
+                      type="color"
+                      value={el.shadowColor?.startsWith("#") ? el.shadowColor : "#000000"}
+                      onChange={(e) => onUpdateElement(el.id, { shadowColor: e.target.value })}
+                      className="w-full h-8 rounded border p-0.5 cursor-pointer"
+                    />
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+
             <div className="h-5 w-px bg-slate-200 dark:bg-slate-700 mx-0.5" />
 
             {/* Position / Canvas Center */}

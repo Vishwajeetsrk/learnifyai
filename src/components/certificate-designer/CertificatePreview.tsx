@@ -486,9 +486,14 @@ export function CertificatePreview({
                 letterSpacing: el.letterSpacing ? `${el.letterSpacing}px` : "normal",
                 textTransform: el.textTransform || "none",
                 opacity: el.opacity ?? 1,
-                textShadow: el.shadowColor
-                  ? `${el.shadowOffsetX || 0}px ${el.shadowOffsetY || 0}px ${el.shadowBlur || 4}px ${el.shadowColor}`
-                  : "none",
+                textShadow:
+                  (el.type === "text" || el.type === "student_name" || el.type === "course_title" || el.type === "date") && el.shadowColor
+                    ? `${el.shadowOffsetX || 0}px ${el.shadowOffsetY || 0}px ${el.shadowBlur || 4}px ${el.shadowColor}`
+                    : "none",
+                filter:
+                  el.type !== "text" && el.type !== "student_name" && el.type !== "course_title" && el.type !== "date" && el.shadowColor
+                    ? `drop-shadow(${el.shadowOffsetX || 0}px ${el.shadowOffsetY || 0}px ${el.shadowBlur || 4}px ${el.shadowColor})`
+                    : undefined,
               }}
             >
               {el.type === "text" &&
