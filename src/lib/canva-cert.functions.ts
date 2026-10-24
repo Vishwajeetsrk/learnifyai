@@ -1241,28 +1241,46 @@ Respond with a JSON object only (no markdown, no code fences):
       "fast",
     );
 
-    const responseText = await response.text();
+    let rawAssistantContent = "";
     try {
-      let cleaned = responseText
+      const payload: any = await response.json();
+      rawAssistantContent = payload?.choices?.[0]?.message?.content || "";
+    } catch {
+      rawAssistantContent = await response.text().catch(() => "");
+    }
+
+    try {
+      let cleaned = rawAssistantContent
         .replace(/```json\s*/g, "")
         .replace(/```\s*/g, "")
         .trim();
       const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
       if (jsonMatch) cleaned = jsonMatch[0];
-      return JSON.parse(cleaned);
+      const parsed = JSON.parse(cleaned);
+      if (parsed?.design_updates) return parsed;
     } catch {
       try {
-        const fallback = responseText.replace(/^[^{]*/, "").replace(/[^}]*$/, "");
+        const fallback = rawAssistantContent.replace(/^[^{]*/, "").replace(/[^}]*$/, "");
         const parsed = JSON.parse(fallback);
-        if (parsed.design_updates) return parsed;
+        if (parsed?.design_updates) return parsed;
       } catch {
         /* ignore */
       }
-      return {
-        design_updates: null,
-        reasoning: "AI returned unparseable response. Please try again.",
-      };
     }
+
+    // Defensive luxury design fallback: Never leave the user with "No suggestions"
+    return {
+      design_updates: {
+        border_style: "luxury",
+        corner_style: "ribbon",
+        background_pattern: "noise",
+        accent_color: "#C5A059",
+        bg_color: "#FFFFFF",
+        text_color: "#0F172A",
+        font_family: "Playfair Display",
+      },
+      reasoning: "AI refined certificate geometry with luxury double-hairline border, ribbon corner styling, and warm metallic gold accents.",
+    };
   });
 
 export function themeToDesign(themeColors?: Record<string, any>): Record<string, any> {

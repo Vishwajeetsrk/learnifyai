@@ -576,12 +576,12 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
   };
 
   const onAiOptimize = async () => {
-    toast.info("AI analyzing design...");
+    toast.info("AI analyzing certificate geometry & typography...");
     try {
       const result = (await doAiOptimize({ data: { elements, design } })) as any;
       const u = result.design_updates;
       if (!u) {
-        toast.error(result.reasoning || "No suggestions");
+        toast.error(result.reasoning || "No suggestions available for this layout");
         return;
       }
       onUpdateDesign({
@@ -593,9 +593,9 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
         bg_color: u.bg_color,
         text_color: u.text_color,
       });
-      toast.success("AI Optimization applied!");
+      toast.success(result.reasoning ? `AI Upgrade: ${result.reasoning}` : "AI Optimization applied!");
     } catch (e: any) {
-      toast.error("AI failed: " + e.message);
+      toast.error("AI failed: " + (e?.message || "Please retry in a moment"));
     }
   };
 
