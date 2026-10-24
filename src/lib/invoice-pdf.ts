@@ -371,8 +371,8 @@ export async function downloadInvoicePdf(
     body: tableBody.map((row, i) => [(i + 1).toString(), row[0], row[1], row[2], row[3]]),
     foot: [
       ...(tax > 0 ? [["", "Subtotal", "", "", `₹${subtotal.toFixed(2)}`]] : []),
-      ...(tax > 0 ? [["", "CGST @ 9% (SAC 9992)", "", "", `₹${cgst.toFixed(2)}`]] : []),
-      ...(tax > 0 ? [["", "SGST @ 9% (SAC 9992)", "", "", `₹${sgst.toFixed(2)}`]] : []),
+      ...(tax > 0 ? [["", "CGST @ 9% (SAC 998431 - Online Education)", "", "", `₹${cgst.toFixed(2)}`]] : []),
+      ...(tax > 0 ? [["", "SGST @ 9% (SAC 998431 - Online Education)", "", "", `₹${sgst.toFixed(2)}`]] : []),
       ["", "TOTAL AMOUNT PAID", "", "", `₹${Number(inv.total_inr).toFixed(2)}`],
     ],
     columnStyles: {
@@ -416,7 +416,7 @@ export async function downloadInvoicePdf(
   doc.setFont("helvetica", "bold");
   doc.setFontSize(7.5);
   doc.setTextColor(primary[0], primary[1], primary[2]);
-  doc.text("Payment details", margin + 4, payBoxY + 5);
+  doc.text("Payment & Tax Compliance", margin + 4, payBoxY + 5);
 
   doc.setFont("helvetica", "normal");
   doc.setFontSize(7.5);
@@ -424,18 +424,20 @@ export async function downloadInvoicePdf(
   const payDetails = [
     `Invoice: ${inv.invoice_number || ""}`,
     `Status: ${(inv.status || "").toUpperCase()}`,
+    `Place of Supply: Karnataka (State Code 29)`,
+    `HSN/SAC: 998431 (Online Education)`,
     ...(inv.cashfree_order_id ? [`Order ID: ${inv.cashfree_order_id}`] : []),
     ...(inv.payment_method ? [`Method: ${inv.payment_method}`] : []),
   ];
   payDetails.forEach((txt, i) => {
-    const col = Math.floor(i / 2);
-    const row = i % 2;
-    doc.text(txt, margin + 4 + col * 86, payBoxY + 10 + row * 5.5);
+    const col = Math.floor(i / 3);
+    const row = i % 3;
+    doc.text(txt, margin + 4 + col * 86, payBoxY + 9 + row * 4);
   });
 
   // ─── 11. VERIFICATION URL & QR CODE ───────────────────────────────────────
   const footerStartY = payBoxY + 25;
-  const verifyUrl = `https://learnifyai.com/verify/invoice/${inv.invoice_number || ""}`;
+  const verifyUrl = `https://www.learnifyai.in/verify/invoice/${inv.invoice_number || ""}`;
 
   if (branding.qr_enabled === "true") {
     try {

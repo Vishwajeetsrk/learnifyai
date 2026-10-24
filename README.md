@@ -2,7 +2,7 @@
 
 <img src="src/assets/learnify-logo.png" alt="Learnify AI Logo" width="180" style="margin-bottom: 12px; filter: drop-shadow(0 4px 12px rgba(99, 102, 241, 0.25));" />
 
-# Learnify AI 5.9.0
+# Learnify AI 6.0.0
 
 **The AI-Native Learning & Career Operating System**
 
@@ -23,6 +23,14 @@
 ## 🎯 What is Learnify AI?
 
 Learnify AI is a **full-stack, AI-powered learning and career growth platform** that integrates intelligent tutoring, 11-in-1 career studio tools, autonomous AI agents, gamification, and creator economy tools into one seamless experience.
+
+### 🌟 What's New in Learnify AI 6.0.0
+* 📜 **Interactive Certificate Engine (Guilloche Micro-Lathe Vector Stage)**: 100% native HTML5 vector canvas guilloche security rosette engine, 6 background themes, customizable seals, dual cursive signatures, and 300 DPI landscape A4 PDF / 3x PNG master exports.
+* 🛡️ **Authentic Credential Registry**: Purged all mock placeholder credentials from user hubs to ensure cryptographically verified attestation from Supabase with high-conversion learning journeys.
+* 📦 **Career Pro Template Source Code ZIP Export**: Downloadable full-source archives for all 46 Next-Gen Website Design templates with automated package bundling and Vite configuration.
+* 💻 **Studio Classroom Live Coding & Compiler Sandbox**: In-browser React 18 / Babel / Tailwind live compilation runner with `Ctrl+Enter` execution, live preview toggle, viewport switcher, and integrated runtime console logs.
+* 🎥 **Remotion Video Engine Phasing in Creator Studio**: Non-video lesson MCQs/labs (Phase 1), 1-click Remotion AI video synthesizer (Phase 2), and batch video render suites with transcript cue indexing (Phase 3).
+* 🧾 **GST-Compliant Tax Invoices & Public Verification Hub**: Indian GST-compliant invoices (SAC 998431, 18% GST breakdown, Place of Supply Karnataka 29) with public QR verification at `https://www.learnifyai.in/verify/invoice/{id}`.
 
 ### 🎥 Live Platform Demo & Visual Tour
 

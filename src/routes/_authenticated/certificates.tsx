@@ -32,53 +32,6 @@ export const Route = createFileRoute("/_authenticated/certificates")({
   component: CertsPage,
 });
 
-const DEFAULT_USER_CERTS = [
-  {
-    id: "cert-1",
-    code: "LRN-ZLHYTD-MQQJFAA5",
-    score: 96,
-    total: 100,
-    issued_at: "2026-06-23T00:00:00Z",
-    courses: {
-      title: "React Supabase CRUD Tutorial",
-      category: "Programming",
-    },
-  },
-  {
-    id: "cert-2",
-    code: "LRN-SKR0ZR-MQP0YW81",
-    score: 100,
-    total: 100,
-    issued_at: "2026-06-22T00:00:00Z",
-    courses: {
-      title: "Full-Stack Development with Next.js 14",
-      category: "Engineering",
-    },
-  },
-  {
-    id: "cert-3",
-    code: "LRN-E8VQ17-MQI10MPU",
-    score: 95,
-    total: 100,
-    issued_at: "2026-06-17T00:00:00Z",
-    courses: {
-      title: "AI for Beginners: Mastering Prompt Engineering",
-      category: "AI & Data",
-    },
-  },
-  {
-    id: "cert-4",
-    code: "871E5B8565704342",
-    score: 100,
-    total: 100,
-    issued_at: "2026-06-15T00:00:00Z",
-    courses: {
-      title: "Next.js 15 Basics",
-      category: "Programming",
-    },
-  },
-];
-
 function CertsPage() {
   const { user } = useAuth();
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -99,8 +52,8 @@ function CertsPage() {
     },
   });
 
-  const rawCerts = q.data ?? [];
-  const certs = rawCerts.length > 0 ? rawCerts : DEFAULT_USER_CERTS;
+  // Pure authentic user certificates from database (no mock fallback)
+  const certs = q.data ?? [];
 
   const [filterCat, setFilterCat] = useState<string>("All");
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -310,14 +263,34 @@ function CertsPage() {
         {q.isLoading ? (
           <CertificatesListSkeleton />
         ) : filteredCerts.length === 0 ? (
-          <div className="p-12 text-center rounded-3xl border border-dashed text-muted-foreground space-y-3 bg-card/40">
-            <Award className="h-10 w-10 mx-auto text-muted-foreground/60" />
-            <h3 className="font-semibold text-foreground text-base">No credentials found</h3>
-            <p className="text-xs max-w-sm mx-auto">
-              {searchTerm || filterCat !== "All"
-                ? "No credentials match your active filters. Try adjusting your search query or category."
-                : "Complete your enrolled engineering tracks and capstone milestones to unlock verified production credentials."}
-            </p>
+          <div className="p-10 sm:p-14 text-center rounded-3xl border border-dashed border-border/80 bg-card/60 backdrop-blur-sm space-y-5">
+            <div className="h-16 w-16 mx-auto rounded-3xl bg-primary/10 border border-primary/25 flex items-center justify-center text-primary shadow-inner">
+              <Award className="h-8 w-8" />
+            </div>
+            <div className="space-y-2 max-w-md mx-auto">
+              <h3 className="font-display font-bold text-foreground text-xl">
+                {searchTerm || filterCat !== "All"
+                  ? "No matching credentials found"
+                  : "No Credentials Earned Yet"}
+              </h3>
+              <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                {searchTerm || filterCat !== "All"
+                  ? "No credentials match your active search filters. Try resetting your search query or category filter."
+                  : "Complete coursework, score 80%+ on capstone assessments, and earn your cryptographically attested Learnify AI honors credential."}
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+              <Button asChild className="gap-2 shadow-sm font-semibold">
+                <Link to="/courses">
+                  <Sparkles className="w-4 h-4" /> Explore Accredited Courses
+                </Link>
+              </Button>
+              <Button variant="outline" asChild className="gap-2 font-medium">
+                <Link to="/verified-certificates">
+                  <ShieldCheck className="w-4 h-4 text-emerald-500" /> Preview Certificate Engine
+                </Link>
+              </Button>
+            </div>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

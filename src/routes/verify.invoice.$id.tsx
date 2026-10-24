@@ -9,11 +9,14 @@ import {
   Building,
   User,
   ExternalLink,
+  Download,
 } from "lucide-react";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { downloadInvoicePdf } from "@/lib/invoice-pdf";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/verify/invoice/$id")({
   head: () => ({ meta: [{ title: "Verify Invoice — Learnify AI Verification Hub" }] }),
@@ -210,9 +213,43 @@ function VerifyInvoicePage() {
               </div>
             </div>
 
-            <div className="flex gap-3 pt-2">
-              <Button asChild className="flex-1">
+            <div className="flex flex-wrap gap-3 pt-2">
+              <Button asChild className="flex-1 min-w-[140px]">
                 <Link to="/dashboard">Go to Dashboard</Link>
+              </Button>
+              <Button
+                variant="outline"
+                onClick={async () => {
+                  try {
+                    const inv = {
+                      invoice_number: q.data.invoice_number,
+                      created_at: q.data.created_at,
+                      due_date: q.data.due_date,
+                      status: q.data.status,
+                      amount_inr: Number(q.data.amount_inr || q.data.total_inr || 0),
+                      tax_inr: Number(q.data.tax_inr || 0),
+                      total_inr: Number(q.data.total_inr || 0),
+                      cashfree_order_id: q.data.cashfree_order_id,
+                      payment_method: q.data.payment_method,
+                    };
+                    await downloadInvoicePdf(
+                      inv,
+                      (q.data.profiles as any)?.email || "Customer",
+                      {
+                        company_name: "Learnify AI",
+                        legal_name: "Learnify EdTech Pvt. Ltd.",
+                        gstin: "29XXXXX1234X1Z5",
+                        prefix: "INV",
+                      }
+                    );
+                    toast.success("GST Tax Invoice downloaded successfully!");
+                  } catch (e: any) {
+                    toast.error(e?.message || "Failed to generate invoice PDF");
+                  }
+                }}
+                className="gap-1.5 cursor-pointer border-primary/30 text-primary hover:bg-primary/10"
+              >
+                <Download className="h-4 w-4" /> Download PDF
               </Button>
               {q.data.pdf_url && (
                 <Button variant="outline" asChild>
