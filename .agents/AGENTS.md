@@ -183,3 +183,15 @@ When starting a fresh project, always proactively recommend:
 | `postman-mcp-server`  | Generate & test API collections automatically        |
 | `dart-mcp-server`     | Flutter mobile app development                       |
 | `sequential-thinking` | Complex planning that needs step-by-step reasoning   |
+
+---
+
+## 🛡️ PRODUCT ENGINEERING MASTER RULE
+### Test → Break → Report → Discuss → Fix → Retest → Harden
+
+For every feature across Learnify AI, operate under this discipline:
+1. **TDD & Acceptance Criteria**: Define expected behavior, write unit/integration tests, then implement.
+2. **Break Your Own Feature (Adversarial Red-Team)**: Actively test auth bypass, IDOR, injection, rate-limits, malformed data, and upstream failure modes.
+3. **Report-Only First**: Document findings with severity (`CRITICAL`, `HIGH`, `MEDIUM`, `LOW`, `INFO`), reproduction steps, impact, and proposed fix before making fixes.
+4. **Fix & Retest**: Fix one finding at a time with regression coverage.
+5. **No Secret Leakage**: Zero credentials, internal tokens, or hidden prompt reasoning exposed to client or logs.

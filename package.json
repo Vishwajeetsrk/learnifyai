@@ -15,7 +15,8 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "test:portfolio": "node --experimental-strip-types scripts/test-portfolio-ide.ts",
-    "test:factory": "node --experimental-strip-types scripts/test-portfolio-factory.ts"
+    "test:factory": "node --experimental-strip-types scripts/test-portfolio-factory.ts",
+    "test:ai-tutor": "node --experimental-strip-types scripts/test-ai-tutor-engine.ts"
   },
   "dependencies": {
     "@ai-sdk/openai-compatible": "^2.0.54",

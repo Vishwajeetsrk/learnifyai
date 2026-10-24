@@ -10,11 +10,18 @@ import {
   ImagePlus,
   X,
   Zap,
+  GraduationCap,
+  BookOpen,
+  Layers,
+  Calendar,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
 import "highlight.js/styles/github-dark.css";
+
+import { ArtifactRenderer } from "@/components/ai-tutor/ArtifactRenderer";
+import { ActivityStatusIndicator } from "@/components/ai-tutor/ActivityStatusIndicator";
 
 import { AppShell } from "@/components/AppShell";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -268,8 +275,8 @@ function AIPage() {
     }
   };
 
-  const send = async () => {
-    const text = input.trim();
+  const send = async (overridePrompt?: string) => {
+    const text = (overridePrompt ?? input).trim();
     if ((!text && !attachedImage) || streaming) return;
     const photo = attachedImage;
     // Auto-switch to first vision-capable model when image is attached
@@ -663,29 +670,73 @@ function AIPage() {
                   ))}
                 </div>
               ) : messages.length === 0 ? (
-                <div className="text-center py-20">
-                  <div className="mx-auto h-12 w-12 rounded-2xl bg-primary/10 grid place-items-center mb-4">
-                    <Sparkles className="h-6 w-6 text-primary" />
+                <div className="py-12 max-w-2xl mx-auto text-center space-y-6">
+                  <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                    <Sparkles className="h-3.5 w-3.5" />
+                    <span>AI Tutor 2.0 • Interactive Learning OS</span>
                   </div>
-                  <h2 className="text-xl font-display font-semibold">Ask anything</h2>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Get explanations, code reviews, study plans, and more.
-                  </p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-8 max-w-xl mx-auto">
+
+                  <div>
+                    <h2 className="text-2xl sm:text-3xl font-display font-bold text-foreground tracking-tight">
+                      Learn faster with interactive artifacts
+                    </h2>
+                    <p className="text-sm text-muted-foreground mt-2 max-w-lg mx-auto">
+                      Ask any question to generate structured visual diagrams, active recall quizzes,
+                      flashcards, exam-ready answers, and customized study schedules.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left pt-2">
                     {[
-                      "Explain quantum entanglement like I'm 12",
-                      "Write a Python script to scrape a webpage",
-                      "Create a 4-week study plan for AWS Solutions Architect",
-                      "What's the difference between SQL and NoSQL?",
-                    ].map((suggestion) => (
-                      <button
-                        key={suggestion}
-                        onClick={() => setInput(suggestion)}
-                        className="text-left text-sm border rounded-lg p-3 hover:bg-accent transition"
-                      >
-                        {suggestion}
-                      </button>
-                    ))}
+                      {
+                        title: "Visual Architecture Flow",
+                        desc: "Explain TCP/IP 4-layer architecture with a visual diagram",
+                        icon: Layers,
+                        badge: "Diagram",
+                      },
+                      {
+                        title: "Active Recall Quiz",
+                        desc: "Quiz me with 3 challenging questions on Python generators",
+                        icon: Sparkles,
+                        badge: "Interactive Quiz",
+                      },
+                      {
+                        title: "Exam Preparation",
+                        desc: "Give me a 10-mark BCA exam answer for Process Synchronization",
+                        icon: GraduationCap,
+                        badge: "Exam Mode",
+                      },
+                      {
+                        title: "Personalized Roadmap",
+                        desc: "Create a 7-day study plan to master SQL and Database Indexing",
+                        icon: Calendar,
+                        badge: "Study Plan",
+                      },
+                    ].map((card, i) => {
+                      const Icon = card.icon;
+                      return (
+                        <button
+                          key={i}
+                          onClick={() => void send(card.desc)}
+                          className="group flex flex-col justify-between rounded-2xl border border-border/80 bg-card/60 p-4 transition-all duration-200 hover:border-primary/40 hover:bg-card hover:shadow-md cursor-pointer text-left"
+                        >
+                          <div className="flex items-center justify-between w-full mb-2">
+                            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary group-hover:scale-105 transition-transform">
+                              <Icon className="h-4 w-4" />
+                            </div>
+                            <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground px-2 py-0.5 rounded-full bg-muted">
+                              {card.badge}
+                            </span>
+                          </div>
+                          <span className="text-xs font-semibold text-foreground group-hover:text-primary transition-colors">
+                            {card.title}
+                          </span>
+                          <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                            {card.desc}
+                          </p>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               ) : (
@@ -702,39 +753,33 @@ function AIPage() {
                         </AvatarFallback>
                       </Avatar>
                     ) : (
-                      <div className="h-8 w-8 shrink-0 rounded-full grid place-items-center text-xs font-semibold bg-gradient-to-br from-primary to-primary/60 text-primary-foreground">
+                      <div className="h-8 w-8 shrink-0 rounded-full grid place-items-center text-xs font-semibold bg-gradient-to-br from-primary to-indigo-600 text-white shadow-xs">
                         AI
                       </div>
                     )}
                     <div
                       className={cn(
-                        "rounded-2xl px-4 py-3 max-w-[85%]",
-                        m.role === "user" ? "bg-primary text-primary-foreground" : "bg-card border",
+                        "rounded-2xl px-4 py-3.5 shadow-xs transition-all",
+                        m.role === "user"
+                          ? "max-w-[85%] bg-primary text-primary-foreground"
+                          : "max-w-[92%] sm:max-w-[90%] w-full sm:w-auto bg-card border border-border/70",
                       )}
                     >
-                      <div
-                        className={cn(
-                          "prose prose-sm max-w-none prose-pre:bg-muted prose-pre:text-foreground prose-code:before:hidden prose-code:after:hidden prose-img:rounded-lg prose-img:my-2",
-                          m.role === "user"
-                            ? "prose-invert prose-p:text-primary-foreground"
-                            : "dark:prose-invert",
-                        )}
-                      >
-                        {m.content ? (
-                          <ReactMarkdown
-                            remarkPlugins={[remarkGfm]}
-                            rehypePlugins={m.role === "assistant" ? [rehypeHighlight] : []}
-                          >
+                      {m.role === "user" ? (
+                        <div className="prose prose-sm max-w-none prose-invert prose-p:text-primary-foreground">
+                          <ReactMarkdown remarkPlugins={[remarkGfm]}>
                             {m.content}
                           </ReactMarkdown>
-                        ) : (
-                          <div className="flex items-center gap-1.5 py-1 px-1">
-                            <span className="w-2 h-2 rounded-full bg-primary/70 animate-pulse" />
-                            <span className="w-2 h-2 rounded-full bg-primary/70 animate-pulse delay-150" />
-                            <span className="w-2 h-2 rounded-full bg-primary/70 animate-pulse delay-300" />
-                          </div>
-                        )}
-                      </div>
+                        </div>
+                      ) : !m.content ? (
+                        <ActivityStatusIndicator />
+                      ) : (
+                        <ArtifactRenderer
+                          content={m.content}
+                          isStreaming={streaming && m.id === messages[messages.length - 1]?.id}
+                          onSendQuery={(query) => void send(query)}
+                        />
+                      )}
                     </div>
                   </div>
                 ))

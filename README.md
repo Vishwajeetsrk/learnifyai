@@ -2,7 +2,7 @@
 
 <img src="src/assets/learnify-logo.png" alt="Learnify AI Logo" width="180" style="margin-bottom: 12px; filter: drop-shadow(0 4px 12px rgba(99, 102, 241, 0.25));" />
 
-# Learnify AI 5.8.9
+# Learnify AI 5.9.0
 
 **The AI-Native Learning & Career Operating System**
 
@@ -1673,6 +1673,19 @@ MIT License. See [LICENSE](LICENSE) for details.
   - **Resilient Fallback PDF Stream Parser**: Decodes octal escapes, hex strings, and TJ array operators when external PDF workers are restricted.
 - 🔗 **RESPONSIVE LINK PREVIEW ENGINE**:
   - Seamless desktop floating spring card + mobile backdrop peek popovers with curated instant previews for major learning hubs.
+### v5.9.0 (October 2026) — Major Release: AI Tutor 2.0 Interactive Learning OS
+
+- 🧠 **AI TUTOR 2.0 — THREE-LAYER ARCHITECTURE & INTERACTIVE ARTIFACTS**:
+  - **From Text Dumps to Interactive Results**: Replaced generic Markdown responses with an intelligent multi-layer system (**Conversation Layer**, **Intelligence Layer**, and **Experience Layer**).
+  - **Dynamic Activity Status Engine**: Replaced blank pulsing dots with contextual, high-level task indicators (`Understanding your question` → `Planning lesson & key concepts` → `Creating interactive visuals & examples` → `Finalizing response & practice`) with zero leakage of private chain-of-thought.
+  - **Interactive Concept Quizzes (`InteractiveQuizCard.tsx`)**: Auto-generates MCQ concept checks with instant correct/incorrect feedback, detailed "Why this is correct" explanations, and +10 XP gamification rewards.
+  - **Visual Flow & Architecture Diagrams (`InteractiveDiagramCard.tsx`)**: Generates structured, responsive process flows and architecture node diagrams with step-by-step deep dives and full-screen view.
+  - **Active Recall Flashcards (`InteractiveFlashcardCard.tsx`)**: Interactive 3D flip cards with front/back inspection, hint reveals, and mastery status tracking.
+  - **University & Exam Mode Answers (`InteractiveExamCard.tsx`)**: Dedicated 2-Mark, 5-Mark, 8-Mark, and 10-Mark tabs tailored for BCA, B.Tech, and university exam preparation with 1-click answer copying.
+  - **Personalized Study Schedules (`InteractiveStudyPlanCard.tsx`)**: Day-by-day interactive roadmap with checkable milestone tasks, dynamic completion percentage progress bar, and 1-click dashboard save.
+  - **Contextual Quick Actions & Speech Narration (`QuickActionsBar.tsx`, `VoicePlayer.tsx`)**: Interactive action chips (`[Explain simpler]`, `[Show diagram]`, `[Test me]`, `[10-mark answer]`) and Web Speech API player with pause, resume, speed control (0.75× to 1.5×), and animated audio wave meters.
+  - **Product Engineering Master Rule Integration**: Anchored automated TDD test runner (`scripts/test-ai-tutor-engine.ts`) and adversarial red-team security verification (`scripts/test-ai-tutor-redteam.ts`).
+
 ### v5.8.9 (October 2026) — Autonomous AI Gateway Resilience & Multi-Provider Cascade Overhaul
 
 - 🤖 **MULTI-TIER AI GATEWAY & RESILIENT MODEL CASCADE**:
