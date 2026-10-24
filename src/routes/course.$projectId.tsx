@@ -9,7 +9,7 @@ import { Helmet } from "react-helmet-async";
 import { useAuth } from "@/hooks/use-auth";
 import { useServerFn } from "@tanstack/react-start";
 import { exportProjectZip } from "@/lib/project-export.functions";
-import { triggerZipDownload } from "@/lib/project-export.client";
+import { triggerZipDownload } from "@/lib/project-export-download";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
