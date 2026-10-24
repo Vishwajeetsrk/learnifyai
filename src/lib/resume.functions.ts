@@ -207,6 +207,81 @@ export const generateCareerRoadmap = createServerFn({ method: "POST" })
     }
   });
 
+const ParsePdfInput = z.object({
+  base64Data: z.string().min(10),
+  fileName: z.string().optional().default("resume.pdf"),
+});
+
+export const parseResumePdf = createServerFn({ method: "POST" })
+  .validator((d: unknown) => ParsePdfInput.parse(d || {}))
+  .handler(async ({ data }) => {
+    try {
+      const base64Clean = data.base64Data.replace(/^data:[^;]+;base64,/, "");
+      const buffer = Buffer.from(base64Clean, "base64");
+
+      if (buffer.length < 10) {
+        throw new Error("PDF file buffer is empty or corrupted.");
+      }
+
+      // Check for %PDF magic bytes
+      const header = buffer.subarray(0, 8).toString("ascii");
+      if (!header.includes("%PDF")) {
+        throw new Error("Invalid PDF header. File is not a valid PDF document.");
+      }
+
+      // Dynamically load legacy pdfjs-dist in Node.js environment
+      const pdfjsLib = await import("pdfjs-dist/legacy/build/pdf.mjs");
+
+      const loadingTask = pdfjsLib.getDocument({
+        data: new Uint8Array(buffer),
+        useSystemFonts: true,
+        disableFontFace: true,
+      });
+
+      const pdf = await loadingTask.promise;
+      const numPages = Math.min(pdf.numPages, 15);
+      let fullText = "";
+
+      for (let i = 1; i <= numPages; i++) {
+        const page = await pdf.getPage(i);
+        const textContent = await page.getTextContent();
+        const pageLines: string[] = [];
+        let currentLine = "";
+        let lastY: number | null = null;
+
+        for (const item of textContent.items as any[]) {
+          if (!item.str) continue;
+          const currentY = item.transform ? Math.round(item.transform[5]) : null;
+          if (lastY !== null && currentY !== null && Math.abs(currentY - lastY) > 3) {
+            if (currentLine.trim()) pageLines.push(currentLine.trim());
+            currentLine = item.str;
+          } else {
+            currentLine += (currentLine ? " " : "") + item.str;
+          }
+          lastY = currentY;
+        }
+        if (currentLine.trim()) pageLines.push(currentLine.trim());
+
+        if (pageLines.length > 0) {
+          fullText += pageLines.join("\n") + "\n\n";
+        }
+      }
+
+      return {
+        success: true,
+        text: fullText.trim(),
+        numPages,
+      };
+    } catch (err: any) {
+      console.error("[parseResumePdf] Server PDF parsing error:", err?.message || err);
+      return {
+        success: false,
+        text: "",
+        error: err?.message || "Failed to parse PDF document on server.",
+      };
+    }
+  });
+
 const ExtractResumeInput = z.object({
   rawText: z.string().min(1).max(100000).optional().default(""),
 });
@@ -216,6 +291,29 @@ export const extractResumeFields = createServerFn({ method: "POST" })
   .validator((d: unknown) => ExtractResumeInput.parse(d || {}))
   .handler(async ({ data }) => {
     const rawText = data.rawText || "";
+
+    let result: any = {
+      fullName: "",
+      email: "",
+      phone: "",
+      linkedin: "",
+      summary: "",
+      experience: "",
+      education: "",
+      skills: "",
+      certifications: "",
+      projects: "",
+      targetRole: "",
+    };
+
+    // Fast check: reject binary / JPEG garbage immediately
+    if (
+      /(?:QE\s*){3,}|(?:Q@\s*){3,}|(?:P\s*E\s*){3,}/i.test(rawText) ||
+      /\b\d+\s+0\s+obj\b|\bendobj\b|\bendstream\b/i.test(rawText)
+    ) {
+      return result;
+    }
+
     const body = {
       messages: [
         {
@@ -244,20 +342,6 @@ Return ONLY valid JSON matching this schema:
       ],
       response_format: { type: "json_object" },
       temperature: 0.1,
-    };
-
-    let result: any = {
-      fullName: "",
-      email: "",
-      phone: "",
-      linkedin: "",
-      summary: "",
-      experience: "",
-      education: "",
-      skills: "",
-      certifications: "",
-      projects: "",
-      targetRole: "",
     };
 
     try {

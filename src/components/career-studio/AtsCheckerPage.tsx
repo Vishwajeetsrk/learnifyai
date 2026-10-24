@@ -28,7 +28,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { checkAtsScore, extractResumeFields } from "@/lib/resume.functions";
 import { ResumeFileUpload } from "@/components/ResumeFileUpload";
-import { cleanResumeText } from "@/lib/file-parser";
+import { cleanResumeText, isBinaryGarbage } from "@/lib/file-parser";
 import { Link } from "@tanstack/react-router";
 
 /* ── Companies (56 Real Verified Tech Giants) ── */
@@ -366,7 +366,13 @@ export function AtsCheckerPage({ embedded = false }: { embedded?: boolean }) {
   const [resumeText, setResumeText] = useState(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("ats_resume_text");
-      if (saved) return saved;
+      if (saved) {
+        if (isBinaryGarbage(saved)) {
+          localStorage.removeItem("ats_resume_text");
+          return "";
+        }
+        return saved;
+      }
     }
     return "";
   });
@@ -414,7 +420,15 @@ export function AtsCheckerPage({ embedded = false }: { embedded?: boolean }) {
   }, [result]);
 
   const handleFileExtracted = async (text: string) => {
+    if (isBinaryGarbage(text)) {
+      toast.error("Could not parse file. The uploaded document contains unreadable binary data.");
+      return;
+    }
     const cleanedText = cleanResumeText(text);
+    if (!cleanedText || cleanedText.length < 20) {
+      toast.error("Extracted resume text is too short. Please paste your resume text directly.");
+      return;
+    }
     setResumeText(cleanedText);
     setExtracting(true);
     try {
@@ -422,13 +436,21 @@ export function AtsCheckerPage({ embedded = false }: { embedded?: boolean }) {
       if (fields.targetRole) setTargetRole(fields.targetRole);
       toast.success("Resume parsed & cleaned!");
     } catch {
-      toast.warning("Resume text captured and cleaned.");
+      toast.info("Resume text captured and cleaned.");
     } finally {
       setExtracting(false);
     }
   };
 
   const handleSanitizeText = () => {
+    if (isBinaryGarbage(resumeText)) {
+      setResumeText("");
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("ats_resume_text");
+      }
+      toast.info("Cleared invalid binary characters from resume text.");
+      return;
+    }
     const cleaned = cleanResumeText(resumeText);
     setResumeText(cleaned);
     toast.success("Resume text cleaned!");

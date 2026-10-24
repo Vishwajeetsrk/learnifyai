@@ -1,23 +1,33 @@
-export async function parseResumeFile(file: File): Promise<string> {
-  const ext = file.name.toLowerCase().split(".").pop();
-  let rawText = "";
+/**
+ * Resume File Parser & Sanitizer
+ * Supports PDF, DOCX, DOC, and TXT files with dual client/server extraction,
+ * adversarial binary/JPEG noise rejection, and clean ATS layout formatting.
+ */
 
-  if (ext === "pdf") {
-    rawText = await parsePdf(file);
-  } else if (ext === "docx" || ext === "doc") {
-    rawText = await parseDocx(file);
-  } else if (ext === "txt") {
-    rawText = await file.text();
-  } else {
-    throw new Error("Unsupported file format. Please upload a PDF, DOCX, or TXT file.");
-  }
+export function isBinaryGarbage(text: string): boolean {
+  if (!text || typeof text !== "string") return false;
 
-  const cleaned = cleanResumeText(rawText);
-  return cleaned.length > 20 ? cleaned : rawText;
+  // 1. Repeating JPEG DCT / quantization markers or restart sequences (e.g. QE QE QE QE, Q@ Q@ Q@, P E P E P E)
+  if (/(?:QE\s*){3,}|(?:Q@\s*){3,}|(?:P\s*E\s*){3,}/i.test(text)) return true;
+
+  // 2. Raw PDF indirect object, stream, or cross-reference markers
+  if (/\b\d+\s+0\s+obj\b|\bendobj\b|\bendstream\b|\bstartxref\b|%%EOF/i.test(text)) return true;
+
+  // 3. Density of unprintable or binary symbols
+  const cleanAscii = text.replace(/[^\x20-\x7E\n\r\t]/g, "");
+  if (text.length > 50 && cleanAscii.length / text.length < 0.65) return true;
+
+  // 4. Low proportion of dictionary/word characters in long text
+  const words = text.match(/[a-zA-Z]{3,}/g) || [];
+  const wordsTotalLen = words.reduce((sum, w) => sum + w.length, 0);
+  if (text.length > 100 && wordsTotalLen / text.length < 0.35) return true;
+
+  return false;
 }
 
 export function cleanResumeText(text: string): string {
   if (!text) return "";
+  if (isBinaryGarbage(text)) return "";
 
   let cleaned = text;
 
@@ -87,7 +97,10 @@ export function cleanResumeText(text: string): string {
         return false;
       }
       // Filter out random single-character noise tokens
-      if (line.length < 4 && !/^(I|a|an|the|to|in|of|or|on|at|by|re|de|v2|v3|•|C\+\+|C#|Go|R|JS|UI|UX|AI|ML|DL)$/i.test(line)) {
+      if (
+        line.length < 4 &&
+        !/^(I|a|an|the|to|in|of|or|on|at|by|re|de|v2|v3|•|C\+\+|C#|Go|R|JS|UI|UX|AI|ML|DL)$/i.test(line)
+      ) {
         return false;
       }
       return true;
@@ -99,20 +112,65 @@ export function cleanResumeText(text: string): string {
   cleaned = cleaned.replace(/[ \t]{2,}/g, " ");
   cleaned = cleaned.replace(/\n{3,}/g, "\n\n");
 
-  return cleaned.trim();
+  const finalResult = cleaned.trim();
+  if (isBinaryGarbage(finalResult)) return "";
+  return finalResult;
+}
+
+function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const res = reader.result as string;
+      const base64 = res.includes(",") ? res.split(",")[1] : res;
+      resolve(base64);
+    };
+    reader.onerror = (err) => reject(err);
+    reader.readAsDataURL(file);
+  });
+}
+
+export async function parseResumeFile(file: File): Promise<string> {
+  const ext = file.name.toLowerCase().split(".").pop();
+  let rawText = "";
+
+  if (ext === "pdf") {
+    rawText = await parsePdf(file);
+  } else if (ext === "docx" || ext === "doc") {
+    rawText = await parseDocx(file);
+  } else if (ext === "txt") {
+    rawText = await file.text();
+  } else {
+    throw new Error("Unsupported file format. Please upload a PDF, DOCX, or TXT file.");
+  }
+
+  if (isBinaryGarbage(rawText)) {
+    throw new Error(
+      "The uploaded document contains unreadable binary data. Please upload a PDF with selectable text, DOCX, or TXT file."
+    );
+  }
+
+  const cleaned = cleanResumeText(rawText);
+  if (cleaned.length < 20 || isBinaryGarbage(cleaned)) {
+    throw new Error(
+      "Could not extract sufficient text from this file. If this is a scanned image, please paste your resume text directly."
+    );
+  }
+
+  return cleaned;
 }
 
 async function parsePdf(file: File): Promise<string> {
-  const arrayBuffer = await file.arrayBuffer();
-
+  // Strategy 1: Client-side pdfjs-dist with standard worker
   try {
     const pdfjsLib = await import("pdfjs-dist");
     try {
       if (typeof window !== "undefined") {
-        pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version || "3.11.174"}/pdf.worker.min.mjs`;
+        pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjsLib.version || "6.1.200"}/build/pdf.worker.min.mjs`;
       }
     } catch {}
 
+    const arrayBuffer = await file.arrayBuffer();
     const loadingTask = pdfjsLib.getDocument({
       data: new Uint8Array(arrayBuffer),
       useSystemFonts: true,
@@ -121,7 +179,9 @@ async function parsePdf(file: File): Promise<string> {
 
     const pdf = await loadingTask.promise;
     let text = "";
-    for (let i = 1; i <= pdf.numPages; i++) {
+    const numPages = Math.min(pdf.numPages, 15);
+
+    for (let i = 1; i <= numPages; i++) {
       try {
         const page = await pdf.getPage(i);
         const token = await page.getTextContent();
@@ -132,7 +192,7 @@ async function parsePdf(file: File): Promise<string> {
         for (const item of token.items as any[]) {
           if (!item.str) continue;
           const currentY = item.transform ? Math.round(item.transform[5]) : null;
-          if (lastY !== null && currentY !== null && Math.abs(currentY - lastY) > 4) {
+          if (lastY !== null && currentY !== null && Math.abs(currentY - lastY) > 3) {
             if (currentLine.trim()) pageLines.push(currentLine.trim());
             currentLine = item.str;
           } else {
@@ -144,26 +204,53 @@ async function parsePdf(file: File): Promise<string> {
 
         text += pageLines.join("\n") + "\n\n";
       } catch (err) {
-        console.warn(`Error reading page ${i} via pdfjs:`, err);
+        console.warn(`Error reading page ${i} via client pdfjs:`, err);
       }
     }
 
-    if (text.trim().length > 30) {
-      return text;
+    const cleaned = cleanResumeText(text);
+    if (cleaned.length > 30 && !isBinaryGarbage(cleaned)) {
+      return cleaned;
     }
   } catch (err) {
-    console.warn("pdfjs worker warning, executing robust fallback PDF text extractor:", err);
+    console.warn("Client pdfjs parser failed or worker blocked, using robust server extraction:", err);
   }
 
-  const extractedFallback = extractPdfTextFallback(arrayBuffer);
-  if (extractedFallback.trim().length > 30) {
-    return extractedFallback;
+  // Strategy 2: Server-side TanStack Start function (pdfjs-dist legacy without browser worker restrictions)
+  try {
+    const base64Data = await fileToBase64(file);
+    const { parseResumePdf } = await import("@/lib/resume.functions");
+    const res = await parseResumePdf({
+      data: {
+        base64Data,
+        fileName: file.name,
+      },
+    });
+
+    if (res && res.success && res.text) {
+      const cleaned = cleanResumeText(res.text);
+      if (cleaned.length > 20 && !isBinaryGarbage(cleaned)) {
+        return cleaned;
+      }
+    }
+  } catch (serverErr) {
+    console.warn("Server PDF extraction failed:", serverErr);
   }
 
-  const decoder = new TextDecoder("utf-8", { fatal: false });
-  const rawStr = decoder.decode(arrayBuffer);
-  const cleanAscii = rawStr.replace(/[^\x20-\x7E\n\r\t]/g, " ").replace(/\s+/g, " ");
-  return cleanAscii.length > 50 ? cleanAscii : "Resume content parsed successfully.";
+  // Strategy 3: Fallback uncompressed PDF literal stream matching
+  try {
+    const arrayBuffer = await file.arrayBuffer();
+    const extractedFallback = extractPdfTextFallback(arrayBuffer);
+    const cleaned = cleanResumeText(extractedFallback);
+    if (cleaned.length > 30 && !isBinaryGarbage(cleaned)) {
+      return cleaned;
+    }
+  } catch {}
+
+  // Strategy 4: If all fail, DO NOT dump raw ArrayBuffer TextDecoder bytes!
+  throw new Error(
+    "Could not extract readable text from this PDF. If this document is a scanned image or photo, please paste your resume text directly or upload a DOCX/TXT file."
+  );
 }
 
 function extractPdfTextFallback(buffer: ArrayBuffer): string {
@@ -185,7 +272,7 @@ function extractPdfTextFallback(buffer: ArrayBuffer): string {
       .map((c) => c.slice(1, -1).replace(/\\([0-9]{3})/g, (_, oct) => String.fromCharCode(parseInt(oct, 8))))
       .join(" ")
       .trim();
-    if (joined.length > 2 && /[a-zA-Z0-9]/.test(joined)) {
+    if (joined.length > 2 && /[a-zA-Z0-9]/.test(joined) && !isBinaryGarbage(joined)) {
       textMatches.push(joined);
     }
   }
@@ -206,7 +293,8 @@ function extractPdfTextFallback(buffer: ArrayBuffer): string {
       !content.includes("KHTML") &&
       !content.includes("X11;") &&
       !content.includes("Linux x86_64") &&
-      !content.startsWith("/F")
+      !content.startsWith("/F") &&
+      !isBinaryGarbage(content)
     ) {
       textMatches.push(content);
     }
@@ -224,7 +312,7 @@ function extractPdfTextFallback(buffer: ArrayBuffer): string {
         decoded += String.fromCharCode(byte);
       }
     }
-    if (decoded.length > 4 && /[a-zA-Z0-9]/.test(decoded)) {
+    if (decoded.length > 4 && /[a-zA-Z0-9]/.test(decoded) && !isBinaryGarbage(decoded)) {
       textMatches.push(decoded);
     }
   }
@@ -237,19 +325,14 @@ async function parseDocx(file: File): Promise<string> {
     const mammoth = await import("mammoth");
     const arrayBuffer = await file.arrayBuffer();
     const result = await mammoth.extractRawText({ arrayBuffer });
-    if (result.value && result.value.trim().length > 20) {
+    if (result.value && result.value.trim().length > 20 && !isBinaryGarbage(result.value)) {
       return result.value;
     }
   } catch (err) {
-    console.warn("Mammoth docx parse failed, trying raw text decoder fallback:", err);
+    console.warn("Mammoth docx parse failed:", err);
   }
 
-  try {
-    const text = await file.text();
-    // Strip XML tags if docx xml was read
-    const stripped = text.replace(/<[^>]+>/g, " ").replace(/[^\x20-\x7E\n\r\t]/g, " ").replace(/\s+/g, " ");
-    return stripped.length > 20 ? stripped : "Resume docx parsed.";
-  } catch {
-    return "Resume document parsed.";
-  }
+  throw new Error(
+    "Could not extract readable text from this DOCX file. Please upload a valid document or paste your resume text."
+  );
 }
