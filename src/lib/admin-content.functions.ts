@@ -593,3 +593,41 @@ export const deleteContentDraft = createServerFn({ method: "POST" })
     return { success: true };
   });
 
+export const adminGetSignedDemoUploadUrl = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((d: unknown) =>
+    z
+      .object({
+        toolId: z.string().min(1),
+        fileName: z.string().min(1),
+        fileType: z.string().min(1),
+      })
+      .parse(d)
+  )
+  .handler(async ({ data, context }) => {
+    const userId = context.userId!;
+    await checkAdminRole(userId);
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const ext = data.fileName.split(".").pop() || "mp4";
+    const path = `demo-videos/${data.toolId}-${Date.now()}.${ext}`;
+
+    const { data: signData, error } = await supabaseAdmin.storage
+      .from("media")
+      .createSignedUploadUrl(path);
+
+    if (error || !signData) {
+      throw new Error(error?.message || "Failed to create signed upload URL");
+    }
+
+    const { data: pubData } = supabaseAdmin.storage.from("media").getPublicUrl(path);
+
+    return {
+      signedUrl: signData.signedUrl,
+      path: signData.path,
+      token: signData.token,
+      publicUrl: pubData.publicUrl,
+    };
+  });
+
+

@@ -1085,6 +1085,7 @@ export function InteractiveDemoCards({ className }: InteractiveDemoCardsProps) {
   const [actionVideos, setActionVideos] = useState<
     Record<string, { videoUrl: string; autoplay?: boolean }>
   >({});
+  const [videoErrors, setVideoErrors] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     let isMounted = true;
@@ -1192,7 +1193,7 @@ export function InteractiveDemoCards({ className }: InteractiveDemoCardsProps) {
                   demo.gradient,
                 )}
               >
-                {toolVideo?.videoUrl ? (
+                {toolVideo?.videoUrl && !videoErrors[demo.id] ? (
                   <div className="relative w-full h-full bg-black group/video">
                     <video
                       src={toolVideo.videoUrl}
@@ -1200,6 +1201,7 @@ export function InteractiveDemoCards({ className }: InteractiveDemoCardsProps) {
                       loop
                       muted
                       playsInline
+                      onError={() => setVideoErrors((prev) => ({ ...prev, [demo.id]: true }))}
                       className="w-full h-full object-cover"
                     />
                     <div className="absolute top-2 left-2 z-10 flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-black/70 backdrop-blur text-[10px] font-semibold text-white border border-white/15">

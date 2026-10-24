@@ -43,6 +43,12 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { generateInterviewQuestion, evaluateInterviewAnswer } from "@/lib/resume.functions";
 import { Link } from "@tanstack/react-router";
+import {
+  type Question,
+  PRESET_QUESTIONS,
+  getRoleKey,
+  getDefaultQuestionForRole,
+} from "@/lib/interview-presets";
 
 const JOB_ROLES = [
   { id: "frontend", label: "Frontend Developer", icon: Palette },
@@ -67,14 +73,6 @@ const MODES = [
   { id: "video", label: "Video", icon: Video, desc: "Record video responses" },
 ];
 
-interface Question {
-  question: string;
-  type: string;
-  tips: string[];
-  expectedPoints: string[];
-  followUp: string;
-}
-
 interface Evaluation {
   score: number;
   rating: string;
@@ -85,83 +83,6 @@ interface Evaluation {
   pointsCovered: string[];
   pointsMissed: string[];
 }
-
-/* ────────────────────────────────────────────────────────────────
-   LOCAL QUESTION PRESETS (From Tech Interview Handbooks)
-──────────────────────────────────────────────────────────────── */
-const PRESET_QUESTIONS: Record<string, Question[]> = {
-  mobile: [
-    {
-      question:
-        "What are the key differences between Android and iOS development, and how do you decide which platform to develop for first?",
-      type: "technical",
-      tips: [
-        "Consider the market share and target audience",
-        "Think about the development tools and languages used for each platform",
-        "Reflect on the design and user experience guidelines for each platform",
-      ],
-      expectedPoints: [
-        "Android uses Kotlin/Java & Android Studio; iOS uses Swift & Xcode",
-        "Android has a larger global market share, iOS has higher monetization in premium markets",
-        "Android UI fragmented across many devices; iOS has a highly standardized and closed ecosystem",
-        "Decision depends on target user demographics, project budget, and developer expertise",
-      ],
-      followUp: "How does React Native or Flutter fit into this decision-making process?",
-    },
-    {
-      question: "Explain the lifecycle of an Activity in Android vs. a View Controller in iOS.",
-      type: "technical",
-      tips: [
-        "Contrast onCreate/onStart/onResume with viewDidLoad/viewWillAppear/viewDidAppear",
-        "Explain memory warning handling in both",
-        "Discuss state preservation",
-      ],
-      expectedPoints: [
-        "Android Activity states: Created, Started, Resumed, Paused, Stopped, Destroyed",
-        "iOS View Controller lifecycle: loadView, viewDidLoad, viewWillAppear, viewDidAppear, viewWillDisappear, viewDidDisappear",
-        "Android handles configuration changes by destroying and recreating activities unless configured otherwise",
-        "iOS View Controllers release resource-heavy views during low-memory warnings",
-      ],
-      followUp: "What is the modern state preservation mechanism in Jetpack Compose or SwiftUI?",
-    },
-  ],
-  frontend: [
-    {
-      question:
-        "Explain the virtual DOM reconciliation process in React, and how Fiber architecture improves UI responsiveness.",
-      type: "technical",
-      tips: [
-        "Mention the diffing algorithm complexity",
-        "Explain key properties for lists",
-        "Discuss task prioritization in React 18 Fiber",
-      ],
-      expectedPoints: [
-        "Diffing algorithm reduces reconciliation from O(n^3) to O(n) using heuristic assumptions",
-        "Fibers allow breaking rendering work into incremental units/chunks",
-        "Enables pause, reuse, and abort actions for update rendering tasks",
-        "Prioritizes user interaction updates (e.g., typing) over background rendering",
-      ],
-      followUp: "How does concurrent rendering differ from traditional sync rendering?",
-    },
-  ],
-};
-
-const DEFAULT_PRESET: Question = {
-  question:
-    "What are the key differences between Android and iOS development, and how do you decide which platform to develop for first?",
-  type: "technical",
-  tips: [
-    "Consider the market share and target audience",
-    "Think about the development tools and languages used for each platform",
-    "Reflect on the design and user experience guidelines for each platform",
-  ],
-  expectedPoints: [
-    "Android uses Kotlin/Java; iOS uses Swift",
-    "Android has larger market share; iOS has higher revenue per user",
-    "Fragmented devices on Android vs unified ecosystem on iOS",
-  ],
-  followUp: "How do cross-platform frameworks impact this choice?",
-};
 
 export interface HumanInterviewer {
   id: "priya" | "vikram" | "anjali" | "rishabh";
@@ -431,6 +352,7 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
   const [videoStream, setVideoStream] = useState<MediaStream | null>(null);
   const [cameraActive, setCameraActive] = useState(false);
   const [micActive, setMicActive] = useState(true);
+  const [micBlocked, setMicBlocked] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -488,6 +410,7 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
           setVideoStream(stream);
           setCameraActive(mode === "video");
           setMicActive(true);
+          setMicBlocked(false);
           if (videoRef.current && mode === "video") {
             videoRef.current.srcObject = stream;
           }
@@ -495,6 +418,30 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
         .catch((err) => {
           console.warn("Media devices access error:", err);
           setCameraActive(false);
+          if (mode === "video") {
+            navigator.mediaDevices
+              ?.getUserMedia({ audio: true })
+              .then((stream) => {
+                setVideoStream(stream);
+                setMicActive(true);
+                setMicBlocked(false);
+              })
+              .catch((audioErr) => {
+                console.warn("Audio only access error:", audioErr);
+                setMicActive(false);
+                if (
+                  audioErr?.name === "NotAllowedError" ||
+                  audioErr?.name === "PermissionDeniedError"
+                ) {
+                  setMicBlocked(true);
+                }
+              });
+          } else {
+            setMicActive(false);
+            if (err?.name === "NotAllowedError" || err?.name === "PermissionDeniedError") {
+              setMicBlocked(true);
+            }
+          }
         });
 
       return () => {
@@ -557,7 +504,7 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
     const SpeechRecognition =
       (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      return toast.warning("Speech recognition is not supported in this browser.");
+      return toast.warning("Speech recognition is not supported in this browser. You can type your answer below.");
     }
     const recognition = new SpeechRecognition();
     recognition.continuous = true;
@@ -572,12 +519,29 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
       setUserAnswer(transcript);
     };
 
-    recognition.onerror = () => setIsRecording(false);
+    recognition.onerror = (event: any) => {
+      setIsRecording(false);
+      if (event?.error === "not-allowed" || event?.error === "service-not-allowed") {
+        setMicBlocked(true);
+        toast.error("Microphone access blocked. Please allow microphone in browser URL bar or type your answer below.");
+      } else if (event?.error === "no-speech") {
+        toast.info("No speech detected. Please speak into your mic or type below.");
+      } else if (event?.error === "audio-capture") {
+        setMicBlocked(true);
+        toast.error("No microphone hardware detected. You can type your response below.");
+      }
+    };
     recognition.onend = () => setIsRecording(false);
 
     recognitionRef.current = recognition;
-    recognition.start();
-    setIsRecording(true);
+    try {
+      recognition.start();
+      setIsRecording(true);
+      setMicBlocked(false);
+    } catch (e: any) {
+      console.warn("Speech recognition start failed:", e);
+      setIsRecording(false);
+    }
   }, []);
 
   const stopVoiceRecognition = useCallback(() => {
@@ -647,6 +611,7 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
         });
         setVideoStream(stream);
         setMicActive(true);
+        setMicBlocked(false);
         toast.success("Microphone active");
         return;
       }
@@ -658,6 +623,7 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
         if (audioTrack) {
           videoStream.addTrack(audioTrack);
           setMicActive(true);
+          setMicBlocked(false);
           toast.success("Microphone activated");
           return;
         }
@@ -671,7 +637,9 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
       toast.success(nextState ? "Microphone active" : "Microphone muted");
     } catch (err: any) {
       console.error("Mic access error:", err);
-      toast.error("Could not access microphone. Please allow audio permissions in your browser.");
+      setMicBlocked(true);
+      setMicActive(false);
+      toast.error("Could not access microphone. Please allow audio permissions in your browser, or type your answer.");
     }
   };
 
@@ -679,11 +647,9 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
     async (idx: number) => {
       setLoading(true);
 
-      // Preset check first to make load immediate
-      const roleKey = role.toLowerCase();
-      const presets =
-        PRESET_QUESTIONS[roleKey] ||
-        PRESET_QUESTIONS[roleKey.includes("frontend") ? "frontend" : ""];
+      const roleToUse = (role || customRole || "Software Engineer").trim();
+      const roleKey = getRoleKey(roleToUse);
+      const presets = PRESET_QUESTIONS[roleKey];
       if (presets && presets[idx]) {
         setCurrentQuestion(presets[idx]);
         setPreviousQuestions((prev) => [...prev, presets[idx].question]);
@@ -695,30 +661,56 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
       try {
         const res = await generateQuestion({
           data: {
-            role,
+            role: roleToUse,
             mode,
             difficulty,
             questionIndex: idx,
             previousQuestions,
           },
         });
-        if (res.question) {
-          setCurrentQuestion(res.question);
-          setPreviousQuestions((prev) => [...prev, res.question.question]);
-          speakText(res.question.question);
+
+        const qObj: Question =
+          res.question && typeof res.question === "object"
+            ? res.question
+            : typeof res.question === "string"
+              ? {
+                  question: res.question,
+                  type: (res as any).type || "technical",
+                  tips: (res as any).tips || (res as any).hints || [],
+                  expectedPoints: (res as any).expectedPoints || (res as any).idealAnswerOutline || [],
+                  followUp: (res as any).followUp || "",
+                }
+              : (res as any)?.questionText
+                ? {
+                    question: (res as any).questionText,
+                    type: (res as any).type || "technical",
+                    tips: (res as any).tips || [],
+                    expectedPoints: (res as any).expectedPoints || [],
+                    followUp: (res as any).followUp || "",
+                  }
+                : getDefaultQuestionForRole(roleToUse, idx);
+
+        if (qObj && qObj.question) {
+          setCurrentQuestion(qObj);
+          setPreviousQuestions((prev) => [...prev, qObj.question]);
+          speakText(qObj.question);
         } else {
-          setCurrentQuestion(DEFAULT_PRESET);
-          speakText(DEFAULT_PRESET.question);
+          const fallback = getDefaultQuestionForRole(roleToUse, idx);
+          setCurrentQuestion(fallback);
+          setPreviousQuestions((prev) => [...prev, fallback.question]);
+          speakText(fallback.question);
         }
       } catch (err: any) {
         console.error("Failed to generate question:", err);
-        setCurrentQuestion(DEFAULT_PRESET);
-        speakText(DEFAULT_PRESET.question);
+        const fallback = getDefaultQuestionForRole(roleToUse, idx);
+        setCurrentQuestion(fallback);
+        setPreviousQuestions((prev) => [...prev, fallback.question]);
+        speakText(fallback.question);
       } finally {
         setLoading(false);
       }
     },
-    [role, mode, difficulty, previousQuestions, speakText],
+    [role, customRole, mode, difficulty, previousQuestions, speakText],
   );
 
   const handleStart = () => {
@@ -737,19 +729,24 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
     try {
       const res = await evaluateAnswer({
         data: {
-          role,
+          role: role || customRole || "Software Engineer",
           question: currentQuestion.question,
           answer: userAnswer,
           expectedPoints: currentQuestion.expectedPoints,
           difficulty,
         },
       });
-      if (res.evaluation) {
-        setEvaluation(res.evaluation);
-        setScores((prev) => [...prev, res.evaluation.score]);
+      const evalData = (res as any)?.evaluation || res;
+      if (evalData && typeof evalData.score === "number") {
+        setEvaluation(evalData);
+        setScores((prev) => [...prev, evalData.score]);
+        toast.success("Answer evaluated!");
+      } else {
+        toast.error("Could not evaluate response. Please retry.");
       }
     } catch (err: any) {
       console.error("Failed to evaluate:", err);
+      toast.error("Evaluation service encountered an issue. Please try again.");
     } finally {
       setEvaluating(false);
     }
@@ -1306,56 +1303,107 @@ ${scores.map((sc, i) => `Q${i + 1}: ${sc}/100`).join("\n")}
 
               {!evaluation && (
                 <div className="rounded-2xl border bg-card p-6 space-y-4">
+                  {micBlocked && (
+                    <div className="flex items-start gap-2.5 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-200 text-xs">
+                      <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                      <div className="space-y-0.5">
+                        <p className="font-semibold text-amber-300">
+                          Microphone permission blocked or audio device unavailable
+                        </p>
+                        <p className="text-[11px] text-amber-200/80">
+                          Click the lock/settings icon in your browser URL bar to allow microphone access, or type your answer directly in the response box below.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
                   {mode === "chat" ? (
-                    <Textarea
-                      ref={textareaRef}
-                      value={userAnswer}
-                      onChange={(e) => setUserAnswer(e.target.value)}
-                      placeholder="Type your answer here..."
-                      rows={6}
-                      className="resize-none"
-                    />
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-muted-foreground">
+                        Your Written Response:
+                      </label>
+                      <Textarea
+                        ref={textareaRef}
+                        value={userAnswer}
+                        onChange={(e) => setUserAnswer(e.target.value)}
+                        placeholder="Type your structured answer here..."
+                        rows={6}
+                        className="resize-none text-xs sm:text-sm bg-card border-border/80 focus-visible:ring-primary"
+                      />
+                    </div>
                   ) : (
                     <div className="space-y-3">
-                      <div className="flex items-center gap-3">
-                        <Button
-                          variant={isRecording ? "destructive" : "default"}
-                          size="lg"
-                          onClick={isRecording ? stopVoiceRecognition : startVoiceRecognition}
-                          className="rounded-full h-14 w-14"
-                        >
-                          {isRecording ? (
-                            <MicOff className="h-6 w-6" />
-                          ) : (
-                            <Mic className="h-6 w-6" />
-                          )}
-                        </Button>
-                        <div>
-                          <p className="text-sm font-medium">
-                            {isRecording
-                              ? "Recording... Click to stop"
-                              : "Click to start recording"}
-                          </p>
-                          <p className="text-xs text-muted-foreground">Speak your answer clearly</p>
+                      <div className="flex items-center justify-between p-3 rounded-xl bg-slate-900/60 border border-slate-800">
+                        <div className="flex items-center gap-3">
+                          <Button
+                            variant={isRecording ? "destructive" : "default"}
+                            size="lg"
+                            onClick={isRecording ? stopVoiceRecognition : startVoiceRecognition}
+                            className="rounded-full h-12 w-12 cursor-pointer shadow-md"
+                          >
+                            {isRecording ? (
+                              <MicOff className="h-5 w-5 animate-pulse" />
+                            ) : (
+                              <Mic className="h-5 w-5" />
+                            )}
+                          </Button>
+                          <div>
+                            <p className="text-xs sm:text-sm font-bold text-slate-200">
+                              {isRecording ? "Recording your voice... Speak now" : "Click to speak your answer"}
+                            </p>
+                            <p className="text-[11px] text-muted-foreground">
+                              {isRecording
+                                ? "Click mic again when finished speaking"
+                                : "Speech is transcribed to text in real time below"}
+                            </p>
+                          </div>
                         </div>
+                        {isRecording && (
+                          <Badge
+                            variant="outline"
+                            className="text-red-400 border-red-500/40 bg-red-500/10 text-[10px] animate-pulse"
+                          >
+                            Recording
+                          </Badge>
+                        )}
                       </div>
-                      {userAnswer && (
-                        <div className="p-3 rounded-lg bg-muted/50 text-sm">{userAnswer}</div>
-                      )}
+
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground">
+                          <span>Candidate Response (Transcribed Speech or Typed Answer):</span>
+                          {userAnswer && (
+                            <button
+                              type="button"
+                              onClick={() => setUserAnswer("")}
+                              className="text-[10px] text-muted-foreground hover:text-foreground cursor-pointer"
+                            >
+                              Clear Text
+                            </button>
+                          )}
+                        </div>
+                        <Textarea
+                          ref={textareaRef}
+                          value={userAnswer}
+                          onChange={(e) => setUserAnswer(e.target.value)}
+                          placeholder="Your spoken words will appear here automatically, or you can type/edit your answer directly..."
+                          rows={5}
+                          className="resize-none text-xs sm:text-sm bg-card border-border/80 focus-visible:ring-primary"
+                        />
+                      </div>
                     </div>
                   )}
 
                   <Button
                     onClick={handleSubmitAnswer}
                     disabled={!userAnswer.trim() || evaluating}
-                    className="w-full"
+                    className="w-full h-10 font-bold cursor-pointer"
                   >
                     {evaluating ? (
                       <Loader2 className="h-4 w-4 animate-spin mr-2" />
                     ) : (
                       <Send className="h-4 w-4 mr-2" />
                     )}
-                    {evaluating ? "Evaluating..." : "Submit Answer"}
+                    {evaluating ? "Evaluating Answer..." : "Submit Answer"}
                   </Button>
                 </div>
               )}

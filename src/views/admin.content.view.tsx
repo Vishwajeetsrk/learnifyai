@@ -73,6 +73,7 @@ import {
   adminContentQuery,
   cleanupTestEvents,
   cleanDuplicateSiteSettings,
+  adminGetSignedDemoUploadUrl,
 } from "@/lib/admin-content.functions";
 import {
   Select,
@@ -2490,6 +2491,7 @@ function DemoVideoManager() {
   const doQuery = useServerFn(adminContentQuery);
   const doUpsert = useServerFn(adminContentUpsert);
   const doAdminAction = useServerFn(adminContentAction);
+  const doGetSignedUploadUrl = useServerFn(adminGetSignedDemoUploadUrl);
 
   const ACTION_TOOLS = [
     { id: "ai-tutor", name: "AI Tutor", description: "Personal AI teacher, notes & study help" },
@@ -2498,6 +2500,7 @@ function DemoVideoManager() {
     { id: "mock-interview", name: "Mock Interview", description: "AI voice and video interview prep" },
     { id: "roadmap", name: "Career Roadmap", description: "Step-by-step career path milestones" },
     { id: "certificate", name: "Certificate Generator", description: "Verified credentials with QR codes" },
+    { id: "portfolio", name: "Portfolio Builder", description: "Personal portfolio website & showcase generator" },
   ];
 
   // Tour Video Query
@@ -2646,19 +2649,26 @@ function DemoVideoManager() {
     if (file.size > 50 * 1024 * 1024) return toast.error("Video too large. Max 50MB.");
     setUploading(true);
     try {
-      const ext = file.name.split(".").pop() || "mp4";
-      const path = `demo-videos/${selectedToolId}-${Date.now()}.${ext}`;
+      const signRes = await doGetSignedUploadUrl({
+        data: {
+          toolId: selectedToolId,
+          fileName: file.name,
+          fileType: file.type,
+        },
+      });
+
       const { error: upErr } = await supabase.storage
         .from("media")
-        .upload(path, file, { contentType: file.type });
+        .uploadToSignedUrl(signRes.path, signRes.token, file, { contentType: file.type });
       if (upErr) throw upErr;
-      const { data: urlData } = supabase.storage.from("media").getPublicUrl(path);
-      setToolVideoUrl(urlData.publicUrl);
+
+      setToolVideoUrl(signRes.publicUrl);
       toast.success("Video uploaded! Click 'Save Tool Video' to apply.");
     } catch (e: any) {
       toast.error(e?.message || "Upload failed");
     } finally {
       setUploading(false);
+      e.target.value = "";
     }
   };
 
@@ -2674,7 +2684,7 @@ function DemoVideoManager() {
           onClick={() => setActiveSection("tools")}
           className="cursor-pointer text-xs"
         >
-          See Learnify AI In Action (6 Tools)
+          See Learnify AI In Action (7 Tools)
         </Button>
         <Button
           size="sm"
