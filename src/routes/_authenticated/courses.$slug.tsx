@@ -1748,7 +1748,7 @@ const LANG_LOGOS: Record<string, string> = {
   typescript: "https://cdn.simpleicons.org/typescript/3178C6",
   cpp: "https://cdn.simpleicons.org/cplusplus/00599C",
   c: "https://cdn.simpleicons.org/c/A8B9CC",
-  java: "https://cdn.simpleicons.org/java/007396",
+  java: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/java/java-original.svg",
   go: "https://cdn.simpleicons.org/go/00ADD8",
   rust: "https://cdn.simpleicons.org/rust/000000",
   ruby: "https://cdn.simpleicons.org/ruby/CC342D",
@@ -1764,15 +1764,15 @@ const LANG_LOGOS: Record<string, string> = {
   lua: "https://cdn.simpleicons.org/lua/2C2D72",
   perl: "https://cdn.simpleicons.org/perl/39457E",
   r: "https://cdn.simpleicons.org/r/276DC3",
-  csharp: "https://cdn.simpleicons.org/csharp/239120",
+  csharp: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/csharp/csharp-original.svg",
   zig: "https://cdn.simpleicons.org/zig/F7A41D",
   julia: "https://cdn.simpleicons.org/julia/9558B2",
   lisp: "https://cdn.simpleicons.org/lisp/3F0000",
   nim: "https://cdn.simpleicons.org/nim/FFE953",
   groovy: "https://cdn.simpleicons.org/apachegroovy/4298B8",
-  powershell: "https://cdn.simpleicons.org/powershell/5391FE",
+  powershell: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/powershell/powershell-original.svg",
   html5: "https://cdn.simpleicons.org/html5/E34F26",
-  css3: "https://cdn.simpleicons.org/css3/1572B6",
+  css3: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/css3/css3-original.svg",
 };
 
 const LANG_COLORS: Record<string, string> = {

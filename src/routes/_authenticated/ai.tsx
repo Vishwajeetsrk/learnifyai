@@ -71,19 +71,27 @@ type Message = { id: string; role: "user" | "assistant"; content: string };
 type Conversation = { id: string; title: string; updated_at: string };
 
 const MODELS = [
-  { id: "gemini/gemini-2.0-flash", label: "My Gemini API — Flash (fast)", vision: true },
-  { id: "gemini/gemini-1.5-pro", label: "My Gemini API — Pro (reasoning)", vision: true },
+  { id: "gemini/gemini-2.5-flash", label: "Gemini 2.5 Flash — Fast & Multimodal", vision: true },
   {
-    id: "groq/llama-3.3-70b-versatile",
-    label: "My Groq API — Llama 3.3 70B (ultra fast)",
+    id: "groq/qwen/qwen3.8-27b",
+    label: "Groq — Qwen 3.8 27B (Ultra Fast)",
     vision: false,
   },
   {
-    id: "openrouter/google/gemini-2.0-flash-001",
-    label: "My OpenRouter API — Gemini 2.0 Flash",
+    id: "groq/openai/gpt-oss-120b",
+    label: "Groq — GPT-OSS 120B (High Precision)",
+    vision: false,
+  },
+  {
+    id: "groq/openai/gpt-oss-20b",
+    label: "Groq — GPT-OSS 20B (Instant)",
+    vision: false,
+  },
+  {
+    id: "openrouter/google/gemini-2.5-flash",
+    label: "OpenRouter — Gemini 2.5 Flash (Fallback)",
     vision: true,
   },
-  { id: "openrouter/deepseek/deepseek-chat", label: "My OpenRouter API — DeepSeek", vision: false },
 ];
 
 function AIPage() {

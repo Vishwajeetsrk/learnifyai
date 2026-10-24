@@ -19,7 +19,7 @@ const TABS = [
     id: "css" as const,
     label: "CSS",
     color: "#1572B6",
-    icon: "https://cdn.simpleicons.org/css3/1572B6",
+    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/css3/css3-original.svg",
   },
   {
     id: "js" as const,

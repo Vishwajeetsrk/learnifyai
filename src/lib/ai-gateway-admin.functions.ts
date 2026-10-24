@@ -50,7 +50,7 @@ export const getAdminAiInfrastructure = createServerFn({ method: "GET" })
         keyEnv: "GROQ_API_KEY",
         hasKeyConfigured: Boolean(process.env.GROQ_API_KEY?.trim()),
         maskedKey: maskKey(process.env.GROQ_API_KEY),
-        primaryModel: "llama-3.3-70b-versatile",
+        primaryModel: "qwen/qwen3.8-27b",
         status: process.env.GROQ_API_KEY?.trim() ? "connected" : "missing_key",
       },
       {
@@ -59,7 +59,7 @@ export const getAdminAiInfrastructure = createServerFn({ method: "GET" })
         keyEnv: "GEMINI_API_KEY",
         hasKeyConfigured: Boolean(process.env.GEMINI_API_KEY?.trim()),
         maskedKey: maskKey(process.env.GEMINI_API_KEY),
-        primaryModel: "gemini-2.0-flash",
+        primaryModel: "gemini-2.5-flash",
         status: process.env.GEMINI_API_KEY?.trim() ? "connected" : "missing_key",
       },
       {
@@ -68,7 +68,7 @@ export const getAdminAiInfrastructure = createServerFn({ method: "GET" })
         keyEnv: "OPENROUTER_API_KEY",
         hasKeyConfigured: Boolean(process.env.OPENROUTER_API_KEY?.trim()),
         maskedKey: maskKey(process.env.OPENROUTER_API_KEY),
-        primaryModel: "google/gemini-2.0-flash-001",
+        primaryModel: "google/gemini-2.5-flash",
         status: process.env.OPENROUTER_API_KEY?.trim() ? "connected" : "missing_key",
       },
     ];

@@ -158,12 +158,14 @@ export const MODEL_ALIASES: Record<string, string> = {
   "llama-3.3-70b-versatile": "qwen/qwen3.8-27b",
   "llama-3.1-8b-instant": "openai/gpt-oss-20b",
   "llama3-70b-8192": "openai/gpt-oss-120b",
-  // Gemini legacy aliases
-  "gemini-2.0-flash": "gemini-flash-lite-latest",
-  "gemini-2.0-flash-exp": "gemini-flash-lite-latest",
-  "gemini-1.5-flash": "gemini-flash-lite-latest",
-  "gemini-1.5-pro": "gemini-pro-latest",
-  "gemini-2.5-flash": "gemini-flash-lite-latest",
+  "llama-3.1-70b-versatile": "qwen/qwen3.8-27b",
+  // Gemini legacy aliases -> gemini-2.5-flash
+  "gemini-2.0-flash": "gemini-2.5-flash",
+  "gemini-2.0-flash-exp": "gemini-2.5-flash",
+  "gemini-1.5-flash": "gemini-2.5-flash",
+  "gemini-1.5-pro": "gemini-2.5-flash",
+  "gemini-flash-lite-latest": "gemini-2.5-flash",
+  "gemini-pro-latest": "gemini-2.5-flash",
 };
 
 export function cleanModelIdForProvider(modelId: string, providerName: string): string {
@@ -189,8 +191,8 @@ const USER_AI_PROVIDERS: AIProviderConfig[] = [
     name: "Gemini API",
     keyEnv: "GEMINI_API_KEY",
     url: "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
-    primaryModel: "gemini-flash-lite-latest",
-    fallbackModels: ["gemini-flash-latest", "gemini-pro-latest"],
+    primaryModel: "gemini-2.5-flash",
+    fallbackModels: ["gemini-flash-latest", "gemini-3.8-flash"],
     maxTokensDefault: 2000,
     maxRetries: 2,
   },
@@ -198,7 +200,7 @@ const USER_AI_PROVIDERS: AIProviderConfig[] = [
     name: "OpenRouter",
     keyEnv: "OPENROUTER_API_KEY",
     url: "https://openrouter.ai/api/v1/chat/completions",
-    primaryModel: "google/gemini-2.0-flash-001",
+    primaryModel: "google/gemini-2.5-flash",
     fallbackModels: ["meta-llama/llama-3.3-70b-instruct"],
     maxTokensDefault: 2000,
     maxRetries: 1,

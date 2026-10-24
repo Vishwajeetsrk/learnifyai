@@ -379,7 +379,7 @@ Your response MUST be a valid JSON object matching this schema:
             ...authHeader,
           },
           body: JSON.stringify({
-            model: isGemini ? "gemini-2.5-flash" : "llama-3.3-70b-versatile",
+            model: isGemini ? "gemini-2.5-flash" : "qwen/qwen3.8-27b",
             messages: [
               { role: "system", content: systemPrompt },
               {

@@ -33,7 +33,7 @@ async function isRateLimited(userId: string): Promise<{ allowed: boolean; remain
 const BodySchema = z.object({
   message: z.string().min(1).max(10000),
   courseId: z.string().uuid().optional(),
-  model: z.string().optional().default("gemini-flash-lite-latest"),
+  model: z.string().optional().default("gemini-2.5-flash"),
   conversationId: z.string().uuid().optional(),
 });
 
@@ -134,9 +134,10 @@ export const Route = (createFileRoute as any)("/api/ai/chat")({
 ${ragContext ? `\nGROUNDED COURSE MATERIALS KNOWLEDGE:\n${ragContext}\nAlways answer using the exact course context above when applicable.` : ""}
 Provide comprehensive, structured, step-by-step technical explanations with clean code snippets and actionable examples.`;
 
-        // 5. Call Gemini API
+        // 5. Call AI Engine with fallback
         const geminiKey = process.env.GEMINI_API_KEY;
-        if (!geminiKey) {
+        const groqKey = process.env.GROQ_API_KEY;
+        if (!geminiKey && !groqKey) {
           return new Response(JSON.stringify({ error: "AI service configuration error" }), {
             status: 503,
             headers: { "Content-Type": "application/json" },
@@ -146,26 +147,61 @@ Provide comprehensive, structured, step-by-step technical explanations with clea
         const promptChars = systemPrompt.length + body.message.length;
         const estimatedPromptTokens = Math.ceil(promptChars / 4);
 
-        const aiResponse = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/openai/chat/completions`,
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${geminiKey}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              model: body.model || "gemini-flash-lite-latest",
-              messages: [
-                { role: "system", content: systemPrompt },
-                { role: "user", content: body.message },
-              ],
-              max_tokens: 2500,
-            }),
-          },
-        );
+        let aiResponse: Response | null = null;
+        let selectedModel = body.model === "gemini-flash-lite-latest" ? "gemini-2.5-flash" : (body.model || "gemini-2.5-flash");
 
-        if (!aiResponse.ok) {
+        if (geminiKey) {
+          try {
+            const res = await fetch(
+              `https://generativelanguage.googleapis.com/v1beta/openai/chat/completions`,
+              {
+                method: "POST",
+                headers: {
+                  Authorization: `Bearer ${geminiKey}`,
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  model: selectedModel,
+                  messages: [
+                    { role: "system", content: systemPrompt },
+                    { role: "user", content: body.message },
+                  ],
+                  max_tokens: 2500,
+                }),
+              },
+            );
+            if (res.ok) aiResponse = res;
+          } catch (e) {
+            console.warn("[ai/chat] Gemini attempt failed, trying Groq fallback", e);
+          }
+        }
+
+        // Fallback to Groq if Gemini failed or unconfigured
+        if (!aiResponse && groqKey) {
+          try {
+            selectedModel = "qwen/qwen3.8-27b";
+            const res = await fetch(`https://api.groq.com/openai/v1/chat/completions`, {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${groqKey}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                model: selectedModel,
+                messages: [
+                  { role: "system", content: systemPrompt },
+                  { role: "user", content: body.message },
+                ],
+                max_tokens: 2500,
+              }),
+            });
+            if (res.ok) aiResponse = res;
+          } catch (e) {
+            console.warn("[ai/chat] Groq fallback failed", e);
+          }
+        }
+
+        if (!aiResponse) {
           return new Response(JSON.stringify({ error: "AI engine busy. Please retry." }), {
             status: 502,
             headers: { "Content-Type": "application/json" },

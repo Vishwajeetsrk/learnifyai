@@ -2,7 +2,7 @@
 
 <img src="src/assets/learnify-logo.png" alt="Learnify AI Logo" width="180" style="margin-bottom: 12px; filter: drop-shadow(0 4px 12px rgba(99, 102, 241, 0.25));" />
 
-# Learnify AI 5.8.8
+# Learnify AI 5.8.9
 
 **The AI-Native Learning & Career Operating System**
 
@@ -1673,6 +1673,17 @@ MIT License. See [LICENSE](LICENSE) for details.
   - **Resilient Fallback PDF Stream Parser**: Decodes octal escapes, hex strings, and TJ array operators when external PDF workers are restricted.
 - 🔗 **RESPONSIVE LINK PREVIEW ENGINE**:
   - Seamless desktop floating spring card + mobile backdrop peek popovers with curated instant previews for major learning hubs.
+### v5.8.9 (October 2026) — Autonomous AI Gateway Resilience & Multi-Provider Cascade Overhaul
+
+- 🤖 **MULTI-TIER AI GATEWAY & RESILIENT MODEL CASCADE**:
+  - **Eliminated 502 Bad Gateway Outages**: Fixed deprecated AI model references (`gemini-2.0-flash` retired by Google, `llama-3.3-70b-versatile` retired by Groq) that caused `/api/chat` to fail with "AI assistant is temporarily unavailable".
+  - **Automatic Failover Cascade**: Architected an automatic candidate cascade across Gemini (`gemini-2.5-flash`, `gemini-flash-latest`) and Groq (`qwen/qwen3.8-27b`, `openai/gpt-oss-120b`, `openai/gpt-oss-20b`) ensuring zero downtime when any single provider or model experiences rate limiting, deprecation, or upstream faults.
+  - **Platform-Wide AI Module Alignment**: Synchronized all 11 AI backend functions and routes (`learning-assistant`, `career-coach`, `market-intel`, `playground-ai`, `agent.functions`, `support-agent`, `onboarding`, `admin-content`, `ai-gateway-admin`, `src/routes/api/ai/chat.ts`, and `src/routes/_authenticated/ai.tsx`) with verified active models and resilient fallback chains.
+  - **Model Alias Remapping Engine**: Built dynamic runtime model remapping (`CHAT_MODEL_ALIASES`) translating legacy client/DB model keys seamlessly without breaking existing chat sessions.
+- 🎨 **DEV-ICONS ASSET INTEGRATION & CONSOLE 404/400 REPAIR**:
+  - **DevIcon Migration**: Migrated all programming language badges and selectors (`Java`, `C#`, `PowerShell`, `CSS3`) across `courses.$slug.tsx`, `LanguageSelector.tsx`, `WebPlayground.tsx`, `FileExplorer.tsx`, and `SkillBadge.tsx` from brittle SimpleIcons CDNs to verified high-res vector SVGs on DevIcon CDN.
+  - **Branded Course Cover SVG Suite**: Generated 12 official, responsive branded vector SVG course covers under `/course-covers/` resolving 404 asset errors across all course catalog views.
+  - **Supabase Storage Self-Healing**: Automatically verified and provisioned the `public_assets` Supabase storage bucket, resolving 400 Bad Request image asset loading errors and updating database records to local vector covers.
 
 ### v5.8.8 (October 2026) — Master WebGL & ThreeUI Shader Lab Hardening
 

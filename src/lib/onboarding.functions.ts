@@ -207,14 +207,14 @@ export const sendOnboardingCoachMessage = createServerFn({ method: "POST" })
         name: "groq",
         baseURL: "https://api.groq.com/openai/v1",
         key: groqKey,
-        model: "llama-3.3-70b-versatile",
+        model: "qwen/qwen3.8-27b",
       });
     if (geminiKey)
       providers.push({
         name: "gemini",
         baseURL: "https://generativelanguage.googleapis.com/v1beta/openai",
         key: geminiKey,
-        model: "gemini-2.0-flash",
+        model: "gemini-2.5-flash",
       });
     if (openrouterKey)
       providers.push({

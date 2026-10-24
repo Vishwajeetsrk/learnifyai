@@ -54,50 +54,88 @@ setInterval(() => {
 // Provider routing — use the owner's configured AI APIs only.
 const PROVIDERS = {
   groq: {
+    name: "Groq",
     url: "https://api.groq.com/openai/v1/chat/completions",
     keyEnv: "GROQ_API_KEY",
     stripPrefix: true,
+    primaryModel: "qwen/qwen3.8-27b",
+    fallbackModels: ["openai/gpt-oss-120b", "openai/gpt-oss-20b"],
   },
   openrouter: {
+    name: "OpenRouter",
     url: "https://openrouter.ai/api/v1/chat/completions",
     keyEnv: "OPENROUTER_API_KEY",
     stripPrefix: true,
+    primaryModel: "google/gemini-2.5-flash",
+    fallbackModels: ["meta-llama/llama-3.3-70b-instruct"],
   },
   gemini: {
+    name: "Gemini",
     url: "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
     keyEnv: "GEMINI_API_KEY",
     stripPrefix: false,
+    primaryModel: "gemini-2.5-flash",
+    fallbackModels: ["gemini-flash-latest", "gemini-3.8-flash"],
   },
   nvidia: {
+    name: "NVIDIA",
     url: "https://integrate.api.nvidia.com/v1/chat/completions",
     keyEnv: "NVIDIA_API_KEY",
     stripPrefix: true,
+    primaryModel: "meta/llama-3.3-70b-instruct",
+    fallbackModels: [],
   },
 } as const;
+
+export const CHAT_MODEL_ALIASES: Record<string, string> = {
+  // Gemini legacy aliases -> active gemini-2.5-flash
+  "gemini-2.0-flash": "gemini-2.5-flash",
+  "gemini-2.0-flash-exp": "gemini-2.5-flash",
+  "gemini-1.5-flash": "gemini-2.5-flash",
+  "gemini-1.5-pro": "gemini-2.5-flash",
+  "gemini-flash-lite-latest": "gemini-2.5-flash",
+  "gemini-pro-latest": "gemini-2.5-flash",
+  // Groq legacy aliases -> active Groq models
+  "llama-3.3-70b-versatile": "qwen/qwen3.8-27b",
+  "llama-3.1-8b-instant": "openai/gpt-oss-20b",
+  "llama3-70b-8192": "openai/gpt-oss-120b",
+  "llama-3.1-70b-versatile": "qwen/qwen3.8-27b",
+};
 
 function resolveProvider(model: string) {
   const parts = model.split("/");
   const prefix = parts[0];
+  let rawModel = parts.slice(1).join("/") || model;
+  
+  // Apply alias mapping
+  if (CHAT_MODEL_ALIASES[rawModel]) {
+    rawModel = CHAT_MODEL_ALIASES[rawModel];
+  }
+
   const cfg = PROVIDERS[prefix as keyof typeof PROVIDERS];
   if (cfg) {
-    const providerModel = cfg.stripPrefix
-      ? parts.slice(1).join("/")
-      : model.replace(/^gemini\//, "");
+    const providerModel = cfg.stripPrefix ? rawModel : rawModel.replace(/^gemini\//, "");
     return { cfg, providerModel };
   }
 
   // Fallback: try to detect provider by keyword in model string
-  if (model.includes("gemini"))
-    return { cfg: PROVIDERS.gemini, providerModel: model.replace(/^gemini\//, "") };
-  if (model.includes("groq"))
-    return { cfg: PROVIDERS.groq, providerModel: model.replace(/^groq\//, "") };
-  if (model.includes("openrouter") || model.includes("openrouter.ai"))
-    return { cfg: PROVIDERS.openrouter, providerModel: model.replace(/^openrouter\//, "") };
-  if (model.includes("nvidia"))
-    return { cfg: PROVIDERS.nvidia, providerModel: model.replace(/^nvidia\//, "") };
+  if (model.includes("gemini")) {
+    const m = CHAT_MODEL_ALIASES[rawModel] ?? (rawModel || "gemini-2.5-flash");
+    return { cfg: PROVIDERS.gemini, providerModel: m.replace(/^gemini\//, "") };
+  }
+  if (model.includes("groq") || model.includes("qwen") || model.includes("gpt-oss")) {
+    const m = CHAT_MODEL_ALIASES[rawModel] ?? (rawModel || "qwen/qwen3.8-27b");
+    return { cfg: PROVIDERS.groq, providerModel: m.replace(/^groq\//, "") };
+  }
+  if (model.includes("openrouter") || model.includes("openrouter.ai")) {
+    return { cfg: PROVIDERS.openrouter, providerModel: rawModel.replace(/^openrouter\//, "") };
+  }
+  if (model.includes("nvidia")) {
+    return { cfg: PROVIDERS.nvidia, providerModel: rawModel.replace(/^nvidia\//, "") };
+  }
 
   // Default to Gemini provider when unsure
-  return { cfg: PROVIDERS.gemini, providerModel: model };
+  return { cfg: PROVIDERS.gemini, providerModel: "gemini-2.5-flash" };
 }
 
 const BodySchema = z.object({
@@ -216,26 +254,45 @@ export const Route = createFileRoute("/api/chat")({
           .order("created_at", { ascending: true })
           .limit(30);
 
-        let { cfg, providerModel } = resolveProvider(parsed.model);
-        let apiKey = process.env[cfg.keyEnv];
+        let { cfg: requestedCfg, providerModel: requestedModel } = resolveProvider(parsed.model);
 
-        // If model doesn't support vision but history has images, fall back to Gemini
+        // Check if history has user-uploaded vision images
         const hasImages = (history ?? []).some(
           (m) => m.role === "user" && m.content.includes("](data:image/"),
         );
-        if (hasImages && cfg !== PROVIDERS.gemini) {
-          const geminiKey = process.env[PROVIDERS.gemini.keyEnv];
-          if (geminiKey) {
-            cfg = PROVIDERS.gemini;
-            apiKey = geminiKey;
-            providerModel = parsed.model.includes("pro") ? "gemini-2.5-pro" : "gemini-2.5-flash";
+
+        // Build list of candidate (provider, model) pairs to attempt in priority order
+        type ProviderKey = keyof typeof PROVIDERS;
+        const candidateTargets: Array<{
+          cfg: (typeof PROVIDERS)[ProviderKey];
+          model: string;
+        }> = [];
+
+        // 1. Requested model on requested provider
+        candidateTargets.push({ cfg: requestedCfg, model: requestedModel });
+
+        // 2. Fallback models on the requested provider
+        for (const fb of requestedCfg.fallbackModels || []) {
+          if (fb !== requestedModel) {
+            candidateTargets.push({ cfg: requestedCfg, model: fb });
           }
         }
 
-        if (!apiKey) {
-          return new Response(JSON.stringify({ error: `${cfg.keyEnv} not configured` }), {
-            status: 500,
-          });
+        // 3. Fallback to alternative active providers (Gemini <-> Groq)
+        if (hasImages) {
+          // If images exist, ensure Gemini is tried
+          if (requestedCfg !== PROVIDERS.gemini) {
+            candidateTargets.push({ cfg: PROVIDERS.gemini, model: "gemini-2.5-flash" });
+          }
+        } else {
+          // If text only, add other providers
+          if (requestedCfg !== PROVIDERS.groq && process.env.GROQ_API_KEY) {
+            candidateTargets.push({ cfg: PROVIDERS.groq, model: "qwen/qwen3.8-27b" });
+            candidateTargets.push({ cfg: PROVIDERS.groq, model: "openai/gpt-oss-120b" });
+          }
+          if (requestedCfg !== PROVIDERS.gemini && process.env.GEMINI_API_KEY) {
+            candidateTargets.push({ cfg: PROVIDERS.gemini, model: "gemini-2.5-flash" });
+          }
         }
 
         const systemPrompt = `You are Learnify AI — a Senior Technical Mentor, Research Assistant, Career Coach, Software Architect, Documentation Writer, and Product Educator. You are NOT a casual chatbot.
@@ -285,61 +342,107 @@ Always cover: what it is, why it matters, prerequisites, step-by-step learning p
 QUALITY GUARDRAILS
 NEVER give shallow answers, a single resource, outdated stacks, generic boilerplate, or incomplete roadmaps. ALWAYS recommend scalable architecture, deployment guidance, and production-level practices.`;
 
-        const upstream = await fetch(cfg.url, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${apiKey}`,
-            "Content-Type": "application/json",
-            ...(cfg === PROVIDERS.openrouter
-              ? { "HTTP-Referer": "https://learnify.ai", "X-Title": "Learnify AI" }
-              : {}),
-          },
-          body: JSON.stringify({
-            model: providerModel,
-            stream: true,
-            max_tokens: 2500,
-            stream_options: { include_usage: true },
-            messages: [
-              { role: "system", content: systemPrompt },
-              ...(history ?? []).map((m) => {
-                let content: any = m.content;
-                if (
-                  m.role === "user" &&
-                  m.content.includes("![") &&
-                  m.content.includes("](data:image/")
-                ) {
-                  const parts: any[] = [];
-                  const imgRegex = /!\[.*?\]\((data:image\/[^;]+;base64,[^\)]+)\)/g;
-                  let lastIndex = 0;
-                  let match;
-                  while ((match = imgRegex.exec(m.content)) !== null) {
-                    const textBefore = m.content.substring(lastIndex, match.index).trim();
-                    if (textBefore) parts.push({ type: "text", text: textBefore });
-                    parts.push({ type: "image_url", image_url: { url: match[1] } });
-                    lastIndex = imgRegex.lastIndex;
-                  }
-                  const textAfter = m.content.substring(lastIndex).trim();
-                  if (textAfter) parts.push({ type: "text", text: textAfter });
+        // Format history messages for upstream OpenAI-compatible schemas
+        const formattedMessages = [
+          { role: "system", content: systemPrompt },
+          ...(history ?? []).map((m) => {
+            let content: any = m.content;
+            if (
+              m.role === "user" &&
+              m.content.includes("![") &&
+              m.content.includes("](data:image/")
+            ) {
+              const parts: any[] = [];
+              const imgRegex = /!\[.*?\]\((data:image\/[^;]+;base64,[^\)]+)\)/g;
+              let lastIndex = 0;
+              let match;
+              while ((match = imgRegex.exec(m.content)) !== null) {
+                const textBefore = m.content.substring(lastIndex, match.index).trim();
+                if (textBefore) parts.push({ type: "text", text: textBefore });
+                parts.push({ type: "image_url", image_url: { url: match[1] } });
+                lastIndex = imgRegex.lastIndex;
+              }
+              const textAfter = m.content.substring(lastIndex).trim();
+              if (textAfter) parts.push({ type: "text", text: textAfter });
 
-                  if (parts.length > 0) {
-                    content = parts;
-                  }
-                }
-                return { role: m.role, content };
-              }),
-            ],
+              if (parts.length > 0) {
+                content = parts;
+              }
+            }
+            return { role: m.role, content };
           }),
-        });
+        ];
 
-        if (!upstream.ok || !upstream.body) {
-          const text = await upstream.text().catch(() => "");
-          console.error("Upstream AI error", upstream.status, text);
-          const friendlyMessage =
-            upstream.status === 429
-              ? "The AI engine is temporarily experiencing high traffic. Please retry in a moment."
-              : upstream.status === 402
-              ? "AI quota is temporarily busy. Retrying with backup provider..."
-              : "AI assistant is temporarily unavailable. Please retry in a few moments.";
+        let upstream: Response | null = null;
+        let successfulModel = requestedModel;
+        const failures: Array<{ provider: string; model: string; status: number; text: string }> = [];
+
+        for (const target of candidateTargets) {
+          const targetKey = process.env[target.cfg.keyEnv];
+          if (!targetKey) continue;
+
+          // Strip provider prefix if provider requires it
+          const finalModelName = target.cfg.stripPrefix
+            ? target.model.replace(/^(groq|gemini|openrouter|nvidia)\//, "")
+            : target.model.replace(/^gemini\//, "");
+
+          try {
+            const ctrl = new AbortController();
+            const timeout = setTimeout(() => ctrl.abort(), 20000);
+
+            const res = await fetch(target.cfg.url, {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${targetKey}`,
+                "Content-Type": "application/json",
+                ...(target.cfg === PROVIDERS.openrouter
+                  ? { "HTTP-Referer": "https://learnify.ai", "X-Title": "Learnify AI" }
+                  : {}),
+              },
+              body: JSON.stringify({
+                model: finalModelName,
+                stream: true,
+                max_tokens: 2500,
+                stream_options: { include_usage: true },
+                messages: formattedMessages,
+              }),
+              signal: ctrl.signal,
+            }).finally(() => clearTimeout(timeout));
+
+            if (res.ok && res.body) {
+              upstream = res;
+              successfulModel = finalModelName;
+              break;
+            }
+
+            const errText = await res.text().catch(() => "");
+            failures.push({
+              provider: target.cfg.name,
+              model: finalModelName,
+              status: res.status,
+              text: errText.slice(0, 160),
+            });
+            console.warn(`[chat] ${target.cfg.name} (${finalModelName}) failed [${res.status}]: ${errText.slice(0, 100)}`);
+          } catch (err: any) {
+            failures.push({
+              provider: target.cfg.name,
+              model: target.model,
+              status: 500,
+              text: err?.message || "network_error",
+            });
+            console.warn(`[chat] ${target.cfg.name} (${target.model}) network error:`, err?.message);
+          }
+        }
+
+        if (!upstream || !upstream.body) {
+          console.error("[chat] All AI provider attempts exhausted:", failures);
+          const has429 = failures.some((f) => f.status === 429);
+          const has402 = failures.some((f) => f.status === 402);
+          const friendlyMessage = has429
+            ? "The AI engine is temporarily experiencing high traffic. Please retry in a moment."
+            : has402
+            ? "AI quota is temporarily busy. Please retry in a few moments."
+            : "AI assistant is temporarily unavailable. Please retry in a few moments.";
           return new Response(JSON.stringify({ error: friendlyMessage }), {
             status: 502,
           });
@@ -406,7 +509,7 @@ NEVER give shallow answers, a single resource, outdated stacks, generic boilerpl
                   user_id: userId,
                   role: "assistant",
                   content: assistantText,
-                  model: parsed.model,
+                  model: successfulModel || parsed.model,
                   token_count: promptTokens + completionTokens,
                 });
                 await supabaseAdmin
@@ -417,7 +520,7 @@ NEVER give shallow answers, a single resource, outdated stacks, generic boilerpl
                 await supabaseAdmin.from("ai_usage").insert({
                   user_id: userId,
                   conversation_id: conversationId,
-                  model: parsed.model,
+                  model: successfulModel || parsed.model,
                   prompt_tokens: promptTokens,
                   completion_tokens: completionTokens,
                   total_tokens: promptTokens + completionTokens,

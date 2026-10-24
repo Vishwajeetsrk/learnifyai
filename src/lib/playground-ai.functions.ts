@@ -12,7 +12,7 @@ const Input = z.object({
   question: z.string().max(2000).optional().default(""),
 });
 
-const GROQ_MODELS = ["llama-3.3-70b-versatile", "llama-3.1-8b-instant"];
+const GROQ_MODELS = ["qwen/qwen3.8-27b", "openai/gpt-oss-120b", "openai/gpt-oss-20b"];
 const GEMINI_MODELS = ["gemini-2.5-flash"];
 const OPENROUTER_MODELS = [
   "meta-llama/llama-3.3-70b-instruct:free",

@@ -21,7 +21,7 @@ const LANG_ICONS: Record<string, string> = {
   javascript: "https://cdn.simpleicons.org/javascript/F7DF1E",
   typescript: "https://cdn.simpleicons.org/typescript/3178C6",
   html: "https://cdn.simpleicons.org/html5/E34F26",
-  css: "https://cdn.simpleicons.org/css3/1572B6",
+  css: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/css3/css3-original.svg",
   jsx: "https://cdn.simpleicons.org/react/61DAFB",
   python: "https://cdn.simpleicons.org/python/3776AB",
   json: "https://cdn.simpleicons.org/json/000000",
