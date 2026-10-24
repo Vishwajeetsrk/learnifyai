@@ -40,6 +40,7 @@ import {
   materializeCourse,
   autoCompleteCourse,
   generateLessonNotes,
+  generateLessonExplainerSlides,
 } from "@/lib/course-builder.functions";
 import {
   verifyYoutubeKey,
@@ -1651,9 +1652,11 @@ function LessonForm({
 
   const searchVideoFn = useServerFn(searchYoutubeVideo);
   const generateNotesFn = useServerFn(generateLessonNotes);
+  const generateExplainerFn = useServerFn(generateLessonExplainerSlides);
   const transcribeFn = useServerFn(getLessonTranscriptFull);
   const [searchingVideo, setSearchingVideo] = useState(false);
   const [generatingNotes, setGeneratingNotes] = useState(false);
+  const [generatingVideo, setGeneratingVideo] = useState(false);
   const [uploadingVideo, setUploadingVideo] = useState(false);
   const [transcriptStatus, setTranscriptStatus] = useState<
     "idle" | "working" | "ready" | "unavailable" | "too-large"
@@ -1780,6 +1783,41 @@ function LessonForm({
     }
   }
 
+  async function handleAiGenerateVideo() {
+    if (!draft.title.trim()) return toast.error("Please enter a lesson title first.");
+    setGeneratingVideo(true);
+    try {
+      const res = await generateExplainerFn({
+        data: {
+          title: draft.title.trim(),
+          courseTitle: courseTitle || "General Course",
+          content: draft.description || "",
+        },
+      });
+      if (res && res.explainer) {
+        const slides = res.explainer.slides || [];
+        const slidesMd = slides
+          .map(
+            (s: any) =>
+              `\n\n### Slide ${s.slideNumber}: ${s.heading}\n${(s.bullets || []).map((b: string) => `- ${b}`).join("\n")}\n\n> **Narration Script:** ${s.narrationScript}`,
+          )
+          .join("\n");
+        const fullContent =
+          (draft.description || "") + "\n\n## AI Video Explainer Storyboard" + slidesMd;
+        updateField("description", deduplicateLessonSections(fullContent));
+        toast.success(
+          `AI Generated ${slides.length}-slide video storyboard! (${res.explainer.estimatedDurationSec}s)`,
+        );
+      } else {
+        toast.error("Could not generate video storyboard.");
+      }
+    } catch (e: any) {
+      toast.error(e?.message ?? "Error generating video explainer.");
+    } finally {
+      setGeneratingVideo(false);
+    }
+  }
+
   async function save() {
     if (!draft.title.trim()) return toast.error("Title required");
     if (videoError) return toast.error(videoError);
@@ -1889,6 +1927,22 @@ function LessonForm({
                   <Youtube className="h-3.5 w-3.5 text-red-500 fill-red-500" />
                 )}
                 AI Find
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleAiGenerateVideo}
+                disabled={generatingVideo}
+                title="Generate AI video narration & storyboard for this lesson"
+                className="h-10 text-xs shrink-0 flex items-center gap-1.5 bg-purple-500/10 hover:bg-purple-500/20 border-purple-500/30 text-purple-600 dark:text-purple-400"
+              >
+                {generatingVideo ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Sparkles className="h-3.5 w-3.5 text-purple-500" />
+                )}
+                AI Video
               </Button>
             </div>
             {videoError && !uploadingVideo ? (

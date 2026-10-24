@@ -598,24 +598,83 @@ function StructuredRoadmap({ data }: { data: RoadmapData }) {
     safeTargetSkills = Array.from(
       new Set(
         safePhases.flatMap((p) =>
-          (p.skills || []).map((s: any) => (typeof s === "string" ? s : s.name)),
+          (p.skills || []).map((s: any) => (typeof s === "string" ? s : s?.name)),
         ),
       ),
     ).filter(Boolean);
   }
 
   // Current skills normalization
-  const safeCurrentSkills: string[] =
+  let safeCurrentSkills: string[] =
     data.current_skills && data.current_skills.length > 0
       ? data.current_skills
       : (data as any).currentSkills || [];
 
+  // Deep extraction if skills were missing from nested structure
+  if (safeTargetSkills.length === 0 && safePhases.length > 0) {
+    const extracted: string[] = [];
+    safePhases.forEach((p) => {
+      const cleanTitle = (p.title || "").replace(/^(Phase\s*\d+:?|Foundations\s*&?\s*)/i, "").trim();
+      if (cleanTitle) {
+        cleanTitle.split(/&|,|\band\b/i).forEach((part) => {
+          const t = part.trim();
+          if (t.length > 2 && t.length < 35) extracted.push(t);
+        });
+      }
+      (p.projects || []).forEach((proj: any) => {
+        if (Array.isArray(proj.tech_stack)) extracted.push(...proj.tech_stack);
+      });
+      const milestoneText = (p.milestones || []).join(" ");
+      const knownTech = [
+        "System Design",
+        "Microservices",
+        "Docker",
+        "Kubernetes",
+        "AWS/GCP",
+        "RAG Pipeline",
+        "LLM Integration",
+        "MLOps",
+        "Core Web Vitals",
+        "CI/CD Pipeline",
+        "Full-Stack Integration",
+        "Backend Architecture",
+      ];
+      knownTech.forEach((tech) => {
+        if (new RegExp(`\\b${tech.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&")}\\b`, "i").test(milestoneText)) {
+          extracted.push(tech);
+        }
+      });
+    });
+    safeTargetSkills = Array.from(new Set(extracted)).slice(0, 10);
+  }
+
+  if (safeTargetSkills.length === 0) {
+    safeTargetSkills = [
+      "System Architecture",
+      "Cloud Deployment (AWS/GCP)",
+      "High-Performance APIs",
+      "Distributed Systems",
+      "Production Testing & CI/CD",
+    ];
+  }
+
+  if (safeCurrentSkills.length === 0) {
+    safeCurrentSkills = ["Core Programming", "Git & GitHub", "REST APIs", "Modern Web Principles"];
+  }
+
   // Timeline months normalization
-  const displayMonths =
+  const parsedMonths = Number(
     data.timeline_months ||
-    (data as any).timelineMonths ||
-    (typeof (data as any).timeline === "string" ? parseInt((data as any).timeline) : 0) ||
-    (safePhases.length > 0 ? safePhases.length * 3 : 12);
+      (data as any).timelineMonths ||
+      (typeof (data as any).timeline === "string" ? parseInt((data as any).timeline) : 0) ||
+      0,
+  );
+  const displayMonths =
+    !isNaN(parsedMonths) && parsedMonths > 0
+      ? parsedMonths
+      : safePhases.length > 0
+        ? safePhases.length * 3
+        : 12;
 
   // Skill gap normalization
   let safeSkillGap: Array<{ skill: string; priority: string; why: string }> =
@@ -623,19 +682,16 @@ function StructuredRoadmap({ data }: { data: RoadmapData }) {
       ? data.skill_gap
       : (data as any).skillGap || (data as any).gaps || [];
 
-  if (safeSkillGap.length === 0 && safeTargetSkills.length > 0) {
-    safeSkillGap = safeTargetSkills
-      .filter(
-        (ts) =>
-          !safeCurrentSkills.some(
-            (cs: string) => cs.toLowerCase() === ts.toLowerCase(),
-          ),
-      )
-      .map((skill, idx) => ({
-        skill,
-        priority: idx < 3 ? "high" : idx < 7 ? "medium" : "low",
-        why: `Core competency required for ${data.title || "Target Role"}`,
-      }));
+  if (safeSkillGap.length === 0) {
+    const gaps = safeTargetSkills
+      .filter((ts) => !safeCurrentSkills.some((cs: string) => cs.toLowerCase() === ts.toLowerCase()))
+      .slice(0, 8);
+    const chosenGaps = gaps.length > 0 ? gaps : safeTargetSkills.slice(0, 6);
+    safeSkillGap = chosenGaps.map((skill, idx) => ({
+      skill,
+      priority: idx < 2 ? "high" : idx < 5 ? "medium" : "low",
+      why: `Key milestone requirement to attain mastery in ${data.title || "Target Role"}`,
+    }));
   }
 
   const gapChartData = safeSkillGap.map((s: { skill: string; priority: string; why: string }) => ({

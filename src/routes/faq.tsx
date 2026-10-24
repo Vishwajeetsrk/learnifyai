@@ -4,12 +4,7 @@ import { useMemo, useState } from "react";
 import { HelpCircle, Search, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+import { ArcSmoothAccordion, type ArcAccordionItem } from "@/components/ui/arc";
 import { Badge } from "@/components/ui/badge";
 import { MarketingPage } from "@/components/MarketingPage";
 
@@ -198,18 +193,19 @@ function FaqPage() {
             <p className="text-sm text-muted-foreground">Try another search term.</p>
           </div>
         ) : (
-          <Accordion type="single" collapsible className="mt-8 space-y-2">
-            {filtered.map((f) => (
-              <AccordionItem key={f.id} value={f.id} className="rounded-xl border bg-card px-4">
-                <AccordionTrigger className="text-left hover:no-underline">
-                  <span className="font-medium">{f.question}</span>
-                </AccordionTrigger>
-                <AccordionContent className="text-sm text-muted-foreground whitespace-pre-line">
+          <ArcSmoothAccordion
+            className="mt-8"
+            items={filtered.map((f) => ({
+              id: f.id,
+              title: f.question,
+              badge: f.category,
+              content: (
+                <p className="text-sm text-muted-foreground whitespace-pre-line leading-relaxed">
                   {f.answer}
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
+                </p>
+              ),
+            }))}
+          />
         )}
       </section>
     </MarketingPage>

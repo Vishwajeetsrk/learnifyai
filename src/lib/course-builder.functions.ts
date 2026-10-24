@@ -574,3 +574,76 @@ export const generateLessonNotes = createServerFn({ method: "POST" })
     const content = j.choices?.[0]?.message?.content ?? "";
     return { notes: content };
   });
+
+const ExplainerInput = z.object({
+  title: z.string().min(1).max(300),
+  courseTitle: z.string().max(300).optional().default(""),
+  content: z.string().max(5000).optional().default(""),
+});
+
+export const generateLessonExplainerSlides = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((d: unknown) => ExplainerInput.parse(d))
+  .handler(async ({ data }) => {
+    const prompt = `You are an expert technical course video producer and educational motion animator inspired by scrimba/pr-explainer and latent-spaces/brag.
+Turn this lesson into a high-impact 4-slide video walkthrough:
+Course: ${data.courseTitle || "Technical Course"}
+Lesson Title: ${data.title}
+Lesson Content Summary: ${data.content.slice(0, 1500) || "Comprehensive technical lesson"}
+
+Return ONLY valid JSON matching this exact schema:
+{
+  "hook": "1 punchy sentence setting the problem statement",
+  "estimatedDurationSec": 90,
+  "slides": [
+    {
+      "slideNumber": 1,
+      "type": "hero",
+      "heading": "Clear Concept Title",
+      "bullets": ["Point 1", "Point 2"],
+      "narrationScript": "Full transcript to speak for this slide"
+    },
+    {
+      "slideNumber": 2,
+      "type": "breakdown",
+      "heading": "How It Works (Mechanics)",
+      "bullets": ["Step 1", "Step 2", "Step 3"],
+      "narrationScript": "Full transcript to speak for this slide"
+    },
+    {
+      "slideNumber": 3,
+      "type": "code_or_visual",
+      "heading": "Real-World Code or Architecture",
+      "codeSnippet": "// Key syntax or configuration\\nconst config = { ... };",
+      "bullets": ["Highlight 1", "Highlight 2"],
+      "narrationScript": "Full transcript to speak for this slide"
+    },
+    {
+      "slideNumber": 4,
+      "type": "takeaways",
+      "heading": "Key Takeaways & Best Practices",
+      "bullets": ["Golden Rule 1", "Pitfall to Avoid"],
+      "narrationScript": "Closing summary transcript"
+    }
+  ]
+}`;
+
+    const res = await callUserAiChat(
+      {
+        messages: [
+          { role: "system", content: "You are an expert technical video producer and instructional designer. Return valid JSON only." },
+          { role: "user", content: prompt },
+        ],
+        response_format: { type: "json_object" },
+      },
+      "pro",
+    );
+    if (!res.ok) throw new Error("Failed to generate explainer slides");
+    const payload = await res.json();
+    const content = payload.choices?.[0]?.message?.content ?? "{}";
+    try {
+      return { explainer: JSON.parse(content) };
+    } catch {
+      return { explainer: null };
+    }
+  });
