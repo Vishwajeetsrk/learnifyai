@@ -6,6 +6,7 @@ import "highlight.js/styles/github-dark.css";
 import { Copy, Check, Bookmark, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 import { parseTutorResponse } from "./artifactParser";
 import { InteractiveQuizCard } from "./InteractiveQuizCard";
@@ -13,6 +14,7 @@ import { InteractiveDiagramCard } from "./InteractiveDiagramCard";
 import { InteractiveFlashcardCard } from "./InteractiveFlashcardCard";
 import { InteractiveExamCard } from "./InteractiveExamCard";
 import { InteractiveStudyPlanCard } from "./InteractiveStudyPlanCard";
+import { InteractiveChartCard } from "./InteractiveChartCard";
 import { QuickActionsBar } from "./QuickActionsBar";
 import { VoicePlayer } from "./VoicePlayer";
 
@@ -75,6 +77,44 @@ export function ArtifactRenderer({
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 rehypePlugins={[rehypeHighlight]}
+                components={{
+                  table: ({ node, ...props }) => (
+                    <div className="my-4 overflow-x-auto rounded-xl border border-border/70 bg-card/60 backdrop-blur shadow-xs">
+                      <table className="w-full text-left text-xs border-collapse" {...props} />
+                    </div>
+                  ),
+                  thead: ({ node, ...props }) => (
+                    <thead className="bg-muted/60 text-foreground font-semibold border-b border-border/70" {...props} />
+                  ),
+                  th: ({ node, ...props }) => (
+                    <th className="p-3 font-display font-semibold text-foreground tracking-tight text-xs whitespace-nowrap" {...props} />
+                  ),
+                  td: ({ node, ...props }) => (
+                    <td className="p-3 border-t border-border/40 text-foreground/90 text-xs align-top leading-relaxed" {...props} />
+                  ),
+                  tr: ({ node, ...props }) => (
+                    <tr className="hover:bg-muted/20 transition-colors" {...props} />
+                  ),
+                  pre: ({ node, children, ...props }) => {
+                    const text = String(node?.children?.[0] && "value" in node.children[0] ? (node.children[0] as any).value : "");
+                    const isAsciiDiagram = text.includes("+---") || text.includes("|  ") || text.includes("+=====");
+                    return (
+                      <div className="relative group my-3">
+                        <pre
+                          className={cn(
+                            "rounded-xl border p-4 overflow-x-auto font-mono text-xs shadow-xs",
+                            isAsciiDiagram
+                              ? "bg-slate-950 text-slate-100 border-slate-800 leading-tight tracking-tight whitespace-pre font-mono"
+                              : "bg-muted/80 text-foreground border-border/60",
+                          )}
+                          {...props}
+                        >
+                          {children}
+                        </pre>
+                      </div>
+                    );
+                  },
+                }}
               >
                 {segment.content}
               </ReactMarkdown>
@@ -100,6 +140,13 @@ export function ArtifactRenderer({
                   key={idx}
                   diagram={data}
                   onFollowUp={onSendQuery}
+                />
+              );
+            case "chart":
+              return (
+                <InteractiveChartCard
+                  key={idx}
+                  chart={data}
                 />
               );
             case "flashcards":

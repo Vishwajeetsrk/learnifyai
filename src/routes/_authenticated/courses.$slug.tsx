@@ -1040,13 +1040,107 @@ function CourseDetail() {
                       }}
                     />
                   ) : activeVideo && !activeVideo.ok ? (
-                    <VideoFallback
-                      message={activeVideo.message}
-                      reason={activeVideo.reason}
-                      canRetry={activeVideo.reason !== "missing-url"}
-                      isAdmin={isAdmin}
-                      onRetry={() => setPlayerRetry((n) => n + 1)}
-                    />
+                    (() => {
+                      const lower = (active?.title || "").toLowerCase();
+                      const isQuiz =
+                        lower.includes("quiz") ||
+                        lower.includes("assessment") ||
+                        lower.includes("test");
+                      const isLab =
+                        lower.includes("lab") ||
+                        lower.includes("assignment") ||
+                        lower.includes("project");
+                      const isGuide =
+                        lower.includes("reading") ||
+                        lower.includes("guide") ||
+                        lower.includes("summary") ||
+                        lower.includes("overview") ||
+                        lower.includes("resources");
+
+                      if (isQuiz || isLab || isGuide) {
+                        return (
+                          <div className="w-full h-full flex flex-col justify-center items-center p-6 sm:p-8 bg-gradient-to-br from-card via-card/90 to-muted/40 text-center space-y-4">
+                            <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-sm">
+                              {isQuiz ? (
+                                <CheckCircle2 className="h-7 w-7 text-amber-500" />
+                              ) : isLab ? (
+                                <FileCheck2 className="h-7 w-7 text-blue-500" />
+                              ) : (
+                                <BookOpen className="h-7 w-7 text-purple-500" />
+                              )}
+                            </div>
+                            <div className="max-w-md mx-auto">
+                              <Badge
+                                variant="outline"
+                                className={cn(
+                                  "text-xs mb-2",
+                                  isQuiz && "border-amber-500/40 bg-amber-500/10 text-amber-500",
+                                  isLab && "border-blue-500/40 bg-blue-500/10 text-blue-500",
+                                  isGuide && "border-purple-500/40 bg-purple-500/10 text-purple-500",
+                                )}
+                              >
+                                {isQuiz
+                                  ? "Interactive MCQ Quiz & Assessment"
+                                  : isLab
+                                    ? "Hands-on Practical Lab"
+                                    : "Reading & Study Guide"}
+                              </Badge>
+                              <h3 className="text-xl font-bold font-display text-foreground leading-snug">
+                                {active?.title}
+                              </h3>
+                              <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
+                                {isQuiz
+                                  ? "Practice real-world exam questions, check answers instantly with explanations, and reinforce key concepts below."
+                                  : isLab
+                                    ? "Follow step-by-step lab instructions, design exercises, and deliverable guidelines below."
+                                    : "Read core principles, architecture diagrams, and comprehensive industry references below."}
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-2 pt-2">
+                              <Button
+                                size="sm"
+                                onClick={() => {
+                                  const el = document.getElementById("lesson-content-section");
+                                  el?.scrollIntoView({ behavior: "smooth" });
+                                }}
+                                className="cursor-pointer gap-1.5 shadow-sm"
+                              >
+                                <span>{isQuiz ? "Start Quiz Questions" : isLab ? "View Lab Steps" : "Read Full Guide"}</span>
+                                <ChevronDown className="h-4 w-4" />
+                              </Button>
+                              {active && (
+                                <Button
+                                  size="sm"
+                                  variant={completed.has(active.id) ? "secondary" : "outline"}
+                                  onClick={() => toggleComplete(active.id)}
+                                  className="cursor-pointer gap-1.5"
+                                >
+                                  {completed.has(active.id) ? (
+                                    <>
+                                      <CheckCircle2 className="h-4 w-4 text-emerald-500" /> Completed
+                                    </>
+                                  ) : (
+                                    <>
+                                      <CheckCircle2 className="h-4 w-4" /> Mark Complete
+                                    </>
+                                  )}
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      }
+
+                      return (
+                        <VideoFallback
+                          message={activeVideo.message}
+                          reason={activeVideo.reason}
+                          canRetry={activeVideo.reason !== "missing-url"}
+                          isAdmin={isAdmin}
+                          onRetry={() => setPlayerRetry((n) => n + 1)}
+                        />
+                      );
+                    })()
                   ) : lessons.length === 0 ? (
                     <div className="space-y-3">
                       <p>No lessons added yet for this course.</p>
@@ -1066,7 +1160,7 @@ function CourseDetail() {
             </div>
 
             {active && (
-              <div className="rounded-2xl border bg-card p-5 shadow-card space-y-4">
+              <div id="lesson-content-section" className="rounded-2xl border bg-card p-5 shadow-card space-y-4 scroll-mt-20">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="min-w-0">
                     <p className="text-xs text-muted-foreground">

@@ -585,13 +585,60 @@ export function CareerRoadmapPage({ embedded = false }: { embedded?: boolean }) 
 }
 
 function StructuredRoadmap({ data }: { data: RoadmapData }) {
-  const safeSkillGap = data.skill_gap || [];
-  const safeCurrentSkills = data.current_skills || [];
-  const safeTargetSkills = data.target_skills || [];
   const safePhases = data.phases || [];
   const safeMonthlyMilestones = data.monthly_milestones || [];
 
-  const gapChartData = safeSkillGap.map((s) => ({
+  // Target skills normalization
+  let safeTargetSkills: string[] =
+    data.target_skills && data.target_skills.length > 0
+      ? data.target_skills
+      : (data as any).targetSkills || [];
+
+  if (safeTargetSkills.length === 0 && safePhases.length > 0) {
+    safeTargetSkills = Array.from(
+      new Set(
+        safePhases.flatMap((p) =>
+          (p.skills || []).map((s: any) => (typeof s === "string" ? s : s.name)),
+        ),
+      ),
+    ).filter(Boolean);
+  }
+
+  // Current skills normalization
+  const safeCurrentSkills: string[] =
+    data.current_skills && data.current_skills.length > 0
+      ? data.current_skills
+      : (data as any).currentSkills || [];
+
+  // Timeline months normalization
+  const displayMonths =
+    data.timeline_months ||
+    (data as any).timelineMonths ||
+    (typeof (data as any).timeline === "string" ? parseInt((data as any).timeline) : 0) ||
+    (safePhases.length > 0 ? safePhases.length * 3 : 12);
+
+  // Skill gap normalization
+  let safeSkillGap: Array<{ skill: string; priority: string; why: string }> =
+    data.skill_gap && data.skill_gap.length > 0
+      ? data.skill_gap
+      : (data as any).skillGap || (data as any).gaps || [];
+
+  if (safeSkillGap.length === 0 && safeTargetSkills.length > 0) {
+    safeSkillGap = safeTargetSkills
+      .filter(
+        (ts) =>
+          !safeCurrentSkills.some(
+            (cs: string) => cs.toLowerCase() === ts.toLowerCase(),
+          ),
+      )
+      .map((skill, idx) => ({
+        skill,
+        priority: idx < 3 ? "high" : idx < 7 ? "medium" : "low",
+        why: `Core competency required for ${data.title || "Target Role"}`,
+      }));
+  }
+
+  const gapChartData = safeSkillGap.map((s: { skill: string; priority: string; why: string }) => ({
     name: s.skill.length > 12 ? s.skill.slice(0, 12) + "…" : s.skill,
     priority: s.priority === "high" ? 3 : s.priority === "medium" ? 2 : 1,
     fill: s.priority === "high" ? "#ef4444" : s.priority === "medium" ? "#f59e0b" : "#10b981",
@@ -605,7 +652,7 @@ function StructuredRoadmap({ data }: { data: RoadmapData }) {
         <div className="flex items-center gap-4 mt-3 text-sm text-muted-foreground">
           <span className="flex items-center gap-1.5">
             <Clock className="h-4 w-4" />
-            {data.timeline_months} months
+            {displayMonths} months
           </span>
           <span className="flex items-center gap-1.5">
             <Target className="h-4 w-4" />
@@ -666,7 +713,7 @@ function StructuredRoadmap({ data }: { data: RoadmapData }) {
                     formatter={(v: number) => (v === 3 ? "High" : v === 2 ? "Medium" : "Low")}
                   />
                   <Bar dataKey="priority" radius={[0, 4, 4, 0]}>
-                    {gapChartData.map((entry, i) => (
+                    {gapChartData.map((entry: { fill: string }, i: number) => (
                       <Cell key={i} fill={entry.fill} />
                     ))}
                   </Bar>
@@ -674,7 +721,7 @@ function StructuredRoadmap({ data }: { data: RoadmapData }) {
               </ResponsiveContainer>
             )}
             <div className="space-y-2">
-              {safeSkillGap.map((gap) => (
+              {safeSkillGap.map((gap: { skill: string; priority: string; why: string }) => (
                 <div
                   key={gap.skill}
                   className="flex items-start gap-3 p-2 rounded-lg bg-muted/50 text-sm"

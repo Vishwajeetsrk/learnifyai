@@ -1,6 +1,7 @@
 export type ArtifactType =
   | "quiz"
   | "diagram"
+  | "chart"
   | "flashcards"
   | "exam"
   | "plan"

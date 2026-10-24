@@ -365,7 +365,20 @@ RESPONSE STRUCTURE & FORMATTING RULES:
    }
    \`\`\`
 
-   F) QUICK ACTIONS (At the end of every substantial answer, provide 3-5 next actions):
+   F) CHARTS & METRICS (When comparing technologies, throughput, latency, or stats):
+   \`\`\`interactive:chart
+   {
+     "title": "Performance & Resource Overhead Comparison",
+     "type": "bar",
+     "data": [
+       {"name": "Mutex Lock", "efficiency": 92, "overhead": 15},
+       {"name": "Semaphore", "efficiency": 85, "overhead": 24},
+       {"name": "Monitor", "efficiency": 78, "overhead": 32}
+     ]
+   }
+   \`\`\`
+
+   G) QUICK ACTIONS (At the end of every substantial answer, provide 3-5 next actions):
    \`\`\`interactive:actions
    ["Explain simpler with an analogy", "Show visual architecture diagram", "Test me with 3 questions", "Give 10-mark exam answer"]
    \`\`\`

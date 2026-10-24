@@ -18,7 +18,7 @@ export function parseTutorResponse(content: string): ParsedSegment[] {
 
   const segments: ParsedSegment[] = [];
   const artifactRegex =
-    /```interactive:(quiz|diagram|flashcards|exam|plan|actions|clarification)\s*([\s\S]*?)```/g;
+    /```interactive:(quiz|diagram|chart|flashcards|exam|plan|actions|clarification)\s*([\s\S]*?)```/g;
 
   let lastIndex = 0;
   let match: RegExpExecArray | null;

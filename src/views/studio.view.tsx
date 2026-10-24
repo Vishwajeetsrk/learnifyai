@@ -1486,9 +1486,25 @@ function LessonsDialog({
                                     </div>
                                     <div className="text-xs text-muted-foreground truncate flex items-center gap-2 mt-0.5">
                                       <span>{l.duration_minutes} min</span>
-                                      {l.video_url && (
-                                        <span className="text-[11px] text-primary flex items-center gap-1">
+                                      {l.video_url ? (
+                                        <span className="text-[11px] text-primary flex items-center gap-1 font-medium">
                                           <VideoIcon className="h-3 w-3" /> Attached
+                                        </span>
+                                      ) : l.title.toLowerCase().includes("quiz") ||
+                                        l.title.toLowerCase().includes("assessment") ||
+                                        l.title.toLowerCase().includes("test") ? (
+                                        <span className="text-[11px] text-amber-500 dark:text-amber-400 flex items-center gap-1 font-medium">
+                                          <CheckCircle2 className="h-3 w-3" /> MCQ Quiz
+                                        </span>
+                                      ) : l.title.toLowerCase().includes("lab") ||
+                                        l.title.toLowerCase().includes("assignment") ||
+                                        l.title.toLowerCase().includes("project") ? (
+                                        <span className="text-[11px] text-blue-500 dark:text-blue-400 flex items-center gap-1 font-medium">
+                                          <FileCheck2 className="h-3 w-3" /> Hands-on Lab
+                                        </span>
+                                      ) : (
+                                        <span className="text-[11px] text-purple-500 dark:text-purple-400 flex items-center gap-1 font-medium">
+                                          <BookOpen className="h-3 w-3" /> Study Guide
                                         </span>
                                       )}
                                     </div>

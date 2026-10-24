@@ -181,19 +181,88 @@ export const generateCareerRoadmap = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((d: unknown) => CareerInput.parse(d || {}))
   .handler(async ({ data }) => {
+    const monthsNum = parseInt(data.timeline) || 12;
     const body = {
       messages: [
         {
           role: "system",
-          content: `You are an expert career coach and learning path designer. Create detailed, actionable career roadmaps. Current year: 2025-2026. Return ONLY valid JSON matching schema.`,
+          content: `You are an expert career coach and learning path designer. Create detailed, highly actionable career roadmaps. Current year: 2025-2026.
+You MUST return ONLY valid JSON matching this exact schema:
+{
+  "title": "Target Role Career Mastery Roadmap",
+  "summary": "2-3 sentence overview of the career transition and key objectives.",
+  "timeline_months": ${monthsNum},
+  "current_skills": ["Skill1", "Skill2"],
+  "target_skills": ["TargetSkill1", "TargetSkill2", "TargetSkill3"],
+  "skill_gap": [
+    {
+      "skill": "Skill Name",
+      "priority": "high",
+      "why": "Specific business or engineering reason why this skill is needed"
+    }
+  ],
+  "phases": [
+    {
+      "title": "Phase 1: Foundations & Mastery",
+      "subtitle": "Month 1 - 3",
+      "color": "#3b82f6",
+      "description": "Clear phase description and outcomes",
+      "skills": [
+        { "name": "Primary Skill", "topics": ["Topic 1", "Topic 2", "Topic 3"] }
+      ],
+      "courses": [
+        {
+          "title": "Course Name",
+          "provider": "Platform or Docs",
+          "url": "https://example.com",
+          "is_free": true,
+          "duration": "10 hours"
+        }
+      ],
+      "projects": [
+        {
+          "title": "Production Project Name",
+          "description": "Deliverable description demonstrating target competency",
+          "tech_stack": ["Tech1", "Tech2"],
+          "difficulty": "intermediate"
+        }
+      ],
+      "milestones": [
+        "Measurable outcome 1",
+        "Measurable outcome 2"
+      ]
+    }
+  ],
+  "monthly_milestones": [
+    {
+      "month": 1,
+      "goal": "Core competency focus",
+      "deliverable": "Working artifact or project"
+    }
+  ],
+  "interview_prep": {
+    "topics": ["System Design", "Concurrency", "Security"],
+    "platforms": ["LeetCode", "System Design Primer"],
+    "questions": ["Key interview question 1", "Key interview question 2"]
+  }
+}`,
         },
         {
           role: "user",
-          content: `Create a ${data.timeline} career roadmap to become a ${data.targetRole}.`,
+          content: `Create a ${data.timeline} career roadmap:
+Current Role: ${data.currentRole || "Software Developer"}
+Target Role: ${data.targetRole}
+Current Skills: ${data.skills || "None provided"}
+Experience Level: ${data.experience || "Entry to Mid level"}
+Education: ${data.education || "Relevant technical background"}
+Learning Style: ${data.learningStyle || "self-paced"}
+Timeline: ${data.timeline} (${monthsNum} months)
+
+Analyze current skills vs target skills, identify at least 5-8 priority skill gaps, and provide 3-4 structured learning phases with realistic projects and milestones.`,
         },
       ],
       response_format: { type: "json_object" },
-      temperature: 0.7,
+      temperature: 0.6,
     };
 
     const res = await callUserAiChat(body as any, "pro");
@@ -201,7 +270,75 @@ export const generateCareerRoadmap = createServerFn({ method: "POST" })
     const payload = await res.json();
     const content: string = payload.choices?.[0]?.message?.content ?? "{}";
     try {
-      return { roadmap: JSON.parse(content) };
+      const parsed = JSON.parse(content);
+
+      // Robust normalization of keys and data types
+      const normalizedMonths = Number(parsed.timeline_months) || monthsNum;
+      const initialCurrentSkills = (data.skills || "")
+        .split(/[,|]/)
+        .map((s) => s.trim())
+        .filter(Boolean);
+
+      const parsedCurrentSkills: string[] = Array.isArray(parsed.current_skills)
+        ? parsed.current_skills
+        : Array.isArray(parsed.currentSkills)
+          ? parsed.currentSkills
+          : initialCurrentSkills;
+
+      let parsedTargetSkills: string[] = Array.isArray(parsed.target_skills)
+        ? parsed.target_skills
+        : Array.isArray(parsed.targetSkills)
+          ? parsed.targetSkills
+          : [];
+
+      const phases = Array.isArray(parsed.phases) ? parsed.phases : [];
+
+      if (parsedTargetSkills.length === 0 && phases.length > 0) {
+        parsedTargetSkills = Array.from(
+          new Set(
+            phases.flatMap((p: any) =>
+              (p.skills || []).map((s: any) => (typeof s === "string" ? s : s.name)),
+            ),
+          ),
+        ).filter(Boolean) as string[];
+      }
+
+      let skillGaps = Array.isArray(parsed.skill_gap)
+        ? parsed.skill_gap
+        : Array.isArray(parsed.skillGap)
+          ? parsed.skillGap
+          : Array.isArray(parsed.gaps)
+            ? parsed.gaps
+            : [];
+
+      if (skillGaps.length === 0 && parsedTargetSkills.length > 0) {
+        skillGaps = parsedTargetSkills
+          .filter(
+            (ts) =>
+              !parsedCurrentSkills.some(
+                (cs) => cs.toLowerCase() === String(ts).toLowerCase(),
+              ),
+          )
+          .map((skill, idx) => ({
+            skill,
+            priority: idx < 3 ? "high" : idx < 7 ? "medium" : "low",
+            why: `Core competency required for ${data.targetRole}`,
+          }));
+      }
+
+      return {
+        roadmap: {
+          ...parsed,
+          title: parsed.title || `${data.targetRole} Roadmap`,
+          summary: parsed.summary || `Personalized ${normalizedMonths}-month transition path to ${data.targetRole}.`,
+          timeline_months: normalizedMonths,
+          current_skills: parsedCurrentSkills,
+          target_skills: parsedTargetSkills,
+          skill_gap: skillGaps,
+          phases,
+          monthly_milestones: parsed.monthly_milestones || parsed.monthlyMilestones || [],
+        },
+      };
     } catch {
       return { roadmap: null, rawContent: content };
     }

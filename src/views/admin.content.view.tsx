@@ -2494,13 +2494,22 @@ function DemoVideoManager() {
   const doGetSignedUploadUrl = useServerFn(adminGetSignedDemoUploadUrl);
 
   const ACTION_TOOLS = [
-    { id: "ai-tutor", name: "AI Tutor", description: "Personal AI teacher, notes & study help" },
+    { id: "ai-tutor", name: "AI Tutor", description: "Personal AI teacher, notes & interactive study help" },
     { id: "resume", name: "Resume Builder", description: "ATS-friendly resume creation in minutes" },
-    { id: "ats", name: "ATS Checker", description: "Resume scanner and scoring feedback" },
-    { id: "mock-interview", name: "Mock Interview", description: "AI voice and video interview prep" },
-    { id: "roadmap", name: "Career Roadmap", description: "Step-by-step career path milestones" },
-    { id: "certificate", name: "Certificate Generator", description: "Verified credentials with QR codes" },
+    { id: "ats", name: "ATS Checker", description: "Resume scanner, keyword scoring & feedback" },
+    { id: "mock-interview", name: "Interview Prep", description: "AI voice & video technical and HR interview prep" },
+    { id: "roadmap", name: "Career Roadmap", description: "Step-by-step career path milestones & gap analysis" },
     { id: "portfolio", name: "Portfolio Builder", description: "Personal portfolio website & showcase generator" },
+    { id: "linkedin", name: "LinkedIn Optimizer", description: "Headline, summary & experience ATS enhancer" },
+    { id: "analytics", name: "Career Analytics", description: "Skill progression, metrics & wage insights" },
+    { id: "internships", name: "Internship Tracker", description: "Application status pipeline & deadline tracker" },
+    { id: "skillgap", name: "Skill Gap Analysis", description: "Real-time missing competencies vs target roles" },
+    { id: "ikigai", name: "Career Finder", description: "Passion, mission, vocation & profession discovery" },
+    { id: "job-board", name: "Job Board Sync", description: "Aggregated hiring opportunities matching profile" },
+    { id: "github-audit", name: "GitHub Auditor", description: "Repository cleanliness, commits & code quality" },
+    { id: "guides", name: "Skill Roadmaps", description: "Curated learning paths & domain curriculum guides" },
+    { id: "agents", name: "AI Agents", description: "Autonomous career assistants & research bots" },
+    { id: "certificate", name: "Certificate Generator", description: "Verified credentials with QR codes" },
   ];
 
   // Tour Video Query
@@ -2684,7 +2693,7 @@ function DemoVideoManager() {
           onClick={() => setActiveSection("tools")}
           className="cursor-pointer text-xs"
         >
-          See Learnify AI In Action (7 Tools)
+          AI Tools & Career Studio Demos ({ACTION_TOOLS.length} Tools)
         </Button>
         <Button
           size="sm"
@@ -2699,10 +2708,10 @@ function DemoVideoManager() {
       {activeSection === "tools" ? (
         <div className="rounded-xl border border-border/60 bg-card p-5 space-y-5">
           <div>
-            <h3 className="font-semibold text-lg">"See Learnify AI In Action" Video Demos</h3>
+            <h3 className="font-semibold text-lg">AI Tools & Career Studio Video Demos</h3>
             <p className="text-sm text-muted-foreground">
-              Manage autoplay demo videos for each of the 6 core product showcases. Videos autoplay
-              silently on the landing page with interactive click previews.
+              Manage video demos and walkthroughs for all 14 Career Studio tools, AI Tutor, and Certificate Generator. Videos autoplay
+              silently on the landing page and are accessible within the Career Studio.
             </p>
           </div>
 
