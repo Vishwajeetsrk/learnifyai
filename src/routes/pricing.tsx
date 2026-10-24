@@ -652,7 +652,13 @@ function PricingPage() {
       return;
     }
     if (!legalAccepted) {
-      toast.error("Please accept the Terms and Cancellation & Refund Policy to continue.");
+      toast.error("Please agree to the Terms & Conditions and Cancellation Policy to proceed.");
+      const el = document.getElementById("pricing-terms-checkbox");
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        el.classList.add("ring-2", "ring-primary", "animate-pulse");
+        setTimeout(() => el.classList.remove("ring-2", "ring-primary", "animate-pulse"), 2500);
+      }
       return;
     }
     setLoadingPlan(planId);
@@ -1091,11 +1097,12 @@ function PricingPage() {
             <p className="text-center text-muted-foreground py-12">Pricing coming soon.</p>
           ) : (
             <>
-              <div className="max-w-xl mx-auto mb-8 w-full text-center">
+              <div className="max-w-2xl mx-auto mb-8 w-full text-center">
                 <ContextualLegalNotice
                   context="checkout"
                   requireExplicitAcceptance
-                  onAccepted={() => setLegalAccepted(true)}
+                  checked={legalAccepted}
+                  onAccepted={(val) => setLegalAccepted(val ?? true)}
                 />
               </div>
 
@@ -1968,14 +1975,9 @@ function PricingCard({
             ) : (
               <div className="transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98]">
                 <Button
-                  className="w-full h-11 text-sm font-semibold rounded-xl"
+                  className="w-full h-11 text-sm font-semibold rounded-xl cursor-pointer"
                   onClick={() => onSubscribe(plan.id)}
-                  disabled={loadingPlan !== null || !legalAccepted}
-                  title={
-                    !legalAccepted
-                      ? "Please accept the Terms and Cancellation & Refund Policy to continue"
-                      : undefined
-                  }
+                  disabled={loadingPlan !== null}
                   style={
                     isPopular
                       ? { background: accentColor, color: "#fff", border: "none" }
@@ -1992,9 +1994,20 @@ function PricingCard({
                     : plan.cta_label || `Subscribe ${displayPrice}`}
                 </Button>
                 {!legalAccepted && (
-                  <p className="mt-2 text-[10px] text-amber-600 dark:text-amber-500 font-medium text-center">
-                    Accept the policies listed above to subscribe
-                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const el = document.getElementById("pricing-terms-checkbox");
+                      if (el) {
+                        el.scrollIntoView({ behavior: "smooth", block: "center" });
+                        el.classList.add("ring-2", "ring-primary", "animate-pulse");
+                        setTimeout(() => el.classList.remove("ring-2", "ring-primary", "animate-pulse"), 2500);
+                      }
+                    }}
+                    className="mt-2 text-[10px] text-amber-600 dark:text-amber-400 font-medium text-center hover:underline block w-full cursor-pointer"
+                  >
+                    Requires agreeing to Terms &amp; Conditions above
+                  </button>
                 )}
               </div>
             )}

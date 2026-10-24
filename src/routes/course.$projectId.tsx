@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useParams } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,7 +6,25 @@ import { motion } from "framer-motion";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Helmet } from "react-helmet-async";
-import { ArrowLeft, Play, Layout, Code2, BookOpen, Volume2, Lock, X, Sparkles } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
+import { useServerFn } from "@tanstack/react-start";
+import { exportProjectZip } from "@/lib/project-export.functions";
+import { triggerZipDownload } from "@/lib/project-export.client";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import {
+  ArrowLeft,
+  Play,
+  Layout,
+  Code2,
+  BookOpen,
+  Volume2,
+  Lock,
+  X,
+  Sparkles,
+  Download,
+  Loader2,
+} from "lucide-react";
 import projectsData from "@/data/projects.json";
 import { extractYouTubeVideoId } from "@/lib/course-player";
 
@@ -34,8 +52,65 @@ function CourseDetailPage() {
   });
 
   const project = dbProject as any;
+  const navigate = useNavigate();
+  const { user, isAdmin } = useAuth();
+  const exportZipFn = useServerFn(exportProjectZip);
+  const [downloadingZip, setDownloadingZip] = useState(false);
   const [activeTab, setActiveTab] = useState<"curriculum" | "tech" | "preview">("curriculum");
   const [isPlayingTeaser, setIsPlayingTeaser] = useState(false);
+
+  const currentSub = useQuery({
+    enabled: !!user,
+    queryKey: ["my-subscription", user?.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("user_subscriptions")
+        .select("*, plan:pricing_plans(*)")
+        .eq("user_id", user!.id)
+        .eq("status", "active")
+        .maybeSingle();
+      return data || null;
+    },
+  });
+  const activePlanName = currentSub.data?.plan?.name?.toLowerCase() || "free";
+  const hasCareerPro =
+    isAdmin || activePlanName === "career pro" || activePlanName === "enterprise";
+
+  const handleExportZip = async () => {
+    if (!user) {
+      toast.info("Please sign in to export project source code");
+      navigate({ to: "/login" });
+      return;
+    }
+    if (!hasCareerPro) {
+      toast.info("Full project source code download is an exclusive Career Pro feature");
+      navigate({ to: "/pricing" });
+      return;
+    }
+
+    setDownloadingZip(true);
+    toast.loading(`Packaging ${project.title || projectId} archive...`, { id: "export-zip" });
+    try {
+      const res = await exportZipFn({ data: { projectId } });
+      if (res && res.success && res.base64) {
+        toast.dismiss("export-zip");
+        triggerZipDownload(res.base64, res.filename || `${projectId}-template.zip`);
+      } else {
+        toast.dismiss("export-zip");
+        if (res?.needsUpgrade) {
+          toast.error("Upgrade to Career Pro to download source code ZIP archives.");
+          navigate({ to: "/pricing" });
+        } else {
+          toast.error(res?.error || "Failed to package project ZIP");
+        }
+      }
+    } catch (err: any) {
+      toast.dismiss("export-zip");
+      toast.error(err?.message || "Failed to download project ZIP");
+    } finally {
+      setDownloadingZip(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -306,9 +381,28 @@ function CourseDetailPage() {
                       <BookOpen className="h-4 w-4" /> Start Building Now
                     </div>
                     <div className="text-[10px] text-primary-foreground/80 font-normal uppercase tracking-wider flex items-center gap-1 mt-0.5">
-                      <Lock className="h-2.5 w-2.5" /> Career Pro
+                      <Lock className="h-2.5 w-2.5" /> Career Pro Studio
                     </div>
                   </Link>
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleExportZip}
+                    disabled={downloadingZip}
+                    className="w-full h-12 rounded-xl flex items-center justify-center gap-2 border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-semibold cursor-pointer shadow-xs transition-all hover:scale-[1.01]"
+                  >
+                    {downloadingZip ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Download className="h-4 w-4" />
+                    )}
+                    <span>Download Source Code (ZIP)</span>
+                    <span className="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 ml-1">
+                      {hasCareerPro ? "Pro" : "Unlock"}
+                    </span>
+                  </Button>
+
                   <a
                     href={project.path}
                     target="_blank"

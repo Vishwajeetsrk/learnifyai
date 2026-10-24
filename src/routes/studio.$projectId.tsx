@@ -1,8 +1,13 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState, useRef, useEffect, useMemo } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "@/hooks/use-auth";
+import { useServerFn } from "@tanstack/react-start";
+import { exportProjectZip } from "@/lib/project-export.functions";
+import { triggerZipDownload } from "@/lib/project-export.client";
+import { toast } from "sonner";
 import {
   ArrowLeft,
   Play,
@@ -18,6 +23,19 @@ import {
   Flame,
   Star,
   CheckCircle2,
+  Download,
+  RotateCcw,
+  Terminal,
+  RefreshCw,
+  Smartphone,
+  Tablet,
+  Lock,
+  ExternalLink,
+  Sparkles,
+  Loader2,
+  Trash2,
+  Check,
+  Zap,
 } from "lucide-react";
 import Editor from "@monaco-editor/react";
 import confetti from "canvas-confetti";
@@ -29,13 +47,111 @@ export const Route = createFileRoute("/studio/$projectId")({
   component: StudioClassroomPage,
 });
 
+/**
+ * Builds a self-contained, sandboxed HTML document that compiles and renders
+ * user JSX/HTML/Tailwind code on the fly and pipes console logs to the parent.
+ */
+function buildSandboxHtml(code: string): string {
+  const isReact =
+    code.includes("export default function") ||
+    code.includes("function App") ||
+    code.includes("function Layout") ||
+    code.includes("const App =") ||
+    code.includes("import React") ||
+    code.includes("useState") ||
+    code.includes("useEffect") ||
+    (code.includes("<") && code.includes("/>")) ||
+    code.includes("className=");
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: '#6366f1',
+            accent: '#8b5cf6'
+          }
+        }
+      }
+    };
+  </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #09090b;
+      color: #f4f4f5;
+    }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 9999px; }
+  </style>
+  <script>
+    // Console output interceptor
+    const sendLog = (level, args) => {
+      try {
+        const text = args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ');
+        window.parent.postMessage({ type: 'STUDIO_CONSOLE', level, message: text }, '*');
+      } catch (e) {}
+    };
+    console.log = (...args) => sendLog('info', args);
+    console.error = (...args) => sendLog('error', args);
+    console.warn = (...args) => sendLog('warn', args);
+    window.onerror = (msg, url, line) => {
+      sendLog('error', ['Runtime Error [Line ' + line + ']: ' + msg]);
+      return false;
+    };
+  </script>
+</head>
+<body class="bg-zinc-950 text-zinc-100 antialiased p-4 sm:p-6">
+  <div id="root"></div>
+
+  ${
+    isReact
+      ? `<script type="text/babel">
+    const { useState, useEffect, useRef, useMemo, useCallback } = React;
+    try {
+      ${code.replace(/export\s+default\s+function\s+([A-Za-z0-9_]+)/g, "function $1")}
+      
+      const ComponentToRender = typeof App !== 'undefined' ? App : (typeof Layout !== 'undefined' ? Layout : null);
+      if (ComponentToRender) {
+        ReactDOM.createRoot(document.getElementById('root')).render(<ComponentToRender />);
+      } else {
+        document.getElementById('root').innerHTML = '<div class="p-5 border border-indigo-500/30 rounded-2xl bg-indigo-950/20 text-sm"><p class="text-indigo-400 font-bold mb-1 flex items-center gap-1.5"><i class="fa fa-sparkles"></i> Code Sandboxed</p><p class="text-zinc-400 text-xs">Component compiled successfully. Define an <code>App()</code> or <code>Layout()</code> function to mount custom UI.</p></div>';
+      }
+    } catch (err) {
+      console.error(err.message);
+      document.getElementById('root').innerHTML = '<div class="p-4 border border-rose-500/50 rounded-xl bg-rose-950/40 text-rose-300 text-xs font-mono"><p class="font-bold mb-1 text-rose-400">Compilation Error</p><pre class="whitespace-pre-wrap">' + err.message + '</pre></div>';
+    }
+  </script>`
+      : `<div id="content">${code}</div>`
+  }
+</body>
+</html>`;
+}
+
 function StudioClassroomPage() {
   const { projectId } = Route.useParams();
+  const navigate = useNavigate();
+  const { user, isAdmin } = useAuth();
+  const exportZipFn = useServerFn(exportProjectZip);
+
   const { data: dbProject, isLoading } = useQuery({
     queryKey: ["design-project", projectId],
     queryFn: async () => {
       try {
-        // 1. Check design_projects
         const { data: dp } = await supabase
           .from("design_projects")
           .select("*")
@@ -43,7 +159,6 @@ function StudioClassroomPage() {
           .maybeSingle();
         if (dp) return dp;
 
-        // 2. Check courses by ID
         const { data: courseData } = await supabase
           .from("courses")
           .select("*")
@@ -60,7 +175,6 @@ function StudioClassroomPage() {
           };
         }
 
-        // 3. Check courses by slug
         const { data: courseBySlug } = await supabase
           .from("courses")
           .select("*")
@@ -77,7 +191,6 @@ function StudioClassroomPage() {
           };
         }
 
-        // 4. Fallback to static JSON or default project object
         return (
           projectsData.find((p) => p.id === projectId || (p as any).slug === projectId) || {
             id: projectId,
@@ -105,6 +218,24 @@ function StudioClassroomPage() {
 
   const project = dbProject as any;
 
+  // Subscription status check for Career Pro download
+  const currentSub = useQuery({
+    enabled: !!user,
+    queryKey: ["my-subscription", user?.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("user_subscriptions")
+        .select("*, plan:pricing_plans(*)")
+        .eq("user_id", user!.id)
+        .eq("status", "active")
+        .maybeSingle();
+      return data || null;
+    },
+  });
+  const activePlanName = currentSub.data?.plan?.name?.toLowerCase() || "free";
+  const hasCareerPro =
+    isAdmin || activePlanName === "career pro" || activePlanName === "enterprise";
+
   const rawModules = project?.course_modules || [];
   const modules =
     rawModules.length > 0
@@ -116,25 +247,55 @@ function StudioClassroomPage() {
             text: "Initialize a Vite + React + TypeScript workspace. Set up Tailwind CSS.",
             voice_script:
               "Welcome! Let's start by setting up our project environment and installing dependencies.",
-            code_snippet: "// Project initialization complete\n// Run npm install to proceed",
+            code_snippet: `export default function App() {
+  return (
+    <div className="min-h-screen bg-zinc-950 text-white p-8">
+      <div className="max-w-xl mx-auto rounded-2xl border border-indigo-500/30 bg-zinc-900/60 p-6 backdrop-blur-md">
+        <h1 className="text-2xl font-bold text-indigo-400">Environment Ready</h1>
+        <p className="text-zinc-400 mt-2 text-sm">Vite + React workspace initialized with Tailwind CSS.</p>
+        <button className="mt-4 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-xl text-sm transition">
+          Test Button
+        </button>
+      </div>
+    </div>
+  );
+}`,
             quiz: {
-              question: "Which bundler are we using?",
+              question: "Which bundler provides instant Hot Module Replacement in modern web stacks?",
               options: ["Webpack", "Vite", "Rollup", "Parcel"],
               correct: 1,
+              explanation: "Vite leverages native ES modules and esbuild for sub-second development server startup and instant HMR.",
             },
           },
           {
             step: 2,
             title: "UI Architecture & Layout",
-            text: "Structure the main components. Build the navigation and responsive grid layouts.",
+            text: "Structure the main components. Build responsive navigation and grid layouts.",
             voice_script:
               "Now, let's architect the layout. We will use Tailwind CSS grid classes to structure the UI.",
-            code_snippet:
-              'export default function Layout() {\n  return (\n    <div className="grid grid-cols-12">\n      {/* Main layout */}\n    </div>\n  );\n}',
+            code_snippet: `export default function Layout() {
+  return (
+    <div className="min-h-screen bg-black text-white flex flex-col">
+      <nav className="h-16 border-b border-zinc-800 px-6 flex items-center justify-between">
+        <span className="font-bold text-lg tracking-wider text-indigo-400">LEARNIFY STUDIO</span>
+        <div className="flex gap-4 text-sm text-zinc-400">
+          <a href="#" className="hover:text-white">Templates</a>
+          <a href="#" className="hover:text-white">Docs</a>
+        </div>
+      </nav>
+      <main className="flex-1 p-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="p-6 rounded-2xl border border-zinc-800 bg-zinc-900/40">Feature 1</div>
+        <div className="p-6 rounded-2xl border border-zinc-800 bg-zinc-900/40">Feature 2</div>
+        <div className="p-6 rounded-2xl border border-zinc-800 bg-zinc-900/40">Feature 3</div>
+      </main>
+    </div>
+  );
+}`,
             quiz: {
-              question: "Which CSS framework is used?",
+              question: "Which CSS framework utility handles responsive grid layouts across breakpoints?",
               options: ["Bootstrap", "Material UI", "Tailwind CSS", "Chakra UI"],
               correct: 2,
+              explanation: "Tailwind CSS provides responsive prefixes like md:grid-cols-3 for seamless multi-device adaptation.",
             },
           },
           {
@@ -143,12 +304,36 @@ function StudioClassroomPage() {
             text: `Develop the core functionality: ${project?.description?.substring(0, 60) || project?.title}...`,
             voice_script:
               "Time to build the main functionality. Follow the steps in the editor to integrate the components.",
-            code_snippet:
-              "// Core functionality integration\nfunction CoreFeature() {\n  // Implementation here\n}",
+            code_snippet: `export default function App() {
+  const [count, setCount] = React.useState(0);
+  return (
+    <div className="min-h-screen bg-zinc-950 text-white flex items-center justify-center p-6">
+      <div className="p-8 rounded-3xl border border-indigo-500/30 bg-zinc-900/80 text-center space-y-4 max-w-md w-full shadow-2xl">
+        <span className="text-xs uppercase tracking-widest text-indigo-400 font-bold">Interactive Component</span>
+        <h2 className="text-3xl font-extrabold">Live Counter: {count}</h2>
+        <div className="flex justify-center gap-3 pt-2">
+          <button 
+            onClick={() => setCount(c => c - 1)}
+            className="px-5 py-2.5 rounded-xl border border-zinc-700 bg-zinc-800 hover:bg-zinc-700 font-semibold text-sm transition"
+          >
+            - Decrease
+          </button>
+          <button 
+            onClick={() => setCount(c => c + 1)}
+            className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm shadow-md transition"
+          >
+            + Increment
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}`,
             quiz: {
-              question: "What is the primary goal of this step?",
-              options: ["Styling", "Core Logic", "Deployment", "Testing"],
+              question: "What React hook allows declaring state variables inside function components?",
+              options: ["useEffect", "useState", "useRef", "useMemo"],
               correct: 1,
+              explanation: "useState is the foundational React hook for storing and updating reactive component state.",
             },
           },
           {
@@ -157,17 +342,29 @@ function StudioClassroomPage() {
             text: "Add smooth transitions, hover effects, and animations to bring the template to life.",
             voice_script:
               "Finally, let's polish the UI with animations and transitions to make it look cinematic.",
-            code_snippet:
-              '// Animation configuration\nconst spring = {\n  type: "spring",\n  stiffness: 700,\n  damping: 30\n};',
+            code_snippet: `export default function App() {
+  return (
+    <div className="min-h-screen bg-zinc-950 text-white flex flex-col items-center justify-center p-6 space-y-6">
+      <div className="relative group cursor-pointer">
+        <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 opacity-70 blur-xl group-hover:opacity-100 transition duration-500 animate-pulse"></div>
+        <div className="relative px-8 py-6 rounded-2xl bg-zinc-900 border border-zinc-800 text-center space-y-2">
+          <h3 className="text-xl font-bold">Cinematic Card</h3>
+          <p className="text-xs text-zinc-400">Hover over me to witness the smooth glowing ambient light.</p>
+        </div>
+      </div>
+    </div>
+  );
+}`,
             quiz: {
-              question: "Why do we add animations?",
+              question: "Why do we add micro-animations to user interfaces?",
               options: [
                 "To slow down the app",
-                "To improve UX and polish",
-                "To save data",
-                "To fix bugs",
+                "To improve visual hierarchy, affordance, and UX polish",
+                "To consume network bandwidth",
+                "To replace testing",
               ],
               correct: 1,
+              explanation: "Deliberate micro-animations provide tactile feedback, reduce perceived latency, and delight users.",
             },
           },
         ];
@@ -182,29 +379,14 @@ function StudioClassroomPage() {
             label: "<main className='relative overflow-hidden'>",
             type: "container",
             children: [
-              {
-                id: "hero-bg",
-                label: "<HeroBackground />",
-                type: "media",
-                children: [],
-              },
-              {
-                id: "navbar",
-                label: "<Navigation />",
-                type: "component",
-                children: [],
-              },
+              { id: "hero-bg", label: "<HeroBackground />", type: "media", children: [] },
+              { id: "navbar", label: "<Navigation />", type: "component", children: [] },
               {
                 id: "content-grid",
                 label: "<ContentGrid />",
                 type: "component",
                 children: [
-                  {
-                    id: "feature-card",
-                    label: "<FeatureCard />",
-                    type: "component",
-                    children: [],
-                  },
+                  { id: "feature-card", label: "<FeatureCard />", type: "component", children: [] },
                 ],
               },
             ],
@@ -213,21 +395,22 @@ function StudioClassroomPage() {
 
   const [activeStep, setActiveStep] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
-  if (!project) return <div className="p-8">Course not found</div>;
-
   const [sidebarMode, setSidebarMode] = useState<"curriculum" | "architecture">("curriculum");
   const [isPlayingVoice, setIsPlayingVoice] = useState(false);
   const [editorCode, setEditorCode] = useState("");
   const synthRef = useRef<SpeechSynthesis | null>(null);
+
+  // Live execution and preview states
+  const [previewMode, setPreviewMode] = useState<"sandbox" | "reference">("sandbox");
+  const [autoRun, setAutoRun] = useState(true);
+  const [isRunning, setIsRunning] = useState(false);
+  const [sandboxSrcDoc, setSandboxSrcDoc] = useState("");
+  const [consoleLogs, setConsoleLogs] = useState<
+    Array<{ id: string; level: "info" | "warn" | "error"; text: string; time: string }>
+  >([]);
+  const [showConsole, setShowConsole] = useState(false);
+  const [viewport, setViewport] = useState<"desktop" | "tablet" | "mobile">("desktop");
+  const [downloadingZip, setDownloadingZip] = useState(false);
 
   // Gamification State
   const [xp, setXp] = useState(1250);
@@ -247,11 +430,12 @@ function StudioClassroomPage() {
     };
   }, []);
 
+  // Sync editor code with active module
   useEffect(() => {
     if (modules[activeStep]) {
-      setEditorCode(modules[activeStep].code_snippet || "// Write code here...");
-      setSelectedAnswer(null); // Reset quiz answer for new step
-      // Stop speech when changing steps
+      const code = modules[activeStep].code_snippet || "// Write code here...";
+      setEditorCode(code);
+      setSelectedAnswer(null);
       if (synthRef.current) {
         synthRef.current.cancel();
         setIsPlayingVoice(false);
@@ -259,11 +443,96 @@ function StudioClassroomPage() {
     }
   }, [activeStep, modules]);
 
+  // Listen for iframe console messages
+  useEffect(() => {
+    const handler = (e: MessageEvent) => {
+      if (e.data?.type === "STUDIO_CONSOLE") {
+        setConsoleLogs((prev) => [
+          ...prev.slice(-49),
+          {
+            id: Math.random().toString(),
+            level: e.data.level || "info",
+            text: e.data.message || "",
+            time: new Date().toLocaleTimeString(),
+          },
+        ]);
+      }
+    };
+    window.addEventListener("message", handler);
+    return () => window.removeEventListener("message", handler);
+  }, []);
+
+  // Execution engine: compile & run code in sandbox iframe
+  const runCodeNow = useCallback(() => {
+    setIsRunning(true);
+    setConsoleLogs([]);
+    const srcDoc = buildSandboxHtml(editorCode);
+    setSandboxSrcDoc(srcDoc);
+    setTimeout(() => setIsRunning(false), 250);
+  }, [editorCode]);
+
+  // Debounced Auto-run
+  useEffect(() => {
+    if (!autoRun) return;
+    const timer = setTimeout(() => {
+      runCodeNow();
+    }, 600);
+    return () => clearTimeout(timer);
+  }, [editorCode, autoRun, runCodeNow]);
+
+  // Keyboard shortcut: Ctrl+Enter / Cmd+Enter runs code
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+        e.preventDefault();
+        runCodeNow();
+        toast.success("Code executed in Live Sandbox!");
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [runCodeNow]);
+
+  const handleExportZip = async () => {
+    if (!user) {
+      toast.info("Please sign in to export project source code");
+      navigate({ to: "/login" });
+      return;
+    }
+    if (!hasCareerPro) {
+      toast.info("Full project source code download is an exclusive Career Pro feature");
+      navigate({ to: "/pricing" });
+      return;
+    }
+
+    setDownloadingZip(true);
+    toast.loading(`Packaging ${project?.title || projectId} archive...`, { id: "export-zip" });
+    try {
+      const res = await exportZipFn({ data: { projectId } });
+      if (res && res.success && res.base64) {
+        toast.dismiss("export-zip");
+        triggerZipDownload(res.base64, res.filename || `${projectId}-template.zip`);
+      } else {
+        toast.dismiss("export-zip");
+        if (res?.needsUpgrade) {
+          toast.error("Upgrade to Career Pro to download source code ZIP archives.");
+          navigate({ to: "/pricing" });
+        } else {
+          toast.error(res?.error || "Failed to package project ZIP");
+        }
+      }
+    } catch (err: any) {
+      toast.dismiss("export-zip");
+      toast.error(err?.message || "Failed to download project ZIP");
+    } finally {
+      setDownloadingZip(false);
+    }
+  };
+
   const handleQuizAnswer = (index: number, correctIndex: number) => {
-    if (selectedAnswer !== null) return; // Already answered
+    if (selectedAnswer !== null) return;
     setSelectedAnswer(index);
     if (index === correctIndex) {
-      // Correct!
       setXp((prev) => prev + 50);
       setShowXPPopup(true);
       if (!completedSteps.includes(activeStep)) {
@@ -271,7 +540,6 @@ function StudioClassroomPage() {
       }
       setTimeout(() => setShowXPPopup(false), 2000);
 
-      // Check if course is complete
       if (activeStep === modules.length - 1 && !completedSteps.includes(activeStep)) {
         confetti({
           particleCount: 150,
@@ -285,7 +553,6 @@ function StudioClassroomPage() {
 
   const toggleVoice = () => {
     if (!synthRef.current) return;
-
     if (isPlayingVoice) {
       synthRef.current.cancel();
       setIsPlayingVoice(false);
@@ -293,7 +560,7 @@ function StudioClassroomPage() {
       const script = modules[activeStep]?.voice_script;
       if (script) {
         const utterance = new SpeechSynthesisUtterance(script);
-        utterance.rate = 0.9; // Slightly slower for tutorial
+        utterance.rate = 0.95;
         utterance.pitch = 1;
         utterance.onend = () => setIsPlayingVoice(false);
         synthRef.current.speak(utterance);
@@ -301,6 +568,20 @@ function StudioClassroomPage() {
       }
     }
   };
+
+  const getViewportWidth = () => {
+    if (viewport === "mobile") return "375px";
+    if (viewport === "tablet") return "768px";
+    return "100%";
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   if (!project) return <div className="p-8">Course not found</div>;
 
@@ -316,9 +597,9 @@ function StudioClassroomPage() {
             initial={{ opacity: 0, y: 20, scale: 0.8 }}
             animate={{ opacity: 1, y: -50, scale: 1 }}
             exit={{ opacity: 0, scale: 1.2 }}
-            className="absolute left-[150px] top-[40%] z-50 bg-green-500/10 text-green-500 border border-green-500/20 px-4 py-2 rounded-full font-bold shadow-[0_0_15px_rgba(34,197,94,0.3)] flex items-center gap-2"
+            className="absolute left-[150px] top-[40%] z-50 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-4 py-2 rounded-full font-bold shadow-[0_0_20px_rgba(34,197,94,0.3)] flex items-center gap-2"
           >
-            <Star className="h-4 w-4 fill-green-500" />
+            <Star className="h-4 w-4 fill-emerald-500" />
             +50 XP
           </motion.div>
         )}
@@ -338,14 +619,42 @@ function StudioClassroomPage() {
             <div className="h-7 w-7 rounded-lg bg-primary/10 text-primary flex items-center justify-center border border-primary/20 shadow-sm">
               <Monitor className="h-4 w-4" />
             </div>
-            <h1 className="font-display font-bold text-sm text-foreground truncate max-w-[200px] sm:max-w-md">
+            <h1 className="font-display font-bold text-sm text-foreground truncate max-w-[180px] sm:max-w-xs md:max-w-md">
               {project.title}
             </h1>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 sm:gap-3">
+          {/* Download ZIP Button */}
+          {hasCareerPro ? (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleExportZip}
+              disabled={downloadingZip}
+              className="h-8 text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 border-emerald-500/30 flex items-center gap-1.5 cursor-pointer shadow-xs"
+              title="Download complete project template source code (Career Pro)"
+            >
+              {downloadingZip ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Download className="h-3.5 w-3.5" />
+              )}
+              <span className="hidden sm:inline">Export ZIP</span>
+            </Button>
+          ) : (
+            <Link
+              to="/pricing"
+              className="h-8 text-xs font-medium text-amber-600 dark:text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 px-2.5 py-1 rounded-lg flex items-center gap-1"
+              title="Career Pro users get instant ZIP source code download"
+            >
+              <Lock className="h-3 w-3" />
+              <span className="hidden sm:inline">Export ZIP (Pro)</span>
+            </Link>
+          )}
+
+          <div className="hidden md:flex items-center gap-2">
             <div className="flex items-center gap-1.5 bg-orange-500/10 text-orange-600 dark:text-orange-400 px-3 py-1 rounded-full border border-orange-500/30 text-xs font-bold shadow-sm">
               <Flame className="h-3.5 w-3.5 fill-orange-500" />
               <span>{streak} Day Streak</span>
@@ -375,7 +684,7 @@ function StudioClassroomPage() {
         <div className="lg:hidden absolute bottom-4 right-4 z-20">
           <Button
             onClick={() => setIsMobileMenuOpen(true)}
-            className="rounded-full shadow-2xl h-14 w-14 p-0"
+            className="rounded-full shadow-2xl h-14 w-14 p-0 cursor-pointer"
           >
             <BookOpen className="h-6 w-6" />
           </Button>
@@ -398,55 +707,45 @@ function StudioClassroomPage() {
           </div>
 
           {/* Sidebar Toggle Header */}
-          <div className="flex items-center p-2.5 border-b border-border/60 bg-muted/20">
-            <div className="flex bg-muted/60 p-1 rounded-xl w-full">
+          <div className="p-3 border-b border-border/60 flex items-center justify-between gap-2">
+            <div className="flex items-center gap-1 bg-muted/60 p-0.5 rounded-lg border border-border/40 w-full">
               <button
                 onClick={() => setSidebarMode("curriculum")}
-                className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-bold rounded-lg transition-all ${sidebarMode === "curriculum" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+                className={cn(
+                  "flex-1 py-1.5 text-xs font-semibold rounded-md transition-all flex items-center justify-center gap-1.5 cursor-pointer",
+                  sidebarMode === "curriculum"
+                    ? "bg-primary text-primary-foreground shadow-xs"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
               >
-                <BookOpen className="h-3.5 w-3.5" /> Curriculum
+                <BookOpen className="h-3.5 w-3.5" />
+                Curriculum
               </button>
               <button
                 onClick={() => setSidebarMode("architecture")}
-                className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-bold rounded-lg transition-all ${sidebarMode === "architecture" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+                className={cn(
+                  "flex-1 py-1.5 text-xs font-semibold rounded-md transition-all flex items-center justify-center gap-1.5 cursor-pointer",
+                  sidebarMode === "architecture"
+                    ? "bg-primary text-primary-foreground shadow-xs"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
               >
-                <Box className="h-3.5 w-3.5" /> Blueprint
+                <Box className="h-3.5 w-3.5" />
+                DOM Tree
               </button>
             </div>
           </div>
 
           {sidebarMode === "curriculum" ? (
             <>
-              {/* Progress / Step Nav */}
-              <div className="p-4 border-b border-border/60 space-y-3 bg-muted/10">
-                <div className="flex items-center justify-between">
-                  <button
-                    onClick={() => setActiveStep((prev) => Math.max(0, prev - 1))}
-                    disabled={activeStep === 0}
-                    className="p-1.5 rounded-lg bg-card border border-border/60 text-foreground disabled:opacity-40 disabled:cursor-not-allowed hover:bg-accent transition shadow-sm"
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                  </button>
-                  <span className="text-xs font-bold tracking-wider uppercase text-primary">
-                    MODULE {activeStep + 1}
+              {/* Progress Bar */}
+              <div className="px-5 py-3 border-b border-border/60">
+                <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground mb-1.5">
+                  <span>Lesson Progress</span>
+                  <span className="text-foreground">
+                    {Math.round(((activeStep + 1) / Math.max(1, modules.length)) * 100)}%
                   </span>
-                  <button
-                    onClick={() => setActiveStep((prev) => Math.min(modules.length - 1, prev + 1))}
-                    disabled={
-                      activeStep === modules.length - 1 || (!isStepCompleted && currentModule?.quiz)
-                    }
-                    className="p-1.5 rounded-lg bg-card border border-border/60 text-foreground disabled:opacity-40 disabled:cursor-not-allowed hover:bg-accent transition shadow-sm"
-                    title={
-                      !isStepCompleted && currentModule?.quiz
-                        ? "Complete the quiz to unlock the next step!"
-                        : "Next Step"
-                    }
-                  >
-                    <ChevronRight className="h-4 w-4" />
-                  </button>
                 </div>
-
-                {/* Progress Bar */}
                 <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
                   <motion.div
                     className="h-full bg-gradient-to-r from-primary to-primary/70"
@@ -476,7 +775,7 @@ function StudioClassroomPage() {
                         {currentModule.text}
                       </p>
 
-                      {/* Voice Player */}
+                      {/* Voice Narration Player */}
                       {currentModule.voice_script && (
                         <div className="p-4 rounded-2xl border border-primary/30 bg-primary/10 flex items-center gap-3.5 shadow-sm">
                           <button
@@ -490,8 +789,8 @@ function StudioClassroomPage() {
                             )}
                           </button>
                           <div className="space-y-0.5 min-w-0 flex-1">
-                            <p className="text-xs font-bold text-primary">
-                              Listen to the Breakdown
+                            <p className="text-xs font-bold text-primary flex items-center gap-1">
+                              <Sparkles className="h-3 w-3" /> Voice Narration
                             </p>
                             <p className="text-[11px] text-foreground/80 italic leading-tight truncate">
                               "{currentModule.voice_script}"
@@ -565,6 +864,30 @@ function StudioClassroomPage() {
                   </div>
                 )}
               </div>
+
+              {/* Step Navigation Bottom Bar */}
+              <div className="p-3 border-t border-border/80 bg-card flex items-center justify-between gap-2 shrink-0">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setActiveStep((prev) => Math.max(0, prev - 1))}
+                  disabled={activeStep === 0}
+                  className="text-xs h-9 cursor-pointer"
+                >
+                  <ChevronLeft className="h-3.5 w-3.5 mr-1" /> Previous
+                </Button>
+                <span className="text-[11px] text-muted-foreground font-medium">
+                  {activeStep + 1} / {modules.length}
+                </span>
+                <Button
+                  size="sm"
+                  onClick={() => setActiveStep((prev) => Math.min(modules.length - 1, prev + 1))}
+                  disabled={activeStep === modules.length - 1}
+                  className="text-xs h-9 cursor-pointer"
+                >
+                  Next <ChevronRight className="h-3.5 w-3.5 ml-1" />
+                </Button>
+              </div>
             </>
           ) : (
             <div className="flex-1 overflow-y-auto bg-black/40">
@@ -575,20 +898,85 @@ function StudioClassroomPage() {
         </aside>
 
         {/* Right Area: Split Code & Preview */}
-        <div className="flex-1 flex flex-col lg:flex-row bg-black/5">
+        <div className="flex-1 flex flex-col lg:flex-row bg-black/5 overflow-hidden">
           {/* Code Editor */}
-          <div className="flex-1 flex flex-col border-r border-border border-b lg:border-b-0 min-h-[300px]">
-            <div className="h-10 bg-card border-b border-border flex items-center justify-between px-4 shrink-0">
+          <div className="flex-1 flex flex-col border-r border-border border-b lg:border-b-0 min-h-[340px] relative">
+            {/* Editor Toolbar */}
+            <div className="h-10 bg-card border-b border-border flex items-center justify-between px-3 shrink-0">
               <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
-                <Code2 className="h-3.5 w-3.5" /> Code Sandbox
+                <Code2 className="h-3.5 w-3.5 text-indigo-500" />
+                <span className="font-mono text-[11px]">Component Sandbox</span>
               </div>
-              <div className="flex gap-1.5">
-                <div className="h-2.5 w-2.5 rounded-full bg-destructive/60" />
-                <div className="h-2.5 w-2.5 rounded-full bg-amber-400/60" />
-                <div className="h-2.5 w-2.5 rounded-full bg-emerald-400/60" />
+
+              <div className="flex items-center gap-2">
+                {/* Reset button */}
+                <button
+                  onClick={() => {
+                    if (currentModule?.code_snippet) {
+                      setEditorCode(currentModule.code_snippet);
+                      toast.info("Reset code to step template");
+                    }
+                  }}
+                  title="Reset code to original step template"
+                  className="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-muted text-xs flex items-center gap-1 cursor-pointer transition-colors"
+                >
+                  <RotateCcw className="h-3 w-3" />
+                  <span className="hidden sm:inline text-[10px]">Reset</span>
+                </button>
+
+                {/* Console Toggle Button */}
+                <button
+                  onClick={() => setShowConsole((v) => !v)}
+                  className={cn(
+                    "px-2 py-1 rounded text-xs flex items-center gap-1 cursor-pointer transition-colors",
+                    showConsole
+                      ? "bg-primary text-primary-foreground font-semibold"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted",
+                  )}
+                  title="Toggle Execution Console"
+                >
+                  <Terminal className="h-3 w-3" />
+                  <span className="text-[10px]">Logs ({consoleLogs.length})</span>
+                </button>
+
+                {/* Auto-run Toggle */}
+                <button
+                  onClick={() => {
+                    setAutoRun((v) => !v);
+                    toast.info(autoRun ? "Auto-run paused" : "Auto-run active on edit");
+                  }}
+                  className={cn(
+                    "px-2 py-1 rounded text-[10px] font-medium border flex items-center gap-1 transition-colors cursor-pointer",
+                    autoRun
+                      ? "bg-indigo-500/10 border-indigo-500/30 text-indigo-400"
+                      : "bg-muted border-border text-muted-foreground",
+                  )}
+                  title="Toggle live re-render on code change"
+                >
+                  <Zap className="h-2.5 w-2.5" />
+                  <span>{autoRun ? "Auto-Run: ON" : "Auto-Run: OFF"}</span>
+                </button>
+
+                {/* Run Code Button */}
+                <Button
+                  size="sm"
+                  onClick={runCodeNow}
+                  disabled={isRunning}
+                  className="h-7 px-3 text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg flex items-center gap-1.5 shadow-xs cursor-pointer"
+                  title="Run code (Ctrl + Enter)"
+                >
+                  {isRunning ? (
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                  ) : (
+                    <Play className="h-3 w-3 fill-white" />
+                  )}
+                  <span>Run</span>
+                </Button>
               </div>
             </div>
-            <div className="flex-1 bg-[#1e1e1e] relative">
+
+            {/* Monaco Editor Container */}
+            <div className="flex-1 bg-[#1e1e1e] relative min-h-0">
               <Editor
                 height="100%"
                 defaultLanguage="javascript"
@@ -599,7 +987,7 @@ function StudioClassroomPage() {
                   minimap: { enabled: false },
                   fontSize: 13,
                   fontFamily: "JetBrains Mono, monospace",
-                  padding: { top: 16 },
+                  padding: { top: 14 },
                   scrollBeyondLastLine: false,
                   smoothScrolling: true,
                   cursorBlinking: "smooth",
@@ -608,32 +996,177 @@ function StudioClassroomPage() {
                   scrollbar: { alwaysConsumeMouseWheel: false },
                 }}
               />
+
+              {/* Collapsible Console Drawer */}
+              {showConsole && (
+                <div className="absolute inset-x-0 bottom-0 h-44 bg-zinc-950/95 border-t border-border flex flex-col z-20 backdrop-blur-md">
+                  <div className="h-7 bg-zinc-900 border-b border-border/60 px-3 flex items-center justify-between">
+                    <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+                      <Terminal className="h-3 w-3 text-primary" /> Execution Console
+                    </span>
+                    <button
+                      onClick={() => setConsoleLogs([])}
+                      title="Clear console"
+                      className="text-[10px] text-muted-foreground hover:text-foreground flex items-center gap-1 cursor-pointer"
+                    >
+                      <Trash2 className="h-2.5 w-2.5" /> Clear
+                    </button>
+                  </div>
+                  <div className="flex-1 overflow-y-auto p-2 font-mono text-xs space-y-1">
+                    {consoleLogs.length === 0 ? (
+                      <div className="text-zinc-500 text-[11px] p-2 italic">
+                        No console output. Use <code>console.log()</code> in your code to inspect variables.
+                      </div>
+                    ) : (
+                      consoleLogs.map((log) => (
+                        <div
+                          key={log.id}
+                          className={cn(
+                            "px-2 py-1 rounded text-[11px] flex items-start gap-2",
+                            log.level === "error"
+                              ? "bg-rose-950/40 text-rose-300 border border-rose-800/40"
+                              : log.level === "warn"
+                                ? "bg-amber-950/40 text-amber-300 border border-amber-800/40"
+                                : "text-zinc-300",
+                          )}
+                        >
+                          <span className="text-zinc-600 text-[9px] shrink-0 mt-0.5">
+                            {log.time}
+                          </span>
+                          <span className="font-semibold text-[10px] uppercase shrink-0">
+                            [{log.level}]
+                          </span>
+                          <span className="whitespace-pre-wrap break-all flex-1">{log.text}</span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Live Preview */}
-          <div className="flex-1 flex flex-col relative min-h-[300px]">
-            <div className="h-10 bg-card border-b border-border flex items-center justify-between px-4 shrink-0">
-              <div className="flex items-center gap-2 text-xs font-semibold text-primary">
-                <Layout className="h-3.5 w-3.5" /> Live Render
+          {/* Live Preview Pane */}
+          <div className="flex-1 flex flex-col relative min-h-[340px] bg-background">
+            {/* Preview Toolbar */}
+            <div className="h-10 bg-card border-b border-border flex items-center justify-between px-3 shrink-0">
+              {/* Dual View Mode Tabs */}
+              <div className="flex items-center gap-1 bg-muted/70 p-0.5 rounded-lg border border-border/40">
+                <button
+                  onClick={() => setPreviewMode("sandbox")}
+                  className={cn(
+                    "px-2.5 py-1 text-xs font-semibold rounded-md transition-all flex items-center gap-1.5 cursor-pointer",
+                    previewMode === "sandbox"
+                      ? "bg-primary text-primary-foreground shadow-xs"
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
+                  title="Run active editor code live"
+                >
+                  <Play className="h-3 w-3 fill-current" />
+                  Live Sandbox Run
+                </button>
+                <button
+                  onClick={() => setPreviewMode("reference")}
+                  className={cn(
+                    "px-2.5 py-1 text-xs font-semibold rounded-md transition-all flex items-center gap-1.5 cursor-pointer",
+                    previewMode === "reference"
+                      ? "bg-primary text-primary-foreground shadow-xs"
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
+                  title="View full production 3D/GSAP preset template"
+                >
+                  <Sparkles className="h-3 w-3" />
+                  Reference Prototype
+                </button>
               </div>
-              <button className="text-muted-foreground hover:text-foreground transition-colors p-1 rounded-md hover:bg-accent">
-                <Maximize2 className="h-3.5 w-3.5" />
-              </button>
-            </div>
-            <div className="flex-1 bg-white relative overflow-hidden">
-              {/* We use an iframe pointing to the preset site */}
-              {/* In a real integrated environment, this might be a Sandpack preview */}
-              <iframe
-                src={project.path}
-                className="w-full h-full border-0"
-                title="Live Preview"
-                sandbox="allow-scripts allow-same-origin"
-              />
 
-              {/* Placeholder Overlay to simulate interactive linking between code & iframe */}
-              <div className="absolute top-4 right-4 bg-black/60 backdrop-blur text-white text-[10px] px-2 py-1 rounded border border-white/10 pointer-events-none">
-                Sync Active
+              {/* Viewport Width Controls */}
+              <div className="flex items-center gap-1">
+                {(["desktop", "tablet", "mobile"] as const).map((v) => {
+                  const Icon = v === "mobile" ? Smartphone : v === "tablet" ? Tablet : Monitor;
+                  return (
+                    <button
+                      key={v}
+                      onClick={() => setViewport(v)}
+                      title={`${v.charAt(0).toUpperCase() + v.slice(1)} Viewport`}
+                      className={cn(
+                        "p-1.5 rounded-md transition-all cursor-pointer",
+                        viewport === v
+                          ? "bg-primary text-primary-foreground shadow-xs"
+                          : "text-muted-foreground hover:text-foreground hover:bg-muted",
+                      )}
+                    >
+                      <Icon className="h-3 w-3" />
+                    </button>
+                  );
+                })}
+
+                <button
+                  onClick={runCodeNow}
+                  title="Reload Live Preview"
+                  className="text-muted-foreground hover:text-foreground transition-colors p-1.5 rounded-md hover:bg-accent cursor-pointer ml-1"
+                >
+                  <RefreshCw className={cn("h-3 w-3", isRunning && "animate-spin text-primary")} />
+                </button>
+
+                <a
+                  href={project.path}
+                  target="_blank"
+                  rel="noreferrer"
+                  title="Open reference template in full tab"
+                  className="text-muted-foreground hover:text-foreground transition-colors p-1.5 rounded-md hover:bg-accent cursor-pointer"
+                >
+                  <ExternalLink className="h-3 w-3" />
+                </a>
+              </div>
+            </div>
+
+            {/* Preview Frame Body */}
+            <div className="flex-1 bg-zinc-950 p-2 sm:p-4 flex items-center justify-center overflow-hidden">
+              <div
+                style={{
+                  width: getViewportWidth(),
+                  transition: "width 0.35s cubic-bezier(0.4, 0, 0.2, 1)",
+                }}
+                className="h-full rounded-2xl border border-border shadow-2xl bg-black overflow-hidden relative flex flex-col"
+              >
+                {/* Simulated Browser Chrome */}
+                <div className="h-7 bg-zinc-900 border-b border-border/60 px-3 flex items-center gap-2 shrink-0 select-none">
+                  <div className="flex gap-1.5">
+                    <div className="w-2 h-2 rounded-full bg-rose-500/70" />
+                    <div className="w-2 h-2 rounded-full bg-amber-500/70" />
+                    <div className="w-2 h-2 rounded-full bg-emerald-500/70" />
+                  </div>
+                  <div className="bg-zinc-800/80 rounded px-3 py-0.5 flex-1 flex items-center justify-center gap-1.5 text-zinc-400 font-mono text-[9px] truncate">
+                    <span className="text-primary font-bold">
+                      {previewMode === "sandbox" ? "sandbox://localhost:3000" : `template://learnifyai.in${project.path}`}
+                    </span>
+                  </div>
+                </div>
+
+                {previewMode === "sandbox" ? (
+                  /* Sandboxed Code Runner Iframe */
+                  <iframe
+                    srcDoc={sandboxSrcDoc || buildSandboxHtml(editorCode)}
+                    title="Code Sandbox Live Runner"
+                    className="w-full flex-1 bg-zinc-950 border-0"
+                    sandbox="allow-scripts allow-modals allow-same-origin"
+                  />
+                ) : (
+                  /* Master Preset Template Iframe */
+                  <iframe
+                    src={project.path}
+                    className="w-full flex-1 bg-white border-0"
+                    title="Live Reference Template"
+                    sandbox="allow-scripts allow-same-origin allow-popups"
+                  />
+                )}
+
+                {/* Status Overlay Badge */}
+                <div className="absolute bottom-3 right-3 bg-black/80 backdrop-blur-md text-white text-[10px] px-2.5 py-1 rounded-full border border-white/10 pointer-events-none flex items-center gap-1.5 shadow-md">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span>{previewMode === "sandbox" ? "Code Live Preview Active" : "Reference Preset"}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -661,7 +1194,6 @@ function ArchitectureGraph({ nodes }: { nodes: any[] }) {
         className="flex flex-col relative"
       >
         <div className="flex items-center gap-2 py-2" style={{ paddingLeft: depth * 16 }}>
-          {/* Connecting line segment for nested children (visual only, handled by parent's before pseudo-element usually, but we can keep it simple here) */}
           <div className="h-6 w-6 rounded-md bg-accent/80 flex items-center justify-center shrink-0 border border-border/50 text-muted-foreground shadow-sm z-10">
             {node.type === "container" ? (
               <Layout className="h-3 w-3" />
