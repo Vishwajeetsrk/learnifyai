@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Learnify AI — Official Launch Demo</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #080B14;
+      color: #F8FAFC;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .container {
+      max-width: 1080px;
+      width: 100%;
+      background: #0F172A;
+      border: 1px solid #1E293B;
+      border-radius: 20px;
+      padding: 28px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .badge {
+      background: rgba(107, 91, 251, 0.2);
+      border: 1px solid #6B5BFB;
+      color: #C084FC;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .video-wrapper {
+      position: relative;
+      border-radius: 14px;
+      overflow: hidden;
+      background: #000;
+      border: 1px solid #334155;
+      aspect-ratio: 16 / 9;
+    }
+    video {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: contain;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-top: 24px;
+    }
+    .card {
+      background: #1E293B;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 16px;
+    }
+    .card h4 {
+      font-size: 14px;
+      color: #38BDF8;
+      margin-bottom: 6px;
+    }
+    .card p {
+      font-size: 12px;
+      color: #94A3B8;
+      line-height: 1.5;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #6B5BFB;
+      color: white;
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .btn:hover {
+      background: #5b4af7;
+      transform: translateY(-1px);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="brand">
+        <span class="badge">Official Launch Video</span>
+        <h1 style="font-size: 20px; font-weight: 700;">Learnify AI — Product Showcase</h1>
+      </div>
+      <a href="https://www.learnifyai.in" target="_blank" class="btn">Visit Live Platform ↗</a>
+    </div>
+
+    <div class="video-wrapper">
+      <video controls autoplay loop poster="brag.jpg">
+        <source src="brag.mp4" type="video/mp4">
+        Your browser does not support HTML5 video.
+      </video>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h4>🤖 Socratic AI Tutor</h4>
+        <p>24/7 contextual guidance, smart flashcards & active-recall quiz generators.</p>
+      </div>
+      <div class="card">
+        <h4>💻 Career Studio & Sandboxes</h4>
+        <p>In-browser Monaco IDE, full-stack sandboxes, AI voice mock interviews & ATS reviews.</p>
+      </div>
+      <div class="card">
+        <h4>🛡️ Tamper-Proof QR Certificates</h4>
+        <p>Harmonic Guilloche rosette engraving with instant SHA-256 verification.</p>
+      </div>
+      <div class="card">
+        <h4>💰 80/20 Creator Economy</h4>
+        <p>Build and sell interactive courses with automatic Cashfree rupee payouts.</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

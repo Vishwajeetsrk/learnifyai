@@ -1,0 +1,37 @@
+=== Learnify AI Launch Share Copy ===
+
+[X / Twitter (280 chars)]
+Stop watching 40-hour passive coding tutorials.
+
+Meet @LearnifyAI — India's AI-Native Learning & Career OS:
+✦ 24/7 Socratic AI Tutor
+✦ Real-time In-Browser IDE
+✦ AI Voice Mock Interviews
+✦ Cryptographic QR Certificates
+✦ 80/20 Creator Split
+
+Start free → https://www.learnifyai.in
+
+---
+
+[LinkedIn / Long Form]
+Most online learning platforms are built like static 2012 video libraries. Students get stuck, lose momentum, and never finish.
+
+We built Learnify AI to change that.
+
+Learnify AI is an AI-native operating system designed to take you from your first line of code to verified mastery:
+🚀 Socratic AI Tutor — Never get stuck on a bug or syntax error again.
+💻 Interactive Code Sandboxes — Real-time Monaco IDE & database consoles inside every lesson.
+🎙️ AI Mock Interviews — Real-time speech & technical assessment with principal architect grading.
+🛡️ Tamper-Proof Credentials — ISO-grade Guilloche certificates with instantaneous QR verification.
+🤝 80/20 Creator Marketplace — Earn real income hosting cohorts and courses.
+
+Check out the live platform today: https://www.learnifyai.in
+
+#EdTech #ArtificialIntelligence #SoftwareEngineering #CareerGrowth #LearnifyAI
+
+---
+
+[Product Hunt / Tagline]
+Learnify AI — India's AI-Native Learning & Career OS
+Tagline: Master tech skills at 5x speed with 24/7 AI tutoring, live sandboxes & verified QR certificates.

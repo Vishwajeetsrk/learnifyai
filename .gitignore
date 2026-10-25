@@ -58,6 +58,7 @@ supabase/.temp/
 /archive-review/
 /build.log
 /vite-server.log
+brag-output/work/
 /dist/
 
 # Large Media
@@ -67,4 +68,5 @@ public/videos/Learnify_AI.mp4
 *-temp.*
 
 *.mp4
+!brag-output/*.mp4
 public/New folder/
