@@ -338,10 +338,11 @@ export async function downloadInvoicePdf(
     ];
   }
 
-  const subtotal = Number(inv.amount_inr || inv.subtotal_inr || inv.total_inr || 0);
-  const tax = Number(inv.tax_inr || 0);
-  const cgst = tax / 2;
-  const sgst = tax / 2;
+  const rawTotal = Number(inv.total_inr || inv.amount_inr || 0);
+  const subtotal = Number(inv.subtotal_inr || (rawTotal > 0 ? Math.round((rawTotal / 1.18) * 100) / 100 : 0));
+  const tax = Number(inv.tax_inr || (rawTotal > 0 ? Math.round((rawTotal - subtotal) * 100) / 100 : 0));
+  const cgst = Math.round((tax / 2) * 100) / 100;
+  const sgst = Math.round((tax - cgst) * 100) / 100;
 
   autoTable(doc, {
     startY: billY + 36,
