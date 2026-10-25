@@ -219,8 +219,57 @@ function DashboardPage() {
                 <p className="text-slate-300 font-medium">Ready to crush your goals today?</p>
               </div>
 
+              {/* Daily Momentum & Focus Metrics */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 my-1">
+                <div className="bg-white/5 border border-white/10 rounded-2xl p-3.5 backdrop-blur-sm">
+                  <span className="text-[11px] font-medium text-indigo-300 uppercase tracking-wider block">Daily Target</span>
+                  <div className="flex items-center gap-1.5 mt-1">
+                    <Target className="h-4 w-4 text-emerald-400 shrink-0" />
+                    <span className="font-display font-bold text-lg text-white">1 Lesson</span>
+                  </div>
+                  <span className="text-[10px] text-slate-400 mt-0.5 block">~15 mins study</span>
+                </div>
+
+                <div className="bg-white/5 border border-white/10 rounded-2xl p-3.5 backdrop-blur-sm">
+                  <span className="text-[11px] font-medium text-indigo-300 uppercase tracking-wider block">Total Earned</span>
+                  <div className="flex items-center gap-1.5 mt-1">
+                    <Sparkles className="h-4 w-4 text-amber-400 shrink-0" />
+                    <span className="font-display font-bold text-lg text-white">{profileQ.data?.xp ?? 0} XP</span>
+                  </div>
+                  <span className="text-[10px] text-slate-400 mt-0.5 block">Keep leveling up</span>
+                </div>
+
+                <div className="col-span-2 sm:col-span-1 bg-white/5 border border-white/10 rounded-2xl p-3.5 backdrop-blur-sm">
+                  <span className="text-[11px] font-medium text-indigo-300 uppercase tracking-wider block">Active Streak</span>
+                  <div className="flex items-center gap-1.5 mt-1">
+                    <Flame className="h-4 w-4 text-orange-400 fill-orange-400 shrink-0" />
+                    <span className="font-display font-bold text-lg text-white">{profileQ.data?.current_streak ?? 1} Days</span>
+                  </div>
+                  <span className="text-[10px] text-slate-400 mt-0.5 block">Flame maintained</span>
+                </div>
+              </div>
+
+              {/* Fast-Track Action Shortcuts */}
+              <div className="flex flex-wrap items-center gap-2">
+                <Link to="/courses" className="inline-block">
+                  <Button size="sm" variant="outline" className="rounded-full text-xs bg-white/10 border-white/20 text-white hover:bg-white/20 h-7 px-3">
+                    <BookOpen className="h-3 w-3 mr-1 text-indigo-300" /> All Courses
+                  </Button>
+                </Link>
+                <Link to="/interview" className="inline-block">
+                  <Button size="sm" variant="outline" className="rounded-full text-xs bg-white/10 border-white/20 text-white hover:bg-white/20 h-7 px-3">
+                    <Brain className="h-3 w-3 mr-1 text-violet-300" /> AI Interview Prep
+                  </Button>
+                </Link>
+                <Link to="/certificates" className="inline-block">
+                  <Button size="sm" variant="outline" className="rounded-full text-xs bg-white/10 border-white/20 text-white hover:bg-white/20 h-7 px-3">
+                    <Award className="h-3 w-3 mr-1 text-amber-300" /> Credentials
+                  </Button>
+                </Link>
+              </div>
+
               {latestCourse ? (
-                <div className="bg-black/30 backdrop-blur-md rounded-2xl p-5 border border-white/15 mt-4 sm:mt-8">
+                <div className="bg-black/30 backdrop-blur-md rounded-2xl p-5 border border-white/15 mt-2">
                   <div className="text-[11px] font-bold uppercase tracking-widest mb-3 text-indigo-300 flex items-center gap-2">
                     <Sparkles className="h-3.5 w-3.5 text-amber-400 animate-pulse" /> Resume
                     Learning

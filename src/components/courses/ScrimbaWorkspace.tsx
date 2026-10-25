@@ -260,7 +260,11 @@ export function ScrimbaWorkspace({
       onForkChange?.(true);
 
       // Dispatch event to pause video player
-      window.dispatchEvent(new CustomEvent("learnify:pause-video"));
+      window.dispatchEvent(
+        new CustomEvent("learnify:pause-video", {
+          detail: { forked: true, time: activeVideoTime || 0 },
+        })
+      );
       toast.info("Lecture paused for hands-on practice. Click 'Back to Teacher' when done!");
     }
   }, [activeFileName, isForked, activeVideoTime, isWebMode, onCodeChange, onForkChange]);
@@ -279,6 +283,13 @@ export function ScrimbaWorkspace({
     window.dispatchEvent(new CustomEvent("learnify:resume-video"));
     toast.success("Restored to teacher's checkpoint! Lecture resumed.");
   }, [teacherSnapshot, injectedCode, isWebMode, onForkChange]);
+
+  // Listen for remote "Back to Teacher" triggers from video player
+  useEffect(() => {
+    const onRestore = () => handleBackToTeacher();
+    window.addEventListener("learnify:restore-teacher-code", onRestore);
+    return () => window.removeEventListener("learnify:restore-teacher-code", onRestore);
+  }, [handleBackToTeacher]);
 
   // Run backend code (Python, Java, etc.)
   const handleRunBackend = useCallback(async () => {

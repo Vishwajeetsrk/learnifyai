@@ -22,6 +22,7 @@ import {
   Subtitles,
   Check,
   X,
+  Undo2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -118,6 +119,8 @@ export function AdvancedVideoPlayer({
   const [showPlaylist, setShowPlaylist] = useState(false);
   const [showSlides, setShowSlides] = useState(slides.length > 0);
   const [isPiP, setIsPiP] = useState(false);
+  const [studentForked, setStudentForked] = useState<boolean>(false);
+  const [forkTime, setForkTime] = useState<number>(0);
 
   // Quiz checkpoints
   const [doneCheckpoints, setDoneCheckpoints] = useState<Set<string>>(new Set());
@@ -488,8 +491,18 @@ export function AdvancedVideoPlayer({
 
   // Synchronize playback with external interactive sandboxes (Scrimba Watch & Practice)
   useEffect(() => {
-    const handleGlobalPause = () => pauseMedia();
-    const handleGlobalResume = () => resumeMedia();
+    const handleGlobalPause = (e?: Event) => {
+      pauseMedia();
+      const custom = e as CustomEvent<{ forked?: boolean; time?: number }>;
+      if (custom?.detail?.forked) {
+        setStudentForked(true);
+        setForkTime(custom.detail.time ?? videoRef.current?.currentTime ?? 0);
+      }
+    };
+    const handleGlobalResume = () => {
+      setStudentForked(false);
+      resumeMedia();
+    };
     window.addEventListener("learnify:pause-video", handleGlobalPause);
     window.addEventListener("learnify:resume-video", handleGlobalResume);
     return () => {
@@ -749,6 +762,30 @@ export function AdvancedVideoPlayer({
       role="application"
       aria-label={`Video player: ${title}`}
     >
+      {/* Floating Scrimba "Back to Teacher" Bar */}
+      {studentForked && (
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-40 flex items-center gap-2.5 px-4 py-2 rounded-full bg-slate-950/90 border border-indigo-500/50 shadow-2xl backdrop-blur-md animate-in fade-in slide-in-from-top-3 max-w-[90%]">
+          <span className="flex h-2.5 w-2.5 relative shrink-0">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span>
+          </span>
+          <span className="text-xs text-slate-200 font-medium truncate hidden sm:inline">
+            Sandbox Fork Active · Lecture paused at {formatTimestamp(forkTime)}
+          </span>
+          <button
+            onClick={() => {
+              window.dispatchEvent(new CustomEvent("learnify:restore-teacher-code"));
+              setStudentForked(false);
+              resumeMedia();
+            }}
+            className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-md transition-transform active:scale-95 cursor-pointer shrink-0"
+          >
+            <Undo2 className="h-3.5 w-3.5" />
+            BACK TO TEACHER
+          </button>
+        </div>
+      )}
+
       {/* Scrimba Explainer or YouTube iframe */}
       {scrimbaUrl ? (
         <div className="relative w-full aspect-video bg-black">

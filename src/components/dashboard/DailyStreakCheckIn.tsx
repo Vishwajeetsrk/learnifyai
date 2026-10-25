@@ -1,11 +1,22 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Flame, CheckCircle2, Sparkles, Trophy, Calendar, Zap } from "lucide-react";
+import {
+  Flame,
+  CheckCircle2,
+  Sparkles,
+  Trophy,
+  Zap,
+  Calendar,
+  Lock,
+  ChevronRight,
+  TrendingUp,
+} from "lucide-react";
 import confetti from "canvas-confetti";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 export interface DailyStreakCheckInProps {
   currentStreak: number;
@@ -14,6 +25,47 @@ export interface DailyStreakCheckInProps {
   onCheckInSuccess?: (newStreak: number, newXp: number) => void;
   className?: string;
   variant?: "card" | "banner" | "compact";
+}
+
+// Days of the week labels
+const DAYS_OF_WEEK = ["M", "T", "W", "T", "F", "S", "S"];
+
+// Native Web Audio chime for celebratory feedback
+function playChime() {
+  try {
+    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioContextClass) return;
+    const ctx = new AudioContextClass();
+    const now = ctx.currentTime;
+
+    const osc1 = ctx.createOscillator();
+    const osc2 = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc1.type = "sine";
+    osc2.type = "triangle";
+
+    osc1.frequency.setValueAtTime(523.25, now); // C5
+    osc1.frequency.exponentialRampToValueAtTime(659.25, now + 0.1); // E5
+    osc1.frequency.exponentialRampToValueAtTime(783.99, now + 0.25); // G5
+
+    osc2.frequency.setValueAtTime(261.63, now); // C4
+    osc2.frequency.exponentialRampToValueAtTime(392.0, now + 0.2); // G4
+
+    gain.gain.setValueAtTime(0.2, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+
+    osc1.connect(gain);
+    osc2.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc1.start(now);
+    osc2.start(now);
+    osc1.stop(now + 0.6);
+    osc2.stop(now + 0.6);
+  } catch {
+    // Audio context may be restricted by autoplay policy
+  }
 }
 
 export function DailyStreakCheckIn({
@@ -28,8 +80,17 @@ export function DailyStreakCheckIn({
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [streakCount, setStreakCount] = useState<number>(currentStreak);
   const [localXp, setLocalXp] = useState<number>(xp);
+  const [flamePulsing, setFlamePulsing] = useState<boolean>(false);
 
-  const todayKey = `learnify_checkin_${new Date().toISOString().slice(0, 10)}`;
+  const todayKey = useMemo(() => {
+    return `learnify_checkin_${new Date().toISOString().slice(0, 10)}`;
+  }, []);
+
+  // Determine current day of week index (0 = Monday, 6 = Sunday)
+  const todayDayIndex = useMemo(() => {
+    const day = new Date().getDay();
+    return day === 0 ? 6 : day - 1; // Convert to Mon-Sun (0-6)
+  }, []);
 
   useEffect(() => {
     setStreakCount(currentStreak);
@@ -40,22 +101,24 @@ export function DailyStreakCheckIn({
   }, [xp]);
 
   useEffect(() => {
-    // Check if user already claimed today
     const claimedToday = localStorage.getItem(todayKey) === "true";
     setHasCheckedIn(claimedToday);
   }, [todayKey]);
 
-  const handleClaim = () => {
+  const handleClaim = useCallback(() => {
     if (hasCheckedIn || isSubmitting) return;
 
     setIsSubmitting(true);
+    setFlamePulsing(true);
+    playChime();
+
     try {
-      // Trigger festive fire/streak confetti
+      // Dynamic fire & confetti burst
       confetti({
-        particleCount: 60,
-        spread: 70,
-        origin: { y: 0.7 },
-        colors: ["#ff9800", "#f44336", "#ffb258", "#6366f1"],
+        particleCount: 75,
+        spread: 80,
+        origin: { y: 0.65 },
+        colors: ["#F97316", "#EF4444", "#FBBF24", "#6366F1", "#10B981"],
       });
 
       const updatedStreak = streakCount + (hasCheckedIn ? 0 : 1);
@@ -66,30 +129,47 @@ export function DailyStreakCheckIn({
       setStreakCount(updatedStreak);
       setLocalXp(updatedXp);
 
-      toast.success(`🔥 ${updatedStreak} Day Streak Maintained! +10 XP awarded!`, {
-        description: "Keep showing up daily to unlock leaderboard badges.",
+      toast.success(`🔥 Day ${updatedStreak} Streak Maintained!`, {
+        description: "+10 XP awarded. Come back tomorrow to continue your streak!",
       });
 
-      if (onCheckInSuccess) {
-        onCheckInSuccess(updatedStreak, updatedXp);
-      }
+      onCheckInSuccess?.(updatedStreak, updatedXp);
     } catch {
       toast.error("Could not record check-in. Please try again.");
     } finally {
       setIsSubmitting(false);
+      setTimeout(() => setFlamePulsing(false), 1200);
     }
-  };
+  }, [hasCheckedIn, isSubmitting, streakCount, localXp, todayKey, onCheckInSuccess]);
 
-  // Compact Variant (e.g. for sidebars or header dropdowns)
+  // Next streak milestone calculation (e.g. 7 days, 14 days, 30 days)
+  const nextMilestone = useMemo(() => {
+    if (streakCount < 7) return 7;
+    if (streakCount < 14) return 14;
+    if (streakCount < 30) return 30;
+    if (streakCount < 60) return 60;
+    if (streakCount < 100) return 100;
+    return streakCount + 7;
+  }, [streakCount]);
+
+  const milestoneProgress = Math.min(100, Math.round((streakCount / nextMilestone) * 100));
+
+  // Compact Variant (for topbar or slim widgets)
   if (variant === "compact") {
     return (
-      <div className={`flex items-center justify-between p-3 rounded-2xl border bg-card/60 backdrop-blur-sm ${className}`}>
+      <div
+        className={cn(
+          "flex items-center justify-between p-3 rounded-2xl border bg-card/80 backdrop-blur-md shadow-sm transition",
+          className
+        )}
+      >
         <div className="flex items-center gap-3">
-          <div className="relative w-10 h-10 shrink-0 overflow-hidden rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center">
-            <img
-              src="/illustrations/Check-In_Stream.svg"
-              alt="Daily Streak Check-In"
-              className="w-full h-full object-contain pointer-events-none"
+          <div className="relative w-10 h-10 shrink-0 rounded-xl bg-gradient-to-br from-orange-500/20 via-red-500/15 to-amber-500/10 border border-orange-500/30 flex items-center justify-center">
+            <Flame
+              className={cn(
+                "h-5 w-5 text-orange-500 fill-orange-500 transition-transform duration-300",
+                flamePulsing ? "scale-125 text-amber-400" : "animate-pulse"
+              )}
             />
           </div>
           <div>
@@ -98,7 +178,7 @@ export function DailyStreakCheckIn({
               {hasCheckedIn && <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />}
             </div>
             <p className="text-[11px] text-muted-foreground">
-              {hasCheckedIn ? "Checked in today (+10 XP)" : "Check in to keep your streak"}
+              {hasCheckedIn ? "Checked in today (+10 XP)" : "Check in to keep streak"}
             </p>
           </div>
         </div>
@@ -107,11 +187,12 @@ export function DailyStreakCheckIn({
           size="sm"
           disabled={hasCheckedIn || isSubmitting}
           onClick={handleClaim}
-          className={`h-8 text-xs font-semibold rounded-xl ${
+          className={cn(
+            "h-8 text-xs font-semibold rounded-xl transition",
             hasCheckedIn
-              ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20"
-              : "bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-sm"
-          }`}
+              ? "bg-emerald-500/15 text-emerald-500 border border-emerald-500/30 hover:bg-emerald-500/20 cursor-default"
+              : "bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-sm active:scale-95 cursor-pointer"
+          )}
         >
           {hasCheckedIn ? "Maintained" : "Check In"}
         </Button>
@@ -119,86 +200,200 @@ export function DailyStreakCheckIn({
     );
   }
 
-  // Full Card Variant (Default for dashboard)
+  // Full Interactive Card Variant (Primary for Dashboard)
   return (
     <Card
-      className={`relative overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-br from-card via-card/90 to-background shadow-card p-6 ${className}`}
+      className={cn(
+        "relative overflow-hidden rounded-3xl border border-border/80 bg-gradient-to-br from-card via-card/95 to-background shadow-card p-5 sm:p-6 transition-all duration-300",
+        className
+      )}
     >
-      {/* Decorative fire glow in background */}
-      <div className="pointer-events-none absolute -top-12 -right-12 h-44 w-44 rounded-full bg-gradient-to-br from-orange-500/15 via-red-500/10 to-transparent blur-3xl" />
+      {/* Dynamic ambient fire glow in background */}
+      <div
+        className={cn(
+          "pointer-events-none absolute -top-16 -right-16 h-52 w-52 rounded-full transition-opacity duration-700 blur-3xl",
+          hasCheckedIn
+            ? "bg-gradient-to-br from-emerald-500/15 via-teal-500/10 to-transparent opacity-70"
+            : "bg-gradient-to-br from-orange-500/20 via-red-500/15 to-transparent opacity-80"
+        )}
+      />
 
-      <div className="relative z-10 flex flex-col sm:flex-row items-center gap-6">
-        {/* Animated SVG Stream Asset */}
-        <div className="relative shrink-0 w-28 h-28 sm:w-32 sm:h-32 flex items-center justify-center rounded-2xl bg-gradient-to-b from-orange-500/10 to-red-500/5 border border-orange-500/20 p-2 shadow-inner">
-          <img
-            src="/illustrations/Check-In_Stream.svg"
-            alt="Check-In Stream Animation"
-            className="w-full h-full object-contain pointer-events-none select-none transition-transform duration-300 hover:scale-105"
-            loading="eager"
-          />
-          <Badge
-            variant="outline"
-            className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-card border-orange-500/40 text-orange-500 text-[10px] font-bold px-2 py-0.5 shadow-sm whitespace-nowrap"
-          >
-            🔥 {streakCount} Days
-          </Badge>
-        </div>
-
-        {/* Content & Action */}
-        <div className="flex-1 text-center sm:text-left space-y-2">
-          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
-            <h3 className="font-display font-bold text-lg text-foreground">
+      <div className="relative z-10 flex flex-col gap-4">
+        {/* Header: Title & Status Badge */}
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <h3 className="font-display font-bold text-base text-foreground tracking-tight">
               Daily Streak Check-In
             </h3>
-            {hasCheckedIn ? (
-              <Badge className="bg-emerald-500/15 text-emerald-500 border border-emerald-500/30 text-[10px]">
-                <CheckCircle2 className="h-3 w-3 mr-1" />
-                Completed Today
-              </Badge>
-            ) : (
-              <Badge className="bg-orange-500/15 text-orange-500 border border-orange-500/30 text-[10px] animate-pulse">
-                <Sparkles className="h-3 w-3 mr-1" />
-                +10 XP Available
-              </Badge>
-            )}
           </div>
 
-          <p className="text-xs text-muted-foreground leading-relaxed max-w-md">
-            {hasCheckedIn
-              ? `You've locked in your Day ${streakCount} streak! Come back tomorrow to continue your momentum toward the Top 10 Leaderboard.`
-              : "Check in today to maintain your learning streak, boost your XP rank, and keep your flame alive."}
-          </p>
+          {hasCheckedIn ? (
+            <Badge className="bg-emerald-500/15 text-emerald-500 border border-emerald-500/30 text-[11px] font-semibold py-0.5 px-2.5">
+              <CheckCircle2 className="h-3 w-3 mr-1 text-emerald-500" />
+              Completed Today
+            </Badge>
+          ) : (
+            <Badge className="bg-orange-500/15 text-orange-500 border border-orange-500/30 text-[11px] font-semibold py-0.5 px-2.5 animate-pulse">
+              <Sparkles className="h-3 w-3 mr-1 text-orange-400" />
+              +10 XP Ready
+            </Badge>
+          )}
+        </div>
 
-          <div className="pt-2 flex flex-wrap items-center justify-center sm:justify-start gap-3">
-            <Button
-              onClick={handleClaim}
-              disabled={hasCheckedIn || isSubmitting}
-              className={`rounded-xl font-medium px-5 h-9 text-xs transition-all duration-300 ${
+        {/* ── Centerpiece: Interactive Flame Reactor & Days Ring ── */}
+        <div className="flex flex-col sm:flex-row items-center gap-5 p-4 rounded-2xl bg-muted/20 border border-border/60">
+          {/* Animated Living Flame Orb */}
+          <button
+            type="button"
+            onClick={!hasCheckedIn ? handleClaim : undefined}
+            disabled={hasCheckedIn || isSubmitting}
+            title={hasCheckedIn ? "Streak locked for today!" : "Click to check in now"}
+            className={cn(
+              "group relative shrink-0 w-24 h-24 rounded-2xl flex flex-col items-center justify-center p-2 transition-all duration-300 shadow-md",
+              hasCheckedIn
+                ? "bg-gradient-to-b from-emerald-500/15 via-emerald-500/5 to-transparent border border-emerald-500/30 cursor-default"
+                : "bg-gradient-to-b from-orange-500/20 via-red-500/10 to-amber-500/5 border border-orange-500/40 cursor-pointer hover:scale-105 active:scale-95 hover:shadow-orange-500/20"
+            )}
+          >
+            {/* Pulsing Aura Rings */}
+            <span
+              className={cn(
+                "absolute inset-0 rounded-2xl transition-opacity",
                 hasCheckedIn
-                  ? "bg-muted text-muted-foreground cursor-default hover:bg-muted"
-                  : "bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-md hover:shadow-orange-500/25 active:scale-95"
-              }`}
-            >
-              {hasCheckedIn ? (
-                <>
-                  <CheckCircle2 className="h-3.5 w-3.5 mr-1.5 text-emerald-500" />
-                  Streak Maintained Today
-                </>
-              ) : (
-                <>
-                  <Zap className="h-3.5 w-3.5 mr-1.5 fill-current" />
-                  Claim Daily Check-In (+10 XP)
-                </>
+                  ? "bg-emerald-500/10 opacity-50"
+                  : "bg-orange-500/15 group-hover:opacity-100 opacity-60 animate-pulse"
               )}
-            </Button>
+            />
 
-            {highestStreak > 1 && (
-              <span className="text-[11px] text-muted-foreground flex items-center gap-1">
-                <Trophy className="h-3 w-3 text-amber-500" />
-                Best: {highestStreak} Days
+            {/* Flame Icon with Dynamic Multi-layer SVG */}
+            <div className="relative z-10 flex flex-col items-center">
+              <Flame
+                className={cn(
+                  "h-10 w-10 transition-all duration-300 drop-shadow-md",
+                  hasCheckedIn
+                    ? "text-emerald-500 fill-emerald-500/80 scale-100"
+                    : "text-orange-500 fill-orange-500 group-hover:scale-110 group-hover:text-amber-400",
+                  flamePulsing && "scale-125 text-amber-300 fill-amber-400"
+                )}
+              />
+              <span className="font-display font-extrabold text-xs mt-1 text-foreground">
+                {streakCount} {streakCount === 1 ? "Day" : "Days"}
               </span>
-            )}
+            </div>
+          </button>
+
+          {/* Interactive 7-Day Week Calendar */}
+          <div className="flex-1 w-full space-y-2.5">
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-muted-foreground font-medium flex items-center gap-1.5">
+                <Calendar className="h-3.5 w-3.5 text-indigo-400" />
+                <span>This Week's Track</span>
+              </span>
+              <span className="text-[11px] font-mono text-muted-foreground">
+                {hasCheckedIn ? "Streak Active" : "Check-in required"}
+              </span>
+            </div>
+
+            {/* 7 Days of the Week Bubbles */}
+            <div className="grid grid-cols-7 gap-1.5 sm:gap-2">
+              {DAYS_OF_WEEK.map((dayLabel, idx) => {
+                const isPast = idx < todayDayIndex;
+                const isToday = idx === todayDayIndex;
+                const isFuture = idx > todayDayIndex;
+
+                const isMarkedDone = isPast || (isToday && hasCheckedIn);
+
+                return (
+                  <div
+                    key={idx}
+                    className="flex flex-col items-center gap-1"
+                    title={`${dayLabel} — ${isToday ? "Today" : isPast ? "Completed" : "Upcoming"}`}
+                  >
+                    <div
+                      className={cn(
+                        "w-full aspect-square rounded-xl flex items-center justify-center text-xs font-bold transition-all duration-200 border",
+                        isMarkedDone
+                          ? "bg-emerald-500/20 text-emerald-500 border-emerald-500/40 shadow-sm"
+                          : isToday
+                            ? "bg-orange-500/20 text-orange-500 border-orange-500/60 ring-2 ring-orange-500/30 animate-pulse"
+                            : "bg-muted/40 text-muted-foreground/50 border-border/40"
+                      )}
+                    >
+                      {isMarkedDone ? (
+                        <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
+                      ) : isToday ? (
+                        <Flame className="h-3.5 w-3.5 text-orange-500 fill-orange-500" />
+                      ) : (
+                        <span className="text-[11px] opacity-40 font-mono">·</span>
+                      )}
+                    </div>
+                    <span
+                      className={cn(
+                        "text-[10px] font-mono",
+                        isToday ? "font-bold text-foreground" : "text-muted-foreground"
+                      )}
+                    >
+                      {dayLabel}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
           </div>
+        </div>
+
+        {/* Milestone Progress Bar */}
+        <div className="space-y-1.5 pt-1">
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-muted-foreground flex items-center gap-1.5 text-[11px]">
+              <TrendingUp className="h-3.5 w-3.5 text-amber-500" />
+              <span>Next Reward: {nextMilestone}-Day Milestone (+50 Bonus XP)</span>
+            </span>
+            <span className="text-[11px] font-mono text-muted-foreground">
+              {streakCount}/{nextMilestone} Days
+            </span>
+          </div>
+
+          <div className="h-2 w-full bg-muted/60 rounded-full overflow-hidden p-0.5 border border-border/50">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-orange-500 via-amber-400 to-emerald-400 transition-all duration-700"
+              style={{ width: `${milestoneProgress}%` }}
+            />
+          </div>
+        </div>
+
+        {/* Action Button & Best Streak Footer */}
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-border/50">
+          <Button
+            onClick={handleClaim}
+            disabled={hasCheckedIn || isSubmitting}
+            size="sm"
+            className={cn(
+              "rounded-xl font-semibold px-4 h-9 text-xs transition-all duration-300 shadow-sm",
+              hasCheckedIn
+                ? "bg-emerald-500/15 text-emerald-500 border border-emerald-500/30 hover:bg-emerald-500/20 cursor-default"
+                : "bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 hover:from-orange-600 hover:to-amber-600 text-white shadow-orange-500/20 active:scale-95 cursor-pointer"
+            )}
+          >
+            {hasCheckedIn ? (
+              <>
+                <CheckCircle2 className="h-3.5 w-3.5 mr-1.5 text-emerald-500" />
+                Streak Maintained Today
+              </>
+            ) : (
+              <>
+                <Zap className="h-3.5 w-3.5 mr-1.5 fill-current" />
+                Claim Daily Check-In (+10 XP)
+              </>
+            )}
+          </Button>
+
+          {highestStreak > 1 && (
+            <span className="text-xs text-muted-foreground flex items-center gap-1.5 font-medium">
+              <Trophy className="h-3.5 w-3.5 text-amber-500" />
+              <span>Best: {highestStreak} Days</span>
+            </span>
+          )}
         </div>
       </div>
     </Card>
