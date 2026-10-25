@@ -31,6 +31,7 @@ import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { UserAvatarMenu } from "@/components/UserAvatarMenu";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Logo } from "@/components/Logo";
+import { HarkNotificationBell } from "@/components/notice/HarkNotificationBell";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { useFeatureFlags } from "@/hooks/use-feature-flags";
@@ -249,6 +250,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="border-t p-3 flex items-center gap-2">
       <UserAvatarMenu showName />
       <div className="ml-auto flex items-center gap-1">
+        <HarkNotificationBell />
         <ThemeToggle />
       </div>
     </div>
@@ -296,6 +298,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <Logo height="h-7" />
         </Link>
         <div className="flex-1" />
+        <HarkNotificationBell />
         {(cartCount.data ?? 0 > 0) ? (
           <Link to="/cart" className="relative">
             <ShoppingCart className="h-5 w-5 text-muted-foreground" />

@@ -12,6 +12,12 @@
       "sourceType": "github",
       "skillPath": "skills/brag-slim/SKILL.md",
       "computedHash": "93d340c13332e17ff4098b91176b9a4cd9f43f698fec1ff233f27d3c3497c72a"
+    },
+    "hark": {
+      "source": "R44VC0RP/hark",
+      "sourceType": "github",
+      "skillPath": "skills/hark/SKILL.md",
+      "computedHash": "d24caf8aae151e76a6575dce120c2f0c16ee45577fcb89c50e240f6c75321c3d"
     }
   }
 }

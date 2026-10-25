@@ -3,6 +3,7 @@ import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { UserAvatarMenu } from "@/components/UserAvatarMenu";
+import { HarkNotificationBell } from "@/components/notice/HarkNotificationBell";
 import { useAuth } from "@/hooks/use-auth";
 import { usePublicMenu } from "@/hooks/use-wcms-public";
 import { Loader2, Menu } from "lucide-react";
@@ -74,8 +75,9 @@ export function SiteHeader() {
         <div className="flex items-center gap-2">
           <ThemeToggle />
           {isAuthenticated && !loading ? (
-            <div className="hidden sm:flex items-center gap-2">
-              <Button asChild variant="ghost" size="sm" className="text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <HarkNotificationBell />
+              <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex text-muted-foreground">
                 <Link to="/dashboard" preload="intent">
                   Dashboard
                 </Link>

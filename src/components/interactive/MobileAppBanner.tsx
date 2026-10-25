@@ -311,7 +311,7 @@ export function MobileAppBanner() {
                 {/* Launch badge */}
                 <div className="mt-3 text-center">
                   <span className="inline-block rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[9px] font-bold uppercase tracking-widest text-primary">
-                    Launching Q3 2026
+                    Live in Beta · Android & iOS
                   </span>
                 </div>
               </div>

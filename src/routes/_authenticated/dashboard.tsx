@@ -40,6 +40,7 @@ import { DashboardEventsJobs } from "@/components/DashboardEventsJobs";
 import { DashboardSkeleton, StatCardSkeleton } from "@/components/Skeletons";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TourChecklist } from "@/components/ProductTour";
+import { DailyStreakCheckIn } from "@/components/dashboard/DailyStreakCheckIn";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({ meta: [{ title: "Dashboard — Learnify AI" }] }),
@@ -366,6 +367,20 @@ function DashboardPage() {
 
           {/* Weekly Streak & Stats */}
           <div className="w-full lg:w-80 flex flex-col gap-4 shrink-0">
+            <DailyStreakCheckIn
+              currentStreak={profileQ.data?.current_streak || 1}
+              highestStreak={profileQ.data?.highest_streak || 1}
+              xp={profileQ.data?.xp || 0}
+              onCheckInSuccess={(newStreak, newXp) => {
+                logDailyFn({
+                  data: {
+                    actions_count: 1,
+                    xp_earned: 10,
+                    notes: "Daily Check-in Stream claimed",
+                  },
+                }).catch(() => {});
+              }}
+            />
             <div className="bg-card border rounded-3xl p-6 shadow-card flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between mb-4">
