@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import {
   Code2,
   Play,
+  Pause,
   RotateCcw,
   Undo2,
   FileCode,
@@ -23,312 +24,717 @@ import {
   ExternalLink,
   Laptop,
   Smartphone,
-  Tablet,
+  Volume2,
+  VolumeX,
+  Subtitles,
+  HelpCircle,
+  Sparkles,
+  Download,
+  Image as ImageIcon,
   CheckCircle2,
   Layers,
-  Sparkles,
-  Loader2,
+  Flame,
+  Check,
+  X,
+  Radio,
+  FilePlus,
+  FolderPlus,
+  ArrowRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
-export interface ScrimbaWorkspaceProps {
-  courseTitle?: string;
-  lessonTitle?: string;
-  injectedCode?: string;
-  injectedLang?: string;
-  activeVideoTime?: number;
-  onCodeChange?: (code: string) => void;
-  onForkChange?: (isForked: boolean) => void;
-}
+// ─── Embedded High-Fidelity SVG Food Assets ──────────────────────────────────
+export const FOOD_ASSETS: Record<string, { label: string; svg: string }> = {
+  "images/strawberry.png": {
+    label: "strawberry",
+    svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="berry-grad" cx="40%" cy="30%" r="70%">
+          <stop offset="0%" stop-color="#FF4B68"/>
+          <stop offset="50%" stop-color="#E11D48"/>
+          <stop offset="100%" stop-color="#9F1239"/>
+        </radialGradient>
+      </defs>
+      <!-- Leaf Crown -->
+      <path d="M50 25 C45 10 30 15 25 22 C32 26 42 28 50 25 Z" fill="#22C55E"/>
+      <path d="M50 25 C55 10 70 15 75 22 C68 26 58 28 50 25 Z" fill="#16A34A"/>
+      <path d="M50 25 C45 8 55 5 50 2 C45 12 48 18 50 25 Z" fill="#15803D"/>
+      <!-- Berry Body -->
+      <path d="M22 36 C18 60 40 88 50 92 C60 88 82 60 78 36 C76 25 24 25 22 36 Z" fill="url(#berry-grad)"/>
+      <!-- Seeds -->
+      <circle cx="35" cy="40" r="1.8" fill="#FDE047"/>
+      <circle cx="48" cy="38" r="1.8" fill="#FDE047"/>
+      <circle cx="62" cy="42" r="1.8" fill="#FDE047"/>
+      <circle cx="28" cy="52" r="1.8" fill="#FDE047"/>
+      <circle cx="42" cy="50" r="1.8" fill="#FDE047"/>
+      <circle cx="56" cy="52" r="1.8" fill="#FDE047"/>
+      <circle cx="70" cy="54" r="1.8" fill="#FDE047"/>
+      <circle cx="36" cy="65" r="1.8" fill="#FDE047"/>
+      <circle cx="50" cy="64" r="1.8" fill="#FDE047"/>
+      <circle cx="64" cy="66" r="1.8" fill="#FDE047"/>
+      <circle cx="45" cy="78" r="1.8" fill="#FDE047"/>
+      <circle cx="55" cy="78" r="1.8" fill="#FDE047"/>
+    </svg>`,
+  },
+  "images/hamburger.png": {
+    label: "hamburger",
+    svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="bun-top" cx="50%" cy="30%" r="60%">
+          <stop offset="0%" stop-color="#FCD34D"/>
+          <stop offset="100%" stop-color="#D97706"/>
+        </radialGradient>
+        <radialGradient id="bun-bottom" cx="50%" cy="70%" r="60%">
+          <stop offset="0%" stop-color="#FCD34D"/>
+          <stop offset="100%" stop-color="#B45309"/>
+        </radialGradient>
+      </defs>
+      <!-- Top Bun -->
+      <path d="M15 48 C15 22 85 22 85 48 Z" fill="url(#bun-top)"/>
+      <!-- Sesame seeds -->
+      <ellipse cx="32" cy="34" rx="2" ry="1.2" fill="#FEF3C7" transform="rotate(-15 32 34)"/>
+      <ellipse cx="50" cy="30" rx="2" ry="1.2" fill="#FEF3C7"/>
+      <ellipse cx="68" cy="34" rx="2" ry="1.2" fill="#FEF3C7" transform="rotate(15 68 34)"/>
+      <ellipse cx="40" cy="40" rx="2" ry="1.2" fill="#FEF3C7" transform="rotate(10 40 40)"/>
+      <ellipse cx="60" cy="40" rx="2" ry="1.2" fill="#FEF3C7" transform="rotate(-10 60 40)"/>
+      <!-- Lettuce -->
+      <path d="M12 50 C20 46 25 54 35 48 C45 54 55 46 65 52 C75 46 80 54 88 50 C86 56 14 56 12 50 Z" fill="#22C55E"/>
+      <!-- Tomato Slices -->
+      <rect x="20" y="53" width="60" height="6" rx="3" fill="#EF4444"/>
+      <!-- Patty -->
+      <rect x="14" y="59" width="72" height="12" rx="6" fill="#78350F"/>
+      <!-- Cheese Wedge -->
+      <polygon points="20,62 80,62 50,70" fill="#FACC15"/>
+      <!-- Bottom Bun -->
+      <rect x="18" y="71" width="64" height="12" rx="6" fill="url(#bun-bottom)"/>
+    </svg>`,
+  },
+  "images/glass_of_milk.png": {
+    label: "glass of milk",
+    svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="milk-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#F1F5F9"/>
+          <stop offset="40%" stop-color="#FFFFFF"/>
+          <stop offset="100%" stop-color="#E2E8F0"/>
+        </linearGradient>
+        <linearGradient id="glass-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="rgba(255,255,255,0.7)"/>
+          <stop offset="30%" stop-color="rgba(148,163,184,0.15)"/>
+          <stop offset="70%" stop-color="rgba(148,163,184,0.2)"/>
+          <stop offset="100%" stop-color="rgba(255,255,255,0.8)"/>
+        </linearGradient>
+      </defs>
+      <!-- Glass Outline & Milk -->
+      <path d="M25 18 L32 82 C33 86 67 86 68 82 L75 18 Z" fill="url(#glass-grad)" stroke="#94A3B8" stroke-width="2"/>
+      <!-- Milk Level -->
+      <path d="M27 30 L32 80 C34 84 66 84 68 80 L73 30 Z" fill="url(#milk-grad)"/>
+      <ellipse cx="50" cy="30" rx="23" ry="5" fill="#FFFFFF"/>
+      <!-- Top Rim of Glass -->
+      <ellipse cx="50" cy="18" rx="25" ry="5.5" fill="none" stroke="#CBD5E1" stroke-width="2.5"/>
+      <!-- Glass Highlight Reflections -->
+      <path d="M30 25 L34 76" stroke="rgba(255,255,255,0.8)" stroke-width="2.5" stroke-linecap="round"/>
+      <ellipse cx="50" cy="81" rx="17" ry="3" fill="#CBD5E1" opacity="0.4"/>
+    </svg>`,
+  },
+  "images/egg.png": {
+    label: "egg",
+    svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="egg-grad" cx="40%" cy="35%" r="65%">
+          <stop offset="0%" stop-color="#FFFFFF"/>
+          <stop offset="40%" stop-color="#FDF4DC"/>
+          <stop offset="100%" stop-color="#E2D4B7"/>
+        </radialGradient>
+      </defs>
+      <!-- Ground Shadow -->
+      <ellipse cx="50" cy="85" rx="25" ry="6" fill="#CBD5E1" opacity="0.5"/>
+      <!-- Egg Geometry -->
+      <path d="M50 14 C30 14 22 48 22 64 C22 80 34 88 50 88 C66 88 78 80 78 64 C78 48 70 14 50 14 Z" fill="url(#egg-grad)" stroke="#D8C8A8" stroke-width="1.5"/>
+      <!-- Shiny Spot -->
+      <ellipse cx="40" cy="35" rx="7" ry="12" fill="white" opacity="0.6" transform="rotate(-15 40 35)"/>
+    </svg>`,
+  },
+  "images/sushi.png": {
+    label: "sushi",
+    svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="salmon" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#FB7185"/>
+          <stop offset="50%" stop-color="#F43F5E"/>
+          <stop offset="100%" stop-color="#E11D48"/>
+        </linearGradient>
+      </defs>
+      <!-- Rice Bed -->
+      <rect x="18" y="52" width="64" height="24" rx="12" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="2"/>
+      <!-- Rice grain details -->
+      <ellipse cx="28" cy="62" rx="2" ry="1.2" fill="#E2E8F0"/>
+      <ellipse cx="42" cy="66" rx="2" ry="1.2" fill="#E2E8F0"/>
+      <ellipse cx="60" cy="63" rx="2" ry="1.2" fill="#E2E8F0"/>
+      <!-- Salmon Slice -->
+      <path d="M14 44 C25 36 75 36 86 44 C88 52 82 56 78 56 C68 56 32 56 22 56 C18 56 12 52 14 44 Z" fill="url(#salmon)"/>
+      <!-- White Salmon Stripes -->
+      <path d="M28 42 L34 54" stroke="#FFE4E6" stroke-width="2" opacity="0.7"/>
+      <path d="M44 39 L50 54" stroke="#FFE4E6" stroke-width="2" opacity="0.7"/>
+      <path d="M60 40 L66 54" stroke="#FFE4E6" stroke-width="2" opacity="0.7"/>
+      <!-- Nori Seaweed Belt -->
+      <rect x="44" y="38" width="12" height="38" rx="2" fill="#0F172A"/>
+    </svg>`,
+  },
+  "images/poultry_leg.png": {
+    label: "poultry leg",
+    svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="chicken-grad" cx="45%" cy="40%" r="60%">
+          <stop offset="0%" stop-color="#F59E0B"/>
+          <stop offset="60%" stop-color="#D97706"/>
+          <stop offset="100%" stop-color="#92400E"/>
+        </radialGradient>
+      </defs>
+      <!-- Bone End -->
+      <ellipse cx="78" cy="68" rx="5" ry="5" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1.5"/>
+      <ellipse cx="78" cy="77" rx="5" ry="5" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1.5"/>
+      <rect x="62" y="66" width="16" height="8" rx="2" fill="#F8FAFC" transform="rotate(30 62 66)"/>
+      <!-- Crispy Meat Bulb -->
+      <path d="M22 42 C16 28 32 16 50 24 C64 30 68 50 58 64 C48 76 28 72 20 58 C16 52 18 46 22 42 Z" fill="url(#chicken-grad)"/>
+      <!-- Crispy Highlights -->
+      <circle cx="34" cy="34" r="3" fill="#FDE68A" opacity="0.6"/>
+      <circle cx="44" cy="46" r="2.5" fill="#FDE68A" opacity="0.6"/>
+    </svg>`,
+  },
+  "images/hot_pepper.png": {
+    label: "hot pepper",
+    svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="pepper" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#EF4444"/>
+          <stop offset="60%" stop-color="#DC2626"/>
+          <stop offset="100%" stop-color="#991B1B"/>
+        </linearGradient>
+      </defs>
+      <!-- Green Stem -->
+      <path d="M72 20 C76 15 82 16 85 18 C83 24 78 26 73 25 Z" fill="#15803D"/>
+      <ellipse cx="71" cy="25" rx="5" ry="3" fill="#22C55E"/>
+      <!-- Curved Chili Body -->
+      <path d="M71 25 C68 40 50 62 38 72 C28 80 18 78 18 72 C18 64 36 50 48 40 C60 30 68 24 71 25 Z" fill="url(#pepper)"/>
+      <!-- Glossy Reflection -->
+      <path d="M64 30 C58 38 46 52 35 62" stroke="#FCA5A5" stroke-width="2" stroke-linecap="round" fill="none"/>
+    </svg>`,
+  },
+  "images/bowl_with_spoon.png": {
+    label: "bowl with spoon",
+    svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="bowl-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#38BDF8"/>
+          <stop offset="50%" stop-color="#0284C7"/>
+          <stop offset="100%" stop-color="#0369A1"/>
+        </linearGradient>
+      </defs>
+      <!-- Spoon sticking out -->
+      <path d="M68 22 L52 48" stroke="#94A3B8" stroke-width="5" stroke-linecap="round"/>
+      <ellipse cx="70" cy="20" rx="6" ry="4" fill="#CBD5E1" transform="rotate(30 70 20)"/>
+      <!-- Batter inside bowl -->
+      <ellipse cx="50" cy="46" rx="30" ry="8" fill="#FEF08A"/>
+      <!-- Bowl Exterior -->
+      <path d="M20 46 C20 74 34 82 50 82 C66 82 80 74 80 46 Z" fill="url(#bowl-grad)"/>
+      <!-- Bowl Rim -->
+      <ellipse cx="50" cy="46" rx="31" ry="9" fill="none" stroke="#7DD3FC" stroke-width="3"/>
+      <!-- Foot of bowl -->
+      <ellipse cx="50" cy="82" rx="16" ry="3" fill="#0284C7"/>
+    </svg>`,
+  },
+};
 
-interface VirtualFile {
-  name: string;
-  path: string;
-  type: "file" | "dir";
-  language: "html" | "css" | "javascript" | "json" | "python" | "java";
-  content: string;
-  isOpen?: boolean;
-}
+// Convert SVG to data URI for use in <img> tags
+const svgToDataUri = (svgString: string) => {
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svgString)}`;
+};
 
-const DEFAULT_WEB_FILES: Record<string, string> = {
-  "index.html": `<!DOCTYPE html>
+// ─── Default Web Files (Cake Recipe App - Frames 001, 007, 008) ──────────────
+const DEFAULT_CAKE_HTML = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Learnify AI Sandbox</title>
+  <title>Let's Make a Cake!</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="card">
-    <div class="badge">LIVE SCRIMBA SANDBOX</div>
-    <h1>Interactive Practice Ready!</h1>
-    <p id="desc">Edit code here in real-time. Notice the "Back to Teacher" button whenever you diverge from the lecture.</p>
-    <div class="actions">
-      <button id="btn" class="primary-btn">Test Interactive Action</button>
-    </div>
-    <div id="status" class="status-box">Status: Ready for your edits</div>
-  </div>
+  <h1>Let's Make a Cake!</h1>
+  <p class="tagline">It's going to be a <em>piece of cake!</em></p>
+
+  <h2>Ingredients</h2>
+  <!--
+    1. Look at the grid of ingredients below.
+    2. Try adding or removing an ingredient.
+    3. See that it works by hovering over the egg.
+    4. Resume the lesson by clicking the Play button.
+  -->
+  <ul class="grid">
+    <li>
+      <img src="images/strawberry.png" alt="strawberry">
+    </li>
+    <li>
+      <img src="images/hamburger.png" alt="hamburger">
+    </li>
+    <li>
+      <img src="images/glass_of_milk.png" alt="glass of milk">
+    </li>
+    <li class="scared">
+      <img src="images/egg.png" alt="egg">
+    </li>
+    <li>
+      <img src="images/sushi.png" alt="sushi">
+    </li>
+    <li>
+      <img src="images/poultry_leg.png" alt="poultry leg">
+    </li>
+    <li>
+      <img src="images/hot_pepper.png" alt="hot pepper">
+    </li>
+    <li>
+      <img src="images/bowl_with_spoon.png" alt="bowl with spoon">
+    </li>
+  </ul>
+
+  <h2>Directions</h2>
+  <ol class="directions">
+    <li>Preheat oven to 350 degrees F (175 degrees C).</li>
+    <li>In a medium bowl, combine all ingredients.</li>
+    <li>Pour batter into baking pan.</li>
+    <li>Bake for 30 to 40 minutes in the preheated oven.</li>
+    <li>Enjoy!</li>
+  </ol>
+
   <script src="index.js"></script>
 </body>
-</html>`,
-  "styles.css": `* {
+</html>`;
+
+const DEFAULT_CAKE_CSS = `@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Open+Sans:wght@400;600&display=swap');
+
+* {
   box-sizing: border-box;
-  margin: 0;
-  padding: 0;
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  background: #090D16;
-  color: #F8FAFC;
-  display: grid;
-  place-items: center;
-  min-height: 100vh;
+  margin: 0;
   padding: 24px;
-}
-
-.card {
-  background: #111827;
-  border: 1px solid rgba(99, 102, 241, 0.25);
-  border-radius: 16px;
-  padding: 32px;
-  max-width: 480px;
-  width: 100%;
-  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
-  text-align: center;
-}
-
-.badge {
-  display: inline-block;
-  background: rgba(99, 102, 241, 0.15);
-  color: #818CF8;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  padding: 4px 10px;
-  border-radius: 20px;
-  margin-bottom: 16px;
-  border: 1px solid rgba(99, 102, 241, 0.3);
+  background-color: #FFFFFF;
+  font-family: 'Open Sans', -apple-system, sans-serif;
+  color: #1E293B;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
 }
 
 h1 {
-  font-size: 22px;
-  font-weight: 700;
-  margin-bottom: 12px;
-  background: linear-gradient(135deg, #FFFFFF 0%, #A5B4FC 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-p {
-  color: #94A3B8;
-  font-size: 14px;
-  line-height: 1.6;
-  margin-bottom: 24px;
-}
-
-.primary-btn {
-  background: linear-gradient(135deg, #4F46E5 0%, #6366F1 100%);
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 10px;
-  font-weight: 600;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
-}
-
-.primary-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(79, 70, 229, 0.4);
-}
-
-.primary-btn:active {
-  transform: translateY(0);
-}
-
-.status-box {
-  margin-top: 20px;
-  padding: 10px;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.04);
+  font-family: 'Fredoka One', cursive, sans-serif;
   color: #38BDF8;
-  font-family: monospace;
-  font-size: 12px;
-}`,
-  "index.js": `console.log("Learnify Scrimba Virtual Runner initialized.");
+  font-size: 30px;
+  margin: 8px 0 2px 0;
+  text-align: center;
+  letter-spacing: 0.5px;
+}
 
-const btn = document.getElementById("btn");
-const status = document.getElementById("status");
-const desc = document.getElementById("desc");
+p.tagline {
+  font-size: 13px;
+  color: #64748B;
+  margin-bottom: 20px;
+  text-align: center;
+}
 
-let clickCount = 0;
+p.tagline em {
+  color: #38BDF8;
+  font-style: italic;
+  font-weight: 600;
+}
 
-btn?.addEventListener("click", () => {
-  clickCount++;
-  console.log(\`Interactive button clicked \${clickCount} time(s)\`);
-  if (status) {
-    status.innerText = \`Button clicked \${clickCount} time(s) at \${new Date().toLocaleTimeString()}\`;
-    status.style.color = clickCount % 2 === 0 ? "#34D399" : "#F472B6";
-  }
-});`,
-  "package.json": `{
-  "name": "learnify-scrimba-sandbox",
-  "version": "1.0.0",
-  "description": "Interactive in-browser Scrimba coding environment",
-  "scripts": {
-    "start": "serve ."
+h2 {
+  font-family: 'Fredoka One', cursive, sans-serif;
+  font-size: 18px;
+  margin: 16px 0 10px 0;
+  color: #0F172A;
+  align-self: flex-start;
+  width: 100%;
+  max-width: 320px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 20px 0;
+  width: 100%;
+  max-width: 320px;
+}
+
+.grid li {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+  aspect-ratio: 1;
+}
+
+.grid li:hover {
+  transform: translateY(-4px) scale(1.06);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+}
+
+.grid li.scared:hover {
+  animation: shake 0.5s infinite;
+  border-color: #FBBF24;
+}
+
+@keyframes shake {
+  0% { transform: translate(1px, 1px) rotate(0deg); }
+  20% { transform: translate(-3px, 0px) rotate(1deg); }
+  40% { transform: translate(1px, -1px) rotate(1deg); }
+  60% { transform: translate(-3px, 1px) rotate(0deg); }
+  80% { transform: translate(-1px, -1px) rotate(1deg); }
+  100% { transform: translate(1px, -2px) rotate(-1deg); }
+}
+
+.grid img {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+}
+
+ol.directions {
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: #475569;
+  padding-left: 20px;
+  margin: 0;
+  align-self: flex-start;
+  width: 100%;
+  max-width: 320px;
+}
+
+ol.directions li {
+  margin-bottom: 4px;
+}`;
+
+const DEFAULT_CAKE_JS = `console.log("Cake making interactive workspace initialized!");
+
+const ingredients = document.querySelectorAll('.grid li');
+ingredients.forEach((item) => {
+  item.addEventListener('click', () => {
+    const img = item.querySelector('img');
+    const name = img ? img.alt : 'ingredient';
+    console.log(\`[User Interaction] Selected ingredient: \${name}\`);
+  });
+});`;
+
+const DEFAULT_PACKAGE_JSON = `{
+  "name": "s0koa72bc2",
+  "lockfileVersion": 3,
+  "requires": true,
+  "packages": {}
+}`;
+
+// ─── Lesson Narration Milestones ─────────────────────────────────────────────
+interface NarrationClip {
+  time: number;
+  text: string;
+  caption: string;
+  autoPause?: boolean;
+}
+
+const LESSON_NARRATIONS: NarrationClip[] = [
+  {
+    time: 0,
+    text: "My name is Tom Chant, and you'll be hearing challenges in order to learn the ropes.",
+    caption: "My name is Tom Chant, and you'll be hearing challenges in order to learn the ropes.",
   },
-  "dependencies": {}
-}`,
-};
+  {
+    time: 5,
+    text: "Hey there! In this Scrimba video lesson, you're not just watching — you're inside a real live IDE.",
+    caption: "Hey there.",
+  },
+  {
+    time: 14,
+    text: "On the left are your files. In the center is your Monaco code editor. And on the right is your live web app running at port 8080.",
+    caption: "On the left are your files. In the center, your editor. On the right, your live runner.",
+  },
+  {
+    time: 24,
+    text: "Look at the ingredients list in HTML and hover over the egg to see the CSS shake animation.",
+    caption: "Look at the ingredients list in HTML and hover over the egg.",
+  },
+  {
+    time: 31,
+    text: "Here is your practice checkpoint! You know how to do it. Click any code or open an image in the sidebar to pause and experiment.",
+    caption: "you know how to do it.",
+    autoPause: true,
+  },
+  {
+    time: 60,
+    text: "Whenever you edit code, your live preview updates instantly. When done, click Back to Teacher to resume.",
+    caption: "Whenever you edit code, test it directly in the live preview.",
+  },
+  {
+    time: 120,
+    text: "Next, try inspecting the CSS file styles.css to customize the grid layout or colors.",
+    caption: "Try inspecting styles.css to customize grid layout or colors.",
+  },
+];
+
+export interface ScrimbaWorkspaceProps {
+  courseTitle?: string;
+  lessonTitle?: string;
+  instructorName?: string;
+  injectedCode?: string;
+  injectedLang?: string;
+  activeVideoTime?: number;
+  totalDuration?: number;
+  isStandAlonePlayer?: boolean;
+  onCodeChange?: (code: string) => void;
+  onForkChange?: (isForked: boolean) => void;
+}
 
 export function ScrimbaWorkspace({
-  courseTitle = "Interactive Code Masterclass",
-  lessonTitle = "Live Practice Session",
+  courseTitle = "Fullstack Path",
+  lessonTitle = "Let's Make a Cake!",
+  instructorName = "Tom Chant",
   injectedCode,
   injectedLang = "html",
   activeVideoTime = 0,
+  totalDuration = 437, // 7:17
+  isStandAlonePlayer = false,
   onCodeChange,
   onForkChange,
 }: ScrimbaWorkspaceProps) {
-  const isWebMode = useMemo(() => {
-    const l = injectedLang.toLowerCase();
-    return ["html", "css", "javascript", "web", "html5", "css3"].includes(l);
-  }, [injectedLang]);
+  // ─── Playback Engine State ─────────────────────────────────────────────────
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [currentTime, setCurrentTime] = useState<number>(activeVideoTime);
+  const [speechEnabled, setSpeechEnabled] = useState<boolean>(true);
+  const [captionsEnabled, setCaptionsEnabled] = useState<boolean>(true);
+  const [activeCaption, setActiveCaption] = useState<string>("Hey there.");
+  const [showIntroBumper, setShowIntroBumper] = useState<boolean>(currentTime < 4);
+  const [playbackSpeed, setPlaybackSpeed] = useState<number>(1);
+  const [showExplainModal, setShowExplainModal] = useState<boolean>(false);
 
-  // Virtual files state
-  const [files, setFiles] = useState<Record<string, string>>(() => {
-    if (injectedCode && isWebMode) {
-      return {
-        ...DEFAULT_WEB_FILES,
-        "index.html": injectedCode,
-      };
-    }
-    return DEFAULT_WEB_FILES;
+  // ─── Responsive Tabs (Mobile & Tablet) ────────────────────────────────────
+  const [mobileTab, setMobileTab] = useState<"code" | "preview" | "files">("code");
+
+  // ─── Files and Editor State ────────────────────────────────────────────────
+  const [files, setFiles] = useState<Record<string, string>>({
+    "index.html": injectedCode || DEFAULT_CAKE_HTML,
+    "styles.css": DEFAULT_CAKE_CSS,
+    "index.js": DEFAULT_CAKE_JS,
+    "package-lock.json": DEFAULT_PACKAGE_JSON,
   });
 
   const [activeFileName, setActiveFileName] = useState<string>("index.html");
+  const [isImagesFolderOpen, setIsImagesFolderOpen] = useState<boolean>(true);
+  const [openTabs, setOpenTabs] = useState<string[]>(["index.js", "index.html"]);
   const [isForked, setIsForked] = useState<boolean>(false);
   const [forkTimestamp, setForkTimestamp] = useState<number>(0);
-  const [teacherSnapshot, setTeacherSnapshot] = useState<Record<string, string>>(DEFAULT_WEB_FILES);
-  const [consoleLogs, setConsoleLogs] = useState<{ id: string; type: "log" | "warn" | "error"; text: string; time: string }[]>([]);
+  const [teacherSnapshot, setTeacherSnapshot] = useState<Record<string, string>>({
+    "index.html": injectedCode || DEFAULT_CAKE_HTML,
+    "styles.css": DEFAULT_CAKE_CSS,
+    "index.js": DEFAULT_CAKE_JS,
+    "package-lock.json": DEFAULT_PACKAGE_JSON,
+  });
+
+  // ─── Runner & Console State ────────────────────────────────────────────────
   const [bottomTab, setBottomTab] = useState<"runner" | "console">("runner");
-  const [deviceViewport, setDeviceViewport] = useState<"desktop" | "tablet" | "mobile">("desktop");
+  const [consoleLogs, setConsoleLogs] = useState<{ id: string; type: "log" | "warn" | "error"; text: string; time: string }[]>([]);
+  const [deviceViewport, setDeviceViewport] = useState<"desktop" | "mobile">("desktop");
   const [previewKey, setPreviewKey] = useState<number>(0);
+  const [isMuted, setIsMuted] = useState<boolean>(false);
 
-  // Non-web backend execution state
-  const [singleCode, setSingleCode] = useState<string>(injectedCode || "print('Hello from Learnify AI!')");
-  const [backendOutput, setBackendOutput] = useState<{ stdout: string; stderr: string; code: number } | null>(null);
-  const [backendRunning, setBackendRunning] = useState<boolean>(false);
-  const execFn = useServerFn(executeCode);
+  // ─── Speech Synthesis Narration ───────────────────────────────────────────
+  const speakText = useCallback(
+    (text: string) => {
+      if (!speechEnabled || isMuted || typeof window === "undefined" || !("speechSynthesis" in window)) {
+        return;
+      }
+      try {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = playbackSpeed;
+        utterance.pitch = 1.0;
+        // Try to pick a natural English voice
+        const voices = window.speechSynthesis.getVoices();
+        const englishVoice = voices.find((v) => v.lang.startsWith("en") && !v.name.includes("Zira")) || voices[0];
+        if (englishVoice) utterance.voice = englishVoice;
+        window.speechSynthesis.speak(utterance);
+      } catch {
+        // Speech API unsupported or blocked by browser
+      }
+    },
+    [speechEnabled, isMuted, playbackSpeed]
+  );
 
-  // Update when injectedCode changes from lecture
+  // Stop speech when unmounted or paused
   useEffect(() => {
-    if (injectedCode) {
-      if (isWebMode) {
-        setFiles((prev) => {
-          const next = { ...prev, "index.html": injectedCode };
-          setTeacherSnapshot(next);
+    return () => {
+      if (typeof window !== "undefined" && "speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
+
+  // ─── Timer & Auto-Play Engine ──────────────────────────────────────────────
+  useEffect(() => {
+    let timer: any = null;
+    if (isPlaying) {
+      timer = setInterval(() => {
+        setCurrentTime((prev) => {
+          const next = prev + 1;
+          if (next >= totalDuration) {
+            setIsPlaying(false);
+            return totalDuration;
+          }
+
+          // Check if milestone narration fires at this second
+          const clip = LESSON_NARRATIONS.find((c) => c.time === next);
+          if (clip) {
+            setActiveCaption(clip.caption);
+            speakText(clip.text);
+            if (clip.autoPause) {
+              setIsPlaying(false);
+              setIsForked(true);
+              setForkTimestamp(next);
+              onForkChange?.(true);
+              toast.info("🎯 Practice Checkpoint: Code is paused for hands-on experiment. Click 'Back to Teacher' when done!");
+            }
+          }
+
+          // Fade out intro bumper after 4 seconds
+          if (next >= 4) {
+            setShowIntroBumper(false);
+          }
+
           return next;
         });
-      } else {
-        setSingleCode(injectedCode);
+      }, 1000 / playbackSpeed);
+    } else {
+      if (typeof window !== "undefined" && "speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
       }
     }
-  }, [injectedCode, isWebMode]);
+    return () => clearInterval(timer);
+  }, [isPlaying, totalDuration, playbackSpeed, speakText, onForkChange]);
 
-  // Synchronize student edits: detect fork & auto-pause lecture
-  const handleEditorChange = useCallback((value: string | undefined) => {
-    const nextVal = value ?? "";
-    if (isWebMode) {
-      setFiles((prev) => ({ ...prev, [activeFileName]: nextVal }));
-      onCodeChange?.(nextVal);
-    } else {
-      setSingleCode(nextVal);
-      onCodeChange?.(nextVal);
-    }
+  // Format time mm:ss
+  const formatTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = Math.floor(seconds % 60);
+    return `${m}:${s.toString().padStart(2, "0")}`;
+  };
 
+  // ─── User Interaction -> Fork Code & Auto-Pause ───────────────────────────
+  const triggerFork = useCallback(() => {
     if (!isForked) {
       setIsForked(true);
-      setForkTimestamp(activeVideoTime || 0);
+      setForkTimestamp(currentTime);
+      setIsPlaying(false);
       onForkChange?.(true);
-
-      // Dispatch event to pause video player
       window.dispatchEvent(
         new CustomEvent("learnify:pause-video", {
-          detail: { forked: true, time: activeVideoTime || 0 },
+          detail: { forked: true, time: currentTime },
         })
       );
       toast.info("Lecture paused for hands-on practice. Click 'Back to Teacher' when done!");
     }
-  }, [activeFileName, isForked, activeVideoTime, isWebMode, onCodeChange, onForkChange]);
+  }, [isForked, currentTime, onForkChange]);
 
-  // "Back to Teacher" restore action
+  const handleEditorChange = useCallback(
+    (value: string | undefined) => {
+      const nextVal = value ?? "";
+      setFiles((prev) => ({ ...prev, [activeFileName]: nextVal }));
+      onCodeChange?.(nextVal);
+      triggerFork();
+    },
+    [activeFileName, onCodeChange, triggerFork]
+  );
+
+  // ─── "Back to Teacher" Restore Action ─────────────────────────────────────
   const handleBackToTeacher = useCallback(() => {
-    if (isWebMode) {
-      setFiles(teacherSnapshot);
-    } else if (injectedCode) {
-      setSingleCode(injectedCode);
-    }
+    setFiles(teacherSnapshot);
     setIsForked(false);
     onForkChange?.(false);
-
-    // Dispatch event to resume video playback
+    setActiveFileName("index.html");
+    if (!openTabs.includes("index.html")) {
+      setOpenTabs((prev) => [...prev, "index.html"]);
+    }
     window.dispatchEvent(new CustomEvent("learnify:resume-video"));
     toast.success("Restored to teacher's checkpoint! Lecture resumed.");
-  }, [teacherSnapshot, injectedCode, isWebMode, onForkChange]);
+    setIsPlaying(true);
+    speakText("Great job! Resuming the lesson from the checkpoint.");
+    setActiveCaption("Resuming teacher walkthrough...");
+  }, [teacherSnapshot, openTabs, onForkChange, speakText]);
 
-  // Listen for remote "Back to Teacher" triggers from video player
-  useEffect(() => {
-    const onRestore = () => handleBackToTeacher();
-    window.addEventListener("learnify:restore-teacher-code", onRestore);
-    return () => window.removeEventListener("learnify:restore-teacher-code", onRestore);
-  }, [handleBackToTeacher]);
-
-  // Run backend code (Python, Java, etc.)
-  const handleRunBackend = useCallback(async () => {
-    setBackendRunning(true);
-    setBackendOutput(null);
-    try {
-      const res = await execFn({
-        data: {
-          language: injectedLang.toLowerCase() || "python",
-          code: singleCode,
-          stdin: "",
-        },
-      });
-      if (res.success) {
-        setBackendOutput({ stdout: res.stdout, stderr: res.stderr, code: res.code });
-      } else {
-        setBackendOutput({ stdout: "", stderr: res.error, code: 1 });
-      }
-    } catch (err: any) {
-      setBackendOutput({ stdout: "", stderr: err?.message || "Execution error", code: 1 });
-    } finally {
-      setBackendRunning(false);
+  // ─── Open File in Editor Tab ──────────────────────────────────────────────
+  const handleSelectFile = (fileName: string) => {
+    if (!openTabs.includes(fileName)) {
+      setOpenTabs((prev) => [...prev, fileName]);
     }
-  }, [singleCode, injectedLang, execFn]);
+    setActiveFileName(fileName);
+    // Opening a different file or exploring files also triggers fork so student can explore
+    triggerFork();
+  };
 
-  // Build live srcDoc for virtual browser
+  const handleCloseTab = (fileName: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const filtered = openTabs.filter((t) => t !== fileName);
+    setOpenTabs(filtered);
+    if (activeFileName === fileName) {
+      setActiveFileName(filtered[filtered.length - 1] || "index.html");
+    }
+  };
+
+  // ─── Toggle Play / Pause ──────────────────────────────────────────────────
+  const togglePlayPause = () => {
+    if (!isPlaying) {
+      setIsPlaying(true);
+      setShowIntroBumper(currentTime < 4);
+      // Play initial clip if starting from zero
+      if (currentTime === 0) {
+        speakText(LESSON_NARRATIONS[0].text);
+        setActiveCaption(LESSON_NARRATIONS[0].caption);
+      }
+    } else {
+      setIsPlaying(false);
+    }
+  };
+
+  // ─── Live Bundled srcDoc with Embedded Food Assets ────────────────────────
   const bundledSrcDoc = useMemo(() => {
-    const html = files["index.html"] || "";
+    let html = files["index.html"] || "";
     const css = files["styles.css"] || "";
     const js = files["index.js"] || "";
 
-    // Intercept console.log and errors to show in bottom tray
+    // Replace image paths with embedded SVG data URIs so they load instantly without 404s
+    Object.entries(FOOD_ASSETS).forEach(([imgPath, asset]) => {
+      const dataUri = svgToDataUri(asset.svg);
+      html = html.split(`src="${imgPath}"`).join(`src="${dataUri}"`);
+      html = html.split(`src='${imgPath}'`).join(`src='${dataUri}'`);
+    });
+
     const consoleInterceptor = `
       <script>
         (function() {
           const sendLog = (type, args) => {
             try {
               window.parent.postMessage({
-                source: "learnify-sandbox",
+                source: "learnify-scrimba-sandbox",
                 type: type,
                 text: Array.from(args).map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(" "),
                 time: new Date().toLocaleTimeString()
@@ -348,24 +754,29 @@ export function ScrimbaWorkspace({
       <\/script>
     `;
 
-    // Inject styles and scripts into HTML
     let rendered = html;
     if (css) {
-      rendered = rendered.replace("</head>", `<style>${css}</style></head>`);
-      if (!rendered.includes("<style>")) rendered = `<style>${css}</style>` + rendered;
+      if (rendered.includes("</head>")) {
+        rendered = rendered.replace("</head>", `<style>${css}</style></head>`);
+      } else {
+        rendered = `<style>${css}</style>` + rendered;
+      }
     }
     if (js) {
-      rendered = rendered.replace("</body>", `${consoleInterceptor}<script>${js}<\/script></body>`);
-      if (!rendered.includes("<script>")) rendered = rendered + `${consoleInterceptor}<script>${js}<\/script>`;
+      if (rendered.includes("</body>")) {
+        rendered = rendered.replace("</body>", `${consoleInterceptor}<script>${js}<\/script></body>`);
+      } else {
+        rendered = rendered + `${consoleInterceptor}<script>${js}<\/script>`;
+      }
     }
 
     return rendered;
   }, [files]);
 
-  // Listen to messages from sandbox iframe
+  // Listen to sandbox messages
   useEffect(() => {
     const handleMessage = (e: MessageEvent) => {
-      if (e.data?.source === "learnify-sandbox") {
+      if (e.data?.source === "learnify-scrimba-sandbox") {
         setConsoleLogs((prev) => [
           ...prev.slice(-49),
           {
@@ -381,368 +792,677 @@ export function ScrimbaWorkspace({
     return () => window.removeEventListener("message", handleMessage);
   }, []);
 
-  const formatTime = (seconds: number) => {
-    const m = Math.floor(seconds / 60);
-    const s = Math.floor(seconds % 60);
-    return `${m}:${s.toString().padStart(2, "0")}`;
-  };
-
-  const getFileIcon = (name: string) => {
-    if (name.endsWith(".html")) return <FileCode className="h-3.5 w-3.5 text-orange-400" />;
-    if (name.endsWith(".css")) return <FileText className="h-3.5 w-3.5 text-blue-400" />;
-    if (name.endsWith(".js")) return <FileCode className="h-3.5 w-3.5 text-yellow-400" />;
-    if (name.endsWith(".json")) return <FileJson className="h-3.5 w-3.5 text-emerald-400" />;
-    return <FileCode className="h-3.5 w-3.5 text-muted-foreground" />;
-  };
+  const isImageFile = activeFileName.startsWith("images/");
+  const activeImageAsset = isImageFile ? FOOD_ASSETS[activeFileName] : null;
 
   return (
-    <div className="flex flex-col rounded-2xl border border-border/80 bg-card shadow-xl overflow-hidden min-h-[580px]">
-      {/* ── Top Bar: Scrimba Status & "Back to Teacher" Control ── */}
-      <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 bg-muted/40 border-b border-border/70 backdrop-blur-md">
-        <div className="flex items-center gap-2.5">
-          <Badge
-            variant="outline"
-            className="bg-indigo-500/10 text-indigo-400 border-indigo-500/30 text-xs font-semibold py-1 px-2.5"
-          >
-            <Sparkles className="h-3.5 w-3.5 mr-1 text-indigo-400 animate-pulse" />
-            Scrimba Interactive Sandbox
-          </Badge>
+    <div className="flex flex-col rounded-2xl border border-slate-800 bg-[#0e111a] text-slate-100 shadow-2xl overflow-hidden min-h-[640px] font-sans select-none">
+      {/* ─── 1. TOP NAV BAR (Frame 001, 007, 008) ──────────────────────────── */}
+      <div className="flex items-center justify-between px-3 sm:px-4 py-2.5 bg-[#141824] border-b border-slate-800/80 text-xs gap-2">
+        {/* Left: Brand Icon + Breadcrumbs + Timer + "BACK TO TEACHER" */}
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="flex items-center gap-1.5 text-sky-400 font-bold shrink-0">
+            <span className="flex gap-0.5">
+              <span className="w-1.5 h-3 bg-sky-400 rounded-sm" />
+              <span className="w-1.5 h-3 bg-indigo-400 rounded-sm" />
+            </span>
+          </div>
 
-          {isForked ? (
-            <div className="flex items-center gap-2">
-              <span className="flex h-2.5 w-2.5 relative">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span>
-              </span>
-              <span className="text-xs font-medium text-amber-400">
-                You Forked the Code (Video Paused)
-              </span>
-            </div>
-          ) : (
-            <div className="flex items-center gap-2">
-              <span className="inline-flex rounded-full h-2 w-2 bg-emerald-500 shadow-sm"></span>
-              <span className="text-xs text-muted-foreground hidden sm:inline">
-                Synced with Teacher ({formatTime(activeVideoTime)})
-              </span>
-            </div>
-          )}
-        </div>
+          <div className="flex items-center gap-1.5 text-slate-400 font-mono text-[11px] truncate">
+            <span>/</span>
+            <span className="hover:text-slate-200 transition truncate">{courseTitle}</span>
+            <span>/</span>
+            <span className="hover:text-slate-200 transition truncate hidden sm:inline">Introduction</span>
+            <span className="hidden sm:inline">/</span>
+            <span className="text-slate-100 font-semibold truncate">{lessonTitle}</span>
+          </div>
 
-        {/* ── Prominent "BACK TO TEACHER" Button ── */}
-        <div className="flex items-center gap-2">
-          {isForked ? (
+          <div className="flex items-center gap-2 shrink-0 font-mono text-[11px] text-slate-300 bg-slate-900/80 px-2 py-0.5 rounded-md border border-slate-700/60">
+            <span>{formatTime(currentTime)}</span>
+            <span className="text-slate-500">/</span>
+            <span className="text-slate-400">{formatTime(totalDuration)}</span>
+          </div>
+
+          {/* ↺ BACK TO TEACHER Button (Frames 007, 008) */}
+          {isForked && (
             <Button
               onClick={handleBackToTeacher}
               size="sm"
-              className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs shadow-md border-0 gap-1.5 transition-all transform hover:scale-105 active:scale-95 animate-in fade-in"
+              className="bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-xs h-7 px-3 gap-1.5 shadow-md shadow-sky-500/20 rounded-full transition-transform hover:scale-105 active:scale-95 animate-in fade-in"
             >
-              <Undo2 className="h-3.5 w-3.5" />
-              BACK TO TEACHER ({formatTime(forkTimestamp)})
-            </Button>
-          ) : (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                setIsForked(true);
-                setForkTimestamp(activeVideoTime);
-                window.dispatchEvent(new CustomEvent("learnify:pause-video"));
-                toast.info("Lecture paused. Start typing in the editor to test your code!");
-              }}
-              className="text-xs gap-1.5 h-8 cursor-pointer"
-            >
-              <Code2 className="h-3.5 w-3.5" />
-              Pause & Practice
+              <RotateCcw className="h-3.5 w-3.5 stroke-[2.5]" />
+              <span>BACK TO TEACHER</span>
             </Button>
           )}
+        </div>
 
-          {!isWebMode && (
-            <Button
-              size="sm"
-              onClick={handleRunBackend}
-              disabled={backendRunning}
-              className="h-8 text-xs gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white"
-            >
-              {backendRunning ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              ) : (
-                <Play className="h-3.5 w-3.5" />
-              )}
-              Run Code
-            </Button>
-          )}
-
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setPreviewKey((k) => k + 1)}
-            title="Reload Preview"
-            className="h-8 w-8 text-muted-foreground hover:text-foreground"
+        {/* Right: Offer Badge, EXPLAIN Button, Viewport Selectors, Avatar */}
+        <div className="flex items-center gap-2 shrink-0">
+          <Badge
+            variant="outline"
+            className="hidden md:inline-flex bg-amber-500/10 text-amber-300 border-amber-500/40 text-[10px] font-mono px-2 py-0.5 font-bold"
           >
-            <RefreshCw className="h-3.5 w-3.5" />
+            <Flame className="h-3 w-3 mr-1 text-amber-400" />
+            35% SALE <span className="ml-1 text-white">00:42:29</span>
+          </Badge>
+
+          {/* (⊙) EXPLAIN Button (Frames 001, 007, 008) */}
+          <Button
+            onClick={() => setShowExplainModal(true)}
+            size="sm"
+            variant="outline"
+            className="h-7 px-2.5 text-[11px] font-bold gap-1 text-sky-400 border-sky-400/30 hover:bg-sky-500/10 hover:text-sky-300 cursor-pointer"
+          >
+            <HelpCircle className="h-3.5 w-3.5" />
+            <span>EXPLAIN</span>
           </Button>
+
+          {/* Mobile responsive tab toggle (< 1024px) */}
+          <div className="flex lg:hidden items-center bg-slate-900 p-0.5 rounded-lg border border-slate-700 text-[11px]">
+            <button
+              onClick={() => setMobileTab("code")}
+              className={cn("px-2 py-1 rounded font-medium", mobileTab === "code" && "bg-indigo-600 text-white font-bold")}
+            >
+              Code
+            </button>
+            <button
+              onClick={() => setMobileTab("preview")}
+              className={cn("px-2 py-1 rounded font-medium", mobileTab === "preview" && "bg-indigo-600 text-white font-bold")}
+            >
+              Preview
+            </button>
+            <button
+              onClick={() => setMobileTab("files")}
+              className={cn("px-2 py-1 rounded font-medium", mobileTab === "files" && "bg-indigo-600 text-white font-bold")}
+            >
+              Files
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* ── Main Workspace Body: File Sidebar + Monaco Editor + Live Browser ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 flex-1 divide-y lg:divide-y-0 lg:divide-x divide-border/60 bg-background/50">
-        {/* ── Left Column: Files Tree (like Scrimba in GIF) ── */}
-        {isWebMode && (
-          <div className="lg:col-span-2 p-3 bg-muted/10 flex flex-col justify-between text-xs font-mono">
-            <div>
-              <div className="flex items-center justify-between pb-2 mb-2 border-b border-border/40 text-[11px] font-bold text-muted-foreground tracking-wider uppercase">
-                <span>FILES</span>
-                <span className="text-[10px] lowercase text-primary font-sans font-semibold">sandbox</span>
-              </div>
-              <div className="space-y-1">
-                <div className="flex items-center gap-1.5 text-muted-foreground px-1 py-1 font-semibold text-[11px]">
-                  <FolderOpen className="h-3.5 w-3.5 text-indigo-400" />
-                  <span>workspace</span>
-                </div>
-                <div className="pl-3 space-y-0.5">
-                  {Object.keys(files).map((fName) => (
-                    <button
-                      key={fName}
-                      onClick={() => setActiveFileName(fName)}
-                      className={cn(
-                        "w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-left transition",
-                        activeFileName === fName
-                          ? "bg-primary/15 text-primary font-bold shadow-sm"
-                          : "text-muted-foreground hover:bg-muted/30 hover:text-foreground"
-                      )}
-                    >
-                      {getFileIcon(fName)}
-                      <span className="truncate">{fName}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="pt-3 border-t border-border/40 text-[10px] text-muted-foreground/80 space-y-1 font-sans">
-              <p>💡 Tip: Click any line to pause & experiment.</p>
-            </div>
-          </div>
-        )}
-
-        {/* ── Center Column: Monaco Code Editor ── */}
-        <div className={cn(isWebMode ? "lg:col-span-5" : "lg:col-span-7", "flex flex-col bg-[#1e1e1e]")}>
-          {/* Editor Tab Bar */}
-          <div className="flex items-center justify-between px-3 py-1.5 bg-[#252526] border-b border-[#333] text-xs">
-            <div className="flex items-center gap-2">
-              <span className="text-white font-mono text-[11px] font-semibold flex items-center gap-1.5">
-                {isWebMode ? getFileIcon(activeFileName) : <Code2 className="h-3.5 w-3.5 text-primary" />}
-                {isWebMode ? activeFileName : `${injectedLang.toUpperCase()} Sandbox`}
-              </span>
-              {isForked && (
-                <Badge variant="outline" className="text-[9px] border-amber-500/40 text-amber-400 py-0 px-1.5">
-                  modified
-                </Badge>
-              )}
-            </div>
-            <span className="text-[10px] text-zinc-400 font-mono">UTF-8</span>
-          </div>
-
-          <div className="flex-1 min-h-[360px] relative">
-            <Editor
-              height="100%"
-              language={
-                isWebMode
-                  ? activeFileName.endsWith(".html")
-                    ? "html"
-                    : activeFileName.endsWith(".css")
-                      ? "css"
-                      : activeFileName.endsWith(".json")
-                        ? "json"
-                        : "javascript"
-                  : injectedLang.toLowerCase() || "python"
-              }
-              theme="vs-dark"
-              value={isWebMode ? files[activeFileName] || "" : singleCode}
-              onChange={handleEditorChange}
-              options={{
-                fontSize: 12,
-                minimap: { enabled: false },
-                lineNumbers: "on",
-                tabSize: 2,
-                automaticLayout: true,
-                padding: { top: 8 },
-                scrollBeyondLastLine: false,
-                fontFamily: "'Fira Code', 'Cascadia Code', Consolas, monospace",
-              }}
-            />
-          </div>
-        </div>
-
-        {/* ── Right Column: Live Virtual Browser / Runner ── */}
-        <div className={cn(isWebMode ? "lg:col-span-5" : "lg:col-span-5", "flex flex-col bg-background min-h-[360px]")}>
-          {isWebMode ? (
-            <>
-              {/* Virtual Browser Chrome Bar (Matching GIF ':8080/') */}
-              <div className="flex items-center justify-between gap-2 px-3 py-2 bg-muted/30 border-b border-border/60 text-xs">
-                <div className="flex items-center gap-1.5">
-                  <span className="h-2.5 w-2.5 rounded-full bg-red-500/80"></span>
-                  <span className="h-2.5 w-2.5 rounded-full bg-yellow-500/80"></span>
-                  <span className="h-2.5 w-2.5 rounded-full bg-green-500/80"></span>
-                </div>
-
-                {/* Address Bar */}
-                <div className="flex-1 max-w-[220px] bg-background border border-border/80 rounded-md px-2.5 py-1 text-[11px] font-mono text-muted-foreground flex items-center gap-1.5 truncate">
-                  <Globe className="h-3 w-3 text-emerald-500 shrink-0" />
-                  <span className="truncate">localhost:8080 /</span>
-                </div>
-
-                {/* Device Viewport Selector */}
-                <div className="flex items-center gap-1">
-                  <button
-                    onClick={() => setDeviceViewport("desktop")}
-                    className={cn(
-                      "p-1 rounded hover:bg-muted text-muted-foreground",
-                      deviceViewport === "desktop" && "text-primary bg-primary/10"
-                    )}
-                    title="Desktop View"
-                  >
-                    <Laptop className="h-3.5 w-3.5" />
-                  </button>
-                  <button
-                    onClick={() => setDeviceViewport("mobile")}
-                    className={cn(
-                      "p-1 rounded hover:bg-muted text-muted-foreground",
-                      deviceViewport === "mobile" && "text-primary bg-primary/10"
-                    )}
-                    title="Mobile View"
-                  >
-                    <Smartphone className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Live Preview Iframe */}
-              <div className="flex-1 bg-white relative flex justify-center items-center overflow-auto">
-                <iframe
-                  key={previewKey}
-                  title="Live Scrimba Sandbox Preview"
-                  sandbox="allow-scripts allow-modals"
-                  srcDoc={bundledSrcDoc}
-                  className={cn(
-                    "h-full border-0 transition-all duration-300",
-                    deviceViewport === "desktop" ? "w-full" : "w-[375px] shadow-2xl border-x border-zinc-200"
-                  )}
-                />
-              </div>
-            </>
-          ) : (
-            /* Backend execution output console */
-            <div className="flex-1 flex flex-col bg-[#12141a] text-zinc-100 p-4 font-mono text-xs overflow-auto">
-              <div className="flex items-center justify-between pb-2 border-b border-zinc-800 mb-2">
-                <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-1.5">
-                  <Terminal className="h-3.5 w-3.5 text-primary" />
-                  Execution Output
-                </span>
-                {backendOutput && (
-                  <Badge
-                    variant="outline"
-                    className={cn(
-                      "text-[10px]",
-                      backendOutput.code === 0
-                        ? "text-emerald-400 border-emerald-500/30"
-                        : "text-red-400 border-red-500/30"
-                    )}
-                  >
-                    Exit code: {backendOutput.code}
-                  </Badge>
-                )}
-              </div>
-
-              <div className="flex-1 overflow-auto whitespace-pre-wrap">
-                {backendRunning ? (
-                  <div className="flex items-center gap-2 text-zinc-400 py-4">
-                    <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                    <span>Executing code in cloud sandbox...</span>
-                  </div>
-                ) : backendOutput ? (
-                  backendOutput.stdout || backendOutput.stderr ? (
-                    <>
-                      {backendOutput.stdout && <div className="text-zinc-200">{backendOutput.stdout}</div>}
-                      {backendOutput.stderr && <div className="text-red-400 mt-2">{backendOutput.stderr}</div>}
-                    </>
-                  ) : (
-                    <span className="text-zinc-500 italic">Program finished with empty output.</span>
-                  )
-                ) : (
-                  <span className="text-zinc-500 italic">Click "Run Code" above to execute and view output.</span>
-                )}
-              </div>
-            </div>
+      {/* ─── 2. MAIN WORKSPACE (Files + Editor + Live Runner) ─────────────── */}
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-slate-800/80 bg-[#090D16] relative overflow-hidden">
+        {/* ─── Left Pane: Files Sidebar (Frames 001, 007, 008) ────────────── */}
+        <div
+          className={cn(
+            "lg:col-span-2 p-3 bg-[#0d111c] text-xs font-mono flex flex-col justify-between overflow-y-auto",
+            mobileTab !== "files" && "hidden lg:flex"
           )}
-
-          {/* ── Bottom Tray (Runner / Console matching GIF) ── */}
-          {isWebMode && (
-            <div className="border-t border-border/70 bg-card/95">
-              <div className="flex items-center justify-between px-3 py-1.5 border-b border-border/50 text-[11px]">
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => setBottomTab("runner")}
-                    className={cn(
-                      "font-semibold transition flex items-center gap-1",
-                      bottomTab === "runner" ? "text-primary" : "text-muted-foreground hover:text-foreground"
-                    )}
-                  >
-                    <Layers className="h-3 w-3" /> Runner
-                  </button>
-                  <button
-                    onClick={() => setBottomTab("console")}
-                    className={cn(
-                      "font-semibold transition flex items-center gap-1",
-                      bottomTab === "console" ? "text-primary" : "text-muted-foreground hover:text-foreground"
-                    )}
-                  >
-                    <Terminal className="h-3 w-3" /> Console {consoleLogs.length > 0 && `(${consoleLogs.length})`}
-                  </button>
-                </div>
-                {consoleLogs.length > 0 && (
-                  <button
-                    onClick={() => setConsoleLogs([])}
-                    className="text-[10px] text-muted-foreground hover:text-foreground"
-                  >
-                    Clear logs
-                  </button>
-                )}
+        >
+          <div>
+            <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-800 text-[11px] font-bold text-slate-400 tracking-wider">
+              <span>FILES</span>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => toast.info("Create file in virtual sandbox")}
+                  className="hover:text-slate-100 p-0.5 rounded"
+                  title="New File"
+                >
+                  <FilePlus className="h-3.5 w-3.5" />
+                </button>
+                <button
+                  onClick={() => setIsImagesFolderOpen((o) => !o)}
+                  className="hover:text-slate-100 p-0.5 rounded"
+                  title="Toggle Folders"
+                >
+                  <FolderPlus className="h-3.5 w-3.5" />
+                </button>
               </div>
+            </div>
 
-              <div className="p-2.5 max-h-28 overflow-y-auto font-mono text-[11px] bg-background/80">
-                {bottomTab === "runner" ? (
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
-                    <span>In-memory sandbox server running live. Keystroke updates sync instantaneously.</span>
-                  </div>
-                ) : consoleLogs.length === 0 ? (
-                  <div className="text-muted-foreground italic">No console messages recorded.</div>
+            {/* Folder: images/ (Frames 007, 008) */}
+            <div className="space-y-0.5">
+              <button
+                onClick={() => setIsImagesFolderOpen((o) => !o)}
+                className="w-full flex items-center gap-1.5 px-1.5 py-1 text-slate-300 hover:text-white rounded hover:bg-slate-800/50 text-[11px] font-semibold text-left"
+              >
+                {isImagesFolderOpen ? (
+                  <FolderOpen className="h-3.5 w-3.5 text-sky-400" />
                 ) : (
-                  <div className="space-y-1">
-                    {consoleLogs.map((log) => (
-                      <div
-                        key={log.id}
+                  <Folder className="h-3.5 w-3.5 text-sky-400" />
+                )}
+                <span>images</span>
+              </button>
+
+              {isImagesFolderOpen && (
+                <div className="pl-4 space-y-0.5 border-l border-slate-800 ml-2">
+                  {Object.keys(FOOD_ASSETS).map((imgPath) => {
+                    const shortName = imgPath.replace("images/", "");
+                    const isSelected = activeFileName === imgPath;
+                    return (
+                      <button
+                        key={imgPath}
+                        onClick={() => handleSelectFile(imgPath)}
                         className={cn(
-                          "flex items-start gap-2",
-                          log.type === "error"
-                            ? "text-destructive"
-                            : log.type === "warn"
-                              ? "text-amber-500"
-                              : "text-foreground"
+                          "w-full flex items-center gap-1.5 px-2 py-1 rounded text-left transition text-[11px] truncate",
+                          isSelected
+                            ? "bg-sky-500/20 text-sky-300 font-bold"
+                            : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/40"
                         )}
                       >
-                        <span className="text-[10px] text-muted-foreground shrink-0">{log.time}</span>
-                        <span className="break-all">{log.text}</span>
-                      </div>
-                    ))}
+                        <ImageIcon className="h-3 w-3 text-sky-400 shrink-0" />
+                        <span className="truncate">{shortName}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Code Files */}
+              <button
+                onClick={() => handleSelectFile("index.html")}
+                className={cn(
+                  "w-full flex items-center gap-2 px-2 py-1.5 rounded text-left transition text-[11px]",
+                  activeFileName === "index.html"
+                    ? "bg-slate-800 text-sky-400 font-bold"
+                    : "text-slate-300 hover:text-white hover:bg-slate-800/40"
+                )}
+              >
+                <span className="text-orange-400 font-bold">&lt;&gt;</span>
+                <span>index.html</span>
+              </button>
+
+              <button
+                onClick={() => handleSelectFile("index.js")}
+                className={cn(
+                  "w-full flex items-center gap-2 px-2 py-1.5 rounded text-left transition text-[11px]",
+                  activeFileName === "index.js"
+                    ? "bg-slate-800 text-yellow-400 font-bold"
+                    : "text-slate-300 hover:text-white hover:bg-slate-800/40"
+                )}
+              >
+                <span className="text-yellow-400 font-bold">JS</span>
+                <span>index.js</span>
+              </button>
+
+              <button
+                onClick={() => handleSelectFile("styles.css")}
+                className={cn(
+                  "w-full flex items-center gap-2 px-2 py-1.5 rounded text-left transition text-[11px]",
+                  activeFileName === "styles.css"
+                    ? "bg-slate-800 text-sky-400 font-bold"
+                    : "text-slate-300 hover:text-white hover:bg-slate-800/40"
+                )}
+              >
+                <span className="text-sky-400 font-bold">#</span>
+                <span>styles.css</span>
+              </button>
+            </div>
+
+            {/* Configuration Header */}
+            <div className="pt-4 mt-4 border-t border-slate-800">
+              <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider block mb-1">
+                Configuration
+              </span>
+              <button
+                onClick={() => handleSelectFile("package-lock.json")}
+                className={cn(
+                  "w-full flex items-center gap-1.5 px-2 py-1 rounded text-left transition text-[11px]",
+                  activeFileName === "package-lock.json"
+                    ? "bg-slate-800 text-red-400 font-bold"
+                    : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/40"
+                )}
+              >
+                <span className="text-[9px] bg-red-950 text-red-400 px-1 rounded font-bold">npm</span>
+                <span className="truncate">package-lock.json</span>
+              </button>
+            </div>
+          </div>
+
+          <div className="pt-3 border-t border-slate-800/80 text-[10px] text-slate-500 space-y-1">
+            <p>💡 Click any line of code to fork & start practicing.</p>
+          </div>
+        </div>
+
+        {/* ─── Center Pane: Editor / Image Showcase (Frames 001, 007, 008) ─── */}
+        <div
+          className={cn(
+            "lg:col-span-5 flex flex-col bg-[#0b0e17] relative",
+            mobileTab !== "code" && "hidden lg:flex"
+          )}
+        >
+          {/* File Tabs Bar */}
+          <div className="flex items-center justify-between px-2 bg-[#121622] border-b border-slate-800 text-xs overflow-x-auto scrollbar-none">
+            <div className="flex items-center gap-1">
+              {openTabs.map((tab) => {
+                const isActive = activeFileName === tab;
+                const isTabImage = tab.startsWith("images/");
+                return (
+                  <div
+                    key={tab}
+                    onClick={() => setActiveFileName(tab)}
+                    className={cn(
+                      "flex items-center gap-1.5 px-3 py-1.5 border-t-2 text-[11px] font-mono cursor-pointer transition",
+                      isActive
+                        ? "bg-[#0b0e17] border-sky-400 text-white font-semibold"
+                        : "border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/30"
+                    )}
+                  >
+                    {isTabImage ? (
+                      <ImageIcon className="h-3 w-3 text-sky-400" />
+                    ) : tab.endsWith(".html") ? (
+                      <span className="text-orange-400 font-bold">&lt;&gt;</span>
+                    ) : tab.endsWith(".js") ? (
+                      <span className="text-yellow-400 font-bold">JS</span>
+                    ) : tab.endsWith(".css") ? (
+                      <span className="text-sky-400 font-bold">#</span>
+                    ) : (
+                      <FileJson className="h-3 w-3 text-red-400" />
+                    )}
+                    <span className="truncate max-w-[120px]">{tab.replace("images/", "")}</span>
+                    {openTabs.length > 1 && (
+                      <button
+                        onClick={(e) => handleCloseTab(tab, e)}
+                        className="hover:text-red-400 text-slate-500 rounded p-0.5 ml-1"
+                      >
+                        <X className="h-2.5 w-2.5" />
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="flex items-center gap-2 pr-2 text-[10px] text-slate-400 font-mono">
+              <span>UTF-8</span>
+            </div>
+          </div>
+
+          {/* Editor Body or Image Showcase */}
+          <div className="flex-1 min-h-[380px] relative overflow-hidden flex flex-col">
+            {isImageFile && activeImageAsset ? (
+              /* Image Showcase (Frame 008) */
+              <div className="flex-1 flex flex-col items-center justify-center p-6 bg-[#090C15] space-y-4">
+                <div
+                  className="w-48 h-48 sm:w-56 sm:h-56 p-4 rounded-2xl bg-slate-900/60 border border-slate-800 flex items-center justify-center shadow-2xl transition-transform hover:scale-105"
+                  dangerouslySetInnerHTML={{ __html: activeImageAsset.svg }}
+                />
+                <div className="text-center space-y-1">
+                  <Badge variant="outline" className="text-sky-400 border-sky-500/30 bg-sky-500/10">
+                    {activeFileName}
+                  </Badge>
+                  <p className="text-xs text-slate-400 font-mono">Asset Dimensions: 512 × 512 PNG/SVG</p>
+                </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleSelectFile("index.html")}
+                  className="text-xs text-slate-300 border-slate-700 hover:text-white"
+                >
+                  <ArrowRight className="h-3.5 w-3.5 mr-1" />
+                  Back to index.html
+                </Button>
+              </div>
+            ) : (
+              /* Monaco Code Editor (Frames 001, 007) */
+              <div className="flex-1 relative">
+                <Editor
+                  height="100%"
+                  language={
+                    activeFileName.endsWith(".html")
+                      ? "html"
+                      : activeFileName.endsWith(".css")
+                        ? "css"
+                        : activeFileName.endsWith(".json")
+                          ? "json"
+                          : "javascript"
+                  }
+                  theme="vs-dark"
+                  value={files[activeFileName] || ""}
+                  onChange={handleEditorChange}
+                  options={{
+                    fontSize: 13,
+                    minimap: { enabled: false },
+                    lineNumbers: "on",
+                    tabSize: 2,
+                    automaticLayout: true,
+                    padding: { top: 12 },
+                    scrollBeyondLastLine: false,
+                    fontFamily: "'Fira Code', 'Cascadia Code', Consolas, monospace",
+                  }}
+                />
+
+                {/* Translucent Center Play Button Overlay When Paused (Frame 001) */}
+                {!isPlaying && (
+                  <div
+                    onClick={togglePlayPause}
+                    className="absolute inset-0 bg-slate-950/20 backdrop-blur-[1px] flex items-center justify-center cursor-pointer group transition-all"
+                  >
+                    <div className="w-16 h-16 rounded-full bg-sky-500/20 border-2 border-sky-400/40 flex items-center justify-center text-sky-400 group-hover:scale-110 group-hover:bg-sky-500/30 group-hover:border-sky-400 shadow-2xl transition-transform">
+                      <Play className="h-8 w-8 fill-sky-400 ml-1" />
+                    </div>
                   </div>
                 )}
               </div>
-            </div>
+            )}
+
+            {/* Frame 002: Warm Sunset Intro Bumper Card */}
+            {showIntroBumper && (
+              <div
+                onClick={() => setShowIntroBumper(false)}
+                className="absolute inset-4 z-20 rounded-2xl bg-gradient-to-br from-amber-600/90 via-orange-600/90 to-rose-700/90 p-8 text-white flex flex-col justify-between shadow-2xl backdrop-blur-md cursor-pointer animate-in fade-in zoom-in-95 duration-300"
+              >
+                <div className="flex justify-between items-center text-xs tracking-widest uppercase font-mono font-bold text-amber-200">
+                  <span>SCRIMBA</span>
+                  <span className="text-[10px] text-white/70">Click to enter code</span>
+                </div>
+
+                <div className="my-auto text-center space-y-2">
+                  <h2 className="text-3xl sm:text-4xl font-extrabold font-display tracking-tight text-white drop-shadow-md">
+                    {lessonTitle}
+                  </h2>
+                  <p className="text-sm sm:text-base font-semibold text-amber-100">
+                    Teacher: {instructorName}
+                  </p>
+                </div>
+
+                <div className="bg-slate-950/70 border border-white/20 rounded-xl px-4 py-2.5 text-center text-xs sm:text-sm font-medium text-slate-100 backdrop-blur-sm mx-auto max-w-lg">
+                  <span className="font-bold text-sky-400 mr-2">SCRIMBA:</span>
+                  My name is {instructorName}, and you&apos;ll be hearing challenges in order to learn the ropes.
+                </div>
+              </div>
+            )}
+
+            {/* Floating Live Captions Bar (Frame 001, 007, 008) */}
+            {captionsEnabled && activeCaption && (
+              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 max-w-md w-[90%] text-center">
+                <div className="inline-block bg-slate-950/90 text-slate-100 border border-slate-700/80 px-4 py-1.5 rounded-xl text-xs sm:text-sm font-medium shadow-2xl backdrop-blur-md tracking-wide">
+                  {activeCaption}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ─── Right Pane: Live Virtual Browser / Runner (Frames 001, 007) ─── */}
+        <div
+          className={cn(
+            "lg:col-span-5 flex flex-col bg-[#0d101a] min-h-[380px]",
+            mobileTab !== "preview" && "hidden lg:flex"
           )}
+        >
+          {/* Virtual Browser Top Bar (:8080/) */}
+          <div className="flex items-center justify-between gap-2 px-3 py-2 bg-[#141824] border-b border-slate-800 text-xs">
+            <div className="flex items-center gap-1.5">
+              <span className="h-2.5 w-2.5 rounded-full bg-red-500/80" />
+              <span className="h-2.5 w-2.5 rounded-full bg-yellow-500/80" />
+              <span className="h-2.5 w-2.5 rounded-full bg-green-500/80" />
+            </div>
+
+            {/* Browser URL Input */}
+            <div className="flex-1 max-w-[240px] bg-slate-900 border border-slate-700/80 rounded-md px-2.5 py-1 text-[11px] font-mono text-slate-300 flex items-center justify-between truncate">
+              <div className="flex items-center gap-1.5 truncate">
+                <Globe className="h-3 w-3 text-emerald-400 shrink-0" />
+                <span className="truncate">:8080 /</span>
+              </div>
+              <button
+                onClick={() => setPreviewKey((k) => k + 1)}
+                className="hover:text-white text-slate-400"
+                title="Refresh preview"
+              >
+                <RefreshCw className="h-3 w-3" />
+              </button>
+            </div>
+
+            {/* Viewport Width (Desktop / Mobile) */}
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setDeviceViewport("desktop")}
+                className={cn(
+                  "p-1 rounded text-slate-400 hover:text-white",
+                  deviceViewport === "desktop" && "text-sky-400 bg-sky-500/10"
+                )}
+                title="Desktop View"
+              >
+                <Laptop className="h-3.5 w-3.5" />
+              </button>
+              <button
+                onClick={() => setDeviceViewport("mobile")}
+                className={cn(
+                  "p-1 rounded text-slate-400 hover:text-white",
+                  deviceViewport === "mobile" && "text-sky-400 bg-sky-500/10"
+                )}
+                title="Mobile 375px View"
+              >
+                <Smartphone className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          </div>
+
+          {/* Iframe Preview Container */}
+          <div className="flex-1 bg-white relative flex justify-center items-center overflow-auto min-h-[340px]">
+            <iframe
+              key={previewKey}
+              title="Live Scrimba Sandbox Preview"
+              sandbox="allow-scripts allow-modals"
+              srcDoc={bundledSrcDoc}
+              className={cn(
+                "h-full border-0 transition-all duration-300",
+                deviceViewport === "desktop" ? "w-full" : "w-[375px] shadow-2xl border-x border-slate-300"
+              )}
+            />
+          </div>
+
+          {/* ─── Runner / Console Tray ─────────────────────────────────────── */}
+          <div className="border-t border-slate-800 bg-[#121622]">
+            <div className="flex items-center justify-between px-3 py-1.5 border-b border-slate-800 text-[11px]">
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setBottomTab("runner")}
+                  className={cn(
+                    "font-semibold transition flex items-center gap-1 cursor-pointer",
+                    bottomTab === "runner" ? "text-sky-400" : "text-slate-400 hover:text-slate-200"
+                  )}
+                >
+                  <Layers className="h-3 w-3" /> ◇ Runner
+                </button>
+                <button
+                  onClick={() => setBottomTab("console")}
+                  className={cn(
+                    "font-semibold transition flex items-center gap-1 cursor-pointer",
+                    bottomTab === "console" ? "text-sky-400" : "text-slate-400 hover:text-slate-200"
+                  )}
+                >
+                  <Terminal className="h-3 w-3" /> := Console {consoleLogs.length > 0 && `(${consoleLogs.length})`}
+                </button>
+              </div>
+              {consoleLogs.length > 0 && (
+                <button
+                  onClick={() => setConsoleLogs([])}
+                  className="text-[10px] text-slate-400 hover:text-slate-200"
+                >
+                  Clear logs
+                </button>
+              )}
+            </div>
+
+            <div className="p-2.5 max-h-24 overflow-y-auto font-mono text-[11px] bg-[#090c14]">
+              {bottomTab === "runner" ? (
+                <div className="flex items-center gap-2 text-slate-400">
+                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+                  <span>Virtual dev server active at :8080. Hot reload active on keystrokes.</span>
+                </div>
+              ) : consoleLogs.length === 0 ? (
+                <div className="text-slate-500 italic">No console logs yet. Click ingredients in the preview to test!</div>
+              ) : (
+                <div className="space-y-1">
+                  {consoleLogs.map((log) => (
+                    <div
+                      key={log.id}
+                      className={cn(
+                        "flex items-start gap-2",
+                        log.type === "error"
+                          ? "text-rose-400"
+                          : log.type === "warn"
+                            ? "text-amber-400"
+                            : "text-slate-200"
+                      )}
+                    >
+                      <span className="text-[10px] text-slate-500 shrink-0">{log.time}</span>
+                      <span className="break-all">{log.text}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
+
+      {/* ─── 3. BOTTOM TRANSPORT BAR (Frames 001, 007, 008) ───────────────── */}
+      <div className="px-3 sm:px-4 py-2.5 bg-[#121622] border-t border-slate-800 flex flex-col gap-1.5">
+        {/* Timeline Scrubber with Ghost Markers */}
+        <div className="relative flex items-center group cursor-pointer pt-1">
+          <input
+            type="range"
+            min={0}
+            max={totalDuration}
+            value={currentTime}
+            onChange={(e) => {
+              const val = Number(e.target.value);
+              setCurrentTime(val);
+              // Find matching caption
+              const match = [...LESSON_NARRATIONS].reverse().find((c) => c.time <= val);
+              if (match) setActiveCaption(match.caption);
+            }}
+            className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-sky-400"
+          />
+
+          {/* Ghost Markers for Interactive Practice Points (Frames 001, 007) */}
+          <div
+            style={{ left: `${(31 / totalDuration) * 100}%` }}
+            className="absolute top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-purple-400 border border-slate-900 pointer-events-none shadow"
+            title="Ghost Marker: Challenge Point (0:31)"
+          />
+          <div
+            style={{ left: `${(135 / totalDuration) * 100}%` }}
+            className="absolute top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-purple-400 border border-slate-900 pointer-events-none shadow"
+            title="Ghost Marker: Challenge Point (2:15)"
+          />
+          <div
+            style={{ left: `${(285 / totalDuration) * 100}%` }}
+            className="absolute top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-purple-400 border border-slate-900 pointer-events-none shadow"
+            title="Ghost Marker: Challenge Point (4:45)"
+          />
+        </div>
+
+        {/* Transport Controls Row */}
+        <div className="flex items-center justify-between text-xs pt-1">
+          <div className="flex items-center gap-3">
+            {/* Play / Pause Toggle */}
+            <button
+              onClick={togglePlayPause}
+              className="w-8 h-8 rounded-lg bg-sky-500 hover:bg-sky-400 text-slate-950 flex items-center justify-center font-bold transition shadow-sm cursor-pointer"
+            >
+              {isPlaying ? <Pause className="h-4 w-4 fill-slate-950" /> : <Play className="h-4 w-4 fill-slate-950 ml-0.5" />}
+            </button>
+
+            {/* Time Indicator */}
+            <span className="font-mono text-[11px] text-slate-300">
+              {formatTime(currentTime)} <span className="text-slate-500">/</span> {formatTime(totalDuration)}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Volume / Mute Toggle */}
+            <button
+              onClick={() => setIsMuted((m) => !m)}
+              className="text-slate-400 hover:text-white p-1 rounded transition"
+              title={isMuted ? "Unmute Voice" : "Mute Voice"}
+            >
+              {isMuted ? <VolumeX className="h-4 w-4 text-rose-400" /> : <Volume2 className="h-4 w-4" />}
+            </button>
+
+            {/* Closed Captions CC Toggle (Frames 001, 007) */}
+            <button
+              onClick={() => setCaptionsEnabled((c) => !c)}
+              className={cn(
+                "px-2 py-0.5 rounded text-[10px] font-bold font-mono transition",
+                captionsEnabled
+                  ? "bg-sky-500/20 text-sky-400 border border-sky-400/40"
+                  : "text-slate-500 hover:text-slate-300"
+              )}
+              title="Toggle Subtitles"
+            >
+              CC
+            </button>
+
+            {/* Playback Speed */}
+            <button
+              onClick={() => {
+                const speeds = [1, 1.25, 1.5, 2];
+                const nextIdx = (speeds.indexOf(playbackSpeed) + 1) % speeds.length;
+                setPlaybackSpeed(speeds[nextIdx]);
+              }}
+              className="font-mono text-[11px] font-bold text-slate-400 hover:text-white px-1.5 py-0.5 rounded"
+              title="Playback Speed"
+            >
+              {playbackSpeed}x
+            </button>
+
+            <span className="text-slate-600 hidden sm:inline">|</span>
+            <span className="text-[11px] font-mono text-slate-400 hidden sm:inline">ENGLISH</span>
+          </div>
+        </div>
+      </div>
+
+      {/* ─── 4. AI CODE EXPLAIN MODAL ──────────────────────────────────────── */}
+      {showExplainModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#121624] border border-slate-700 rounded-2xl max-w-lg w-full p-6 text-slate-100 shadow-2xl space-y-4 animate-in fade-in zoom-in-95">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-sky-400" />
+                <h3 className="font-bold font-display text-base text-white">
+                  AI Code Explanation: {activeFileName}
+                </h3>
+              </div>
+              <button
+                onClick={() => setShowExplainModal(false)}
+                className="text-slate-400 hover:text-white p-1 rounded"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs leading-relaxed text-slate-300">
+              <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
+                <span className="font-bold text-sky-300 block">HTML Architecture:</span>
+                <p>
+                  The structure defines a 4-column CSS grid recipe layout containing 8 food items. The egg item contains
+                  the class <code className="text-amber-300">.scared</code> which activates the CSS keyframe shake on hover.
+                </p>
+              </div>
+
+              <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
+                <span className="font-bold text-indigo-300 block">CSS Micro-Interaction:</span>
+                <p>
+                  The <code className="text-sky-300">@keyframes shake</code> animation applies subtle rotational and translational
+                  deviations across 10 keyframes, producing a playful reaction when the user hovers over the egg.
+                </p>
+              </div>
+
+              <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
+                <span className="font-bold text-emerald-300 block">Virtual Dev Server:</span>
+                <p>
+                  Live changes hot-reload directly into the virtual runner at port 8080 without full page reloads.
+                </p>
+              </div>
+            </div>
+
+            <div className="pt-2 flex justify-end">
+              <Button
+                onClick={() => setShowExplainModal(false)}
+                size="sm"
+                className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs"
+              >
+                Got It
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

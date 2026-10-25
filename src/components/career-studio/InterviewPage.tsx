@@ -44,6 +44,8 @@ import {
   ExternalLink,
   Layers,
   CheckCheck,
+  X,
+  Camera,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
@@ -79,9 +81,10 @@ const DIFFICULTIES = [
 ];
 
 const MODES = [
-  { id: "video", label: "Video & Audio", icon: Video, desc: "Camera & microphone practice" },
-  { id: "voice", label: "Audio Only", icon: Mic, desc: "Speak answers without webcam" },
-  { id: "chat", label: "Written Response", icon: MessageSquare, desc: "Type answers directly" },
+  { id: "studio", label: "Studio Avatar", icon: Sparkles, desc: "Interactive avatar · Text & voice (Zero camera needed)" },
+  { id: "video", label: "Live Webcam HD", icon: Video, desc: "Webcam video & microphone broadcast" },
+  { id: "voice", label: "Audio Only", icon: Mic, desc: "Microphone speech without webcam" },
+  { id: "chat", label: "Text Only", icon: MessageSquare, desc: "Fast typing with instant AI evaluation" },
 ];
 
 interface Evaluation {
@@ -422,6 +425,8 @@ function HumanInterviewerDisplay({
 function CandidateStudioDisplay({
   cameraActive,
   micActive,
+  cameraStatus,
+  micStatus,
   isRecording,
   recordingTime,
   audioLevel,
@@ -435,6 +440,8 @@ function CandidateStudioDisplay({
 }: {
   cameraActive: boolean;
   micActive: boolean;
+  cameraStatus?: "granted" | "denied" | "unavailable" | "prompt";
+  micStatus?: "granted" | "denied" | "unavailable" | "prompt";
   isRecording: boolean;
   recordingTime: number;
   audioLevel: number;
@@ -466,6 +473,11 @@ function CandidateStudioDisplay({
           <span className="font-display tracking-tight text-white font-bold">
             {cameraActive ? "Live Webcam (HD)" : "Studio Candidate Avatar"}
           </span>
+          {!cameraActive && (
+            <Badge className="bg-indigo-500/20 text-indigo-300 border-indigo-500/30 text-[9px] px-1.5 py-0 font-medium ml-1">
+              Zero Camera Needed
+            </Badge>
+          )}
         </div>
 
         <div className="flex items-center gap-2">
@@ -482,7 +494,7 @@ function CandidateStudioDisplay({
               variant="outline"
               className={cn(
                 "text-[10px] flex items-center gap-1.5 px-2.5 py-0.5 backdrop-blur-md font-medium",
-                micActive
+                micActive && micStatus !== "denied"
                   ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-400"
                   : "border-slate-700 bg-slate-900/80 text-slate-400",
               )}
@@ -490,10 +502,14 @@ function CandidateStudioDisplay({
               <span
                 className={cn(
                   "h-1.5 w-1.5 rounded-full",
-                  micActive ? (audioLevel > 0.15 ? "bg-emerald-400 scale-125" : "bg-emerald-500") : "bg-slate-500",
+                  micActive && micStatus !== "denied"
+                    ? audioLevel > 0.15
+                      ? "bg-emerald-400 scale-125"
+                      : "bg-emerald-500"
+                    : "bg-slate-500",
                 )}
               />
-              {micActive ? "Mic Active" : "Mic Muted"}
+              {micActive && micStatus !== "denied" ? "Mic Active" : "Text Response Mode"}
             </Badge>
           )}
 
@@ -501,8 +517,8 @@ function CandidateStudioDisplay({
             size="sm"
             variant="ghost"
             onClick={onOpenTroubleshooter}
-            className="h-7 w-7 p-0 rounded-full bg-slate-900/80 hover:bg-slate-800 text-slate-300 border border-slate-700/60"
-            title="Camera & Microphone Diagnostics"
+            className="h-7 w-7 p-0 rounded-full bg-slate-900/80 hover:bg-slate-800 text-slate-300 border border-slate-700/60 cursor-pointer"
+            title="Camera & Microphone Settings"
           >
             <HelpCircle className="h-3.5 w-3.5" />
           </Button>
@@ -571,9 +587,21 @@ function CandidateStudioDisplay({
               <p className="text-sm font-display font-bold text-white tracking-tight">
                 {candidateName}
               </p>
-              <p className="text-[11px] text-slate-400 font-medium">
-                {studioAvatarMode ? "Virtual Studio Presence Active" : "Webcam Off · Audio / Text Active"}
-              </p>
+              <div className="flex items-center justify-center gap-1.5 mt-0.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                <p className="text-[11px] text-slate-300 font-medium">
+                  Studio Interactive Mode Active · Ready for Response
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={onToggleCamera}
+                className="mt-2 text-[10px] text-indigo-300 hover:text-white bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 px-3 py-1 rounded-full inline-flex items-center gap-1.5 transition-all cursor-pointer shadow-sm"
+              >
+                <Camera className="h-3 w-3 text-indigo-400" />
+                <span>Enable Live Webcam</span>
+              </button>
             </div>
 
             {/* Live Reactive Audio Spectrum Waveform */}
@@ -599,13 +627,13 @@ function CandidateStudioDisplay({
             onClick={onToggleMic}
             className={cn(
               "h-8 px-3 text-xs font-semibold gap-1.5 rounded-xl transition-all cursor-pointer border",
-              micActive
+              micActive && micStatus !== "denied"
                 ? "bg-slate-900/90 hover:bg-slate-800 border-slate-700/80 text-slate-100 shadow-sm"
                 : "bg-rose-500/15 hover:bg-rose-500/25 border-rose-500/40 text-rose-300",
             )}
             title={micActive ? "Mute Microphone" : "Unmute Microphone"}
           >
-            {micActive ? (
+            {micActive && micStatus !== "denied" ? (
               <>
                 <Mic className="h-3.5 w-3.5 text-emerald-400" />
                 <span>Mic On</span>
@@ -645,7 +673,7 @@ function CandidateStudioDisplay({
           </Button>
         </div>
 
-        {/* Primary Dictation Trigger */}
+        {/* Primary Dictation / Text Action */}
         <Button
           size="sm"
           variant={isRecording ? "destructive" : "default"}
@@ -662,10 +690,15 @@ function CandidateStudioDisplay({
               <MicOff className="h-3.5 w-3.5 mr-1.5 animate-spin" />
               <span>Stop Dictation</span>
             </>
-          ) : (
+          ) : micActive && micStatus !== "denied" ? (
             <>
               <Mic className="h-3.5 w-3.5 mr-1.5" />
               <span>Voice Answer</span>
+            </>
+          ) : (
+            <>
+              <MessageSquare className="h-3.5 w-3.5 mr-1.5" />
+              <span>Type Answer</span>
             </>
           )}
         </Button>
@@ -685,11 +718,14 @@ function DeviceTroubleshooterModal({
 }: {
   isOpen: boolean;
   onClose: () => void;
-  onRetryDevices: () => void;
-  onUseStudioMode: () => void;
+  onRetryDevices: (explicit?: boolean) => void;
+  onUseStudioMode: (savePreference?: boolean) => void;
   cameraStatus: "granted" | "denied" | "unavailable" | "prompt";
   micStatus: "granted" | "denied" | "unavailable" | "prompt";
 }) {
+  const [rememberChoice, setRememberChoice] = useState(true);
+  const [activeTab, setActiveTab] = useState<"options" | "browser-guide">("options");
+
   if (!isOpen) return null;
 
   return (
@@ -699,120 +735,235 @@ function DeviceTroubleshooterModal({
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-md rounded-3xl border border-slate-700/80 bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 p-6 shadow-2xl text-slate-100"
+        className="relative w-full max-w-lg rounded-3xl border border-slate-700/80 bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 p-6 shadow-2xl text-slate-100"
         style={{ animation: "dialog-in 0.25s ease-out" }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-2xl bg-indigo-500/15 border border-indigo-500/30 flex items-center justify-center text-indigo-400 shrink-0">
-            <SlidersHorizontal className="h-5 w-5" />
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-indigo-500/15 border border-indigo-500/30 flex items-center justify-center text-indigo-400 shrink-0">
+              <SlidersHorizontal className="h-5 w-5" />
+            </div>
+            <div>
+              <h3 className="text-base font-display font-bold text-white">Device & Studio Settings</h3>
+              <p className="text-xs text-slate-400">Configure how you'd like to practice your interview</p>
+            </div>
           </div>
-          <div>
-            <h3 className="text-base font-display font-bold text-white">Device & Permission Helper</h3>
-            <p className="text-xs text-slate-400">Configure camera and audio for seamless interview prep</p>
-          </div>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-full bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer transition-colors"
+          >
+            <X className="h-4 w-4" />
+          </button>
         </div>
 
-        {/* Device Status Cards */}
-        <div className="space-y-2.5 mb-5">
-          <div className="flex items-center justify-between p-3 rounded-2xl bg-slate-800/60 border border-slate-700/60 text-xs">
-            <div className="flex items-center gap-2.5">
-              <Video className="h-4 w-4 text-indigo-400" />
-              <div>
-                <p className="font-semibold text-slate-200">Webcam Hardware</p>
-                <p className="text-[11px] text-slate-400">
-                  {cameraStatus === "granted"
-                    ? "Camera allowed & active"
-                    : cameraStatus === "denied"
-                      ? "Permission blocked in browser"
-                      : cameraStatus === "unavailable"
-                        ? "No camera device detected"
-                        : "Ready to request access"}
-                </p>
+        {/* Tab Switch */}
+        <div className="grid grid-cols-2 gap-2 mb-4 p-1 bg-slate-950/60 rounded-xl border border-slate-800 text-xs">
+          <button
+            type="button"
+            onClick={() => setActiveTab("options")}
+            className={cn(
+              "py-1.5 px-3 rounded-lg font-semibold transition-all cursor-pointer",
+              activeTab === "options"
+                ? "bg-indigo-600 text-white shadow-sm"
+                : "text-slate-400 hover:text-slate-200",
+            )}
+          >
+            Choose Mode
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab("browser-guide")}
+            className={cn(
+              "py-1.5 px-3 rounded-lg font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5",
+              activeTab === "browser-guide"
+                ? "bg-indigo-600 text-white shadow-sm"
+                : "text-slate-400 hover:text-slate-200",
+            )}
+          >
+            <HelpCircle className="h-3.5 w-3.5" /> Browser Permissions
+          </button>
+        </div>
+
+        {activeTab === "options" ? (
+          <div className="space-y-4">
+            {/* Studio Avatar Highlight Card (Recommended) */}
+            <div className="p-4 rounded-2xl bg-gradient-to-br from-indigo-950/60 via-slate-900 to-slate-900 border border-indigo-500/40 relative overflow-hidden group">
+              <div className="flex items-start gap-3">
+                <div className="w-9 h-9 rounded-xl bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center text-indigo-300 shrink-0 mt-0.5">
+                  <Sparkles className="h-5 w-5 text-indigo-400" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-bold text-white">Studio Avatar Mode</span>
+                    <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30 text-[10px] py-0 px-2 font-semibold">
+                      Recommended · Zero Setup
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-slate-300 mt-1 leading-relaxed">
+                    Practice immediately with visual avatar, speech dictation & typing. No camera hardware or permissions needed.
+                  </p>
+                </div>
+              </div>
+
+              <Button
+                onClick={() => {
+                  onUseStudioMode(rememberChoice);
+                  onClose();
+                }}
+                className="w-full mt-3.5 bg-gradient-to-r from-indigo-600 via-indigo-500 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold h-10 text-xs sm:text-sm rounded-xl shadow-lg shadow-indigo-950/50 cursor-pointer"
+              >
+                <Sparkles className="h-4 w-4 mr-1.5" /> Continue in Studio Avatar Mode (No Camera Needed)
+              </Button>
+            </div>
+
+            {/* Hardware Status Cards */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between p-3 rounded-2xl bg-slate-800/60 border border-slate-700/60 text-xs">
+                <div className="flex items-center gap-2.5">
+                  <Video className="h-4 w-4 text-indigo-400" />
+                  <div>
+                    <p className="font-semibold text-slate-200">Webcam Hardware</p>
+                    <p className="text-[11px] text-slate-400">
+                      {cameraStatus === "granted"
+                        ? "Camera allowed & active"
+                        : cameraStatus === "denied"
+                          ? "Permission blocked in browser"
+                          : cameraStatus === "unavailable"
+                            ? "No camera device detected"
+                            : "Ready to request access"}
+                    </p>
+                  </div>
+                </div>
+                <Badge
+                  variant="outline"
+                  className={cn(
+                    "text-[10px]",
+                    cameraStatus === "granted"
+                      ? "border-emerald-500/40 text-emerald-400 bg-emerald-500/10"
+                      : cameraStatus === "denied"
+                        ? "border-rose-500/40 text-rose-400 bg-rose-500/10"
+                        : "border-slate-600 text-slate-400 bg-slate-800",
+                  )}
+                >
+                  {cameraStatus === "granted" ? "Active" : cameraStatus === "denied" ? "Blocked" : "Standby"}
+                </Badge>
+              </div>
+
+              <div className="flex items-center justify-between p-3 rounded-2xl bg-slate-800/60 border border-slate-700/60 text-xs">
+                <div className="flex items-center gap-2.5">
+                  <Mic className="h-4 w-4 text-emerald-400" />
+                  <div>
+                    <p className="font-semibold text-slate-200">Microphone Hardware</p>
+                    <p className="text-[11px] text-slate-400">
+                      {micStatus === "granted"
+                        ? "Microphone allowed & active"
+                        : micStatus === "denied"
+                          ? "Permission blocked in browser"
+                          : micStatus === "unavailable"
+                            ? "No microphone device detected"
+                            : "Ready to request access"}
+                    </p>
+                  </div>
+                </div>
+                <Badge
+                  variant="outline"
+                  className={cn(
+                    "text-[10px]",
+                    micStatus === "granted"
+                      ? "border-emerald-500/40 text-emerald-400 bg-emerald-500/10"
+                      : micStatus === "denied"
+                        ? "border-rose-500/40 text-rose-400 bg-rose-500/10"
+                        : "border-slate-600 text-slate-400 bg-slate-800",
+                  )}
+                >
+                  {micStatus === "granted" ? "Active" : micStatus === "denied" ? "Blocked" : "Standby"}
+                </Badge>
               </div>
             </div>
-            <Badge
-              variant="outline"
-              className={cn(
-                "text-[10px]",
-                cameraStatus === "granted"
-                  ? "border-emerald-500/40 text-emerald-400 bg-emerald-500/10"
-                  : cameraStatus === "denied"
-                    ? "border-rose-500/40 text-rose-400 bg-rose-500/10"
-                    : "border-slate-600 text-slate-400 bg-slate-800",
-              )}
-            >
-              {cameraStatus === "granted" ? "Active" : cameraStatus === "denied" ? "Blocked" : "Standby"}
-            </Badge>
-          </div>
 
-          <div className="flex items-center justify-between p-3 rounded-2xl bg-slate-800/60 border border-slate-700/60 text-xs">
-            <div className="flex items-center gap-2.5">
-              <Mic className="h-4 w-4 text-emerald-400" />
-              <div>
-                <p className="font-semibold text-slate-200">Microphone Hardware</p>
-                <p className="text-[11px] text-slate-400">
-                  {micStatus === "granted"
-                    ? "Microphone allowed & active"
-                    : micStatus === "denied"
-                      ? "Permission blocked in browser"
-                      : micStatus === "unavailable"
-                        ? "No microphone device detected"
-                        : "Ready to request access"}
-                </p>
+            {/* Re-detect Hardware Button */}
+            <div className="pt-1">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  onRetryDevices(true);
+                }}
+                className="w-full border-slate-700 bg-slate-800/60 hover:bg-slate-800 text-slate-200 font-semibold h-9 text-xs rounded-xl cursor-pointer"
+              >
+                <RefreshCw className="h-3.5 w-3.5 mr-1.5" /> Re-detect Camera & Microphone
+              </Button>
+            </div>
+
+            {/* Remember choice checkbox */}
+            <label className="flex items-center gap-2 text-xs text-slate-400 pt-1 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={rememberChoice}
+                onChange={(e) => setRememberChoice(e.target.checked)}
+                className="rounded border-slate-700 bg-slate-800 text-indigo-600 focus:ring-indigo-500"
+              />
+              <span>Remember Studio Avatar Mode for future sessions</span>
+            </label>
+          </div>
+        ) : (
+          /* Browser Guide Tab */
+          <div className="space-y-3.5 text-xs">
+            <div className="p-3.5 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-200 space-y-2">
+              <p className="font-bold flex items-center gap-1.5 text-indigo-300 text-sm">
+                <Info className="h-4 w-4" /> How to allow browser access:
+              </p>
+              <div className="space-y-2 text-[11px] text-slate-300">
+                <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800">
+                  <p className="font-bold text-white mb-1">Chrome / Edge / Brave:</p>
+                  <ol className="list-decimal list-inside space-y-0.5 text-slate-300">
+                    <li>Click the <b>tune/lock icon (⚙️ / 🔒)</b> on the left of your address bar.</li>
+                    <li>Toggle <b>Camera</b> and <b>Microphone</b> to <b>Allow</b>.</li>
+                    <li>Click <b>Re-detect Devices</b> below to reconnect.</li>
+                  </ol>
+                </div>
+
+                <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800">
+                  <p className="font-bold text-white mb-1">Safari (macOS / iOS):</p>
+                  <ol className="list-decimal list-inside space-y-0.5 text-slate-300">
+                    <li>Choose <b>Safari &gt; Settings for This Website</b>.</li>
+                    <li>Change <b>Camera</b> and <b>Microphone</b> to <b>Allow</b>.</li>
+                  </ol>
+                </div>
+
+                <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800">
+                  <p className="font-bold text-white mb-1">Firefox:</p>
+                  <ol className="list-decimal list-inside space-y-0.5 text-slate-300">
+                    <li>Click the permissions shield on the left of the address bar.</li>
+                    <li>Clear the "Blocked" status for Camera / Microphone.</li>
+                  </ol>
+                </div>
               </div>
             </div>
-            <Badge
-              variant="outline"
-              className={cn(
-                "text-[10px]",
-                micStatus === "granted"
-                  ? "border-emerald-500/40 text-emerald-400 bg-emerald-500/10"
-                  : micStatus === "denied"
-                    ? "border-rose-500/40 text-rose-400 bg-rose-500/10"
-                    : "border-slate-600 text-slate-400 bg-slate-800",
-              )}
-            >
-              {micStatus === "granted" ? "Active" : micStatus === "denied" ? "Blocked" : "Standby"}
-            </Badge>
+
+            <div className="flex gap-2">
+              <Button
+                onClick={() => {
+                  onRetryDevices(true);
+                }}
+                className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold h-9 text-xs rounded-xl cursor-pointer"
+              >
+                <RefreshCw className="h-3.5 w-3.5 mr-1.5" /> Re-detect Devices
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  onUseStudioMode(rememberChoice);
+                  onClose();
+                }}
+                className="flex-1 border-slate-700 hover:bg-slate-800 text-slate-300 font-semibold h-9 text-xs rounded-xl cursor-pointer"
+              >
+                Use Studio Avatar
+              </Button>
+            </div>
           </div>
-        </div>
-
-        {/* How to enable permissions steps */}
-        <div className="p-3.5 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-xs text-indigo-200 mb-5 space-y-1.5">
-          <p className="font-bold flex items-center gap-1.5 text-indigo-300">
-            <Info className="h-3.5 w-3.5" /> How to allow browser access:
-          </p>
-          <ol className="list-decimal list-inside space-y-1 text-[11px] text-indigo-200/90 pl-1">
-            <li>Click the <b>tune/lock icon</b> on the left of your browser address bar.</li>
-            <li>Toggle <b>Camera</b> and <b>Microphone</b> to <b>Allow</b>.</li>
-            <li>Click <b>Retry Devices</b> below to reconnect immediately.</li>
-          </ol>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex flex-col gap-2">
-          <Button
-            onClick={() => {
-              onRetryDevices();
-              onClose();
-            }}
-            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold h-9 text-xs rounded-xl"
-          >
-            <RefreshCw className="h-3.5 w-3.5 mr-1.5" /> Re-detect Camera & Microphone
-          </Button>
-
-          <Button
-            variant="outline"
-            onClick={() => {
-              onUseStudioMode();
-              onClose();
-            }}
-            className="w-full border-slate-700 hover:bg-slate-800 text-slate-300 font-semibold h-9 text-xs rounded-xl"
-          >
-            Continue in Studio Avatar Mode (No Camera Needed)
-          </Button>
-        </div>
+        )}
       </div>
     </div>
   );
@@ -844,8 +995,17 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
   const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard">(() => {
     return (typeof window !== "undefined" && (localStorage.getItem("interview_difficulty") as any)) || "medium";
   });
-  const [mode, setMode] = useState<"video" | "voice" | "chat">(() => {
-    return (typeof window !== "undefined" && (localStorage.getItem("interview_mode") as any)) || "video";
+  const [mode, setMode] = useState<"studio" | "video" | "voice" | "chat">(() => {
+    if (typeof window !== "undefined") {
+      const savedMode = localStorage.getItem("interview_mode") as any;
+      if (savedMode && ["studio", "video", "voice", "chat"].includes(savedMode)) {
+        return savedMode;
+      }
+      if (localStorage.getItem("interview_studio_avatar") === "true") {
+        return "studio";
+      }
+    }
+    return "studio";
   });
 
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(() => {
@@ -907,7 +1067,12 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
   const [micActive, setMicActive] = useState(true);
   const [cameraStatus, setCameraStatus] = useState<"granted" | "denied" | "unavailable" | "prompt">("prompt");
   const [micStatus, setMicStatus] = useState<"granted" | "denied" | "unavailable" | "prompt">("prompt");
-  const [studioAvatarMode, setStudioAvatarMode] = useState(false);
+  const [studioAvatarMode, setStudioAvatarMode] = useState(() => {
+    if (typeof window === "undefined") return true;
+    const isSavedStudio = localStorage.getItem("interview_studio_avatar");
+    if (isSavedStudio !== null) return isSavedStudio === "true";
+    return true; // Default to studio avatar mode for instant zero-friction start
+  });
   const [showTroubleshooter, setShowTroubleshooter] = useState(false);
 
   // Audio Level Analyser via Web Audio API
@@ -940,11 +1105,12 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
     localStorage.setItem("interview_interviewer_id", interviewerId);
     localStorage.setItem("interview_question_index", String(questionIndex));
     localStorage.setItem("interview_user_answer", userAnswer);
+    localStorage.setItem("interview_studio_avatar", String(studioAvatarMode));
     if (currentQuestion) localStorage.setItem("interview_current_question", JSON.stringify(currentQuestion));
     if (previousQuestions) localStorage.setItem("interview_prev_questions", JSON.stringify(previousQuestions));
     if (evaluation) localStorage.setItem("interview_evaluation", JSON.stringify(evaluation));
     if (scores) localStorage.setItem("interview_scores", JSON.stringify(scores));
-  }, [step, role, customRole, difficulty, mode, interviewerId, questionIndex, userAnswer, currentQuestion, previousQuestions, evaluation, scores]);
+  }, [step, role, customRole, difficulty, mode, interviewerId, questionIndex, userAnswer, studioAvatarMode, currentQuestion, previousQuestions, evaluation, scores]);
 
   // Insert spectrum animation keyframes
   useEffect(() => {
@@ -1052,11 +1218,28 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
   }, [videoStream, micActive]);
 
   // Gracefully probe and initialize devices when entering interview mode
-  const initializeMediaDevices = useCallback(async () => {
-    if (typeof window === "undefined" || !navigator.mediaDevices?.getUserMedia) {
+  const initializeMediaDevices = useCallback(async (explicitRetry = false) => {
+    if (typeof window === "undefined") return;
+
+    const isStudioAvatarSaved = localStorage.getItem("interview_studio_avatar") === "true";
+
+    // If candidate opted for studio/chat mode or saved studio preference, and not an explicit hardware retry
+    if (!explicitRetry && (mode === "studio" || mode === "chat" || isStudioAvatarSaved)) {
+      setCameraActive(false);
+      setStudioAvatarMode(true);
+      return;
+    }
+
+    if (!navigator.mediaDevices?.getUserMedia) {
       setCameraStatus("unavailable");
       setMicStatus("unavailable");
+      setCameraActive(false);
       setStudioAvatarMode(true);
+      if (explicitRetry) {
+        toast.info("Media devices not supported in this browser. Studio Avatar Mode is active.", {
+          id: "interview-media-unsupported",
+        });
+      }
       return;
     }
 
@@ -1088,6 +1271,9 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
         setCameraActive(true);
         setCameraStatus("granted");
         setStudioAvatarMode(false);
+        if (typeof window !== "undefined") {
+          localStorage.setItem("interview_studio_avatar", "false");
+        }
 
         if (stream.getAudioTracks().length > 0) {
           setMicActive(true);
@@ -1095,8 +1281,14 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
         } else {
           setMicActive(false);
         }
-      } else if (hasMic) {
-        // Audio only or Studio Avatar mode
+
+        if (explicitRetry) {
+          toast.success("Webcam & Microphone connected successfully!", {
+            id: "interview-connect-success",
+          });
+        }
+      } else if (hasMic && (mode === "voice" || explicitRetry)) {
+        // Audio only mode
         const stream = await navigator.mediaDevices.getUserMedia({
           audio: { echoCancellation: true, noiseSuppression: true },
         });
@@ -1106,8 +1298,14 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
         setStudioAvatarMode(true);
         setMicActive(true);
         setMicStatus("granted");
+
+        if (explicitRetry) {
+          toast.success("Microphone connected successfully!", {
+            id: "interview-mic-success",
+          });
+        }
       } else {
-        // No camera or mic hardware detected
+        // Studio mode or no camera
         setCameraActive(false);
         setMicActive(false);
         setStudioAvatarMode(true);
@@ -1123,31 +1321,28 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
         setMicStatus("unavailable");
       }
 
-      // Try audio-only if video failed
-      if (mode === "video") {
-        try {
-          const audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-          setVideoStream(audioStream);
-          setCameraActive(false);
-          setCameraStatus("denied");
-          setMicActive(true);
-          setMicStatus("granted");
-          setStudioAvatarMode(true);
-          return;
-        } catch {
-          // Both failed
-        }
-      }
-
       setCameraActive(false);
       setMicActive(false);
       setStudioAvatarMode(true);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("interview_studio_avatar", "true");
+      }
+
+      if (explicitRetry) {
+        toast.error("Camera or microphone is blocked in browser permissions.", {
+          id: "interview-retry-blocked",
+        });
+      } else {
+        toast.info("Switched to Studio Avatar Mode (No camera or mic needed).", {
+          id: "interview-silent-fallback",
+        });
+      }
     }
   }, [mode]);
 
   useEffect(() => {
     if (step === "interview") {
-      initializeMediaDevices();
+      initializeMediaDevices(false);
     }
     return () => {
       if (videoStream) {
@@ -1167,14 +1362,19 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
       }
       setCameraActive(false);
       setStudioAvatarMode(true);
-      toast.info("Switched to Studio Candidate Avatar");
+      if (typeof window !== "undefined") {
+        localStorage.setItem("interview_studio_avatar", "true");
+      }
+      toast.info("Switched to Studio Candidate Avatar", { id: "interview-camera-toggle" });
       return;
     }
 
     // Try turning camera ON
     try {
       if (!navigator.mediaDevices?.getUserMedia) {
-        toast.info("Media devices not supported in this browser. Studio Avatar Mode is active.");
+        toast.info("Media devices not supported in this browser. Studio Avatar Mode is active.", {
+          id: "interview-camera-unsupported",
+        });
         setStudioAvatarMode(true);
         return;
       }
@@ -1186,7 +1386,10 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
         setCameraActive(true);
         setStudioAvatarMode(false);
         setCameraStatus("granted");
-        toast.success("Webcam HD connected");
+        if (typeof window !== "undefined") {
+          localStorage.setItem("interview_studio_avatar", "false");
+        }
+        toast.success("Webcam HD connected", { id: "interview-camera-connected" });
         return;
       }
 
@@ -1205,23 +1408,33 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
         setCameraActive(true);
         setStudioAvatarMode(false);
         setCameraStatus("granted");
-        toast.success("Webcam HD connected");
+        if (typeof window !== "undefined") {
+          localStorage.setItem("interview_studio_avatar", "false");
+        }
+        toast.success("Webcam HD connected", { id: "interview-camera-connected" });
       }
     } catch (err: any) {
       console.warn("Camera request error:", err);
-      if (err?.name === "NotAllowedError" || err?.name === "PermissionDeniedError") {
-        setCameraStatus("denied");
-        toast.info("Camera permission is not enabled. Switched to Studio Avatar Mode.");
-      } else if (err?.name === "NotFoundError") {
-        setCameraStatus("unavailable");
-        toast.info("No physical webcam detected. Switched to Studio Avatar Mode.");
-      } else if (err?.name === "NotReadableError") {
-        toast.warning("Camera is in use by another app. Switched to Studio Avatar Mode.");
-      } else {
-        toast.info("Switched to Studio Avatar Mode.");
-      }
       setCameraActive(false);
       setStudioAvatarMode(true);
+      if (err?.name === "NotAllowedError" || err?.name === "PermissionDeniedError") {
+        setCameraStatus("denied");
+        setShowTroubleshooter(true);
+        toast.info("Camera permission is blocked in browser. Switched to Studio Avatar Mode.", {
+          id: "interview-camera-blocked",
+        });
+      } else if (err?.name === "NotFoundError") {
+        setCameraStatus("unavailable");
+        toast.info("No physical webcam detected. Switched to Studio Avatar Mode.", {
+          id: "interview-camera-notfound",
+        });
+      } else if (err?.name === "NotReadableError") {
+        toast.warning("Camera is in use by another app. Switched to Studio Avatar Mode.", {
+          id: "interview-camera-inuse",
+        });
+      } else {
+        toast.info("Switched to Studio Avatar Mode.", { id: "interview-camera-fallback" });
+      }
     }
   };
 
@@ -1233,7 +1446,7 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
         videoStream.getAudioTracks().forEach((t) => (t.enabled = false));
       }
       setMicActive(false);
-      toast.info("Microphone muted");
+      toast.info("Microphone muted", { id: "interview-mic-muted" });
       return;
     }
 
@@ -1244,7 +1457,7 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
         existingAudioTracks.forEach((t) => (t.enabled = true));
         setMicActive(true);
         setMicStatus("granted");
-        toast.success("Microphone active");
+        toast.success("Microphone active", { id: "interview-mic-active" });
         return;
       }
 
@@ -1260,17 +1473,21 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
         }
         setMicActive(true);
         setMicStatus("granted");
-        toast.success("Microphone active");
+        toast.success("Microphone active", { id: "interview-mic-active" });
       }
     } catch (err: any) {
       console.warn("Microphone request error:", err);
       setMicActive(false);
       if (err?.name === "NotAllowedError" || err?.name === "PermissionDeniedError") {
         setMicStatus("denied");
-        toast.info("Microphone permission blocked. Text response mode is active.");
+        toast.info("Microphone permission blocked. Text response mode is active.", {
+          id: "interview-mic-blocked",
+        });
       } else {
         setMicStatus("unavailable");
-        toast.info("Audio device unavailable. Text response mode is active.");
+        toast.info("Audio device unavailable. Text response mode is active.", {
+          id: "interview-mic-unavailable",
+        });
       }
     }
   };
@@ -1935,6 +2152,8 @@ ${scores.map((sc, i) => `Q${i + 1}: ${sc}/100`).join("\n")}
                 <CandidateStudioDisplay
                   cameraActive={cameraActive}
                   micActive={micActive}
+                  cameraStatus={cameraStatus}
+                  micStatus={micStatus}
                   isRecording={isRecording}
                   recordingTime={recordingSeconds}
                   audioLevel={audioLevel}
@@ -2050,14 +2269,36 @@ ${scores.map((sc, i) => `Q${i + 1}: ${sc}/100`).join("\n")}
                   </div>
 
                   {/* Textarea */}
-                  <Textarea
-                    ref={textareaRef}
-                    value={userAnswer}
-                    onChange={(e) => setUserAnswer(e.target.value)}
-                    placeholder="Type your structured answer here, or click 'Voice Answer' to dictate your speech in real time..."
-                    rows={6}
-                    className="resize-none text-xs sm:text-sm bg-slate-950/80 border-slate-700/80 text-slate-100 placeholder:text-slate-500 focus-visible:ring-indigo-500 rounded-2xl"
-                  />
+                  <div className="space-y-1.5">
+                    <Textarea
+                      ref={textareaRef}
+                      value={userAnswer}
+                      onChange={(e) => setUserAnswer(e.target.value)}
+                      onKeyDown={(e) => {
+                        if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+                          e.preventDefault();
+                          if (userAnswer.trim() && !evaluating) {
+                            handleSubmitAnswer();
+                          }
+                        }
+                      }}
+                      placeholder={
+                        studioAvatarMode
+                          ? "Type your structured response here (Press Ctrl + Enter to submit), or click 'Voice Answer' to dictate..."
+                          : "Type your structured answer here, or click 'Voice Answer' to dictate your speech in real time..."
+                      }
+                      rows={6}
+                      className="resize-none text-xs sm:text-sm bg-slate-950/80 border-slate-700/80 text-slate-100 placeholder:text-slate-500 focus-visible:ring-indigo-500 rounded-2xl"
+                    />
+                    <div className="flex items-center justify-between px-1 text-[11px] text-slate-500 font-mono">
+                      <span>Shortcut: <b>Ctrl + Enter</b> to submit</span>
+                      {micStatus === "denied" && (
+                        <span className="text-amber-400 font-sans">
+                          Text response mode active (mic blocked in browser)
+                        </span>
+                      )}
+                    </div>
+                  </div>
 
                   {/* Submit Button */}
                   <Button
@@ -2336,11 +2577,21 @@ ${scores.map((sc, i) => `Q${i + 1}: ${sc}/100`).join("\n")}
       <DeviceTroubleshooterModal
         isOpen={showTroubleshooter}
         onClose={() => setShowTroubleshooter(false)}
-        onRetryDevices={initializeMediaDevices}
-        onUseStudioMode={() => {
+        onRetryDevices={(explicit) => initializeMediaDevices(explicit)}
+        onUseStudioMode={(savePreference = true) => {
+          if (videoStream) {
+            videoStream.getVideoTracks().forEach((track) => track.stop());
+          }
           setCameraActive(false);
           setStudioAvatarMode(true);
-          toast.info("Studio Candidate Avatar active");
+          setMode("studio");
+          if (savePreference && typeof window !== "undefined") {
+            localStorage.setItem("interview_studio_avatar", "true");
+            localStorage.setItem("interview_mode", "studio");
+          }
+          toast.success("Studio Avatar Mode active! No camera required.", {
+            id: "studio-avatar-active",
+          });
         }}
         cameraStatus={cameraStatus}
         micStatus={micStatus}

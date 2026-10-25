@@ -1037,6 +1037,10 @@ function CourseDetail() {
               <span className="inline-flex items-center gap-1.5 text-indigo-400 font-medium">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" /> Live Dual-Pane Practice Active
               </span>
+            ) : !activeVideo?.ok ? (
+              <span className="inline-flex items-center gap-1.5 text-sky-400 font-medium">
+                <span className="w-2 h-2 rounded-full bg-sky-400 animate-pulse" /> Interactive IDE Video Player Active
+              </span>
             ) : (
               <span className="hidden sm:inline-block text-[11px] text-muted-foreground">
                 Switch to Scrimba mode to code alongside the lecture
@@ -1048,9 +1052,9 @@ function CourseDetail() {
         <div
           className={cn(
             "mt-4 gap-6",
-            workspaceMode === "scrimba"
+            workspaceMode === "scrimba" && activeVideo?.ok
               ? "grid grid-cols-1 xl:grid-cols-2"
-              : workspaceMode === "ide"
+              : workspaceMode === "ide" || (workspaceMode === "scrimba" && !activeVideo?.ok)
                 ? "grid grid-cols-1"
                 : "grid grid-cols-1 lg:grid-cols-[1fr_320px]"
           )}
@@ -1069,8 +1073,8 @@ function CourseDetail() {
                 </div>
               </div>
             )}
-            <div className="aspect-video rounded-2xl border bg-black overflow-hidden">
-              {activeVideo?.ok && !playerLoadFailed ? (
+            {activeVideo?.ok && !playerLoadFailed ? (
+              <div className="aspect-video rounded-2xl border bg-black overflow-hidden">
                 <CoursePlayer
                   key={`${active?.id}-${playerRetry}-${isAdmin}-${user?.id}`}
                   mode="advanced"
@@ -1113,138 +1117,20 @@ function CourseDetail() {
                     }
                   }}
                 />
-              ) : (
-                <div className="w-full h-full grid place-items-center text-muted-foreground text-sm text-center px-6">
-                  {playerLoadFailed ? (
-                    <VideoFallback
-                      message="The video player could not load this lesson. Check the URL, your connection, or retry the embed."
-                      reason="load-failed"
-                      canRetry
-                      isAdmin={isAdmin}
-                      onRetry={() => {
-                        setPlayerLoadFailed(false);
-                        setPlayerRetry((n) => n + 1);
-                      }}
-                    />
-                  ) : activeVideo && !activeVideo.ok ? (
-                    (() => {
-                      const lower = (active?.title || "").toLowerCase();
-                      const isQuiz =
-                        lower.includes("quiz") ||
-                        lower.includes("assessment") ||
-                        lower.includes("test");
-                      const isLab =
-                        lower.includes("lab") ||
-                        lower.includes("assignment") ||
-                        lower.includes("project");
-                      const isGuide =
-                        lower.includes("reading") ||
-                        lower.includes("guide") ||
-                        lower.includes("summary") ||
-                        lower.includes("overview") ||
-                        lower.includes("resources");
-
-                      if (isQuiz || isLab || isGuide) {
-                        return (
-                          <div className="w-full h-full flex flex-col justify-center items-center p-6 sm:p-8 bg-gradient-to-br from-card via-card/90 to-muted/40 text-center space-y-4">
-                            <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-sm">
-                              {isQuiz ? (
-                                <CheckCircle2 className="h-7 w-7 text-amber-500" />
-                              ) : isLab ? (
-                                <FileCheck2 className="h-7 w-7 text-blue-500" />
-                              ) : (
-                                <BookOpen className="h-7 w-7 text-purple-500" />
-                              )}
-                            </div>
-                            <div className="max-w-md mx-auto">
-                              <Badge
-                                variant="outline"
-                                className={cn(
-                                  "text-xs mb-2",
-                                  isQuiz && "border-amber-500/40 bg-amber-500/10 text-amber-500",
-                                  isLab && "border-blue-500/40 bg-blue-500/10 text-blue-500",
-                                  isGuide && "border-purple-500/40 bg-purple-500/10 text-purple-500",
-                                )}
-                              >
-                                {isQuiz
-                                  ? "Interactive MCQ Quiz & Assessment"
-                                  : isLab
-                                    ? "Hands-on Practical Lab"
-                                    : "Reading & Study Guide"}
-                              </Badge>
-                              <h3 className="text-xl font-bold font-display text-foreground leading-snug">
-                                {active?.title}
-                              </h3>
-                              <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
-                                {isQuiz
-                                  ? "Practice real-world exam questions, check answers instantly with explanations, and reinforce key concepts below."
-                                  : isLab
-                                    ? "Follow step-by-step lab instructions, design exercises, and deliverable guidelines below."
-                                    : "Read core principles, architecture diagrams, and comprehensive industry references below."}
-                              </p>
-                            </div>
-                            <div className="flex items-center gap-2 pt-2">
-                              <Button
-                                size="sm"
-                                onClick={() => {
-                                  const el = document.getElementById("lesson-content-section");
-                                  el?.scrollIntoView({ behavior: "smooth" });
-                                }}
-                                className="cursor-pointer gap-1.5 shadow-sm"
-                              >
-                                <span>{isQuiz ? "Start Quiz Questions" : isLab ? "View Lab Steps" : "Read Full Guide"}</span>
-                                <ChevronDown className="h-4 w-4" />
-                              </Button>
-                              {active && (
-                                <Button
-                                  size="sm"
-                                  variant={completed.has(active.id) ? "secondary" : "outline"}
-                                  onClick={() => toggleComplete(active.id)}
-                                  className="cursor-pointer gap-1.5"
-                                >
-                                  {completed.has(active.id) ? (
-                                    <>
-                                      <CheckCircle2 className="h-4 w-4 text-emerald-500" /> Completed
-                                    </>
-                                  ) : (
-                                    <>
-                                      <CheckCircle2 className="h-4 w-4" /> Mark Complete
-                                    </>
-                                  )}
-                                </Button>
-                              )}
-                            </div>
-                          </div>
-                        );
-                      }
-
-                      return (
-                        <VideoFallback
-                          message={activeVideo.message}
-                          reason={activeVideo.reason}
-                          canRetry={activeVideo.reason !== "missing-url"}
-                          isAdmin={isAdmin}
-                          onRetry={() => setPlayerRetry((n) => n + 1)}
-                        />
-                      );
-                    })()
-                  ) : lessons.length === 0 ? (
-                    <div className="space-y-3">
-                      <p>No lessons added yet for this course.</p>
-                      {isAdmin && (
-                        <Button asChild size="sm" variant="secondary">
-                          <Link to="/studio">
-                            <NotebookPen className="h-4 w-4" /> Open Course Builder
-                          </Link>
-                        </Button>
-                      )}
-                    </div>
-                  ) : (
-                    "Select a lesson from the list to begin."
-                  )}
-                </div>
-              )}
-            </div>
+              </div>
+            ) : (
+              <div className="rounded-2xl border border-slate-800 bg-[#0e111a] overflow-hidden shadow-2xl">
+                <ScrimbaWorkspace
+                  courseTitle={course?.title || "Fullstack Path"}
+                  lessonTitle={active?.title || "Let's Make a Cake!"}
+                  instructorName={course?.instructor || "Tom Chant"}
+                  injectedCode={activeLessonCode}
+                  injectedLang={activeLessonLang}
+                  activeVideoTime={activeProgress?.watched_seconds ?? 0}
+                  isStandAlonePlayer={true}
+                />
+              </div>
+            )}
 
             {active && (
               <div id="lesson-content-section" className="rounded-2xl border bg-card p-5 shadow-card space-y-4 scroll-mt-20">
@@ -1289,9 +1175,8 @@ function CourseDetail() {
             )}
           </div>
 
-          {/* Right Column in Scrimba Mode: Live Playground alongside Video */}
           {/* Right Column in Scrimba Mode: Live Scrimba Multi-File Sandbox & Runner */}
-          {workspaceMode === "scrimba" && (
+          {workspaceMode === "scrimba" && activeVideo?.ok && (
             <div className="space-y-4 min-w-0">
               <ScrimbaWorkspace
                 courseTitle={course.title}

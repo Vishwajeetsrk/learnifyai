@@ -251,29 +251,29 @@ export function DesignThinkingStudio({
       )}
     >
       {/* ─── Top Studio Banner & Hook ──────────────────────────────────────── */}
-      <div className="relative px-6 py-6 bg-gradient-to-r from-indigo-950/60 via-slate-900/90 to-sky-950/60 border-b border-border/70 overflow-hidden">
+      <div className="relative px-6 py-6 bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950 border-b border-indigo-500/20 text-white overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-sky-500/10 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="space-y-1.5 max-w-2xl">
             <div className="flex items-center gap-2">
               <Badge
                 variant="outline"
-                className="bg-sky-500/10 text-sky-400 border-sky-500/30 font-display font-semibold text-[11px] px-2.5 py-0.5 tracking-wider uppercase"
+                className="bg-sky-500/20 text-sky-300 border-sky-400/40 font-display font-semibold text-[11px] px-2.5 py-0.5 tracking-wider uppercase shadow-sm"
               >
                 <Sparkles className="h-3 w-3 mr-1 text-sky-400" /> Learnify Design Thinking Studio
               </Badge>
               <Badge
                 variant="outline"
-                className="bg-indigo-500/10 text-indigo-400 border-indigo-500/30 text-[11px] px-2"
+                className="bg-indigo-500/20 text-indigo-300 border-indigo-400/40 text-[11px] px-2 shadow-sm"
               >
                 Interactive Architecture
               </Badge>
             </div>
-            <h3 className="text-xl sm:text-2xl font-bold font-display text-foreground tracking-tight">
+            <h3 className="text-xl sm:text-2xl font-bold font-display text-white tracking-tight drop-shadow-sm">
               {lessonTitle}
             </h3>
-            <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-              <strong className="text-foreground font-semibold">The 2026 Industry Hook:</strong> 87% of digital products fail retention audits not because of engineering bugs, but due to chaotic visual hierarchy and arbitrary spacing. Master the systematic Design Thinking lifecycle, color mathematics, and spatial rhythm below.
+            <p className="text-xs sm:text-sm text-slate-200 leading-relaxed font-sans">
+              <strong className="text-white font-bold">The 2026 Industry Hook:</strong> 87% of digital products fail retention audits not because of engineering bugs, but due to chaotic visual hierarchy and arbitrary spacing. Master the systematic Design Thinking lifecycle, color mathematics, and spatial rhythm below.
             </p>
           </div>
 
@@ -282,7 +282,7 @@ export function DesignThinkingStudio({
               <Button
                 onClick={() => onOpenIde(starterCssCode, "css")}
                 size="sm"
-                className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold gap-1.5 shadow-md hover:scale-105 active:scale-95 transition-all cursor-pointer"
+                className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold gap-1.5 shadow-lg shadow-indigo-950/40 hover:scale-105 active:scale-95 transition-all cursor-pointer border border-indigo-400/30"
               >
                 <Play className="h-3.5 w-3.5 fill-white" />
                 <span>Practice in IDE</span>
@@ -292,69 +292,69 @@ export function DesignThinkingStudio({
         </div>
 
         {/* ─── Studio Sub-Navigation ───────────────────────────────────────── */}
-        <div className="flex items-center gap-1.5 pt-4 mt-3 border-t border-white/5 overflow-x-auto scrollbar-none">
+        <div className="flex items-center gap-2 pt-4 mt-3 border-t border-white/10 overflow-x-auto scrollbar-none">
           <button
             onClick={() => setActiveTab("graph")}
             className={cn(
-              "px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 shrink-0 cursor-pointer",
+              "px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 shrink-0 cursor-pointer border",
               activeTab === "graph"
-                ? "bg-primary text-primary-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground hover:bg-white/5",
+                ? "bg-indigo-600 text-white border-indigo-400 shadow-md shadow-indigo-950/50"
+                : "text-slate-300 hover:text-white hover:bg-slate-800/80 border-slate-700/60 bg-slate-900/60",
             )}
           >
-            <Compass className="h-3.5 w-3.5" />
+            <Compass className="h-3.5 w-3.5 text-sky-400" />
             <span>Interactive Workflow Graph</span>
           </button>
 
           <button
             onClick={() => setActiveTab("thinking")}
             className={cn(
-              "px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 shrink-0 cursor-pointer",
+              "px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 shrink-0 cursor-pointer border",
               activeTab === "thinking"
-                ? "bg-primary text-primary-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground hover:bg-white/5",
+                ? "bg-indigo-600 text-white border-indigo-400 shadow-md shadow-indigo-950/50"
+                : "text-slate-300 hover:text-white hover:bg-slate-800/80 border-slate-700/60 bg-slate-900/60",
             )}
           >
-            <Brain className="h-3.5 w-3.5" />
+            <Brain className="h-3.5 w-3.5 text-purple-400" />
             <span>5-Stage Design Thinking</span>
           </button>
 
           <button
             onClick={() => setActiveTab("colors")}
             className={cn(
-              "px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 shrink-0 cursor-pointer",
+              "px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 shrink-0 cursor-pointer border",
               activeTab === "colors"
-                ? "bg-primary text-primary-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground hover:bg-white/5",
+                ? "bg-indigo-600 text-white border-indigo-400 shadow-md shadow-indigo-950/50"
+                : "text-slate-300 hover:text-white hover:bg-slate-800/80 border-slate-700/60 bg-slate-900/60",
             )}
           >
-            <Palette className="h-3.5 w-3.5" />
+            <Palette className="h-3.5 w-3.5 text-amber-400" />
             <span>60-30-10 Color System</span>
           </button>
 
           <button
             onClick={() => setActiveTab("typography")}
             className={cn(
-              "px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 shrink-0 cursor-pointer",
+              "px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 shrink-0 cursor-pointer border",
               activeTab === "typography"
-                ? "bg-primary text-primary-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground hover:bg-white/5",
+                ? "bg-indigo-600 text-white border-indigo-400 shadow-md shadow-indigo-950/50"
+                : "text-slate-300 hover:text-white hover:bg-slate-800/80 border-slate-700/60 bg-slate-900/60",
             )}
           >
-            <Type className="h-3.5 w-3.5" />
+            <Type className="h-3.5 w-3.5 text-emerald-400" />
             <span>Typography Scale</span>
           </button>
 
           <button
             onClick={() => setActiveTab("grid")}
             className={cn(
-              "px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 shrink-0 cursor-pointer",
+              "px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 shrink-0 cursor-pointer border",
               activeTab === "grid"
-                ? "bg-primary text-primary-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground hover:bg-white/5",
+                ? "bg-indigo-600 text-white border-indigo-400 shadow-md shadow-indigo-950/50"
+                : "text-slate-300 hover:text-white hover:bg-slate-800/80 border-slate-700/60 bg-slate-900/60",
             )}
           >
-            <Grid className="h-3.5 w-3.5" />
+            <Grid className="h-3.5 w-3.5 text-blue-400" />
             <span>8pt Grid & Box Model</span>
           </button>
         </div>
