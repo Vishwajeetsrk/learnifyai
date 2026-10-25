@@ -126,6 +126,11 @@ export function buildCourseVideoEmbedUrl(
     return { ok: true, src: url.toString(), isYoutube: true };
   }
 
+  // Support local / relative video URLs (e.g. /videos/courses/ui-ux/...)
+  if (raw.startsWith("/") || raw.startsWith("./")) {
+    return { ok: true, src: raw, isYoutube: false };
+  }
+
   try {
     const url = new URL(raw);
     const host = url.hostname.replace(/^www\./, "");

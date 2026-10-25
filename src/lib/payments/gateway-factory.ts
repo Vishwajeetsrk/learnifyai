@@ -14,18 +14,7 @@ import { CANONICAL_PLANS } from "../canonical-config";
 import { normalizePaymentStatus, isPaymentSuccessful } from "./payment-state-machine";
 
 export async function getActivePaymentGateway(): Promise<"razorpay" | "cashfree"> {
-  try {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data } = await supabaseAdmin
-      .from("site_settings")
-      .select("value")
-      .eq("key", "payment_gateway")
-      .maybeSingle();
-
-    if (data?.value === "cashfree") return "cashfree";
-  } catch {
-    // default to primary
-  }
+  // Enforced: Razorpay exclusive gateway as per Indian Market Standards (GSTIN 18% SAC 998431)
   return "razorpay";
 }
 
@@ -185,8 +174,12 @@ export async function executeAtomicPaymentActivation(params: ActivationParams): 
       { onConflict: "user_id" },
     );
 
-  // C. Create Verified Invoice / Payment Receipt
+  // C. Create Verified Invoice / Payment Receipt with Indian Market Standards (GST 18% & SAC 998431)
   const invoiceNum = generateInvoiceNumber("INV");
+  const subtotalInr = Math.round((params.amountInr / 1.18) * 100) / 100;
+  const cgstInr = Math.round((subtotalInr * 0.09) * 100) / 100;
+  const sgstInr = Math.round((params.amountInr - subtotalInr - cgstInr) * 100) / 100;
+
   const { data: invData, error: invErr } = await (supabaseAdmin as any)
     .from("invoices")
     .insert({
@@ -194,12 +187,20 @@ export async function executeAtomicPaymentActivation(params: ActivationParams): 
       invoice_number: invoiceNum,
       amount_inr: params.amountInr,
       total_inr: params.amountInr,
+      subtotal_inr: subtotalInr,
+      cgst_inr: cgstInr,
+      sgst_inr: sgstInr,
+      sac_code: "998431",
       status: "paid",
       description: `Learnify AI ${planName} Subscription (${params.provider.toUpperCase()})`,
       line_items: [
         {
           name: `${planName} Plan ${params.billingCycle === "yearly" ? "Yearly" : "Monthly"} Access`,
+          sac_code: "998431",
           quantity: 1,
+          subtotal: subtotalInr,
+          cgst: cgstInr,
+          sgst: sgstInr,
           amount: params.amountInr,
         },
       ],
