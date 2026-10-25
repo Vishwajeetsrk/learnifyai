@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import {
@@ -22,6 +23,10 @@ import {
   Share2,
   FileText,
   Search,
+  QrCode,
+  Eye,
+  Lock,
+  ShieldAlert,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -177,23 +182,289 @@ const FEATURES = [
   { icon: ShieldCheck, label: "Digital Record Storage" },
 ];
 
-const CERTIFICATES = [
+interface CertificatePreset {
+  id: string;
+  title: string;
+  desc: string;
+  badgeLabel: string;
+  theme: "navy" | "purple" | "emerald";
+  courseTitle: string;
+  recipientName: string;
+  issueDate: string;
+  credentialId: string;
+  borderColor: string;
+  accentColor: string;
+  bgGradient: string;
+  innerBorder: string;
+  ribbonColor: string;
+}
+
+const CERTIFICATES: CertificatePreset[] = [
   {
-    src: "/certificate%200.png",
+    id: "CERT-ML-2026",
     title: "Blue & Gold Classic",
     desc: "Professional navy with elegant gold accents",
+    badgeLabel: "Learnify AI Verified Certificate — Blue & Gold Classic",
+    theme: "navy",
+    courseTitle: "Machine Learning Fundamentals",
+    recipientName: "Demo Learner",
+    issueDate: "June 2026",
+    credentialId: "CERT-ML-2026",
+    borderColor: "#D4AF37",
+    accentColor: "#F59E0B",
+    bgGradient: "from-[#070D1E] via-[#0D1836] to-[#060B18]",
+    innerBorder: "rgba(212, 175, 55, 0.45)",
+    ribbonColor: "#D4AF37",
   },
   {
-    src: "/certificate%2001.png",
+    id: "CERT-AI-2026",
     title: "Purple & Gold Prestige",
     desc: "Regal purple with luxury gold detailing",
+    badgeLabel: "Learnify AI Verified Certificate — Purple & Gold Prestige",
+    theme: "purple",
+    courseTitle: "Machine Learning Fundamentals",
+    recipientName: "Demo Learner",
+    issueDate: "June 2026",
+    credentialId: "CERT-AI-2026",
+    borderColor: "#EAB308",
+    accentColor: "#C084FC",
+    bgGradient: "from-[#19092B] via-[#260E42] to-[#140624]",
+    innerBorder: "rgba(234, 179, 8, 0.45)",
+    ribbonColor: "#A855F7",
   },
   {
-    src: "/certificate%2002.png",
+    id: "CERT-EM-2026",
     title: "Emerald & Gold Elite",
     desc: "Premium emerald green with gold trim",
+    badgeLabel: "Learnify AI Verified Certificate — Emerald & Gold Elite",
+    theme: "emerald",
+    courseTitle: "Machine Learning Fundamentals",
+    recipientName: "Demo Learner",
+    issueDate: "June 2026",
+    credentialId: "CERT-EM-2026",
+    borderColor: "#10B981",
+    accentColor: "#34D399",
+    bgGradient: "from-[#031E15] via-[#052E21] to-[#021710]",
+    innerBorder: "rgba(16, 185, 129, 0.45)",
+    ribbonColor: "#10B981",
   },
 ];
+
+function RealCertificateCard({
+  cert,
+  index,
+}: {
+  cert: CertificatePreset;
+  index: number;
+}) {
+  const [qrUrl, setQrUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    const origin =
+      typeof window !== "undefined"
+        ? window.location.origin
+        : "https://www.learnifyai.in";
+    const targetUrl = `${origin}/verify/${cert.credentialId}`;
+    import("qrcode")
+      .then((mod) => {
+        const QRCode = (mod as any).default || mod;
+        QRCode.toDataURL(targetUrl, {
+          margin: 1,
+          width: 140,
+          color: { dark: "#0A1128", light: "#ffffff" },
+        }).then((data: string) => setQrUrl(data));
+      })
+      .catch(() => {});
+  }, [cert.credentialId]);
+
+  return (
+    <motion.div
+      key={cert.title}
+      className="rounded-2xl border-2 border-primary/20 bg-card overflow-hidden group hover:border-primary/50 transition-all duration-300 flex flex-col"
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{ duration: 0.4, delay: index * 0.1 }}
+      whileHover={{ y: -6, boxShadow: "0 20px 45px rgba(0,0,0,0.18)" }}
+    >
+      {/* Live rendered Certificate vector view */}
+      <div className="relative aspect-[1.414] overflow-hidden select-none p-3.5 sm:p-4 bg-slate-950 flex flex-col justify-between">
+        {/* Certificate canvas background & gradient */}
+        <div
+          className={`absolute inset-0 bg-gradient-to-br ${cert.bgGradient} opacity-95`}
+        />
+
+        {/* Guilloche / rosette decorative background pattern */}
+        <svg
+          className="absolute inset-0 w-full h-full opacity-15 pointer-events-none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <defs>
+            <pattern
+              id={`guilloche-${cert.id}`}
+              width="36"
+              height="36"
+              patternUnits="userSpaceOnUse"
+            >
+              <circle
+                cx="18"
+                cy="18"
+                r="14"
+                fill="none"
+                stroke={cert.borderColor}
+                strokeWidth="0.6"
+              />
+              <circle
+                cx="18"
+                cy="18"
+                r="8"
+                fill="none"
+                stroke={cert.borderColor}
+                strokeWidth="0.4"
+                strokeDasharray="2,2"
+              />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill={`url(#guilloche-${cert.id})`} />
+        </svg>
+
+        {/* Ornate Frame Border */}
+        <div
+          className="absolute inset-2.5 sm:inset-3 rounded-lg pointer-events-none border"
+          style={{ borderColor: cert.innerBorder }}
+        />
+        <div
+          className="absolute inset-3.5 sm:inset-4 rounded pointer-events-none border border-dashed"
+          style={{ borderColor: `${cert.borderColor}40` }}
+        />
+
+        {/* Corner rosettes */}
+        <div
+          className="absolute top-2.5 left-2.5 w-3 h-3 border-t-2 border-l-2 pointer-events-none"
+          style={{ borderColor: cert.borderColor }}
+        />
+        <div
+          className="absolute top-2.5 right-2.5 w-3 h-3 border-t-2 border-r-2 pointer-events-none"
+          style={{ borderColor: cert.borderColor }}
+        />
+        <div
+          className="absolute bottom-2.5 left-2.5 w-3 h-3 border-b-2 border-l-2 pointer-events-none"
+          style={{ borderColor: cert.borderColor }}
+        />
+        <div
+          className="absolute bottom-2.5 right-2.5 w-3 h-3 border-b-2 border-r-2 pointer-events-none"
+          style={{ borderColor: cert.borderColor }}
+        />
+
+        {/* Watermark Overlay across the certificate */}
+        <div className="absolute inset-0 z-20 pointer-events-none flex items-center justify-center overflow-hidden">
+          <div className="rotate-[-24deg] select-none text-center px-2 py-1 transform scale-90 sm:scale-100">
+            <div className="text-[10px] sm:text-[11px] font-black tracking-[0.22em] text-red-400/50 uppercase border-y border-dashed border-red-400/50 py-1 px-3 bg-red-950/30 backdrop-blur-[0.5px]">
+              DEMO SPECIMEN • NOT VALID UNTIL COMPLETION
+            </div>
+            <div className="text-[8px] font-bold tracking-[0.14em] text-amber-300/40 uppercase mt-0.5">
+              COPYRIGHT © LEARNIFY AI • ALL RIGHTS RESERVED
+            </div>
+          </div>
+        </div>
+
+        {/* Content: Header */}
+        <div className="relative z-10 text-center pt-1">
+          <div className="inline-flex items-center justify-center gap-1.5 px-2 py-0.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/15 text-[8px] sm:text-[9px] font-semibold text-white/90">
+            <Award className="w-2.5 h-2.5" style={{ color: cert.borderColor }} />
+            <span>LEARNIFY AI ACCREDITATION</span>
+          </div>
+          <p
+            className="text-[9px] sm:text-[10px] font-serif font-bold uppercase tracking-[0.18em] mt-1.5"
+            style={{ color: cert.borderColor }}
+          >
+            Certificate of Completion
+          </p>
+        </div>
+
+        {/* Content: Recipient & Course */}
+        <div className="relative z-10 text-center my-auto py-1">
+          <p className="text-[8px] text-white/60 tracking-wider uppercase">
+            This certifies that
+          </p>
+          <h4 className="text-xs sm:text-sm font-bold text-white tracking-wide font-serif mt-0.5">
+            {cert.recipientName}
+          </h4>
+          <p className="text-[7.5px] sm:text-[8.5px] text-white/70 mt-0.5">
+            has successfully fulfilled all curriculum requirements for
+          </p>
+          <p
+            className="text-[9px] sm:text-[10px] font-bold mt-0.5 px-2 truncate"
+            style={{ color: cert.accentColor }}
+          >
+            {cert.courseTitle}
+          </p>
+        </div>
+
+        {/* Content: Footer & Verification QR */}
+        <div className="relative z-10 flex items-end justify-between pt-1 border-t border-white/10 text-[7px] sm:text-[8px] text-white/75">
+          <div className="space-y-0.5 text-left">
+            <div className="flex items-center gap-1 text-[7px] text-white/60">
+              <span>Date:</span>
+              <span className="font-semibold text-white">{cert.issueDate}</span>
+            </div>
+            <div className="flex items-center gap-1 font-mono text-[7px] text-white/80">
+              <span>ID:</span>
+              <span className="font-bold text-amber-300">{cert.credentialId}</span>
+            </div>
+            <div className="inline-flex items-center gap-1 text-[6.5px] font-semibold text-emerald-400 bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-500/30">
+              <CheckCircle2 className="w-2 h-2" />
+              <span>Attested Specimen</span>
+            </div>
+          </div>
+
+          {/* QR Code */}
+          <div className="flex flex-col items-center">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded bg-white p-0.5 shadow-sm border border-white/30 flex items-center justify-center overflow-hidden">
+              {qrUrl ? (
+                <img
+                  src={qrUrl}
+                  alt={`Verification QR Code for ${cert.credentialId}`}
+                  className="w-full h-full object-contain"
+                />
+              ) : (
+                <QrCode className="w-5 h-5 text-slate-900" />
+              )}
+            </div>
+            <span className="text-[6.5px] text-white/60 mt-0.5 font-medium">Scan to verify</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Card Info & Details */}
+      <div className="p-4 text-center border-t border-border/50 flex-1 flex flex-col justify-between">
+        <div>
+          <div className="flex items-center justify-center gap-1.5 text-xs font-semibold text-foreground">
+            <span>{cert.title}</span>
+          </div>
+          <p className="text-xs text-muted-foreground mt-1 leading-snug">{cert.desc}</p>
+        </div>
+
+        <div className="mt-4 pt-3 border-t border-border/40 flex items-center justify-between gap-2">
+          <span className="text-[10px] text-muted-foreground font-mono">
+            {cert.credentialId}
+          </span>
+          <Button
+            asChild
+            size="sm"
+            variant="outline"
+            className="h-7 text-xs rounded-lg gap-1.5 font-medium"
+          >
+            <Link to="/verify/$id" params={{ id: cert.credentialId }}>
+              <ExternalLink className="w-3 h-3" />
+              Verify Link
+            </Link>
+          </Button>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
 
 function VerifiedCertificatesPage() {
   return (
@@ -477,36 +748,34 @@ function VerifiedCertificatesPage() {
         </motion.div>
         <div className="grid md:grid-cols-3 gap-6">
           {CERTIFICATES.map((cert, i) => (
-            <motion.div
-              key={cert.title}
-              className="rounded-xl border-2 border-primary/10 bg-card overflow-hidden group hover:border-primary/30 transition-colors"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-40px" }}
-              transition={{ duration: 0.4, delay: i * 0.1 }}
-              whileHover={{ y: -4, boxShadow: "0 16px 40px rgba(0,0,0,0.1)" }}
-            >
-              <div className="aspect-[1.414] bg-gradient-to-br from-muted to-card overflow-hidden p-2">
-                <img
-                  src={cert.src}
-                  alt={`Learnify AI Verified Certificate — ${cert.title}`}
-                  className="w-full h-full object-contain rounded-lg group-hover:scale-105 transition-transform duration-500"
-                />
-              </div>
-              <div className="p-4 text-center border-t border-border/50">
-                <h3 className="text-sm font-bold">{cert.title}</h3>
-                <p className="text-xs text-muted-foreground mt-1">{cert.desc}</p>
-              </div>
-            </motion.div>
+            <RealCertificateCard key={cert.id} cert={cert} index={i} />
           ))}
         </div>
+
+        {/* Anti-tamper & Completion notice */}
+        <motion.div
+          className="mt-8 rounded-2xl border border-primary/20 bg-primary/5 p-4 sm:p-5 text-center max-w-3xl mx-auto backdrop-blur-sm"
+          initial={{ opacity: 0, y: 15 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.4 }}
+        >
+          <div className="inline-flex items-center gap-1.5 text-xs font-bold text-primary uppercase tracking-wider mb-1.5">
+            <ShieldCheck className="w-4 h-4 text-emerald-500" />
+            Official Credential Issuance Policy
+          </div>
+          <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+            The certificates displayed above are <span className="font-semibold text-foreground">watermarked demonstration specimens</span>. Upon completing 100% of your course syllabus and passing the final assessment, you will be awarded an <span className="font-semibold text-emerald-600 dark:text-emerald-400">official, authentic certificate</span> with all watermarks removed, lifetime cryptographic registration, and an active verifiable QR code that recruiters can scan instantly.
+          </p>
+        </motion.div>
+
         <div className="flex items-center justify-center gap-4 pt-6">
-          <div className="w-10 h-10 rounded bg-white dark:bg-gray-800 border flex items-center justify-center">
+          <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center shadow-sm">
             <BadgeCheck className="w-5 h-5 text-primary" />
           </div>
           <div className="text-[11px] text-left text-muted-foreground leading-tight">
             <div className="font-medium text-foreground">Scan to verify</div>
-            <div>Unique QR code on every certificate</div>
+            <div>Unique cryptographic QR code on every authentic certificate</div>
           </div>
         </div>
       </section>

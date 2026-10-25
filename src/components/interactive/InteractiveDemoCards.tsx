@@ -22,6 +22,9 @@ import {
   Quote,
   ArrowRight,
   FolderOpen,
+  QrCode,
+  ExternalLink,
+  ShieldCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -47,6 +50,88 @@ type DemoCard = {
   secondary: string;
   preview: React.ReactNode;
 };
+
+function CertificateCardThumbnail() {
+  const [qrUrl, setQrUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    import("qrcode")
+      .then((mod) => {
+        const QRCode = (mod as any).default || mod;
+        QRCode.toDataURL("https://www.learnifyai.in/verify/CERT-ML-2026", {
+          margin: 1,
+          width: 90,
+          color: { dark: "#0A1128", light: "#ffffff" },
+        }).then((data: string) => setQrUrl(data));
+      })
+      .catch(() => {});
+  }, []);
+
+  return (
+    <div className="relative w-full h-full min-h-[160px] bg-[#0A1128] text-white p-3 overflow-hidden select-none flex flex-col justify-between border border-amber-500/30">
+      {/* Background radial gradient */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-950/20 via-[#0A1128] to-[#050914] pointer-events-none" />
+
+      {/* Ornate Gold border */}
+      <div className="absolute inset-1.5 rounded border border-amber-400/40 pointer-events-none" />
+      <div className="absolute inset-2 rounded border border-dashed border-amber-400/25 pointer-events-none" />
+
+      {/* Watermark Overlay */}
+      <div className="absolute inset-0 z-20 pointer-events-none flex items-center justify-center">
+        <div className="rotate-[-22deg] select-none text-center transform scale-90 sm:scale-95">
+          <div className="text-[8.5px] font-black tracking-widest text-red-400/50 uppercase border-y border-dashed border-red-400/50 py-0.5 px-2.5 bg-red-950/40 backdrop-blur-[0.5px]">
+            DEMO SPECIMEN • NOT VALID UNTIL COMPLETION
+          </div>
+          <div className="text-[6.5px] font-bold tracking-wider text-amber-300/40 uppercase mt-0.5">
+            COPYRIGHT © LEARNIFY AI 2026
+          </div>
+        </div>
+      </div>
+
+      {/* Header */}
+      <div className="relative z-10 text-center pt-0.5">
+        <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-amber-400/10 border border-amber-400/20 text-[7px] font-bold text-amber-300">
+          <Award className="w-2 h-2 text-amber-400" />
+          <span>LEARNIFY AI VERIFIED CREDENTIAL</span>
+        </div>
+        <div className="text-[8.5px] font-serif font-bold text-amber-300 uppercase tracking-widest mt-0.5">
+          Certificate of Completion
+        </div>
+      </div>
+
+      {/* Body */}
+      <div className="relative z-10 text-center my-auto py-0.5">
+        <p className="text-[7px] text-white/60 uppercase tracking-wider">Awarded to</p>
+        <p className="text-[11px] font-serif font-bold text-white tracking-wide">Demo Learner</p>
+        <p className="text-[8px] font-semibold text-amber-300 truncate px-2">
+          Machine Learning Fundamentals
+        </p>
+      </div>
+
+      {/* Footer */}
+      <div className="relative z-10 flex items-end justify-between border-t border-white/10 pt-1 text-[7px]">
+        <div className="space-y-0.5 text-left text-white/70">
+          <div className="text-[6.5px] font-mono text-amber-300">ID: CERT-ML-2026</div>
+          <div className="text-[6.5px] text-emerald-400 flex items-center gap-0.5">
+            <Check className="w-2 h-2 stroke-[3]" /> Verified QR
+          </div>
+        </div>
+
+        {/* QR Code thumbnail */}
+        <div className="flex flex-col items-center">
+          <div className="w-7 h-7 rounded bg-white p-0.5 shadow-sm border border-white/40 flex items-center justify-center overflow-hidden">
+            {qrUrl ? (
+              <img src={qrUrl} alt="Verify QR" className="w-full h-full object-contain" />
+            ) : (
+              <div className="w-full h-full bg-slate-900 rounded-[1px]" />
+            )}
+          </div>
+          <span className="text-[5.5px] text-white/50 mt-0.5">Scan to verify</span>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 const DEMOS: DemoCard[] = [
   {
@@ -333,12 +418,8 @@ const DEMOS: DemoCard[] = [
     secondary: "Verify Certificate",
     preview: (
       <div className="space-y-3 text-sm">
-        <div className="rounded-xl bg-purple-50 dark:bg-purple-950/30 p-3 border border-purple-200 dark:border-purple-800/50">
-          <img
-            src="/certificate%201.png"
-            alt="Certificate preview"
-            className="w-full rounded-lg object-contain shadow-sm"
-          />
+        <div className="rounded-xl overflow-hidden shadow-sm">
+          <CertificateCardThumbnail />
         </div>
       </div>
     ),
@@ -901,15 +982,29 @@ function InteractiveCertDemo() {
   const [topic, setTopic] = useState("Full Stack Development");
   const [style, setStyle] = useState("navy");
   const [generated, setGenerated] = useState(false);
+  const [qrUrl, setQrUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    import("qrcode")
+      .then((mod) => {
+        const QRCode = (mod as any).default || mod;
+        QRCode.toDataURL("https://www.learnifyai.in/verify/CERT-ML-2026", {
+          margin: 1,
+          width: 100,
+          color: { dark: "#0A1128", light: "#ffffff" },
+        }).then((data: string) => setQrUrl(data));
+      })
+      .catch(() => {});
+  }, []);
 
   const getStyleClass = () => {
     switch (style) {
       case "purple":
-        return "from-purple-950 to-indigo-900 border-purple-400/50";
+        return "from-[#19092B] via-[#260E42] to-[#140624] border-purple-400/50";
       case "green":
-        return "from-emerald-950 to-teal-900 border-emerald-400/50";
+        return "from-[#031E15] via-[#052E21] to-[#021710] border-emerald-400/50";
       default:
-        return "from-blue-950 to-slate-950 border-amber-400/50";
+        return "from-[#070D1E] via-[#0D1836] to-[#060B18] border-amber-400/50";
     }
   };
 
@@ -917,7 +1012,10 @@ function InteractiveCertDemo() {
     <div className="space-y-3">
       {!generated ? (
         <div className="space-y-2 bg-background p-3.5 rounded-xl border text-left">
-          <p className="text-xs font-semibold">Visual Certificate Creator</p>
+          <div className="flex items-center justify-between">
+            <p className="text-xs font-semibold">Visual Certificate Creator & Specimen Sandbox</p>
+            <span className="text-[10px] text-amber-500 font-medium">Demo Simulator</span>
+          </div>
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -956,7 +1054,7 @@ function InteractiveCertDemo() {
             onClick={() => setGenerated(true)}
             className="w-full rounded-xl cursor-pointer"
           >
-            Generate Certificate
+            Generate Specimen Preview
           </Button>
         </div>
       ) : (
@@ -967,6 +1065,18 @@ function InteractiveCertDemo() {
               getStyleClass(),
             )}
           >
+            {/* Watermark Overlay */}
+            <div className="absolute inset-0 z-20 pointer-events-none flex items-center justify-center">
+              <div className="rotate-[-22deg] select-none text-center transform scale-95">
+                <div className="text-[9px] font-black tracking-widest text-red-400/50 uppercase border-y border-dashed border-red-400/50 py-0.5 px-3 bg-red-950/40 backdrop-blur-[0.5px]">
+                  DEMO SPECIMEN • NOT VALID UNTIL COURSE COMPLETION
+                </div>
+                <div className="text-[7px] font-bold tracking-wider text-amber-300/40 uppercase mt-0.5">
+                  COPYRIGHT © LEARNIFY AI 2026
+                </div>
+              </div>
+            </div>
+
             <div className="absolute -right-4 -bottom-4 w-16 h-16 rounded-full border border-white/10 flex items-center justify-center rotate-12 pointer-events-none">
               <Award className="w-8 h-8 text-white/15" />
             </div>
@@ -979,19 +1089,52 @@ function InteractiveCertDemo() {
               has successfully completed all requirements for
             </p>
             <p className="text-xs font-semibold text-white mt-1 text-center">{topic}</p>
-            <div className="mt-4 pt-2 border-t border-white/10 flex justify-between items-center text-[7px] text-white/40">
-              <span>Date: {new Date().toLocaleDateString()}</span>
-              <span>ID: LFY-{Math.floor(Math.random() * 100000)}</span>
+
+            <div className="mt-4 pt-2 border-t border-white/10 flex justify-between items-end text-[7px] text-white/70">
+              <div className="space-y-0.5">
+                <div>Date: {new Date().toLocaleDateString()}</div>
+                <div className="font-mono text-amber-300">ID: LFY-{Math.floor(Math.random() * 100000)}</div>
+                <div className="text-emerald-400 flex items-center gap-0.5">
+                  <Check className="w-2.5 h-2.5" /> Specimen Validated
+                </div>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="w-8 h-8 rounded bg-white p-0.5 shadow-sm border border-white/30 flex items-center justify-center overflow-hidden">
+                  {qrUrl ? (
+                    <img src={qrUrl} alt="Verify QR" className="w-full h-full object-contain" />
+                  ) : (
+                    <QrCode className="w-5 h-5 text-slate-900" />
+                  )}
+                </div>
+                <span className="text-[6px] text-white/50 mt-0.5">Scan to verify</span>
+              </div>
             </div>
           </div>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => setGenerated(false)}
-            className="w-full rounded-xl cursor-pointer"
-          >
-            Create Another Certificate
-          </Button>
+
+          <div className="p-2.5 rounded-lg bg-primary/5 border border-primary/15 text-[11px] text-muted-foreground text-center">
+            🔒 <strong className="text-foreground">Official Credential Policy:</strong> Unwatermarked certificates with authentic cryptographic QR codes are issued upon 100% course completion.
+          </div>
+
+          <div className="flex gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setGenerated(false)}
+              className="flex-1 rounded-xl cursor-pointer"
+            >
+              Edit Specimen
+            </Button>
+            <Button
+              asChild
+              size="sm"
+              className="flex-1 rounded-xl cursor-pointer font-semibold"
+            >
+              <Link to="/verified-certificates">
+                <ExternalLink className="w-3.5 h-3.5 mr-1" />
+                View Full Engine
+              </Link>
+            </Button>
+          </div>
         </div>
       )}
     </div>
@@ -1086,25 +1229,38 @@ export function InteractiveDemoCards({ className }: InteractiveDemoCardsProps) {
     Record<string, { videoUrl: string; autoplay?: boolean }>
   >({});
   const [videoErrors, setVideoErrors] = useState<Record<string, boolean>>({});
+  const [tourVideoUrl, setTourVideoUrl] = useState<string>("");
+  const [activeVideoModal, setActiveVideoModal] = useState<{
+    title: string;
+    videoUrl: string;
+    toolName: string;
+    route?: string;
+  } | null>(null);
 
   useEffect(() => {
     let isMounted = true;
     supabase
       .from("site_settings")
-      .select("value")
-      .eq("key", "action_demo_videos")
-      .maybeSingle()
+      .select("key, value")
+      .in("key", ["action_demo_videos", "tour_video_url"])
       .then((res: any) => {
-        const data = res?.data;
-        if (!isMounted || !data?.value) return;
-        try {
-          const parsed = typeof data.value === "string" ? JSON.parse(data.value) : data.value;
-          if (parsed && typeof parsed === "object") {
-            setActionVideos(parsed);
+        if (!isMounted || !res?.data) return;
+        res.data.forEach((row: { key: string; value: any }) => {
+          if (row.key === "action_demo_videos") {
+            try {
+              const parsed = typeof row.value === "string" ? JSON.parse(row.value) : row.value;
+              if (parsed && typeof parsed === "object") {
+                setActionVideos(parsed);
+              }
+            } catch (e) {
+              console.error("Error parsing action_demo_videos", e);
+            }
+          } else if (row.key === "tour_video_url") {
+            if (row.value && typeof row.value === "string") {
+              setTourVideoUrl(row.value);
+            }
           }
-        } catch (e) {
-          console.error("Error parsing action_demo_videos", e);
-        }
+        });
       });
     return () => {
       isMounted = false;
@@ -1194,7 +1350,17 @@ export function InteractiveDemoCards({ className }: InteractiveDemoCardsProps) {
                 )}
               >
                 {toolVideo?.videoUrl && !videoErrors[demo.id] ? (
-                  <div className="relative w-full h-full bg-black group/video">
+                  <div
+                    className="relative w-full h-full bg-black group/video cursor-pointer"
+                    onClick={() =>
+                      setActiveVideoModal({
+                        title: `${demo.title} — Official Walkthrough`,
+                        videoUrl: toolVideo.videoUrl,
+                        toolName: demo.title,
+                        route: demo.route,
+                      })
+                    }
+                  >
                     <video
                       src={toolVideo.videoUrl}
                       autoPlay={toolVideo.autoplay ?? true}
@@ -1210,11 +1376,7 @@ export function InteractiveDemoCards({ className }: InteractiveDemoCardsProps) {
                     </div>
                   </div>
                 ) : demo.id === "certificate" ? (
-                  <img
-                    src="/certificate%200.png"
-                    alt="Certificate"
-                    className="w-full h-full object-contain p-2"
-                  />
+                  <CertificateCardThumbnail />
                 ) : (
                   <div
                     className="w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg"
@@ -1236,10 +1398,23 @@ export function InteractiveDemoCards({ className }: InteractiveDemoCardsProps) {
                     style={{ background: demo.color }}
                     onClick={(e) => {
                       e.stopPropagation();
-                      setOpen(isOpen ? null : demo.id);
+                      if (toolVideo?.videoUrl && !videoErrors[demo.id]) {
+                        setActiveVideoModal({
+                          title: `${demo.title} — Official Walkthrough`,
+                          videoUrl: toolVideo.videoUrl,
+                          toolName: demo.title,
+                          route: demo.route,
+                        });
+                      } else {
+                        setOpen(isOpen ? null : demo.id);
+                      }
                     }}
                   >
-                    <Eye className="w-5 h-5 text-white" />
+                    {toolVideo?.videoUrl && !videoErrors[demo.id] ? (
+                      <Play className="w-5 h-5 text-white fill-white ml-0.5" />
+                    ) : (
+                      <Eye className="w-5 h-5 text-white" />
+                    )}
                   </div>
                 </div>
               </div>
@@ -1326,7 +1501,36 @@ export function InteractiveDemoCards({ className }: InteractiveDemoCardsProps) {
                     </Button>
                   )}
 
-                  {demo.route && user ? (
+                  {demo.id === "certificate" ? (
+                    <Button
+                      asChild
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 text-xs rounded-lg cursor-pointer font-medium"
+                    >
+                      <Link to="/verified-certificates">
+                        <ShieldCheck className="w-3 h-3 mr-1 text-primary" />
+                        {demo.secondary}
+                      </Link>
+                    </Button>
+                  ) : toolVideo?.videoUrl && !videoErrors[demo.id] ? (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 text-xs rounded-lg cursor-pointer font-medium"
+                      onClick={() =>
+                        setActiveVideoModal({
+                          title: `${demo.title} — Official Walkthrough`,
+                          videoUrl: toolVideo.videoUrl,
+                          toolName: demo.title,
+                          route: demo.route,
+                        })
+                      }
+                    >
+                      <Play className="w-3 h-3 mr-1 text-primary fill-primary" />
+                      {demo.secondary}
+                    </Button>
+                  ) : demo.route && user ? (
                     <Button
                       asChild
                       variant="ghost"
@@ -1363,6 +1567,15 @@ export function InteractiveDemoCards({ className }: InteractiveDemoCardsProps) {
                     className="overflow-hidden border-t"
                   >
                     <div className="p-5 bg-muted/20 space-y-4">
+                      {((user as any)?.role === "admin" || user?.email === "vishwajeetsrk@gmail.com") && (
+                        <div className="flex items-center justify-between gap-2 p-2.5 rounded-lg bg-primary/10 border border-primary/20 text-[11px] text-primary">
+                          <span>Admin Control: Manage custom demo video for this card</span>
+                          <Link to="/admin/content" className="font-semibold underline">
+                            Open Content Manager &rarr;
+                          </Link>
+                        </div>
+                      )}
+
                       {demo.id === "ai-tutor" && <InteractiveAiTutorDemo />}
                       {demo.id === "resume" && <InteractiveResumeDemo />}
                       {demo.id === "ats" && <InteractiveAtsDemo />}
@@ -1508,6 +1721,81 @@ export function InteractiveDemoCards({ className }: InteractiveDemoCardsProps) {
           <span>30-Day Guarantee</span>
         </div>
       </motion.div>
+
+      {/* Video Demo Modal */}
+      <AnimatePresence>
+        {activeVideoModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 sm:p-6"
+            onClick={() => setActiveVideoModal(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="relative w-full max-w-4xl bg-card border rounded-2xl overflow-hidden shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between p-4 border-b bg-muted/40">
+                <div className="flex items-center gap-2">
+                  <div className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse" />
+                  <h3 className="font-bold text-sm sm:text-base text-foreground">
+                    {activeVideoModal.title}
+                  </h3>
+                </div>
+                <button
+                  onClick={() => setActiveVideoModal(null)}
+                  className="w-8 h-8 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 text-muted-foreground hover:text-foreground cursor-pointer"
+                  title="Close Video"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Video Container */}
+              <div className="relative aspect-video bg-black flex items-center justify-center">
+                <video
+                  src={activeVideoModal.videoUrl}
+                  controls
+                  autoPlay
+                  playsInline
+                  className="w-full h-full object-contain"
+                />
+              </div>
+
+              {/* Footer */}
+              <div className="p-4 bg-muted/20 border-t flex flex-wrap items-center justify-between gap-3">
+                <p className="text-xs text-muted-foreground">
+                  Official walkthrough demo &bull; Learnify AI Product Suite
+                </p>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setActiveVideoModal(null)}
+                    className="rounded-xl cursor-pointer"
+                  >
+                    Close
+                  </Button>
+                  {activeVideoModal.route && (
+                    <Button asChild size="sm" className="rounded-xl font-bold cursor-pointer">
+                      <Link to={activeVideoModal.route}>
+                        Launch {activeVideoModal.toolName}
+                        <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
+                      </Link>
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }

@@ -178,7 +178,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     const isCart = item.to === "/cart";
     const isCert = item.to === "/certificates";
     const cartItemsCount = isCart ? (cartCount.data ?? 0) : 0;
-    const certItemsCount = isCert ? (certCount.data && certCount.data > 0 ? certCount.data : 4) : 0;
+    const certItemsCount = isCert ? (certCount.data ?? 0) : 0;
     const badgeText =
       isCart && cartItemsCount > 0
         ? String(cartItemsCount)

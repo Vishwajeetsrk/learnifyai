@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import confetti from "canvas-confetti";
+import { cn } from "@/lib/utils";
 import { downloadElementAsPdf, downloadElementAsImage } from "@/lib/certificate-pdf";
 
 export type CertificateThemeKey =
@@ -58,6 +59,8 @@ export interface EngravedCertificateTemplateProps {
   initialSecondSignatoryTitle?: string;
   logoUrl?: string;
   qrDataUrl?: string;
+  isDemo?: boolean;
+  watermarkText?: string;
   className?: string;
   onDownloadPdf?: () => void;
   onDownloadImage?: () => void;
@@ -159,8 +162,10 @@ export const EngravedCertificateTemplate = React.forwardRef<
     initialHonorsDistinction = "Honors with Distinction • Top 1% Percentile",
     initialSecondSignatoryName = "Dr. Michael Chen",
     initialSecondSignatoryTitle = "Academic Dean, Learnify Council",
-    logoUrl = "/logo.png",
+    logoUrl = "/Logo Learnify AI.png",
     qrDataUrl,
+    isDemo = true,
+    watermarkText = "DEMO SPECIMEN • NOT A VALID CREDENTIAL • COMPLETE COURSE TO UNLOCK",
     className = "",
     onDownloadPdf,
     onDownloadImage,
@@ -184,6 +189,33 @@ export const EngravedCertificateTemplate = React.forwardRef<
   const [secondSignatoryName, setSecondSignatoryName] = useState(initialSecondSignatoryName);
   const [secondSignatoryTitle, setSecondSignatoryTitle] = useState(initialSecondSignatoryTitle);
   const [hasSecondSignatory, setHasSecondSignatory] = useState(true);
+
+  // Watermark & QR Code State
+  const [showWatermark, setShowWatermark] = useState(isDemo);
+  const [watermark, setWatermark] = useState(watermarkText);
+  const [qrCodeImg, setQrCodeImg] = useState<string | null>(qrDataUrl || null);
+
+  // Auto-generate live QR Code for the credential ID
+  useEffect(() => {
+    if (qrDataUrl) {
+      setQrCodeImg(qrDataUrl);
+      return;
+    }
+    const origin = typeof window !== "undefined" ? window.location.origin : "https://www.learnifyai.in";
+    const verifyUrl = `${origin}/verify/${credentialId || "CERT-ML-2026"}`;
+    import("qrcode")
+      .then((mod) => {
+        const QRCode = (mod as any).default || mod;
+        QRCode.toDataURL(verifyUrl, {
+          margin: 1,
+          width: 200,
+          color: { dark: "#0A1128", light: "#ffffff" },
+        }).then((dataUrl: string) => {
+          setQrCodeImg(dataUrl);
+        });
+      })
+      .catch(() => {});
+  }, [qrDataUrl, credentialId]);
 
   // Styling & Theme State
   const [activeTheme, setActiveTheme] = useState<CertificateThemeKey>("parchment");
@@ -738,6 +770,36 @@ export const EngravedCertificateTemplate = React.forwardRef<
             />
           </div>
 
+          {/* Specimen Security Watermark Control */}
+          <div className="space-y-1.5 sm:col-span-2 md:col-span-3 p-3.5 rounded-2xl bg-muted/40 border border-border/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="space-y-0.5">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="h-4 w-4 text-rose-500" />
+                <Label className="text-xs font-bold text-foreground">Specimen Security Watermark</Label>
+                <Badge variant="outline" className={cn(
+                  "text-[9px] font-bold font-mono",
+                  showWatermark ? "border-rose-500/40 text-rose-500 bg-rose-500/10" : "border-emerald-500/40 text-emerald-500 bg-emerald-500/10"
+                )}>
+                  {showWatermark ? "Demo Watermark Active" : "Clean Issued Preview"}
+                </Badge>
+              </div>
+              <p className="text-[11px] text-muted-foreground">
+                Protects public previews against counterfeiting. Real certificates are issued unwatermarked upon course completion.
+              </p>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <Button
+                type="button"
+                size="sm"
+                variant={showWatermark ? "destructive" : "outline"}
+                onClick={() => setShowWatermark(!showWatermark)}
+                className="h-8 text-xs font-bold rounded-xl cursor-pointer"
+              >
+                {showWatermark ? "Watermark: ON" : "Watermark: OFF"}
+              </Button>
+            </div>
+          </div>
+
           {/* Bottom Bar: Reset */}
           <div className="sm:col-span-2 md:col-span-3 flex items-center justify-between pt-3 border-t border-border/50">
             <span className="text-[11px] text-muted-foreground">
@@ -773,30 +835,48 @@ export const EngravedCertificateTemplate = React.forwardRef<
           className="absolute inset-0 w-full h-full pointer-events-none z-0"
         />
 
+        {/* Layer 0.5: Tamper-Proof Specimen Watermark Overlay */}
+        {showWatermark && (
+          <div className="absolute inset-0 z-20 pointer-events-none flex flex-col items-center justify-center overflow-hidden">
+            <div
+              className="w-[150%] text-center font-display font-black tracking-[0.22em] uppercase text-rose-500/20 dark:text-rose-400/25 select-none -rotate-24 border-y-2 border-dashed border-rose-500/30 py-5 px-8 bg-rose-500/[0.03] backdrop-blur-[0.5px]"
+              style={{
+                fontSize: "clamp(0.95rem, 2.7vw, 2.1rem)",
+                letterSpacing: "0.22em",
+              }}
+            >
+              <div className="text-[10px] sm:text-xs font-mono font-bold tracking-widest text-rose-600/50 dark:text-rose-400/50 mb-1">
+                ★ OFFICIAL LEARNIFY AI DEMO SPECIMEN ★
+              </div>
+              {watermark}
+              <div className="text-[9px] sm:text-[11px] font-mono font-semibold tracking-wider text-rose-600/50 dark:text-rose-400/50 mt-1">
+                AUTHENTIC UNWATERMARKED CREDENTIAL ISSUED UPON 100% COURSE COMPLETION
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* ═════════════════════════════════════════════════════════════════════
             LAYER 1: CERTIFICATE TYPOGRAPHIC & SECURITY OVERLAY
             ═════════════════════════════════════════════════════════════════════ */}
         <div className="relative z-10 w-full h-full flex flex-col justify-between pointer-events-auto">
           {/* HEADER: Institution Identity & Authenticity Stamp */}
           <div className="flex items-start justify-between gap-4">
-            {/* Learnify Emblem & Title */}
+            {/* Learnify Emblem & Title (Always Visible Logo) */}
             <div className="flex items-center gap-3">
               <div
-                className="h-12 w-12 sm:h-14 sm:w-14 rounded-2xl p-2 shadow-sm flex items-center justify-center border backdrop-blur-md"
-                style={{
-                  backgroundColor:
-                    activeTheme === "parchment" || activeTheme === "platinum"
-                      ? "rgba(255, 255, 255, 0.9)"
-                      : "rgba(255, 255, 255, 0.08)",
-                  borderColor: currentTheme.borderColor,
-                }}
+                className="h-12 w-12 sm:h-14 sm:w-14 rounded-2xl p-2 shadow-md flex items-center justify-center border backdrop-blur-md bg-white/95 shrink-0"
+                style={{ borderColor: currentTheme.borderColor }}
               >
                 <img
-                  src={logoUrl}
+                  src={logoUrl || "/Logo Learnify AI.png"}
                   alt="Learnify AI"
                   className="h-full w-full object-contain"
                   onError={(e) => {
-                    (e.currentTarget as HTMLImageElement).src = "/logo.png";
+                    const target = e.currentTarget as HTMLImageElement;
+                    if (!target.src.includes("logo.png")) {
+                      target.src = "/logo.png";
+                    }
                   }}
                 />
               </div>
@@ -1021,67 +1101,56 @@ export const EngravedCertificateTemplate = React.forwardRef<
               </span>
             </div>
 
-            {/* Secondary Signatory or QR Code */}
-            {hasSecondSignatory ? (
-              <div className="text-right space-y-1">
-                <div
-                  className="font-serif italic text-lg sm:text-2xl font-bold tracking-tight h-8 flex items-center justify-end"
-                  style={{ color: currentTheme.inkColor }}
-                >
-                  {secondSignatoryName}
+            {/* Secondary Signatory & Live QR Code */}
+            <div className="flex items-end gap-3.5 text-right">
+              {hasSecondSignatory && (
+                <div className="space-y-1">
+                  <div
+                    className="font-serif italic text-lg sm:text-2xl font-bold tracking-tight h-8 flex items-center justify-end"
+                    style={{ color: currentTheme.inkColor }}
+                  >
+                    {secondSignatoryName}
+                  </div>
+                  <div
+                    className="w-28 sm:w-36 h-[1.5px] ml-auto"
+                    style={{ backgroundColor: currentTheme.borderColor }}
+                  />
+                  <span
+                    className="text-[10px] sm:text-[11px] font-serif block font-medium max-w-[180px] sm:max-w-none"
+                    style={{ color: currentTheme.inkColorMuted }}
+                  >
+                    {secondSignatoryTitle}
+                  </span>
+                  <div
+                    className="text-[8px] font-mono tracking-wider"
+                    style={{ color: currentTheme.inkColorMuted }}
+                  >
+                    Supabase SHA-256 Verified
+                  </div>
                 </div>
+              )}
+
+              {/* Cryptographic Verification QR Code (Always Visible) */}
+              <div className="flex flex-col items-center shrink-0">
                 <div
-                  className="w-28 sm:w-36 h-[1.5px] ml-auto"
-                  style={{ backgroundColor: currentTheme.borderColor }}
-                />
-                <span
-                  className="text-[10px] sm:text-[11px] font-serif block font-medium max-w-[180px] sm:max-w-none"
-                  style={{ color: currentTheme.inkColorMuted }}
-                >
-                  {secondSignatoryTitle}
-                </span>
-                <div
-                  className="text-[8px] font-mono tracking-wider"
-                  style={{ color: currentTheme.inkColorMuted }}
-                >
-                  Supabase SHA-256 Verified
-                </div>
-              </div>
-            ) : qrDataUrl ? (
-              <div className="flex flex-col items-end gap-1">
-                <div
-                  className="h-14 w-14 p-1 rounded-xl border bg-white/90 shadow-sm"
+                  className="h-14 w-14 sm:h-16 sm:w-16 p-1 rounded-xl border bg-white shadow-md flex items-center justify-center overflow-hidden"
                   style={{ borderColor: currentTheme.borderColor }}
+                  title="Scan with phone camera to verify credential authenticity on learnifyai.in"
                 >
-                  <img src={qrDataUrl} alt="Verification QR" className="h-full w-full object-contain" />
+                  {qrCodeImg ? (
+                    <img src={qrCodeImg} alt="Verification QR Code" className="h-full w-full object-contain" />
+                  ) : (
+                    <QrCode className="h-10 w-10 text-slate-900" />
+                  )}
                 </div>
                 <span
-                  className="text-[8px] font-mono uppercase tracking-wider"
+                  className="text-[7.5px] font-mono uppercase tracking-wider font-bold mt-0.5 text-center"
                   style={{ color: currentTheme.inkColorMuted }}
                 >
                   Scan to Verify
                 </span>
               </div>
-            ) : (
-              <div className="text-right space-y-1">
-                <div
-                  className="font-serif italic text-sm sm:text-base font-semibold"
-                  style={{ color: currentTheme.inkColor }}
-                >
-                  Learnify Academic Council
-                </div>
-                <div
-                  className="w-28 sm:w-36 h-[1.5px] ml-auto"
-                  style={{ backgroundColor: currentTheme.borderColor }}
-                />
-                <span
-                  className="text-[9px] font-mono uppercase tracking-wider block"
-                  style={{ color: currentTheme.inkColorMuted }}
-                >
-                  Tamper-Evident ID: {credentialId}
-                </span>
-              </div>
-            )}
+            </div>
           </div>
         </div>
       </div>
