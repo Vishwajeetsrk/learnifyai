@@ -119,6 +119,111 @@ export function InteractiveLessonContent({
       }
     );
 
+    // 2b. Auto-convert plain markdown Assessment / Question blocks into interactive quizzes
+    // Hides answers and explanations until the learner clicks an option!
+    processed = processed.replace(
+      /(?:^|\n)(?:#{1,4}\s*)?Question\s*(\d+)[:\.]?\s*\n+([\s\S]+?)(?=(?:\n(?:#{1,4}\s*)?Question\s*\d+[:\.]?|\n{3,}|$))/gi,
+      (match, qNum, body) => {
+        const lines = body.trim().split("\n");
+        let questionText = "";
+        const options: { letter: string; text: string }[] = [];
+        let correctLetter = "";
+        let explanation = "";
+
+        let parsingOptions = false;
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (!trimmed) continue;
+
+          const optMatch = trimmed.match(/^([A-D])[\)\.\:]\s*(.*)$/i);
+          const correctMatch = trimmed.match(/^(?:\*\*|\*)?(?:Correct(?:\s*Answer)?|Answer)[:\s]*([A-D])(?:\*\*|\*)?/i);
+          const explMatch = trimmed.match(/^(?:\*\*|\*)?(?:Explanation|Explain)[:\s]*(.*)$/i);
+
+          if (correctMatch) {
+            correctLetter = correctMatch[1].toUpperCase();
+          } else if (explMatch) {
+            explanation = explMatch[1].trim();
+          } else if (optMatch) {
+            parsingOptions = true;
+            options.push({
+              letter: optMatch[1].toUpperCase(),
+              text: optMatch[2].trim(),
+            });
+          } else if (!parsingOptions) {
+            questionText += (questionText ? " " : "") + trimmed;
+          } else if (parsingOptions && explanation) {
+            explanation += " " + trimmed;
+          }
+        }
+
+        if (options.length >= 2 && correctLetter) {
+          quizCounter++;
+          const id = `quiz-auto-${quizCounter}`;
+          const parsedOptions = options.map((opt) => ({
+            text: opt.text,
+            isCorrect: opt.letter === correctLetter,
+          }));
+          extractedQuizzes[id] = {
+            id,
+            question: `Question ${qNum}: ${questionText || "Select the best answer"}`,
+            options: parsedOptions,
+            explanation,
+          };
+          return `\n\n<div data-quiz-id="${id}"></div>\n\n`;
+        }
+
+        return match;
+      }
+    );
+
+    // 2c. Auto-convert QUIZ blocks (e.g. Q: / A. / Correct: B) into interactive cards
+    processed = processed.replace(
+      /(?:^|\n)(?:#{1,4}\s*)?QUIZ\b[\s\S]*?Q:\s*([^\n]+)\n+([\s\S]+?)(?=(?:\n(?:#{1,4}\s*)?QUIZ\b|\n{3,}|$))/gi,
+      (match, questionPrompt, body) => {
+        const lines = body.trim().split("\n");
+        const options: { letter: string; text: string }[] = [];
+        let correctLetter = "";
+        let explanation = "";
+
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (!trimmed) continue;
+          const optMatch = trimmed.match(/^([A-D])[\)\.\:]\s*(.*)$/i);
+          const correctMatch = trimmed.match(/^(?:\*\*|\*)?(?:Correct(?:\s*Answer)?|Answer)[:\s]*([A-D])(?:\*\*|\*)?/i);
+          const explMatch = trimmed.match(/^(?:\*\*|\*)?(?:Explanation|Explain)[:\s]*(.*)$/i);
+
+          if (correctMatch) {
+            correctLetter = correctMatch[1].toUpperCase();
+          } else if (explMatch) {
+            explanation = explMatch[1].trim();
+          } else if (optMatch) {
+            options.push({
+              letter: optMatch[1].toUpperCase(),
+              text: optMatch[2].trim(),
+            });
+          }
+        }
+
+        if (options.length >= 2 && correctLetter) {
+          quizCounter++;
+          const id = `quiz-auto-${quizCounter}`;
+          const parsedOptions = options.map((opt) => ({
+            text: opt.text,
+            isCorrect: opt.letter === correctLetter,
+          }));
+          extractedQuizzes[id] = {
+            id,
+            question: questionPrompt.trim(),
+            options: parsedOptions,
+            explanation,
+          };
+          return `\n\n<div data-quiz-id="${id}"></div>\n\n`;
+        }
+
+        return match;
+      }
+    );
+
     let pollCounter = 0;
     processed = processed.replace(
       /:::poll([\s\S]*?):::/g,
