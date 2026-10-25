@@ -63,7 +63,7 @@ export const Route = createFileRoute("/support-us")({
   component: SupportUsPage,
 });
 
-const DEFAULT_PAYMENT_URL = "https://razorpay.me/@learnifyai3660";
+const DEFAULT_PAYMENT_URL = "https://rzp.io/rzp/valuablesupport";
 
 const PRESET_AMOUNTS = [
   { value: 500, label: "₹500", desc: "1 month of AI credits & course access" },
@@ -142,6 +142,36 @@ function SupportUsPage() {
     DEFAULT_PAYMENT_URL;
 
   const upiId = customSettings["support_us_upi_id"] || s?.support_us_upi_id || "";
+
+  // Dynamic Milestones & Goals
+  const collectedAmount = Math.max(
+    0,
+    parseInt(customSettings["support_us_collected"] || s?.support_us_collected || "0", 10) || 0
+  );
+  const goalAmount = Math.max(
+    1000,
+    parseInt(customSettings["support_us_goal"] || s?.support_us_goal || "100000", 10) || 100000
+  );
+  const supportersCount = Math.max(
+    0,
+    parseInt(customSettings["support_us_supporters_count"] || s?.support_us_supporters_count || "0", 10) || 0
+  );
+  const phaseTitle =
+    customSettings["support_us_phase"] ||
+    s?.support_us_phase ||
+    "Phase 1: Foundation";
+  const targetStudents =
+    customSettings["support_us_target_students"] ||
+    s?.support_us_target_students ||
+    "Goal: 100 Students Sponsored";
+
+  const progressPercent = Math.min(
+    100,
+    Math.max(
+      collectedAmount > 0 ? 3 : 0,
+      Math.round((collectedAmount / (goalAmount || 1)) * 100)
+    )
+  );
 
   // If support is hidden and user is not admin, show paused notice
   if (isSupportHidden && !isAdmin) {
@@ -338,14 +368,22 @@ function SupportUsPage() {
                     Current Milestone
                   </span>
                   <div className="text-2xl font-bold tracking-tight text-foreground">
-                    ₹ 0 <span className="text-sm font-normal text-muted-foreground">of ₹ 1,00,000 collected</span>
+                    ₹ {collectedAmount.toLocaleString("en-IN")}{" "}
+                    <span className="text-sm font-normal text-muted-foreground">
+                      of ₹ {goalAmount.toLocaleString("en-IN")} collected
+                    </span>
                   </div>
                 </div>
                 <div className="text-right">
                   <Badge variant="outline" className="bg-muted/60 text-xs px-2.5 py-1">
-                    <Users className="h-3 w-3 mr-1 text-primary" /> 0 supporters
+                    <Users className="h-3 w-3 mr-1 text-primary" /> {supportersCount.toLocaleString("en-IN")}{" "}
+                    {supportersCount === 1 ? "supporter" : "supporters"}
                   </Badge>
-                  <p className="text-[11px] text-muted-foreground mt-1">Be our first supporter!</p>
+                  <p className="text-[11px] text-muted-foreground mt-1">
+                    {supportersCount === 0
+                      ? "Be our first supporter!"
+                      : `${supportersCount} supporters backing learners`}
+                  </p>
                 </div>
               </div>
 
@@ -353,15 +391,15 @@ function SupportUsPage() {
               <div className="h-3 w-full bg-muted/60 rounded-full overflow-hidden p-0.5 border border-border/40">
                 <motion.div
                   initial={{ width: 0 }}
-                  animate={{ width: "3%" }}
-                  transition={{ duration: 1 }}
-                  className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-primary"
+                  animate={{ width: `${progressPercent}%` }}
+                  transition={{ duration: 1, ease: "easeOut" }}
+                  className="h-full rounded-full bg-gradient-to-r from-indigo-500 via-primary to-emerald-500"
                 />
               </div>
 
-              <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
-                <span>Phase 1: Foundation</span>
-                <span>Goal: 100 Students Sponsored</span>
+              <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground font-medium">
+                <span>{phaseTitle}</span>
+                <span>{targetStudents}</span>
               </div>
             </div>
 

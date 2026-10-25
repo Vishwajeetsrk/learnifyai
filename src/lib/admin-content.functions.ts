@@ -178,7 +178,8 @@ export const adminContentUpsert = createServerFn({ method: "POST" })
     z
       .object({
         table: z.enum(ALLOWED_TABLES),
-        data: z.any(),
+        data: z.any().optional(),
+        values: z.any().optional(),
         onConflict: z.string().optional(),
       })
       .parse(d),
@@ -189,11 +190,25 @@ export const adminContentUpsert = createServerFn({ method: "POST" })
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
+    const payload = data.data ?? data.values;
+    if (payload === undefined || payload === null) {
+      throw new Error("No data or values provided for upsert");
+    }
+
+    if (Array.isArray(payload)) {
+      if (payload.length === 0) return { success: true, count: 0 };
+    } else if (typeof payload === "object" && Object.keys(payload).length === 0) {
+      throw new Error("Cannot upsert empty object payload");
+    }
+
     const opts: any = {};
     if (data.onConflict) opts.onConflict = data.onConflict;
 
-    const { error } = await supabaseAdmin.from(data.table as any).upsert(data.data, opts);
-    if (error) throw error;
+    const { error } = await supabaseAdmin.from(data.table as any).upsert(payload, opts);
+    if (error) {
+      console.error(`[adminContentUpsert] Error upserting to ${data.table}:`, error);
+      throw new Error(error.message || "Failed to upsert data");
+    }
     return { success: true };
   });
 

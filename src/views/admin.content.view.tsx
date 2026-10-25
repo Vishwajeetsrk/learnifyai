@@ -6091,19 +6091,38 @@ function SupportUsManager() {
     payment_url: "https://rzp.io/rzp/valuablesupport",
     upi_id: "",
     description: "",
+    collected: "0",
+    goal: "100000",
+    supporters_count: "0",
+    phase: "Phase 1: Foundation",
+    target_students: "Goal: 100 Students Sponsored",
   });
 
   const { data } = useQuery({
     queryKey: ["admin-support-us-settings"],
     queryFn: async () => {
-      const result = await doQuery({
-        data: {
-          table: "site_settings",
-          columns: "key,value",
-        },
-      });
+      try {
+        const result = await doQuery({
+          data: {
+            table: "site_settings",
+            columns: "key,value",
+          },
+        });
+        const map: Record<string, string> = {};
+        ((result ?? []) as any[]).forEach((r: any) => {
+          if (r.key && r.value != null) map[r.key] = r.value;
+        });
+        if (Object.keys(map).length > 0) return map;
+      } catch (err) {
+        console.warn("[SupportUsManager] doQuery fallback to direct supabase:", err);
+      }
+      const { data: direct, error } = await supabase.from("site_settings").select("key,value");
+      if (error) {
+        console.error("[SupportUsManager] Direct fetch failed:", error);
+        return {};
+      }
       const map: Record<string, string> = {};
-      ((result ?? []) as any[]).forEach((r: any) => {
+      (direct ?? []).forEach((r: any) => {
         if (r.key && r.value != null) map[r.key] = r.value;
       });
       return map;
@@ -6118,9 +6137,14 @@ function SupportUsManager() {
         subtitle:
           data["support_us_subtitle"] ||
           "Help us make practical career education accessible to people facing financial or access barriers, with a special focus on care leavers and underrepresented learners.",
-        payment_url: data["support_us_payment_url"] || "https://razorpay.me/@learnifyai3660",
+        payment_url: data["support_us_payment_url"] || "https://rzp.io/rzp/valuablesupport",
         upi_id: data["support_us_upi_id"] || "",
         description: data["support_us_description"] || "",
+        collected: data["support_us_collected"] || "0",
+        goal: data["support_us_goal"] || "100000",
+        supporters_count: data["support_us_supporters_count"] || "0",
+        phase: data["support_us_phase"] || "Phase 1: Foundation",
+        target_students: data["support_us_target_students"] || "Goal: 100 Students Sponsored",
       });
       setLoaded(true);
     }
@@ -6131,21 +6155,35 @@ function SupportUsManager() {
     try {
       const updates = [
         { key: "support_us_enabled", value: form.enabled ? "true" : "false" },
-        { key: "support_us_title", value: form.title.trim() },
-        { key: "support_us_subtitle", value: form.subtitle.trim() },
-        { key: "support_us_payment_url", value: form.payment_url.trim() },
-        { key: "support_us_upi_id", value: form.upi_id.trim() },
-        { key: "support_us_description", value: form.description.trim() },
+        { key: "support_us_title", value: (form.title || "").trim() },
+        { key: "support_us_subtitle", value: (form.subtitle || "").trim() },
+        { key: "support_us_payment_url", value: (form.payment_url || "").trim() },
+        { key: "support_us_upi_id", value: (form.upi_id || "").trim() },
+        { key: "support_us_description", value: (form.description || "").trim() },
+        { key: "support_us_collected", value: (form.collected || "0").trim() },
+        { key: "support_us_goal", value: (form.goal || "100000").trim() },
+        { key: "support_us_supporters_count", value: (form.supporters_count || "0").trim() },
+        { key: "support_us_phase", value: (form.phase || "Phase 1: Foundation").trim() },
+        { key: "support_us_target_students", value: (form.target_students || "Goal: 100 Students Sponsored").trim() },
       ];
 
-      for (const item of updates) {
+      let saved = false;
+      try {
         await doUpsert({
           data: {
             table: "site_settings",
-            values: { key: item.key, value: item.value },
+            data: updates,
             onConflict: "key",
           },
         });
+        saved = true;
+      } catch (srvErr) {
+        console.warn("[SupportUsManager] Server upsert failed, trying direct client upsert:", srvErr);
+      }
+
+      if (!saved) {
+        const { error } = await supabase.from("site_settings").upsert(updates, { onConflict: "key" });
+        if (error) throw error;
       }
 
       toast.success("Support Us settings saved successfully!");
@@ -6268,7 +6306,79 @@ function SupportUsManager() {
           />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+        {/* Milestone Targets Section */}
+        <div className="pt-2 border-t border-border/50 space-y-3">
+          <h5 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+            Campaign Milestone &amp; Supporter Goals
+          </h5>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="support-collected" className="text-xs font-semibold">
+                Amount Collected (₹)
+              </Label>
+              <Input
+                id="support-collected"
+                value={form.collected}
+                onChange={(e) => setForm({ ...form, collected: e.target.value })}
+                placeholder="0"
+                className="text-xs font-mono"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="support-goal" className="text-xs font-semibold">
+                Milestone Goal Target (₹)
+              </Label>
+              <Input
+                id="support-goal"
+                value={form.goal}
+                onChange={(e) => setForm({ ...form, goal: e.target.value })}
+                placeholder="100000"
+                className="text-xs font-mono"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="support-supporters" className="text-xs font-semibold">
+                Supporters Count
+              </Label>
+              <Input
+                id="support-supporters"
+                value={form.supporters_count}
+                onChange={(e) => setForm({ ...form, supporters_count: e.target.value })}
+                placeholder="0"
+                className="text-xs font-mono"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+            <div className="space-y-1.5">
+              <Label htmlFor="support-phase" className="text-xs font-semibold">
+                Phase Title
+              </Label>
+              <Input
+                id="support-phase"
+                value={form.phase}
+                onChange={(e) => setForm({ ...form, phase: e.target.value })}
+                placeholder="Phase 1: Foundation"
+                className="text-xs"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="support-target-students" className="text-xs font-semibold">
+                Target Outcome Label
+              </Label>
+              <Input
+                id="support-target-students"
+                value={form.target_students}
+                onChange={(e) => setForm({ ...form, target_students: e.target.value })}
+                placeholder="Goal: 100 Students Sponsored"
+                className="text-xs"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-border/50">
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
               <Label htmlFor="support-payment-url" className="text-xs font-semibold">
@@ -6485,14 +6595,23 @@ function LegalCenterManager() {
         if (slug === "cancellation-refund") updates.push({ key: "page_refund", value: val.content });
       });
 
-      for (const item of updates) {
+      let saved = false;
+      try {
         await doUpsert({
           data: {
             table: "site_settings",
-            values: { key: item.key, value: item.value },
+            data: updates,
             onConflict: "key",
           },
         });
+        saved = true;
+      } catch (srvErr) {
+        console.warn("[LegalCenterManager] Server upsert failed, trying direct client upsert:", srvErr);
+      }
+
+      if (!saved) {
+        const { error } = await supabase.from("site_settings").upsert(updates, { onConflict: "key" });
+        if (error) throw error;
       }
 
       toast.success("Legal Center policies updated successfully!");

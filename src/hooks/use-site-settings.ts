@@ -18,6 +18,11 @@ export type SiteSettings = {
   support_us_payment_url: string;
   support_us_upi_id: string;
   support_us_description: string;
+  support_us_collected: string;
+  support_us_goal: string;
+  support_us_supporters_count: string;
+  support_us_phase: string;
+  support_us_target_students: string;
   legal_center_enabled: string;
   legal_center_title: string;
   legal_center_subtitle: string;
@@ -38,9 +43,14 @@ const defaults: SiteSettings = {
   support_us_title: "Support Us & Sponsor a Career",
   support_us_subtitle:
     "Help us build a free career-learning ecosystem. Sponsor a career and make practical education accessible to people facing financial barriers.",
-  support_us_payment_url: "https://razorpay.me/@learnifyai3660",
+  support_us_payment_url: "https://rzp.io/rzp/valuablesupport",
   support_us_upi_id: "",
   support_us_description: "",
+  support_us_collected: "0",
+  support_us_goal: "100000",
+  support_us_supporters_count: "0",
+  support_us_phase: "Phase 1: Foundation",
+  support_us_target_students: "Goal: 100 Students Sponsored",
   legal_center_enabled: "true",
   legal_center_title: "Legal Center",
   legal_center_subtitle:
