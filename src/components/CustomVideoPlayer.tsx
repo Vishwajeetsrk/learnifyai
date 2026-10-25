@@ -35,6 +35,17 @@ function formatTime(seconds: number) {
   return `${m}:${s.toString().padStart(2, "0")}`;
 }
 
+function extractScrimbaUrl(url: string): string | null {
+  if (!url) return null;
+  const trimmed = url.trim();
+  const iframeMatch = trimmed.match(/<iframe[^>]+src=["']([^"']+)["']/i);
+  const target = iframeMatch ? iframeMatch[1] : trimmed;
+  if (target.includes("scrimba.com/explain/")) {
+    return target;
+  }
+  return null;
+}
+
 function extractYoutubeId(url: string): string | null {
   if (!url) return null;
   const trimmed = url.trim();
@@ -105,7 +116,8 @@ export function CustomVideoPlayer({
   const [quality, setQuality] = useState("auto");
   const [availableQualities, setAvailableQualities] = useState<string[]>([]);
 
-  const youtubeId = useMemo(() => extractYoutubeId(url), [url]);
+  const scrimbaUrl = useMemo(() => extractScrimbaUrl(url), [url]);
+  const youtubeId = useMemo(() => (!scrimbaUrl ? extractYoutubeId(url) : null), [url, scrimbaUrl]);
 
   const setHighQuality = useCallback((player: any) => {
     try {
@@ -621,7 +633,7 @@ export function CustomVideoPlayer({
       onContextMenu={restrictDownload ? (e) => e.preventDefault() : undefined}
     >
       {/* Cover Overlay / Custom Play Button */}
-      {!hasStarted && (
+      {!hasStarted && !scrimbaUrl && (
         <div className="absolute inset-0 z-30 flex items-center justify-center select-none overflow-hidden bg-slate-950">
           {thumbnailUrl ? (
             <img
@@ -652,7 +664,17 @@ export function CustomVideoPlayer({
       )}
 
       {/* Video Content */}
-      {youtubeId ? (
+      {scrimbaUrl ? (
+        <div className="absolute inset-0 w-full h-full bg-slate-950">
+          <iframe
+            src={scrimbaUrl}
+            className="w-full h-full border-0"
+            allow="autoplay; fullscreen"
+            allowFullScreen
+            title="Interactive Explainer"
+          />
+        </div>
+      ) : youtubeId ? (
         <div className="absolute inset-0 w-full h-full" id={safeId} />
       ) : (
         <video

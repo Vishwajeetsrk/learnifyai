@@ -140,6 +140,14 @@ export function AdvancedVideoPlayer({
   const [activeTrack, setActiveTrack] = useState<SubtitleTrack | null>(null);
   const [audioLanguage, setAudioLanguage] = useState<string>("original");
 
+  const scrimbaUrl = useMemo(() => {
+    if (!videoUrl) return null;
+    const trimmed = videoUrl.trim();
+    const iframeMatch = trimmed.match(/<iframe[^>]+src=["']([^"']+)["']/i);
+    const target = iframeMatch ? iframeMatch[1] : trimmed;
+    return target.includes("scrimba.com/explain/") ? target : null;
+  }, [videoUrl]);
+
   // Install caption tracks from real sources: explicit subtitle tracks, or the lesson transcript.
   const installedTracksRef = useRef<string>("");
   useEffect(() => {
@@ -729,8 +737,19 @@ export function AdvancedVideoPlayer({
       role="application"
       aria-label={`Video player: ${title}`}
     >
-      {/* YouTube iframe */}
-      {isYouTube ? (
+      {/* Scrimba Explainer or YouTube iframe */}
+      {scrimbaUrl ? (
+        <div className="relative w-full aspect-video bg-black">
+          <iframe
+            ref={iframeRef}
+            src={scrimbaUrl}
+            className="absolute inset-0 w-full h-full border-0"
+            allow="autoplay; fullscreen"
+            allowFullScreen
+            title={title}
+          />
+        </div>
+      ) : isYouTube ? (
         <div className="relative w-full aspect-video">
           <iframe
             ref={iframeRef}
