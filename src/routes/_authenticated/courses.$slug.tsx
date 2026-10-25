@@ -174,6 +174,7 @@ function CourseDetail() {
   const [playerRetry, setPlayerRetry] = useState(0);
   const [playerLoadFailed, setPlayerLoadFailed] = useState(false);
   const [showCertNudge, setShowCertNudge] = useState(false);
+  const [workspaceMode, setWorkspaceMode] = useState<"cinema" | "scrimba" | "ide">("cinema");
 
   const courseQuery = useQuery({
     queryKey: ["course", slug],
@@ -445,6 +446,20 @@ function CourseDetail() {
       )
     : null;
   const pct = lessons.length ? Math.round((completed.size / lessons.length) * 100) : 0;
+
+  const activeLessonCode = useMemo(() => {
+    if (!active) return undefined;
+    const raw = (active as any).content_md || active.description || "";
+    const codeMatch = raw.match(/```(?:[a-zA-Z0-9_-]+)?\n([\s\S]*?)```/);
+    return codeMatch ? codeMatch[1].trim() : undefined;
+  }, [active]);
+
+  const activeLessonLang = useMemo(() => {
+    if (!active) return undefined;
+    const raw = (active as any).content_md || active.description || "";
+    const langMatch = raw.match(/```([a-zA-Z0-9_-]+)\n/);
+    return langMatch ? langMatch[1].trim().toLowerCase() : undefined;
+  }, [active]);
 
   useEffect(() => {
     setPlayerLoadFailed(false);
@@ -967,9 +982,80 @@ function CourseDetail() {
           </div>
         )}
 
-        <div className="mt-6 grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
-          {/* Player */}
-          <div className="space-y-4 min-w-0">
+        {/* Workstation Mode Switcher: Theater / Scrimba Split (Watch & Code) / IDE */}
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-3 bg-card/70 p-2.5 rounded-2xl border border-border/80 backdrop-blur-sm shadow-sm">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold font-display uppercase tracking-wider text-muted-foreground ml-1">
+              Workstation:
+            </span>
+            <div className="inline-flex items-center rounded-xl bg-muted/60 p-1 border border-border/50 text-xs">
+              <button
+                type="button"
+                onClick={() => setWorkspaceMode("cinema")}
+                className={cn(
+                  "px-3 py-1.5 rounded-lg font-semibold transition-all flex items-center gap-1.5 cursor-pointer",
+                  workspaceMode === "cinema"
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                <Play className="h-3.5 w-3.5" />
+                <span>Lecture Theater</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setWorkspaceMode("scrimba")}
+                className={cn(
+                  "px-3 py-1.5 rounded-lg font-semibold transition-all flex items-center gap-1.5 cursor-pointer",
+                  workspaceMode === "scrimba"
+                    ? "bg-gradient-to-r from-indigo-500 to-sky-500 text-white shadow-sm"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                <Sparkles className="h-3.5 w-3.5 text-amber-300" />
+                <span>Scrimba Split (Watch & Code)</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setWorkspaceMode("ide")}
+                className={cn(
+                  "px-3 py-1.5 rounded-lg font-semibold transition-all flex items-center gap-1.5 cursor-pointer",
+                  workspaceMode === "ide"
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                <Code2 className="h-3.5 w-3.5" />
+                <span>Full IDE</span>
+              </button>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            {workspaceMode === "scrimba" ? (
+              <span className="inline-flex items-center gap-1.5 text-indigo-400 font-medium">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" /> Live Dual-Pane Practice Active
+              </span>
+            ) : (
+              <span className="hidden sm:inline-block text-[11px] text-muted-foreground">
+                Switch to Scrimba mode to code alongside the lecture
+              </span>
+            )}
+          </div>
+        </div>
+
+        <div
+          className={cn(
+            "mt-4 gap-6",
+            workspaceMode === "scrimba"
+              ? "grid grid-cols-1 xl:grid-cols-2"
+              : workspaceMode === "ide"
+                ? "grid grid-cols-1"
+                : "grid grid-cols-1 lg:grid-cols-[1fr_320px]"
+          )}
+        >
+          {/* Player Column */}
+          <div className={cn("space-y-4 min-w-0", workspaceMode === "ide" && "hidden")}>
             {active && (
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center gap-2 min-w-0">
@@ -1202,10 +1288,94 @@ function CourseDetail() {
             )}
           </div>
 
-          {/* Right Sidebar (Content + Details) */}
-          <div className="space-y-6">
-            {/* Course Summary Card */}
-            <div className="rounded-2xl border border-border/80 bg-card p-5 shadow-sm space-y-4">
+          {/* Right Column in Scrimba Mode: Live Playground alongside Video */}
+          {workspaceMode === "scrimba" && (
+            <div className="space-y-4 min-w-0">
+              <div className="flex items-center justify-between bg-card/80 p-3 rounded-2xl border border-border/70 backdrop-blur-sm">
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className="bg-indigo-500/10 text-indigo-400 border-indigo-500/30 text-xs">
+                    <Code2 className="h-3.5 w-3.5 mr-1" /> Scrimba Interactive Sandbox
+                  </Badge>
+                  <span className="text-xs text-muted-foreground hidden sm:inline">
+                    Code & preview live while watching
+                  </span>
+                </div>
+                <Badge variant="secondary" className="text-[11px] font-mono">
+                  {activeLessonLang?.toUpperCase() || "CODE"}
+                </Badge>
+              </div>
+
+              <div className="rounded-2xl border border-border/80 bg-card p-4 shadow-sm">
+                <CodePlayground
+                  course={{ id: course.id, title: course.title, slug: course.slug }}
+                  exerciseText={active?.title}
+                  injectedCode={activeLessonCode}
+                  injectedLang={activeLessonLang}
+                />
+              </div>
+
+              {/* Collapsible Curriculum in Scrimba Mode */}
+              <div className="rounded-2xl border border-border/80 bg-card shadow-sm overflow-hidden">
+                <div className="px-4 py-3 border-b border-border/60 bg-muted/20 flex items-center justify-between">
+                  <h3 className="font-display font-bold text-sm text-foreground">Course Curriculum</h3>
+                  <span className="text-[11px] text-muted-foreground font-medium">
+                    {lessons.length} lessons
+                  </span>
+                </div>
+                <ul className="divide-y divide-border/60 max-h-48 overflow-y-auto">
+                  {lessons.map((l, i) => {
+                    const isUnlocked = unlocked.has(l.id);
+                    const isDone = completed.has(l.id);
+                    const isActive = activeLessonId === l.id;
+                    return (
+                      <li key={l.id}>
+                        <button
+                          onClick={() => isUnlocked && setActiveLessonId(l.id)}
+                          disabled={!isUnlocked}
+                          className={cn(
+                            "w-full text-left px-4 py-2.5 flex items-center gap-2.5 transition text-xs",
+                            isActive && "bg-primary/10 border-l-4 border-primary font-bold text-primary",
+                            isUnlocked ? "hover:bg-accent cursor-pointer" : "opacity-50 cursor-not-allowed",
+                          )}
+                        >
+                          <span className="shrink-0">
+                            {!isUnlocked ? (
+                              <Lock className="h-3.5 w-3.5 text-muted-foreground" />
+                            ) : isDone ? (
+                              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
+                            ) : (
+                              <Circle className="h-3.5 w-3.5 text-muted-foreground" />
+                            )}
+                          </span>
+                          <span className="truncate flex-1">{i + 1}. {l.title}</span>
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            </div>
+          )}
+
+          {/* Right Column in IDE Mode */}
+          {workspaceMode === "ide" && (
+            <div className="space-y-4 min-w-0">
+              <div className="rounded-2xl border border-border/80 bg-card p-4 shadow-sm">
+                <CodePlayground
+                  course={{ id: course.id, title: course.title, slug: course.slug }}
+                  exerciseText={active?.title}
+                  injectedCode={activeLessonCode}
+                  injectedLang={activeLessonLang}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Right Sidebar (Content + Details) in Cinema / Standard Mode */}
+          {workspaceMode === "cinema" && (
+            <div className="space-y-6">
+              {/* Course Summary Card */}
+              <div className="rounded-2xl border border-border/80 bg-card p-5 shadow-sm space-y-4">
               <h3 className="font-display font-bold text-sm text-foreground">Course Details</h3>
               <div className="grid grid-cols-2 gap-3 text-xs">
                 {(() => {
@@ -1435,8 +1605,9 @@ function CourseDetail() {
                     )}
                   </div>
                 )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {course && user && isEnrolled && <AssignmentsPanel courseId={course.id} userId={user.id} />}

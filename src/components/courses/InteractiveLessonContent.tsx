@@ -30,6 +30,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { DesignThinkingStudio } from "./DesignThinkingStudio";
 
 interface InteractiveLessonContentProps {
   content: string;
@@ -56,7 +57,7 @@ export function InteractiveLessonContent({
   className,
 }: InteractiveLessonContentProps) {
   // Pre-process content to extract or tag custom interactive blocks
-  const { renderedContent, quizzes, polls } = useMemo(() => {
+  const { renderedContent, quizzes, polls, designStudios } = useMemo(() => {
     let processed = content || "";
 
     // 1. Normalize unspaced headers: "mouse is the slow path.## First Understanding" -> "mouse is the slow path.\n\n## First Understanding"
@@ -251,10 +252,48 @@ export function InteractiveLessonContent({
       }
     );
 
+    let designStudioCounter = 0;
+    const extractedDesignStudios: Record<string, boolean> = {};
+    processed = processed.replace(
+      /:::design-studio([\s\S]*?):::/gi,
+      () => {
+        designStudioCounter++;
+        const id = `design-studio-${designStudioCounter}`;
+        extractedDesignStudios[id] = true;
+        return `\n\n<div data-design-studio-id="${id}"></div>\n\n`;
+      }
+    );
+
+    // Auto-detect UI/UX and Design Thinking topics
+    const lowerContent = processed.toLowerCase();
+    const isDesignTopic =
+      lowerContent.includes("design thinking") ||
+      lowerContent.includes("visual hierarchy") ||
+      lowerContent.includes("color theory") ||
+      lowerContent.includes("auto layout") ||
+      lowerContent.includes("wireframing and prototyping") ||
+      lowerContent.includes("60-30-10");
+
+    if (isDesignTopic && designStudioCounter === 0) {
+      designStudioCounter++;
+      const id = `design-studio-${designStudioCounter}`;
+      extractedDesignStudios[id] = true;
+      const firstSectionBreak = processed.indexOf("\n\n## ");
+      if (firstSectionBreak !== -1) {
+        processed =
+          processed.slice(0, firstSectionBreak) +
+          `\n\n<div data-design-studio-id="${id}"></div>\n\n` +
+          processed.slice(firstSectionBreak);
+      } else {
+        processed += `\n\n<div data-design-studio-id="${id}"></div>\n\n`;
+      }
+    }
+
     return {
       renderedContent: processed,
       quizzes: extractedQuizzes,
       polls: extractedPolls,
+      designStudios: extractedDesignStudios,
     };
   }, [content]);
 
@@ -342,7 +381,7 @@ export function InteractiveLessonContent({
             );
           },
 
-          // Custom Div for Quizzes, Polls & Callouts
+          // Custom Div for Quizzes, Polls, Design Thinking Studios & Callouts
           div({ node, className, ...props }: any) {
             const quizId = props["data-quiz-id"];
             if (quizId && quizzes[quizId]) {
@@ -352,6 +391,11 @@ export function InteractiveLessonContent({
             const pollId = props["data-poll-id"];
             if (pollId && polls[pollId]) {
               return <InteractivePollCard poll={polls[pollId]} />;
+            }
+
+            const designStudioId = props["data-design-studio-id"];
+            if (designStudioId && designStudios && designStudios[designStudioId]) {
+              return <DesignThinkingStudio onOpenIde={onRunInIde} />;
             }
 
             return <div className={className} {...props} />;

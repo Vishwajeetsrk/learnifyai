@@ -2,6 +2,7 @@ import React from "react";
 import {
   AbsoluteFill,
   Audio,
+  Img,
   Sequence,
   interpolate,
   spring,
@@ -117,31 +118,15 @@ export const CourseLessonExplainer: React.FC<CourseLessonExplainerProps> = ({
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-          <div
+          <Img
+            src={staticFile("images/learnify-logo-dark.png")}
             style={{
-              width: 38,
-              height: 38,
-              borderRadius: 10,
-              background: "linear-gradient(135deg, #6366F1 0%, #A855F7 100%)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontWeight: 800,
-              fontSize: 20,
-              color: "#FFF",
-              boxShadow: "0 4px 18px rgba(99, 102, 241, 0.4)",
+              height: 44,
+              width: "auto",
+              objectFit: "contain",
+              filter: "drop-shadow(0 2px 12px rgba(56, 189, 248, 0.25))",
             }}
-          >
-            L
-          </div>
-          <div>
-            <div style={{ fontSize: 16, fontWeight: 700, letterSpacing: "-0.01em" }}>
-              Learnify AI
-            </div>
-            <div style={{ fontSize: 11, color: "#64748B", textTransform: "uppercase", letterSpacing: "0.1em" }}>
-              Interactive Academy
-            </div>
-          </div>
+          />
         </div>
 
         {/* Live Audio Activity Waveform */}
