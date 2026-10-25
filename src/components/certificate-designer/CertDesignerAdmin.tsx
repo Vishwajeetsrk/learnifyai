@@ -27,6 +27,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { DesignerWorkspace } from "./DesignerWorkspace";
 import { CertificatePreview } from "./CertificatePreview";
 import { BadgeDesigner } from "./BadgeDesigner";
+import { getDefaultCertificateElements, DEFAULT_DESIGN } from "./types";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import html2canvas from "html2canvas-pro";
@@ -378,76 +379,174 @@ const ALL_CERTS_DATA = Array.from({ length: 12 }, (_, i) => ({
 
 const CATS_DATA = [
   {
+    name: "Python Programming",
+    type: "Professional",
+    certs: 0,
+    templates: 16,
+    rating: 4.9,
+    status: "Active",
+    color: "#10B981",
+    subcategories: ["Scripting", "Django", "Data Science", "Automation"],
+  },
+  {
+    name: "Web Development",
+    type: "Professional",
+    certs: 0,
+    templates: 18,
+    rating: 4.8,
+    status: "Active",
+    color: "#3B82F6",
+    subcategories: ["React", "Node.js", "Full Stack", "TypeScript"],
+  },
+  {
+    name: "Excel & Data Analysis",
+    type: "Professional",
+    certs: 0,
+    templates: 23,
+    rating: 4.7,
+    status: "Active",
+    color: "#F59E0B",
+    subcategories: ["Formulas", "VBA", "Power Query", "Dashboards"],
+  },
+  {
+    name: "Data Structures & Algorithms",
+    type: "Professional",
+    certs: 0,
+    templates: 20,
+    rating: 4.9,
+    status: "Active",
+    color: "#8B5CF6",
+    subcategories: ["Arrays", "Trees", "Graphs", "Dynamic Programming"],
+  },
+  {
+    name: "Digital Marketing",
+    type: "Professional",
+    certs: 0,
+    templates: 25,
+    rating: 4.6,
+    status: "Active",
+    color: "#EC4899",
+    subcategories: ["SEO", "Content Marketing", "PPC", "Social Media"],
+  },
+  {
+    name: "AI Fundamentals",
+    type: "Professional",
+    certs: 0,
+    templates: 14,
+    rating: 4.9,
+    status: "Active",
+    color: "#06B6D4",
+    subcategories: ["Machine Learning", "Prompt Engineering", "Neural Networks"],
+  },
+  {
+    name: "Advanced Data Structures",
+    type: "Professional",
+    certs: 0,
+    templates: 20,
+    rating: 4.8,
+    status: "Active",
+    color: "#6366F1",
+    subcategories: ["Segment Trees", "Disjoint Set", "Tries", "Graph Algorithms"],
+  },
+  {
+    name: "UI/UX Design",
+    type: "Professional",
+    certs: 0,
+    templates: 17,
+    rating: 4.7,
+    status: "Active",
+    color: "#14B8A6",
+    subcategories: ["Figma", "Wireframing", "User Research", "Prototyping"],
+  },
+  {
     name: "Technology",
     type: "Professional",
-    certs: 4521,
-    templates: 42,
+    certs: 0,
+    templates: 3,
     rating: 4.8,
     status: "Active",
     color: "#6B5BFB",
+    subcategories: ["Cloud Computing", "DevOps", "Cybersecurity"],
   },
   {
     name: "Business",
     type: "Professional",
-    certs: 3241,
-    templates: 38,
-    rating: 4.7,
+    certs: 0,
+    templates: 1,
+    rating: 4.5,
     status: "Active",
-    color: "#10B981",
+    color: "#059669",
+    subcategories: ["Management", "Finance"],
+  },
+  {
+    name: "Creative",
+    type: "Professional",
+    certs: 0,
+    templates: 4,
+    rating: 4.5,
+    status: "Active",
+    color: "#F43F5E",
+    subcategories: ["Illustration", "Photography", "Animation"],
+  },
+  {
+    name: "Engineering",
+    type: "Professional",
+    certs: 0,
+    templates: 4,
+    rating: 4.5,
+    status: "Active",
+    color: "#D97706",
+    subcategories: ["Systems Architecture", "Distributed Cloud"],
+  },
+  {
+    name: "Distinction",
+    type: "Professional",
+    certs: 0,
+    templates: 3,
+    rating: 4.5,
+    status: "Active",
+    color: "#7C3AED",
+    subcategories: ["Honors Laureate", "Fellowship"],
+  },
+  {
+    name: "Live 3D",
+    type: "Professional",
+    certs: 0,
+    templates: 4,
+    rating: 4.5,
+    status: "Active",
+    color: "#00F2FE",
+    subcategories: ["ThreeUI", "WebGL Shaders", "Lathe Engine"],
+  },
+  {
+    name: "Academic",
+    type: "Professional",
+    certs: 0,
+    templates: 3,
+    rating: 4.5,
+    status: "Active",
+    color: "#8B6914",
+    subcategories: ["Dean's List", "Postgraduate"],
   },
   {
     name: "Design",
-    type: "Creative",
-    certs: 2187,
-    templates: 28,
-    rating: 4.9,
-    status: "Active",
-    color: "#EC4899",
-  },
-  {
-    name: "Marketing",
     type: "Professional",
-    certs: 1854,
-    templates: 22,
-    rating: 4.6,
-    status: "Active",
-    color: "#F59E0B",
-  },
-  {
-    name: "Personal Dev",
-    type: "Academic",
-    certs: 1243,
-    templates: 18,
+    certs: 0,
+    templates: 2,
     rating: 4.5,
     status: "Active",
-    color: "#3B82F6",
+    color: "#2563EB",
+    subcategories: ["Typography", "Monolith Layout"],
   },
   {
-    name: "Data Science",
+    name: "Executive",
     type: "Professional",
-    certs: 987,
-    templates: 15,
-    rating: 4.8,
+    certs: 0,
+    templates: 1,
+    rating: 4.5,
     status: "Active",
-    color: "#8B5CF6",
-  },
-  {
-    name: "AI & Machine Learning",
-    type: "Technology",
-    certs: 756,
-    templates: 12,
-    rating: 4.9,
-    status: "Active",
-    color: "#06B6D4",
-  },
-  {
-    name: "Cybersecurity",
-    type: "Professional",
-    certs: 542,
-    templates: 9,
-    rating: 4.7,
-    status: "Active",
-    color: "#EF4444",
+    color: "#D4AF37",
+    subcategories: ["Board Master Certification"],
   },
 ];
 
@@ -960,7 +1059,7 @@ function KPICard({
   return (
     <div
       style={{
-        flex: 1,
+        flex: "1 1 180px",
         background: "white",
         border: `1px solid ${BD}`,
         borderRadius: 12,
@@ -969,7 +1068,7 @@ function KPICard({
         alignItems: "center",
         gap: 12,
         boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
-        minWidth: 0,
+        minWidth: 160,
       }}
     >
       <div
@@ -1178,7 +1277,7 @@ function OverviewScreen({
         />
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "4fr 3fr 3fr", gap: 16 }}>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <SectionCard
           title="Recent Certificates"
           action={
@@ -2437,8 +2536,24 @@ function TemplatesScreen({
             category: t.category || "Professional",
             bg_image_url: "",
             thumbnail_url: null,
-            fields_json: { design: { theme: t.theme } },
-            theme_colors: null,
+            fields_json: {
+              elements: getDefaultCertificateElements({
+                courseName: t.name,
+                accentColor: t.dbTemplate?.theme_colors?.accent,
+                textColor: t.dbTemplate?.theme_colors?.text,
+              }),
+              design: {
+                ...DEFAULT_DESIGN,
+                ...(t.dbTemplate?.theme_colors
+                  ? {
+                      accent_color: t.dbTemplate.theme_colors.accent,
+                      bg_color: t.dbTemplate.theme_colors.background || DEFAULT_DESIGN.bg_color,
+                      text_color: t.dbTemplate.theme_colors.text || DEFAULT_DESIGN.text_color,
+                    }
+                  : {}),
+              },
+            },
+            theme_colors: t.dbTemplate?.theme_colors || null,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
             created_by: null,
@@ -3665,6 +3780,14 @@ function DesignerCanvasScreen() {
         >
           Date of Conferral
         </text>
+        <image
+          href="/vishwajeet fake sign.png"
+          x="752"
+          y="605"
+          width="160"
+          height="42"
+          preserveAspectRatio="contain"
+        />
         <text
           x="832"
           y="665"
@@ -5647,9 +5770,10 @@ function VerificationScreen({ stats, certificates = [] }: { stats: any; certific
         />
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "5fr 7fr", gap: 16 }}>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
         {/* Left: Requests List */}
         <div
+          className="lg:col-span-5"
           style={{
             background: "white",
             border: `1px solid ${BD}`,
@@ -5812,6 +5936,7 @@ function VerificationScreen({ stats, certificates = [] }: { stats: any; certific
 
         {/* Right: Details */}
         <div
+          className="lg:col-span-7"
           style={{
             background: "white",
             border: `1px solid ${BD}`,
@@ -8019,7 +8144,7 @@ function CategoriesScreen({ categories = [], stats }: { categories: any[]; stats
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
       {/* Dynamic KPI Summary Cards */}
-      <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 w-full">
         <KPICard
           label="Total Categories"
           value={displayCats.length.toString()}
@@ -8070,8 +8195,8 @@ function CategoriesScreen({ categories = [], stats }: { categories: any[]; stats
       </div>
 
       {/* Header Search and Add Category Button */}
-      <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-        <div style={{ position: "relative", flex: "0 0 280px" }}>
+      <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between w-full">
+        <div style={{ position: "relative" }} className="w-full sm:w-72">
           <Search
             size={14}
             style={{
@@ -8099,7 +8224,7 @@ function CategoriesScreen({ categories = [], stats }: { categories: any[]; stats
             }}
           />
         </div>
-        <div style={{ marginLeft: "auto" }}>
+        <div className="flex sm:ml-auto">
           <Btn
             variant="primary"
             onClick={() => {
@@ -8116,17 +8241,18 @@ function CategoriesScreen({ categories = [], stats }: { categories: any[]; stats
       </div>
 
       {/* Main Categories Table and Details Panel */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 16 }}>
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-4 w-full">
         <div
           style={{
             background: "white",
             border: `1px solid ${BD}`,
             borderRadius: 12,
-            overflow: "hidden",
+            overflowX: "auto",
             boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
           }}
+          className="w-full"
         >
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 640 }}>
             <thead>
               <tr style={{ background: BG, borderBottom: `1px solid ${BD}` }}>
                 {[
@@ -8557,13 +8683,14 @@ function SettingsScreen({
   };
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "220px 1fr", gap: 20 }}>
+    <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] gap-5">
       <div
+        className="flex flex-row md:flex-col overflow-x-auto md:overflow-visible gap-1"
         style={{
           background: "white",
           border: `1px solid ${BD}`,
           borderRadius: 12,
-          padding: 16,
+          padding: 12,
           height: "fit-content",
           boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
         }}
@@ -8581,11 +8708,11 @@ function SettingsScreen({
             key={item.label}
             onClick={() => setSettingsNav(item.label)}
             style={{
-              width: "100%",
+              width: "auto",
               display: "flex",
               alignItems: "center",
-              gap: 10,
-              padding: "9px 12px",
+              gap: 8,
+              padding: "9px 14px",
               borderRadius: 8,
               border: "none",
               background: settingsNav === item.label ? PL : "transparent",
@@ -8593,6 +8720,7 @@ function SettingsScreen({
               fontSize: 13,
               fontWeight: settingsNav === item.label ? 600 : 400,
               cursor: "pointer",
+              whiteSpace: "nowrap",
               marginBottom: 2,
               textAlign: "left",
             }}
@@ -9109,27 +9237,21 @@ export function CertDesignerAdmin({ initialTab = "overview" }: { initialTab?: st
           text: selected.bg === "#ffffff" ? "#1a1a2e" : "#ffffff",
         },
         fields_json: {
-          ...DEFAULT_FIELDS,
-          title: {
-            ...DEFAULT_FIELDS.title,
-            text: titleText,
-            fontFamily: selected.fontTitle,
-            color: selected.primary,
-          },
-          subtitle: {
-            ...DEFAULT_FIELDS.subtitle,
-            text: selected.sub,
-            fontFamily: "Inter, sans-serif",
-          },
-          studentName: {
-            ...DEFAULT_FIELDS.studentName,
-            fontFamily: selected.fontName,
-            color: selected.bg === "#ffffff" ? "#1a1a2e" : "#ffffff",
-          },
-          courseName: {
-            ...DEFAULT_FIELDS.courseName,
-            text: aiPrompt,
-            color: selected.primary,
+          elements: getDefaultCertificateElements({
+            courseName: aiPrompt || "Full Stack Web Development Certificate in Emerald W3Schools Style with Gold Seal",
+            fontFamily: selected.fontTitle?.split(",")[0]?.trim() || "Playfair Display",
+            accentColor: selected.accent || "#D4AF37",
+            textColor: selected.bg === "#ffffff" ? "#1A202C" : "#F8FAFC",
+          }),
+          design: {
+            ...DEFAULT_DESIGN,
+            font_family: selected.fontTitle?.split(",")[0]?.trim() || "Playfair Display",
+            accent_color: selected.accent || "#D4AF37",
+            bg_color: selected.bg || "#FAF8F5",
+            text_color: selected.bg === "#ffffff" ? "#1A202C" : "#F8FAFC",
+            border_style: "double",
+            corner_style: "ribbon",
+            background_pattern: "gradient",
           },
         },
         created_at: new Date().toISOString(),
@@ -9259,7 +9381,10 @@ export function CertDesignerAdmin({ initialTab = "overview" }: { initialTab?: st
       category: "Professional",
       bg_image_url: "",
       thumbnail_url: null,
-      fields_json: null,
+      fields_json: {
+        elements: getDefaultCertificateElements(),
+        design: DEFAULT_DESIGN,
+      },
       theme_colors: null,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
@@ -9281,6 +9406,34 @@ export function CertDesignerAdmin({ initialTab = "overview" }: { initialTab?: st
 
   // DesignerWorkspace full-screen mode
   if (showDesignerWorkspace && designerTemplate) {
+    const hasElements =
+      designerTemplate.fields_json?.elements &&
+      Array.isArray(designerTemplate.fields_json.elements) &&
+      designerTemplate.fields_json.elements.length > 0;
+
+    const resolvedConfig = hasElements
+      ? designerTemplate.fields_json
+      : {
+          elements: getDefaultCertificateElements({
+            courseName:
+              designerTemplate.name && designerTemplate.name !== "New Certificate"
+                ? designerTemplate.name
+                : "The Banknote Rosette — ThreeUI Harmonic Live Engine",
+            accentColor: designerTemplate.theme_colors?.accent,
+            textColor: designerTemplate.theme_colors?.text,
+          }),
+          design: {
+            ...DEFAULT_DESIGN,
+            ...(designerTemplate.theme_colors
+              ? {
+                  accent_color: designerTemplate.theme_colors.accent || DEFAULT_DESIGN.accent_color,
+                  bg_color: designerTemplate.theme_colors.background || DEFAULT_DESIGN.bg_color,
+                  text_color: designerTemplate.theme_colors.text || DEFAULT_DESIGN.text_color,
+                }
+              : {}),
+          },
+        };
+
     return (
       <DesignerWorkspace
         initialTemplate={{
@@ -9289,9 +9442,7 @@ export function CertDesignerAdmin({ initialTab = "overview" }: { initialTab?: st
           type: designerTemplate.category || "Certificate",
           layout: designerTemplate.fields_json?.design?.layout || "classic",
           bg_image_url: designerTemplate.bg_image_url || "",
-          config_json: designerTemplate.fields_json?.elements 
-            ? designerTemplate.fields_json 
-            : (Object.keys(designerTemplate.fields_json || {}).length > 0 ? fieldsToElements(designerTemplate.fields_json || {}) : { elements: [], design: {} }),
+          config_json: resolvedConfig,
         }}
         onSave={async (tmpl) => {
           const payload: any = { ...designerTemplate, ...tmpl, fields_json: tmpl.config_json };
@@ -9443,28 +9594,30 @@ export function CertDesignerAdmin({ initialTab = "overview" }: { initialTab?: st
           boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "16px 24px 0" }}>
-          <div
-            style={{
-              width: 36,
-              height: 36,
-              borderRadius: 8,
-              background: PL,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0,
-            }}
-          >
-            {info.icon}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 sm:px-6 pt-4 pb-2">
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: 8,
+                background: PL,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
+              }}
+            >
+              {info.icon}
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <h1 style={{ fontSize: 20, fontWeight: 700, color: TX, margin: 0, lineHeight: 1.2 }}>
+                {info.title}
+              </h1>
+              <p style={{ fontSize: 13, color: TX2, margin: 0 }}>{info.subtitle}</p>
+            </div>
           </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <h1 style={{ fontSize: 20, fontWeight: 700, color: TX, margin: 0, lineHeight: 1.2 }}>
-              {info.title}
-            </h1>
-            <p style={{ fontSize: 13, color: TX2, margin: 0 }}>{info.subtitle}</p>
-          </div>
-          <div style={{ display: "flex", gap: 8 }}>
+          <div className="flex items-center gap-2 flex-wrap">
             <Btn
               variant="outline"
               onClick={() => setShowAiModal(true)}

@@ -344,7 +344,7 @@ export function BadgeDesigner() {
                     name={b.name}
                     title={b.name}
                     subtitle={b.category || "LEARNIFY AI"}
-                    brandLogoUrl="https://www.learnifyai.in/assets/learnify-logo-Dbtnnfk3.png"
+                    brandLogoUrl="/logo.png"
                     description={b.description}
                     iconName={b.icon_name}
                     shape={b.shape || "circle"}
@@ -594,7 +594,7 @@ export function BadgeDesigner() {
                   name={name || "Preview Badge"}
                   title={name || "Preview Badge"}
                   subtitle={category || "LEARNIFY AI"}
-                  brandLogoUrl="https://www.learnifyai.in/assets/learnify-logo-Dbtnnfk3.png"
+                  brandLogoUrl="/logo.png"
                   description={description}
                   iconName={iconName}
                   shape={shape}

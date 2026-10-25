@@ -629,28 +629,26 @@ export function CertificatePreview({
                   </div>
                 ))}
 
-              {el.type === "org_logo" &&
-                (el.url ? (
-                  <img
-                    src={el.url}
-                    alt="Logo"
-                    className="w-full h-full object-contain pointer-events-none"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-slate-50 border-2 border-dashed border-slate-300 flex flex-col items-center justify-center text-[10px] text-slate-400 rounded-lg p-2">
-                    LOGO
-                  </div>
-                ))}
+              {el.type === "org_logo" && (
+                <img
+                  src={el.url || "/logo.png"}
+                  alt="Learnify AI Accreditation Logo"
+                  className="w-full h-full object-contain pointer-events-none drop-shadow-sm"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = "/logo.png";
+                  }}
+                />
+              )}
 
               {el.type === "qr" && (
-                <div className="w-full h-full bg-white p-1 rounded-md border border-slate-200 flex items-center justify-center shadow-sm">
+                <div className="w-full h-full bg-white p-1 rounded-md border border-slate-200 flex flex-col items-center justify-center shadow-sm">
                   <img
                     src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(
                       (typeof window !== "undefined" ? window.location.origin : "https://www.learnifyai.in") +
-                        "/verify/certificate/" +
-                        (el.content || "LAI-2026-000124"),
+                        "/verify/" +
+                        (el.content || "LRN-2026-X892"),
                     )}`}
-                    alt="QR Code"
+                    alt="Cryptographic Verification QR"
                     className="w-full h-full object-contain"
                   />
                 </div>
@@ -667,7 +665,7 @@ export function CertificatePreview({
                     }}
                   >
                     <span className="text-[9px] font-black tracking-widest uppercase text-amber-600 leading-none">
-                      {el.content || "BADGE"}
+                      {el.content || "VERIFIED"}
                     </span>
                   </div>
                 ))}
@@ -680,7 +678,7 @@ export function CertificatePreview({
                   }}
                 >
                   <span className="text-[10px] font-black tracking-widest text-amber-900 uppercase">
-                    {el.content || "SEAL"}
+                    {el.content || "OFFICIAL SEAL"}
                   </span>
                 </div>
               )}
@@ -716,24 +714,19 @@ export function CertificatePreview({
               )}
 
               {el.type === "signature" && (
-                <div className="w-full h-full border-b border-dashed flex items-end justify-center pb-1">
-                  {el.url ? (
-                    <img
-                      src={el.url}
-                      alt="Signature"
-                      className="h-full object-contain pointer-events-none"
-                    />
-                  ) : (
-                    <div
-                      style={{
-                        fontFamily: "'Great Vibes', cursive",
-                        fontSize: "1.5em",
-                        opacity: 0.7,
-                        transform: "rotate(-3deg)",
-                      }}
-                    >
-                      Signature
-                    </div>
+                <div className="w-full h-full border-b border-dashed flex flex-col items-center justify-end pb-1">
+                  <img
+                    src={el.url || "/vishwajeet fake sign.png"}
+                    alt="Official Signature"
+                    className="h-full object-contain pointer-events-none max-h-[46px]"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = "/vishwajeet fake sign.png";
+                    }}
+                  />
+                  {el.content && (
+                    <span className="text-[10px] text-slate-500 font-sans tracking-wide mt-0.5">
+                      {el.content}
+                    </span>
                   )}
                 </div>
               )}

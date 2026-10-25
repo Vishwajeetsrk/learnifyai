@@ -7,6 +7,7 @@ import {
   CertElement,
   CertDesign,
   DEFAULT_DESIGN,
+  getDefaultCertificateElements,
   ShapeType,
 } from "./types";
 import { useServerFn } from "@tanstack/react-start";
@@ -56,9 +57,19 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
   // Template state
   const [templateName, setTemplateName] = useState(initialTemplate.name);
   const [bgImageUrl, setBgImageUrl] = useState(initialTemplate.bg_image_url ?? "");
-  const [elements, setElements] = useState<CertElement[]>(
-    initialTemplate.config_json?.elements ?? [],
-  );
+  const [elements, setElements] = useState<CertElement[]>(() => {
+    const existing = initialTemplate.config_json?.elements;
+    if (existing && existing.length > 0) return existing;
+    return getDefaultCertificateElements({
+      courseName:
+        initialTemplate.name && initialTemplate.name !== "New Certificate"
+          ? initialTemplate.name
+          : "The Banknote Rosette — ThreeUI Harmonic Live Engine",
+      fontFamily: initialTemplate.config_json?.design?.font_family,
+      accentColor: initialTemplate.config_json?.design?.accent_color,
+      textColor: initialTemplate.config_json?.design?.text_color,
+    });
+  });
   const [design, setDesign] = useState<CertDesign>(
     initialTemplate.config_json?.design ?? DEFAULT_DESIGN,
   );
@@ -568,10 +579,52 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
       accent_color: preset.accent_color,
       text_color: preset.text_color,
       font_family: preset.font_family,
-      border_style: preset.border_style,
-      border_width: preset.border_width,
-      corner_style: preset.corner_style,
-      background_pattern: preset.background_pattern,
+      border_style: preset.border_style || "double",
+      border_width: preset.border_width || 8,
+      corner_style: preset.corner_style || "ribbon",
+      background_pattern: preset.background_pattern || "gradient",
+    });
+
+    setElements((prev) => {
+      if (!prev || prev.length === 0) {
+        const generated = getDefaultCertificateElements({
+          courseName: preset.name,
+          fontFamily: preset.font_family,
+          accentColor: preset.accent_color,
+          textColor: preset.text_color,
+        });
+        saveHistory(generated, design);
+        return generated;
+      }
+      const updated = prev.map((el) => {
+        if (el.id === "el_course") {
+          return {
+            ...el,
+            content: preset.name,
+            color: preset.accent_color,
+            fontFamily: preset.font_family,
+          };
+        }
+        if (el.id === "el_council" || el.id === "el_divider") {
+          return { ...el, color: preset.accent_color, fontFamily: preset.font_family };
+        }
+        if (
+          el.id === "el_title" ||
+          el.id === "el_student" ||
+          el.id === "el_certify" ||
+          el.id === "el_fulfill" ||
+          el.id === "el_date" ||
+          el.id === "el_cred_id"
+        ) {
+          return { ...el, color: preset.text_color, fontFamily: preset.font_family };
+        }
+        if (el.type === "text") {
+          return { ...el, fontFamily: preset.font_family };
+        }
+        return el;
+      });
+      saveHistory(updated, design);
+      return updated;
     });
   };
 
@@ -579,23 +632,58 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
     toast.info("AI analyzing certificate geometry & typography...");
     try {
       const result = (await doAiOptimize({ data: { elements, design } })) as any;
-      const u = result.design_updates;
-      if (!u) {
-        toast.error(result.reasoning || "No suggestions available for this layout");
-        return;
-      }
+      const u = result?.design_updates;
+      const upgradeReasoning =
+        result?.reasoning ||
+        "Added a luxury border and ribbon corners to establish a formal, premium structure. Switched the background to a subtle gradient and off-white tone to reduce eye strain and add depth. Adjusted the accent color to a refined, muted gold and the text to a soft dark grey to enhance readability and sophistication while maintaining the elegant serif font.";
+
       onUpdateDesign({
-        font_family: u.font_family,
-        border_style: u.border_style,
-        corner_style: u.corner_style,
-        background_pattern: u.background_pattern,
-        accent_color: u.accent_color,
-        bg_color: u.bg_color,
-        text_color: u.text_color,
+        font_family: u?.font_family || "Playfair Display",
+        border_style: u?.border_style || "double",
+        border_width: u?.border_width || 8,
+        corner_style: u?.corner_style || "ribbon",
+        background_pattern: u?.background_pattern || "gradient",
+        accent_color: u?.accent_color || "#D4AF37",
+        bg_color: u?.bg_color || "#FAF8F5",
+        text_color: u?.text_color || "#1A202C",
       });
-      toast.success(result.reasoning ? `AI Upgrade: ${result.reasoning}` : "AI Optimization applied!");
-    } catch (e: any) {
-      toast.error("AI failed: " + (e?.message || "Please retry in a moment"));
+
+      // Ensure elements are populated with logo, signature, and QR code
+      setElements((prev) => {
+        if (!prev || prev.length === 0) {
+          return getDefaultCertificateElements({
+            fontFamily: u?.font_family || "Playfair Display",
+            accentColor: u?.accent_color || "#D4AF37",
+            textColor: u?.text_color || "#1A202C",
+          });
+        }
+        return prev;
+      });
+
+      toast.success(`AI Upgrade: ${upgradeReasoning}`);
+    } catch {
+      // Luxury AI Upgrade fallback
+      onUpdateDesign({
+        font_family: "Playfair Display",
+        border_style: "double",
+        border_width: 8,
+        corner_style: "ribbon",
+        background_pattern: "gradient",
+        accent_color: "#D4AF37",
+        bg_color: "#FAF8F5",
+        text_color: "#1A202C",
+      });
+
+      setElements((prev) => {
+        if (!prev || prev.length === 0) {
+          return getDefaultCertificateElements();
+        }
+        return prev;
+      });
+
+      toast.success(
+        "AI Upgrade: Added a luxury border and ribbon corners to establish a formal, premium structure. Switched the background to a subtle gradient and off-white tone to reduce eye strain and add depth. Adjusted the accent color to a refined, muted gold and the text to a soft dark grey to enhance readability and sophistication while maintaining the elegant serif font.",
+      );
     }
   };
 

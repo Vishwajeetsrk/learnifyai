@@ -493,7 +493,7 @@ export const BadgeRow: React.FC<BadgeRowProps> = ({
               iconName={icon}
               primaryColor={color}
               accentColor={b.accentColor || "#a5b4fc"}
-              brandLogoUrl="https://www.learnifyai.in/assets/learnify-logo-Dbtnnfk3.png"
+              brandLogoUrl="/logo.png"
               size={size}
             />
           );
