@@ -486,6 +486,18 @@ export function AdvancedVideoPlayer({
     else videoRef.current?.play().catch(() => {});
   }, [isYouTube, sendYtCommand]);
 
+  // Synchronize playback with external interactive sandboxes (Scrimba Watch & Practice)
+  useEffect(() => {
+    const handleGlobalPause = () => pauseMedia();
+    const handleGlobalResume = () => resumeMedia();
+    window.addEventListener("learnify:pause-video", handleGlobalPause);
+    window.addEventListener("learnify:resume-video", handleGlobalResume);
+    return () => {
+      window.removeEventListener("learnify:pause-video", handleGlobalPause);
+      window.removeEventListener("learnify:resume-video", handleGlobalResume);
+    };
+  }, [pauseMedia, resumeMedia]);
+
   useEffect(() => {
     if (quiz.length === 0 || activeCheckpoint || !playing) return;
     const hit = quiz.find((cp) => !doneCheckpoints.has(cp.id) && currentTime >= cp.time - 0.3);

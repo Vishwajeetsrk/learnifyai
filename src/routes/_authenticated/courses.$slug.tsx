@@ -98,6 +98,7 @@ import {
   buildCourseVideoEmbedUrl,
 } from "@/lib/course-player";
 import { VisualLearningPanel } from "@/components/visual-learning/VisualLearningPanel";
+import { ScrimbaWorkspace } from "@/components/courses/ScrimbaWorkspace";
 
 type CourseTab = "notes" | "summary" | "doubt" | "exercise" | "playground" | "visual";
 const VALID_TABS: CourseTab[] = ["notes", "summary", "doubt", "exercise", "playground", "visual"];
@@ -1289,30 +1290,16 @@ function CourseDetail() {
           </div>
 
           {/* Right Column in Scrimba Mode: Live Playground alongside Video */}
+          {/* Right Column in Scrimba Mode: Live Scrimba Multi-File Sandbox & Runner */}
           {workspaceMode === "scrimba" && (
             <div className="space-y-4 min-w-0">
-              <div className="flex items-center justify-between bg-card/80 p-3 rounded-2xl border border-border/70 backdrop-blur-sm">
-                <div className="flex items-center gap-2">
-                  <Badge variant="outline" className="bg-indigo-500/10 text-indigo-400 border-indigo-500/30 text-xs">
-                    <Code2 className="h-3.5 w-3.5 mr-1" /> Scrimba Interactive Sandbox
-                  </Badge>
-                  <span className="text-xs text-muted-foreground hidden sm:inline">
-                    Code & preview live while watching
-                  </span>
-                </div>
-                <Badge variant="secondary" className="text-[11px] font-mono">
-                  {activeLessonLang?.toUpperCase() || "CODE"}
-                </Badge>
-              </div>
-
-              <div className="rounded-2xl border border-border/80 bg-card p-4 shadow-sm">
-                <CodePlayground
-                  course={{ id: course.id, title: course.title, slug: course.slug }}
-                  exerciseText={active?.title}
-                  injectedCode={activeLessonCode}
-                  injectedLang={activeLessonLang}
-                />
-              </div>
+              <ScrimbaWorkspace
+                courseTitle={course.title}
+                lessonTitle={active?.title}
+                injectedCode={activeLessonCode}
+                injectedLang={activeLessonLang}
+                activeVideoTime={activeProgress?.watched_seconds ?? 0}
+              />
 
               {/* Collapsible Curriculum in Scrimba Mode */}
               <div className="rounded-2xl border border-border/80 bg-card shadow-sm overflow-hidden">
