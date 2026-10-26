@@ -1128,26 +1128,21 @@ export function TourChecklist() {
   const { startTour, isTourCompleted } = useTour();
   const { isCreator, isAdmin } = useAuth();
 
-  const tours = ALL_TOURS.filter((t) => {
-    if (t.role === "admin" && !isAdmin) return false;
-    if (t.role === "creator" && !isCreator && !isAdmin) return false;
-    return true;
-  });
-
+  const tours = ALL_TOURS;
   const completedCount = tours.filter((t) => isTourCompleted(t.id)).length;
 
   return (
-    <div className="rounded-xl border bg-card p-4 sm:p-5 space-y-3 sm:space-y-4">
+    <div className="rounded-2xl border border-border/80 bg-card/90 backdrop-blur-xs p-4 sm:p-5 space-y-3 sm:space-y-4 shadow-sm">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="font-semibold text-sm sm:text-base">Platform Tours</h3>
-          <p className="text-xs sm:text-sm text-muted-foreground">
+          <h3 className="font-bold text-sm sm:text-base text-foreground tracking-tight">Platform Tours</h3>
+          <p className="text-xs sm:text-sm text-muted-foreground font-medium">
             {completedCount}/{tours.length} completed
           </p>
         </div>
         <Badge
           variant={completedCount === tours.length ? "default" : "secondary"}
-          className="text-[10px] sm:text-xs"
+          className="text-[10px] sm:text-xs font-bold"
         >
           {completedCount === tours.length
             ? "All Done!"
@@ -1162,39 +1157,52 @@ export function TourChecklist() {
             <div
               key={tour.id}
               className={cn(
-                "flex items-center justify-between p-2.5 sm:p-3 rounded-lg border transition-colors gap-2",
-                completed ? "bg-emerald-500/5 border-emerald-500/20" : "hover:bg-muted/30",
+                "flex items-center justify-between p-2.5 sm:p-3 rounded-xl border transition-all gap-2",
+                completed ? "bg-emerald-500/5 border-emerald-500/20" : "hover:bg-muted/40 border-border/70",
               )}
             >
-              <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+              <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
                 <div
                   className={cn(
-                    "h-7 w-7 sm:h-8 sm:w-8 rounded-lg flex items-center justify-center shrink-0",
-                    completed ? "bg-emerald-500/10" : "bg-muted",
+                    "h-8 w-8 rounded-xl flex items-center justify-center shrink-0 border",
+                    completed
+                      ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-500"
+                      : "bg-primary/10 border-primary/20 text-primary",
                   )}
                 >
                   {completed ? (
-                    <Check className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-emerald-500" />
+                    <Check className="h-4 w-4" />
                   ) : (
-                    <Rocket className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
+                    <Rocket className="h-4 w-4" />
                   )}
                 </div>
                 <div className="min-w-0">
-                  <div className="text-xs sm:text-sm font-medium truncate">{tour.name}</div>
-                  <div className="text-[10px] sm:text-xs text-muted-foreground truncate">
+                  <div className="text-xs sm:text-sm font-bold text-foreground flex items-center gap-2 truncate">
+                    <span>{tour.name}</span>
+                    {tour.role && (
+                      <span className="text-[9px] uppercase tracking-wider font-extrabold px-1.5 py-0.2 rounded bg-muted text-muted-foreground border border-border/60">
+                        {tour.role}
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-[11px] text-muted-foreground truncate font-medium">
                     {tour.description}
                   </div>
                 </div>
               </div>
-              {!completed && (
+              {!completed ? (
                 <Button
                   size="sm"
                   variant="outline"
                   onClick={() => startTour(tour)}
-                  className="text-xs shrink-0"
+                  className="h-8 text-xs font-bold shrink-0 rounded-lg cursor-pointer hover:bg-primary hover:text-primary-foreground transition-all"
                 >
                   Start
                 </Button>
+              ) : (
+                <span className="text-[11px] font-bold text-emerald-500 flex items-center gap-1 shrink-0 px-2 py-1 bg-emerald-500/10 rounded-lg">
+                  <Check className="h-3 w-3" /> Done
+                </span>
               )}
             </div>
           );

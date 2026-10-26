@@ -28,6 +28,9 @@ import {
   Globe,
   Sparkles,
   Camera,
+  Lock,
+  FilePlus,
+  Code2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -79,6 +82,8 @@ function PlaygroundEditor() {
 
   // UI State
   const [activePanel, setActivePanel] = useState<"ai" | "assistant" | "api" | null>("ai");
+  const [isNewFileModalOpen, setIsNewFileModalOpen] = useState(false);
+  const [newFileName, setNewFileName] = useState("");
   const [saving, setSaving] = useState(false);
   const [running, setRunning] = useState(false);
   const [output, setOutput] = useState<{ stdout: string; stderr: string; code: number } | null>(
@@ -249,17 +254,38 @@ function PlaygroundEditor() {
   };
 
   const handleAddFile = () => {
-    const name = prompt("File name (e.g. script.js):");
-    if (!name) return;
+    setNewFileName("");
+    setIsNewFileModalOpen(true);
+  };
+
+  const handleConfirmCreateFile = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const trimmed = newFileName.trim();
+    if (!trimmed) {
+      toast.error("Please enter a file name");
+      return;
+    }
+    const ext = trimmed.split(".").pop()?.toLowerCase();
+    let lang = "javascript";
+    if (ext === "ts" || ext === "tsx") lang = "typescript";
+    else if (ext === "py") lang = "python";
+    else if (ext === "html") lang = "html";
+    else if (ext === "css") lang = "css";
+    else if (ext === "json") lang = "json";
+    else if (ext === "sql") lang = "sql";
+
     const newFile = {
       id: Math.random().toString(),
-      name,
+      name: trimmed,
       path: "/",
       content: "",
-      language: "javascript",
+      language: lang,
     };
     setFiles((prev) => [...prev, newFile]);
     setActiveFileId(newFile.id);
+    setIsNewFileModalOpen(false);
+    setNewFileName("");
+    toast.success(`Created file ${trimmed}`);
   };
 
   const handleDeleteFile = (id: string) => {
@@ -381,9 +407,15 @@ function PlaygroundEditor() {
               {updatingVisibility ? (
                 <Loader2 className="h-3 w-3 animate-spin" />
               ) : projectIsPublic ? (
-                "🌐 Public"
+                <>
+                  <Globe className="h-3 w-3 text-emerald-500" />
+                  <span>Public</span>
+                </>
               ) : (
-                "🔒 Private"
+                <>
+                  <Lock className="h-3 w-3 text-muted-foreground" />
+                  <span>Private</span>
+                </>
               )}
             </button>
           )}
@@ -547,6 +579,89 @@ function PlaygroundEditor() {
           )}
         </div>
       </div>
+
+      {/* ─── Create File Pop Top Modal ─── */}
+      {isNewFileModalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-150"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsNewFileModalOpen(false);
+          }}
+        >
+          <div className="w-full max-w-md bg-card border border-border shadow-2xl rounded-2xl p-5 space-y-4 animate-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between pb-3 border-b border-border">
+              <div className="flex items-center gap-2.5">
+                <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                  <FilePlus className="h-4 w-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-foreground">Create New File</h3>
+                  <p className="text-[11px] text-muted-foreground">Add a new file to this playground project</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsNewFileModalOpen(false)}
+                className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted cursor-pointer"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleConfirmCreateFile} className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-foreground">File Name</label>
+                <input
+                  type="text"
+                  autoFocus
+                  value={newFileName}
+                  onChange={(e) => setNewFileName(e.target.value)}
+                  placeholder="e.g. script.js, utils.ts, styles.css"
+                  className="w-full h-10 px-3 text-xs bg-muted/60 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/40 font-mono text-foreground"
+                />
+              </div>
+
+              {/* Quick extension shortcuts */}
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="text-[10px] text-muted-foreground mr-1">Quick Extension:</span>
+                {[".js", ".ts", ".html", ".css", ".json", ".py"].map((ext) => (
+                  <button
+                    key={ext}
+                    type="button"
+                    onClick={() => {
+                      const base = newFileName.split(".")[0] || "index";
+                      setNewFileName(base + ext);
+                    }}
+                    className="px-2 py-0.5 rounded-md text-[10px] font-mono bg-muted hover:bg-accent border border-border/80 text-foreground transition-all cursor-pointer"
+                  >
+                    {ext}
+                  </button>
+                ))}
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-border">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsNewFileModalOpen(false)}
+                  className="h-8 text-xs cursor-pointer"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  size="sm"
+                  disabled={!newFileName.trim()}
+                  className="h-8 text-xs cursor-pointer"
+                >
+                  Create File
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </AppShell>
   );
 }

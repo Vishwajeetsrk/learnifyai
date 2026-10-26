@@ -20,6 +20,8 @@ import {
   Clock,
   Loader2,
   FolderOpen,
+  Globe,
+  Lock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PlaygroundProjectsSkeleton } from "@/components/Skeletons";
@@ -199,17 +201,19 @@ function ProjectsPage() {
                     )}
                   </div>
                 </div>
-                <div className="flex items-center gap-3 mt-3 text-[10px] text-muted-foreground">
-                  <span className="flex items-center gap-1">
-                    <Clock className="h-3 w-3" />{" "}
+                <div className="flex items-center gap-2.5 mt-3 text-[10px] text-muted-foreground flex-wrap">
+                  <span className="flex items-center gap-1 font-mono">
+                    <Clock className="h-3 w-3 text-primary/70" />{" "}
                     {formatDistanceToNow(new Date(p.updated_at), { addSuffix: true })}
                   </span>
-                  <span className="capitalize">{p.template?.replace("-", " ")}</span>
+                  <span className="px-1.5 py-0.5 rounded bg-muted/80 text-foreground/80 font-mono text-[10px] capitalize border border-border/50">
+                    {p.template ? p.template.replace("-", " ") : "Blank"}
+                  </span>
                   <button
                     onClick={() => handleTogglePublic(p.id, p.is_public)}
                     disabled={togglingVisibility === p.id}
                     className={cn(
-                      "inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[9px] font-semibold border transition-all hover:scale-105",
+                      "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-semibold border transition-all hover:scale-105 cursor-pointer",
                       p.is_public
                         ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/20"
                         : "bg-muted text-muted-foreground border-border hover:bg-accent",
@@ -219,9 +223,15 @@ function ProjectsPage() {
                     {togglingVisibility === p.id ? (
                       <Loader2 className="h-2.5 w-2.5 animate-spin" />
                     ) : p.is_public ? (
-                      "🌐 Public"
+                      <>
+                        <Globe className="h-2.5 w-2.5 text-emerald-500" />
+                        <span>Public</span>
+                      </>
                     ) : (
-                      "🔒 Private"
+                      <>
+                        <Lock className="h-2.5 w-2.5 text-muted-foreground" />
+                        <span>Private</span>
+                      </>
                     )}
                   </button>
                 </div>

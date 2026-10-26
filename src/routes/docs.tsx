@@ -362,6 +362,7 @@ function FeatureCard({
   points,
   accentClass = "text-primary",
   bgClass = "from-primary/5 to-primary/10",
+  children,
 }: {
   icon: React.ReactNode;
   title: string;
@@ -369,14 +370,15 @@ function FeatureCard({
   points?: string[];
   accentClass?: string;
   bgClass?: string;
+  children?: React.ReactNode;
 }) {
   return (
-    <div className={cn("p-6 rounded-2xl border bg-gradient-to-br shadow-sm", bgClass)}>
+    <div className={cn("p-6 rounded-2xl border bg-gradient-to-br shadow-sm hover:shadow-md transition-shadow", bgClass)}>
       <div className={cn("w-9 h-9 mb-3 [&>svg]:w-full [&>svg]:h-full", accentClass)}>{icon}</div>
       <h3 className="text-base font-semibold mb-1">{title}</h3>
       <p className="text-xs text-muted-foreground leading-relaxed mb-3">{description}</p>
       {points && (
-        <ul className="space-y-1.5">
+        <ul className="space-y-1.5 mb-2">
           {points.map((p) => (
             <li key={p} className="flex items-start gap-2 text-xs text-muted-foreground">
               <CheckIcon /> {p}
@@ -384,6 +386,7 @@ function FeatureCard({
           ))}
         </ul>
       )}
+      {children}
     </div>
   );
 }
@@ -391,9 +394,11 @@ function FeatureCard({
 // ─── Stat pill ────────────────────────────────────────────────────────────────
 function StatPill({ value, label }: { value: string; label: string }) {
   return (
-    <div className="flex flex-col items-center px-6 py-4 rounded-xl border bg-card shadow-sm">
-      <span className="text-2xl font-bold text-primary">{value}</span>
-      <span className="text-xs text-muted-foreground mt-0.5 text-center">{label}</span>
+    <div className="group flex flex-col items-center px-6 py-4 rounded-xl border border-border/80 bg-card/80 backdrop-blur-xs shadow-sm hover:border-primary/40 hover:shadow-md transition-all">
+      <span className="text-2xl sm:text-3xl font-extrabold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent group-hover:scale-105 transition-transform duration-200">
+        {value}
+      </span>
+      <span className="text-xs font-semibold text-muted-foreground mt-1 text-center">{label}</span>
     </div>
   );
 }
@@ -475,7 +480,16 @@ function DocsPage() {
                   ]}
                   accentClass="text-indigo-500"
                   bgClass="from-indigo-500/5 to-indigo-500/10"
-                />
+                >
+                  <div className="mt-3.5 pt-3 border-t border-indigo-500/15 flex flex-wrap gap-2">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-500/10 text-indigo-400 text-[11px] font-bold border border-indigo-500/20">
+                      <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" /> Free Tier: 500 Credits/mo
+                    </span>
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-400 text-[11px] font-bold border border-emerald-500/20">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Pro Tier: 10,000 Credits/mo
+                    </span>
+                  </div>
+                </FeatureCard>
                 <FeatureCard
                   icon={<ShieldIcon />}
                   title="Certificate Verification"

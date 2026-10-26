@@ -306,24 +306,29 @@ function BlogPostPage() {
 
           {/* Author Header Bar */}
           <div className="flex flex-wrap items-center justify-between gap-4 text-sm text-muted-foreground mb-8 pb-6 border-b border-border/60">
-            <div className="flex items-center gap-3">
+            <a
+              href={post.author_linkedin || "https://www.linkedin.com/in/vishwajeetsrk"}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 group/author"
+            >
               <img
-                src={post.author_avatar || "/avatars/Vishwajeet.jpeg"}
-                alt="Vishwajeet"
-                className="h-12 w-12 rounded-full object-cover ring-2 ring-primary/30 shadow-md"
+                src={post.author_avatar || "/assets/vishwajeet-profile.png"}
+                alt={post.author_name || "Vishwajeet"}
+                className="h-12 w-12 rounded-full object-cover ring-2 ring-primary/30 shadow-md group-hover/author:ring-primary transition-all"
               />
               <div>
-                <div className="font-bold text-foreground text-sm flex items-center gap-2">
+                <div className="font-bold text-foreground text-sm flex items-center gap-2 group-hover/author:text-primary transition-colors">
                   <span>{post.author_name || (post as any).profiles?.full_name || "Vishwajeet"}</span>
                   <Badge variant="secondary" className="text-[10px] py-0 px-2 bg-primary/10 text-primary border-primary/20 font-semibold">
                     Author
                   </Badge>
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-muted-foreground group-hover/author:text-foreground/80 transition-colors">
                   {post.author_role || "Founder & AI Architect · Learnify AI"}
                 </p>
               </div>
-            </div>
+            </a>
 
             <div className="flex items-center gap-3 text-xs text-muted-foreground">
               <span className="flex items-center gap-1.5">

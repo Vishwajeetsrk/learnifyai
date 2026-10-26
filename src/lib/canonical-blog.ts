@@ -10,7 +10,11 @@ export const FREE_COURSES_GUIDE_POST = {
   created_at: "2026-08-01T10:00:00Z",
   published: true,
   tags: ["Career", "Free Certifications", "AI & Learning"],
-  profiles: { full_name: "Learnify AI Editorial Team" },
+  author_name: "Vishwajeet",
+  author_role: "Founder & AI Architect · Learnify AI",
+  author_avatar: "/assets/vishwajeet-profile.png",
+  author_linkedin: "https://www.linkedin.com/in/vishwajeetsrk",
+  profiles: { full_name: "Vishwajeet" },
   content: `# The Ultimate Guide to Free Courses, Free Certificates & High-Value Skills in 2026
 
 ## Learn From World-Class Platforms — Without Spending Money

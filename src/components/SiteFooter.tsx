@@ -13,6 +13,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
+import logoMarkUrl from "@/assets/learnify-mark.png?url";
 import { useSiteSettings } from "@/hooks/use-site-settings";
 import { usePublicMenu } from "@/hooks/use-wcms-public";
 import { cn } from "@/lib/utils";
@@ -140,7 +141,7 @@ export function SiteFooter() {
           {/* Brand & Creator Identity (Left Column - Matches Reference Video) */}
           <div className="space-y-6 md:col-span-4 lg:col-span-4">
             <Link to="/" className="inline-flex items-center" aria-label="Learnify AI">
-              <Logo height="h-9" />
+              <Logo height="h-9" textClassName="text-white font-bold" />
             </Link>
             <p className="text-sm text-slate-400 max-w-sm leading-relaxed">
               Learn smarter. Grow faster. The AI-native learning &amp; career operating system for developers, AI engineers, and modern creators.
@@ -172,12 +173,20 @@ export function SiteFooter() {
               </p>
               <div className="flex items-center gap-2 pt-0.5">
                 <span className="text-slate-400">Built with 💙 by</span>
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-900 border border-slate-700/70 text-slate-200 shadow-sm">
-                  <div className="w-4 h-4 rounded-full bg-gradient-to-tr from-sky-400 to-indigo-500 flex items-center justify-center text-[10px] font-extrabold text-white shadow-inner">
-                    V
-                  </div>
-                  <span className="font-semibold text-xs text-white">Vishwajeet</span>
-                </div>
+                <a
+                  href="https://www.linkedin.com/in/vishwajeetsrk"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900 border border-slate-700/80 text-slate-200 shadow-md hover:border-sky-500/60 hover:bg-slate-800 hover:scale-105 transition-all group"
+                  title="Connect with Vishwajeet on LinkedIn"
+                >
+                  <img
+                    src="/assets/vishwajeet-profile.png"
+                    alt="Vishwajeet"
+                    className="w-5 h-5 rounded-full object-cover object-top ring-1 ring-sky-400/50 group-hover:ring-sky-400 transition"
+                  />
+                  <span className="font-semibold text-xs text-white group-hover:text-sky-300 transition-colors">Vishwajeet</span>
+                </a>
               </div>
             </div>
 
@@ -370,11 +379,14 @@ export function SiteFooter() {
         </div>
       </div>
 
-      {/* ─── Giant Watermark Typography (Matches Video Frame 10 & footer_scroll_03.png) ─── */}
-      <div className="absolute inset-x-0 bottom-0 pointer-events-none select-none overflow-hidden flex justify-center items-end opacity-[0.035] dark:opacity-[0.045] z-0">
-        <span className="font-display font-black text-[13vw] sm:text-[14.5vw] tracking-tighter leading-none text-white whitespace-nowrap translate-y-[22%]">
-          LEARNIFY AI
-        </span>
+      {/* ─── Giant Watermark Brand Emblem (Replaces plain text) ─── */}
+      <div className="absolute inset-x-0 bottom-0 pointer-events-none select-none overflow-hidden flex justify-center items-end opacity-[0.06] dark:opacity-[0.07] z-0">
+        <img
+          src={logoMarkUrl}
+          alt=""
+          className="w-64 sm:w-96 md:w-[480px] h-auto object-contain translate-y-[20%] filter drop-shadow-2xl"
+          draggable={false}
+        />
       </div>
     </footer>
   );

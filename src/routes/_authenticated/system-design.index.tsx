@@ -310,13 +310,21 @@ function TopicCard({ topic, onClick }: { topic: (typeof TOPICS)[number]; onClick
       </div>
 
       <div className="pt-3 border-t border-border/60 flex items-center justify-between gap-2 text-xs font-semibold text-muted-foreground">
-        <span className="flex items-center gap-1.5 text-foreground/80">
+        <span className="flex items-center gap-1.5 text-foreground/80 font-medium">
           <Clock className="h-3.5 w-3.5 text-primary" />
           {topic.duration}
         </span>
-        <span className="truncate text-[11px] text-muted-foreground max-w-[140px]">
-          {topic.companies.slice(0, 2).join(", ")}
-        </span>
+        <div className="flex items-center gap-1.5 overflow-hidden">
+          {topic.companies.slice(0, 2).map((comp) => (
+            <span
+              key={comp}
+              className="px-2 py-0.5 rounded-md bg-muted/80 text-[10px] font-medium text-foreground/80 border border-border/50 truncate max-w-[90px]"
+            >
+              {comp}
+            </span>
+          ))}
+          <ArrowRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0 ml-0.5" />
+        </div>
       </div>
     </button>
   );
