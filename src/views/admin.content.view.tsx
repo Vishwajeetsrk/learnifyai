@@ -45,6 +45,7 @@ import {
   Heart,
   Scale,
   Cpu,
+  Flag,
 } from "lucide-react";
 import { CANONICAL_LEGAL_DOCS } from "@/lib/canonical-config";
 import { DOC_CONTENTS } from "@/lib/legal-docs-data";
@@ -119,6 +120,8 @@ const InvoiceDesigner = lazy(() => import("@/components/admin/InvoiceDesigner"))
 const CoachesManager = lazy(() => import("@/components/admin/CoachesManager"));
 const CreatorsManager = lazy(() => import("@/components/admin/CreatorsManager"));
 const AiInfrastructureManager = lazy(() => import("@/components/admin/AiInfrastructureManager"));
+const UpdatesManager = lazy(() => import("@/components/admin/UpdatesManager"));
+const UserReportsManager = lazy(() => import("@/components/admin/UserReportsManager"));
 import { CertDesignerAdmin } from "@/components/certificate-designer/CertDesignerAdmin";
 
 const AVATAR_URLS = {
@@ -306,6 +309,16 @@ const SECTION_TOURS: Record<string, { what: string; how: string; where: string }
     how: "Click 'Test Connection' on Groq, Gemini, or OpenRouter to run a real-time connectivity and latency ping.",
     where: "Gateway health directly powers the AI tutor, lesson summaries, doubt solver, and code generator.",
   },
+  updates: {
+    what: "Publish and manage product releases, video/image media, and changelog highlights shown on the public /updates page.",
+    how: "Click 'Add New Release' to configure version, title, release date, preview video, and bullet points.",
+    where: "Appears publicly on the /updates page and highlighted in the site footer.",
+  },
+  reports: {
+    what: "Review user-submitted issues, video timestamps, and automatic canvas player screenshots for rapid triage.",
+    how: "Inspect player screenshot thumbnails, read user comments, and mark reports as Resolved or Dismissed.",
+    where: "Captures live feedback when students report issues inside the video explainer player.",
+  },
 };
 
 const TAB_LABELS: Record<string, string> = {
@@ -335,6 +348,8 @@ const TAB_LABELS: Record<string, string> = {
   coaches: "Coaches & Mentors",
   creators: "Course Creators",
   "ai-infrastructure": "AI Infrastructure",
+  updates: "Product Updates",
+  reports: "User Reports",
 };
 
 export default function AdminContentPage() {
@@ -392,6 +407,8 @@ export default function AdminContentPage() {
     "coaches",
     "creators",
     "ai-infrastructure",
+    "updates",
+    "reports",
   ].includes(tabAlias)
     ? tabAlias
     : "events";
@@ -535,6 +552,8 @@ export default function AdminContentPage() {
                     <SelectItem value="coaches">Coaches &amp; Mentors</SelectItem>
                     <SelectItem value="creators">Course Creators</SelectItem>
                     <SelectItem value="ai-infrastructure">AI Infrastructure</SelectItem>
+                    <SelectItem value="updates">Product Updates</SelectItem>
+                    <SelectItem value="reports">User Reports</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -559,6 +578,7 @@ export default function AdminContentPage() {
                       { id: "coupons", label: "Coupons", icon: Percent },
                       { id: "community", label: "Groups", icon: Users },
                       { id: "blog", label: "Blog", icon: FileText },
+                      { id: "updates", label: "Product Updates", icon: Sparkles },
                     ].map((item) => {
                       const Icon = item.icon;
                       const isActive = tab === item.id;
@@ -669,6 +689,7 @@ export default function AdminContentPage() {
                       { id: "roadmap", label: "Product Roadmap", icon: GitBranch },
                       { id: "support-us", label: "Support Us / Sponsor", icon: Heart },
                       { id: "legal-center", label: "Legal Center", icon: Scale },
+                      { id: "reports", label: "User Reports", icon: Flag },
                     ].map((item) => {
                       const Icon = item.icon;
                       const isActive = tab === item.id;
@@ -798,6 +819,16 @@ export default function AdminContentPage() {
               <TabsContent value="ai-infrastructure" forceMount className={cn("mt-0", tab !== "ai-infrastructure" && "hidden")}>
                 <Suspense fallback={<LazyFallback />}>
                   <AiInfrastructureManager />
+                </Suspense>
+              </TabsContent>
+              <TabsContent value="updates" forceMount className={cn("mt-0", tab !== "updates" && "hidden")}>
+                <Suspense fallback={<LazyFallback />}>
+                  <UpdatesManager />
+                </Suspense>
+              </TabsContent>
+              <TabsContent value="reports" forceMount className={cn("mt-0", tab !== "reports" && "hidden")}>
+                <Suspense fallback={<LazyFallback />}>
+                  <UserReportsManager />
                 </Suspense>
               </TabsContent>
             </div>

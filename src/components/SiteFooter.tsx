@@ -1,6 +1,17 @@
 import { Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Twitter, Github, MessageSquare, Linkedin, Youtube, Instagram, ChevronDown } from "lucide-react";
+import {
+  Twitter,
+  Github,
+  MessageSquare,
+  Linkedin,
+  Youtube,
+  Instagram,
+  ChevronDown,
+  Zap,
+  Sparkles,
+  ArrowRight,
+} from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { useSiteSettings } from "@/hooks/use-site-settings";
 import { usePublicMenu } from "@/hooks/use-wcms-public";
@@ -21,43 +32,45 @@ const APPROVED_SECTIONS: FooterSection[] = [
   {
     title: "Product",
     links: [
+      { label: "What's New (Updates)", url: "/updates" },
+      { label: "Learnify Studio (Watch & Code)", url: "/studio" },
+      { label: "AI Explainer Engine", url: "/ai-tools" },
       { label: "Courses & Masteries", url: "/courses" },
       { label: "Verified Certificates", url: "/verified-certificates" },
-      { label: "Features", url: "/features" },
-      { label: "Creators", url: "/creators" },
-      { label: "Coaches & Mentors", url: "/coaches" },
       { label: "Pricing & Plans", url: "/pricing" },
       { label: "Platform Roadmap", url: "/roadmap" },
     ],
   },
   {
-    title: "Learn",
+    title: "Learn & Grow",
     links: [
       { label: "AI Engineer Roadmap", url: "/blog/full-stack-ai-engineer-roadmap-2026" },
-      { label: "Free Courses", url: "/courses?filter=free" },
-      { label: "Learning Resources", url: "/docs" },
-      { label: "Blog", url: "/blog" },
-      { label: "Guides", url: "/blog/ultimate-guide-free-courses-certificates-2026" },
+      { label: "Free Foundation Courses", url: "/courses?filter=free" },
+      { label: "Interactive Code Playground", url: "/playground" },
+      { label: "Developer Documentation", url: "/docs" },
+      { label: "Engineering Blog", url: "/blog" },
+      { label: "System Design Guide", url: "/system-design" },
     ],
   },
   {
-    title: "Community",
+    title: "Ecosystem",
     links: [
-      { label: "Community Hub", url: "/community" },
-      { label: "Events & AMAs", url: "/events" },
+      { label: "Community Hub & AMAs", url: "/community" },
+      { label: "Verified Coaches & Mentors", url: "/coaches" },
+      { label: "Course Creators Program", url: "/creators" },
       { label: "Student Verification", url: "/verify-student" },
-      { label: "Project Showcase", url: "/showcase" },
-      { label: "Support", url: "/contact" },
+      { label: "Digital Store & XP Market", url: "/store" },
+      { label: "Showcase & Projects", url: "/showcase" },
     ],
   },
   {
     title: "Company",
     links: [
-      { label: "About", url: "/about" },
-      { label: "Careers", url: "/careers" },
-      { label: "Contact", url: "/contact" },
-      { label: "FAQ", url: "/faq" },
-      { label: "Legal Center", url: "/legal" },
+      { label: "About Learnify AI", url: "/about" },
+      { label: "Careers & Internships", url: "/careers" },
+      { label: "Support & Help Center", url: "/contact" },
+      { label: "Frequently Asked Questions", url: "/faq" },
+      { label: "Legal Center & Policies", url: "/legal" },
     ],
   },
 ];
@@ -84,9 +97,8 @@ export function SiteFooter() {
         }))
     : [];
 
-  const rawSections: FooterSection[] = hasWcmsFooter && wcmsSections.length > 0
-    ? wcmsSections
-    : APPROVED_SECTIONS;
+  const rawSections: FooterSection[] =
+    hasWcmsFooter && wcmsSections.length > 0 ? wcmsSections : APPROVED_SECTIONS;
 
   const sections: FooterSection[] = useMemo(() => {
     const isSupportVisible = s?.support_us_enabled === "true";
@@ -117,27 +129,67 @@ export function SiteFooter() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="border-t border-border/60 mt-24 bg-gradient-to-b from-background to-muted/20">
-      <div className="container mx-auto px-6 py-12 md:py-16">
-        <div className="grid gap-10 md:grid-cols-12 items-start">
-          {/* Brand & Mission column */}
-          <div className="space-y-4 md:col-span-4 lg:col-span-4">
+    <footer className="relative mt-24 border-t border-white/10 bg-[#05060a] text-slate-100 overflow-hidden">
+      {/* ─── Ambient Glow Gradients ─── */}
+      <div className="absolute top-0 left-1/4 -translate-y-1/2 w-96 h-96 bg-sky-500/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-96 h-96 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none" />
+
+      {/* ─── Main Footer Content ─── */}
+      <div className="container relative z-10 mx-auto px-6 pt-16 pb-24 md:pt-20 md:pb-32">
+        <div className="grid gap-12 md:grid-cols-12 items-start">
+          {/* Brand & Creator Identity (Left Column - Matches Reference Video) */}
+          <div className="space-y-6 md:col-span-4 lg:col-span-4">
             <Link to="/" className="inline-flex items-center" aria-label="Learnify AI">
               <Logo height="h-9" />
             </Link>
-            <p className="text-sm text-muted-foreground max-w-sm leading-relaxed">
-              Learn smarter. Grow faster. The intelligent learning OS for developers, AI engineers, and modern creators.
+            <p className="text-sm text-slate-400 max-w-sm leading-relaxed">
+              Learn smarter. Grow faster. The AI-native learning &amp; career operating system for developers, AI engineers, and modern creators.
             </p>
 
+            {/* CTA Button matching video */}
+            <div className="pt-1 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+              <Link
+                to="/studio"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white hover:bg-slate-200 text-slate-950 font-semibold text-xs transition shadow-lg hover:scale-[1.02] active:scale-[0.98]"
+              >
+                <Zap className="h-3.5 w-3.5 fill-slate-950 text-slate-950" />
+                <span>Launch Studio IDE</span>
+                <span className="text-[10px] font-mono font-bold bg-slate-950/10 px-1.5 py-0.5 rounded">v4.2</span>
+              </Link>
+              <Link
+                to="/updates"
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-white/10 hover:border-sky-500/40 bg-white/5 hover:bg-white/10 text-xs font-medium text-slate-300 transition"
+              >
+                <Sparkles className="h-3 w-3 text-sky-400" />
+                <span>What's New</span>
+              </Link>
+            </div>
+
+            {/* Copyright & Creator Attribution (Frame 10 & footer_scroll_03.png) */}
+            <div className="pt-2 space-y-2 text-xs text-slate-400">
+              <p className="font-mono text-[11px] text-slate-400">
+                &copy; {currentYear} Learnify AI &mdash; All rights reserved
+              </p>
+              <div className="flex items-center gap-2 pt-0.5">
+                <span className="text-slate-400">Built with 💙 by</span>
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-900 border border-slate-700/70 text-slate-200 shadow-sm">
+                  <div className="w-4 h-4 rounded-full bg-gradient-to-tr from-sky-400 to-indigo-500 flex items-center justify-center text-[10px] font-extrabold text-white shadow-inner">
+                    V
+                  </div>
+                  <span className="font-semibold text-xs text-white">Vishwajeet</span>
+                </div>
+              </div>
+            </div>
+
             {/* Social Icons */}
-            <div className="flex items-center gap-2.5 pt-2">
+            <div className="flex items-center gap-2 pt-2">
               {s?.github_url && s.github_url !== "#" && s.github_url.trim() !== "" && (
                 <a
                   href={s.github_url}
                   target="_blank"
                   rel="noreferrer"
                   aria-label="GitHub"
-                  className="h-8 w-8 rounded-full border border-border/60 flex items-center justify-center hover:border-primary/40 hover:text-primary transition"
+                  className="h-8 w-8 rounded-full border border-slate-800 bg-slate-900/60 flex items-center justify-center text-slate-400 hover:border-sky-500/50 hover:text-white transition"
                 >
                   <Github className="h-4 w-4" />
                 </a>
@@ -148,7 +200,7 @@ export function SiteFooter() {
                   target="_blank"
                   rel="noreferrer"
                   aria-label="Discord"
-                  className="h-8 w-8 rounded-full border border-border/60 flex items-center justify-center hover:border-primary/40 hover:text-primary transition"
+                  className="h-8 w-8 rounded-full border border-slate-800 bg-slate-900/60 flex items-center justify-center text-slate-400 hover:border-sky-500/50 hover:text-white transition"
                 >
                   <MessageSquare className="h-4 w-4" />
                 </a>
@@ -159,7 +211,7 @@ export function SiteFooter() {
                   target="_blank"
                   rel="noreferrer"
                   aria-label="LinkedIn"
-                  className="h-8 w-8 rounded-full border border-border/60 flex items-center justify-center hover:border-primary/40 hover:text-primary transition"
+                  className="h-8 w-8 rounded-full border border-slate-800 bg-slate-900/60 flex items-center justify-center text-slate-400 hover:border-sky-500/50 hover:text-white transition"
                 >
                   <Linkedin className="h-4 w-4" />
                 </a>
@@ -170,7 +222,7 @@ export function SiteFooter() {
                   target="_blank"
                   rel="noreferrer"
                   aria-label="X (Twitter)"
-                  className="h-8 w-8 rounded-full border border-border/60 flex items-center justify-center hover:border-primary/40 hover:text-primary transition"
+                  className="h-8 w-8 rounded-full border border-slate-800 bg-slate-900/60 flex items-center justify-center text-slate-400 hover:border-sky-500/50 hover:text-white transition"
                 >
                   <Twitter className="h-4 w-4" />
                 </a>
@@ -181,7 +233,7 @@ export function SiteFooter() {
                   target="_blank"
                   rel="noreferrer"
                   aria-label="YouTube"
-                  className="h-8 w-8 rounded-full border border-border/60 flex items-center justify-center hover:border-primary/40 hover:text-primary transition"
+                  className="h-8 w-8 rounded-full border border-slate-800 bg-slate-900/60 flex items-center justify-center text-slate-400 hover:border-sky-500/50 hover:text-white transition"
                 >
                   <Youtube className="h-4 w-4" />
                 </a>
@@ -192,7 +244,7 @@ export function SiteFooter() {
                   target="_blank"
                   rel="noreferrer"
                   aria-label="Instagram"
-                  className="h-8 w-8 rounded-full border border-border/60 flex items-center justify-center hover:border-primary/40 hover:text-primary transition"
+                  className="h-8 w-8 rounded-full border border-slate-800 bg-slate-900/60 flex items-center justify-center text-slate-400 hover:border-sky-500/50 hover:text-white transition"
                 >
                   <Instagram className="h-4 w-4" />
                 </a>
@@ -203,11 +255,11 @@ export function SiteFooter() {
           {/* Desktop Navigation Columns (4 Columns) */}
           <div className="hidden md:grid md:grid-cols-4 gap-8 md:col-span-8 lg:col-span-8">
             {sections.map((section) => (
-              <div key={section.title} className="space-y-3">
-                <h4 className="font-display font-semibold text-sm tracking-tight text-foreground">
+              <div key={section.title} className="space-y-3.5">
+                <h4 className="font-display font-semibold text-xs tracking-wider uppercase text-slate-200">
                   {section.title}
                 </h4>
-                <ul className="space-y-2.5 text-sm text-muted-foreground">
+                <ul className="space-y-2.5 text-xs text-slate-400">
                   {section.links.map((link) => (
                     <li key={link.label}>
                       {link.open_new_tab ? (
@@ -215,14 +267,14 @@ export function SiteFooter() {
                           href={link.url}
                           target="_blank"
                           rel="noreferrer"
-                          className="hover:text-foreground transition-colors"
+                          className="hover:text-white hover:translate-x-0.5 inline-block transition-all"
                         >
                           {link.label}
                         </a>
                       ) : (
                         <Link
                           to={link.url || "/"}
-                          className="hover:text-foreground transition-colors"
+                          className="hover:text-white hover:translate-x-0.5 inline-block transition-all"
                         >
                           {link.label}
                         </Link>
@@ -234,8 +286,8 @@ export function SiteFooter() {
             ))}
           </div>
 
-          {/* Mobile Accordion Groups (Compact & Premium) */}
-          <div className="block md:hidden col-span-1 divide-y divide-border/60 rounded-xl border border-border/60 bg-card/40 overflow-hidden">
+          {/* Mobile Accordion Groups */}
+          <div className="block md:hidden col-span-1 divide-y divide-white/10 rounded-2xl border border-white/10 bg-slate-900/40 backdrop-blur-md overflow-hidden">
             {sections.map((section) => {
               const isOpen = Boolean(openSections[section.title]);
               return (
@@ -243,19 +295,19 @@ export function SiteFooter() {
                   <button
                     type="button"
                     onClick={() => toggleSection(section.title)}
-                    className="w-full flex items-center justify-between text-left text-sm font-semibold text-foreground py-1"
+                    className="w-full flex items-center justify-between text-left text-xs font-semibold text-slate-200 py-1"
                     aria-expanded={isOpen}
                   >
                     <span>{section.title}</span>
                     <ChevronDown
                       className={cn(
-                        "h-4 w-4 text-muted-foreground transition-transform duration-200",
-                        isOpen && "rotate-180",
+                        "h-3.5 w-3.5 text-slate-400 transition-transform duration-200",
+                        isOpen && "rotate-180"
                       )}
                     />
                   </button>
                   {isOpen && (
-                    <ul className="mt-2.5 pl-1 space-y-2 text-xs text-muted-foreground border-t border-border/40 pt-2 animate-in fade-in duration-200">
+                    <ul className="mt-2.5 pl-1 space-y-2 text-xs text-slate-400 border-t border-white/5 pt-2 animate-in fade-in duration-200">
                       {section.links.map((link) => (
                         <li key={link.label}>
                           {link.open_new_tab ? (
@@ -263,14 +315,14 @@ export function SiteFooter() {
                               href={link.url}
                               target="_blank"
                               rel="noreferrer"
-                              className="hover:text-foreground transition-colors block py-0.5"
+                              className="hover:text-white transition-colors block py-0.5"
                             >
                               {link.label}
                             </a>
                           ) : (
                             <Link
                               to={link.url || "/"}
-                              className="hover:text-foreground transition-colors block py-0.5"
+                              className="hover:text-white transition-colors block py-0.5"
                             >
                               {link.label}
                             </Link>
@@ -285,37 +337,44 @@ export function SiteFooter() {
           </div>
         </div>
 
-        {/* Footer Bottom Bar with Legal Links & Dynamic Copyright */}
-        <div className="border-t border-border/60 mt-12 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
-          <p>
-            &copy; {currentYear} Learnify AI &middot; Learn Smarter. Grow Faster. All rights reserved.
+        {/* Footer Bottom Bar with Legal Links */}
+        <div className="border-t border-white/10 mt-16 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+          <p className="font-mono text-[11px]">
+            &copy; {currentYear} Learnify AI Inc. All rights reserved.
           </p>
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-muted-foreground">
-            <Link to="/terms" className="hover:text-foreground transition-colors">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-slate-400">
+            <Link to="/terms" className="hover:text-white transition-colors">
               Terms &amp; Conditions
             </Link>
             <span>&middot;</span>
-            <Link to="/privacy" className="hover:text-foreground transition-colors">
+            <Link to="/privacy" className="hover:text-white transition-colors">
               Privacy Policy
             </Link>
             <span>&middot;</span>
-            <Link to="/refund-policy" className="hover:text-foreground transition-colors">
+            <Link to="/refund-policy" className="hover:text-white transition-colors">
               Refund Policy
             </Link>
             <span>&middot;</span>
             <Link
               to="/legal"
               search={{ doc: "digital-delivery" }}
-              className="hover:text-foreground transition-colors"
+              className="hover:text-white transition-colors"
             >
-              Shipping &amp; Delivery Policy
+              Shipping &amp; Delivery
             </Link>
             <span>&middot;</span>
-            <Link to="/legal" className="hover:text-foreground transition-colors">
+            <Link to="/legal" className="hover:text-white transition-colors">
               Legal Center
             </Link>
           </div>
         </div>
+      </div>
+
+      {/* ─── Giant Watermark Typography (Matches Video Frame 10 & footer_scroll_03.png) ─── */}
+      <div className="absolute inset-x-0 bottom-0 pointer-events-none select-none overflow-hidden flex justify-center items-end opacity-[0.035] dark:opacity-[0.045] z-0">
+        <span className="font-display font-black text-[13vw] sm:text-[14.5vw] tracking-tighter leading-none text-white whitespace-nowrap translate-y-[22%]">
+          LEARNIFY AI
+        </span>
       </div>
     </footer>
   );

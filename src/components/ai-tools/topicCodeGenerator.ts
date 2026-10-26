@@ -1,4 +1,5 @@
 import { ExplainerTopicData } from "./ExplainerVideoPlayer";
+import { getVerifiedTopicKnowledge } from "@/lib/explainerKnowledgeCache";
 
 export interface GeneratedTopicBundle {
   title: string;
@@ -21,6 +22,22 @@ export interface GeneratedTopicBundle {
     explanation: string;
     targetFileName: string;
   }[];
+}
+
+export interface TopicPlaylistItem {
+  id: string;
+  title: string;
+  subtitle: string;
+  durationFormatted: string;
+  bundle: GeneratedTopicBundle;
+}
+
+export interface TopicPlaylist {
+  id: string;
+  topicTitle: string;
+  category: string;
+  totalVideos: number;
+  items: TopicPlaylistItem[];
 }
 
 /**
@@ -1005,6 +1022,255 @@ export default function CounterStudio() {
         solutionCode: `<h1>${cleanTitle} — Mastered!</h1>`,
         explanation: "Modifying the code reinforces direct tactile feedback in the live runner.",
         targetFileName: "index.html",
+      },
+    ],
+  };
+}
+
+/**
+ * Generates a complete multi-video playlist series for a topic
+ * e.g. for HTML: 1. Introduction, 2. Skeleton & Doctype, 3. Basic Tags, 4. Semantic HTML5, 5. Forms, 6. Live DOM
+ */
+export function generateTopicPlaylist(userQuery: string): TopicPlaylist {
+  const q = userQuery.toLowerCase().trim();
+  const verified = getVerifiedTopicKnowledge(q);
+
+  // ─── 1. HTML MULTI-VIDEO PLAYLIST ───
+  if (q.includes("html") || q.includes("web") || q.includes("website") || q.includes("tag")) {
+    const b1 = generateTopicBundle("html");
+    const b2 = generateTopicBundle("html basic tags");
+    const b3 = generateTopicBundle("html syntax");
+    const b4 = generateTopicBundle("html semantic");
+
+    return {
+      id: "playlist-html",
+      topicTitle: "HTML5 & Web Architecture Mastery",
+      category: "Frontend Development",
+      totalVideos: 4,
+      items: [
+        {
+          id: "html-01",
+          title: "1. Introduction to HTML & The Web",
+          subtitle: "Tim Berners-Lee (1991), CERN, and how browsers parse raw bytes into characters.",
+          durationFormatted: "2:15",
+          bundle: {
+            ...b1,
+            title: "Introduction to HTML & The Web",
+            explainerData: {
+              ...b1.explainerData,
+              title: "Introduction to HTML & The Web",
+              tagline: "How the World Wide Web was born and why semantic markup powers modern search.",
+            },
+          },
+        },
+        {
+          id: "html-02",
+          title: "2. Document Skeleton & DOCTYPE",
+          subtitle: "Standards mode, <!DOCTYPE html>, metadata, viewport scaling, and character encoding.",
+          durationFormatted: "2:05",
+          bundle: {
+            ...b2,
+            title: "HTML Document Skeleton & DOCTYPE",
+            explainerData: {
+              ...b2.explainerData,
+              title: "HTML Document Skeleton & DOCTYPE",
+              tagline: "Building resilient web page foundations that scale across desktop and mobile devices.",
+            },
+          },
+        },
+        {
+          id: "html-03",
+          title: "3. Core Basic Tags & Typography",
+          subtitle: "Headings (H1-H6), paragraphs, lists (ul/ol/li), and hyperlink navigation.",
+          durationFormatted: "2:30",
+          bundle: {
+            ...b3,
+            title: "Core Basic Tags & Typography",
+            explainerData: {
+              ...b3.explainerData,
+              title: "Core Basic Tags & Typography",
+              tagline: "Giving meaning to textual information with accessible headings, emphasis, and links.",
+            },
+          },
+        },
+        {
+          id: "html-04",
+          title: "4. Semantic HTML5 & Live DOM Tree",
+          subtitle: "Header, nav, main, article, footer, and interactive DOM binding.",
+          durationFormatted: "2:40",
+          bundle: {
+            ...b4,
+            title: "Semantic HTML5 & Live DOM Tree",
+            explainerData: {
+              ...b4.explainerData,
+              title: "Semantic HTML5 & Live DOM Tree",
+              tagline: "Constructing modern accessible layouts with real-time DOM tree manipulation.",
+            },
+          },
+        },
+      ],
+    };
+  }
+
+  // ─── 2. JAVA MULTI-VIDEO PLAYLIST ───
+  if (q.includes("java") && !q.includes("script")) {
+    const baseBundle = generateTopicBundle("java");
+    return {
+      id: "playlist-java",
+      topicTitle: "Java Enterprise & JVM Fundamentals",
+      category: "Backend & Systems",
+      totalVideos: 4,
+      items: [
+        {
+          id: "java-01",
+          title: "1. Introduction to Java & The JVM",
+          subtitle: "James Gosling (1995), WORA, bytecode execution, and the HotSpot JIT compiler.",
+          durationFormatted: "2:20",
+          bundle: {
+            ...baseBundle,
+            title: "Introduction to Java & The JVM",
+            explainerData: {
+              ...baseBundle.explainerData,
+              title: "Introduction to Java & The JVM",
+              tagline: "From .java source code to intermediate bytecode and native hardware instructions.",
+            },
+          },
+        },
+        {
+          id: "java-02",
+          title: "2. Java Syntax, Variables & Primitives",
+          subtitle: "Stack vs Heap, primitive types, operators, and String pool immutability.",
+          durationFormatted: "2:10",
+          bundle: {
+            ...baseBundle,
+            title: "Java Syntax, Variables & Primitives",
+            explainerData: {
+              ...baseBundle.explainerData,
+              title: "Java Syntax, Variables & Primitives",
+              tagline: "Memory allocation and static type checking in modern Java 21+.",
+            },
+          },
+        },
+        {
+          id: "java-03",
+          title: "3. Object-Oriented Principles & Records",
+          subtitle: "Classes, objects, encapsulation, constructors, and immutable record classes.",
+          durationFormatted: "2:35",
+          bundle: {
+            ...baseBundle,
+            title: "Object-Oriented Principles & Records",
+            explainerData: {
+              ...baseBundle.explainerData,
+              title: "Object-Oriented Principles & Records",
+              tagline: "Structuring clean domain models with encapsulation and Java records.",
+            },
+          },
+        },
+        {
+          id: "java-04",
+          title: "4. Collections Framework & Stream API",
+          subtitle: "ArrayList, HashMap, functional streams, and garbage collector tuning.",
+          durationFormatted: "2:45",
+          bundle: {
+            ...baseBundle,
+            title: "Collections Framework & Stream API",
+            explainerData: {
+              ...baseBundle.explainerData,
+              title: "Collections Framework & Stream API",
+              tagline: "Processing in-memory collections declaratively with high-throughput streams.",
+            },
+          },
+        },
+      ],
+    };
+  }
+
+  // ─── 3. PYTHON / AI MULTI-VIDEO PLAYLIST ───
+  if (q.includes("python") || q.includes("neural") || q.includes("deep learning") || q.includes("ai")) {
+    const baseBundle = generateTopicBundle(q.includes("neural") ? "neural networks" : "python");
+    return {
+      id: "playlist-python",
+      topicTitle: "Python & Modern AI Engineering",
+      category: "Artificial Intelligence",
+      totalVideos: 3,
+      items: [
+        {
+          id: "py-01",
+          title: "1. Introduction to Python & The Zen of Python",
+          subtitle: "Guido van Rossum (1991), CPython evaluation loop, and clean syntax philosophy.",
+          durationFormatted: "2:10",
+          bundle: {
+            ...baseBundle,
+            title: "Introduction to Python & The Zen of Python",
+            explainerData: {
+              ...baseBundle.explainerData,
+              title: "Introduction to Python & The Zen of Python",
+              tagline: "Readability counts: mastering pythonic idioms and dynamic typing.",
+            },
+          },
+        },
+        {
+          id: "py-02",
+          title: "2. Data Structures & Functional Comprehensions",
+          subtitle: "Lists, tuples, dictionaries, sets, and concise list comprehensions.",
+          durationFormatted: "2:25",
+          bundle: {
+            ...baseBundle,
+            title: "Data Structures & Functional Comprehensions",
+            explainerData: {
+              ...baseBundle.explainerData,
+              title: "Data Structures & Functional Comprehensions",
+              tagline: "Manipulating complex data pipelines with Python functional primitives.",
+            },
+          },
+        },
+        {
+          id: "py-03",
+          title: "3. Neural Networks & Forward/Backpropagation",
+          subtitle: "Tensors, activation functions (ReLU, Sigmoid), weights, and loss gradients.",
+          durationFormatted: "2:45",
+          bundle: {
+            ...baseBundle,
+            title: "Neural Networks & Forward/Backpropagation",
+            explainerData: {
+              ...baseBundle.explainerData,
+              title: "Neural Networks & Forward/Backpropagation",
+              tagline: "Understanding gradient descent and backpropagation in deep learning systems.",
+            },
+          },
+        },
+      ],
+    };
+  }
+
+  // ─── 4. GENERAL SCIENCE / SYSTEM CURRICULUM PLAYLIST ───
+  const baseBundle = generateTopicBundle(userQuery);
+  return {
+    id: `playlist-${userQuery.toLowerCase().replace(/[^a-z0-9]/g, "-")}`,
+    topicTitle: `${baseBundle.title} Curriculum Series`,
+    category: baseBundle.category,
+    totalVideos: 3,
+    items: [
+      {
+        id: "gen-01",
+        title: `1. Foundations & Origins of ${baseBundle.title}`,
+        subtitle: "Core historical background, governing principles, and essential terminology.",
+        durationFormatted: "2:10",
+        bundle: baseBundle,
+      },
+      {
+        id: "gen-02",
+        title: `2. Deep-Dive Mechanics & Architecture`,
+        subtitle: "How internal components interact in equilibrium with feedback loops.",
+        durationFormatted: "2:30",
+        bundle: baseBundle,
+      },
+      {
+        id: "gen-03",
+        title: `3. Interactive Code Sandbox & Practice Checkpoint`,
+        subtitle: "Test and verify your understanding in the live Learnify Studio environment.",
+        durationFormatted: "2:45",
+        bundle: baseBundle,
       },
     ],
   };

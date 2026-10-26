@@ -35,6 +35,7 @@ import { Route as SignupRouteImport } from './routes/signup'
 import { Route as SponsorRouteImport } from './routes/sponsor'
 import { Route as SupportUsRouteImport } from './routes/support-us'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as UpdatesRouteImport } from './routes/updates'
 import { Route as VerifiedCertificatesRouteImport } from './routes/verified-certificates'
 import { Route as VerifyStudentRouteImport } from './routes/verify-student'
 import { Route as AuthenticatedAchievementsRouteImport } from './routes/_authenticated/achievements'
@@ -251,6 +252,11 @@ const SupportUsRoute = SupportUsRouteImport.update({
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UpdatesRoute = UpdatesRouteImport.update({
+  id: '/updates',
+  path: '/updates',
   getParentRoute: () => rootRouteImport,
 } as any)
 const VerifiedCertificatesRoute = VerifiedCertificatesRouteImport.update({
@@ -762,6 +768,7 @@ export interface FileRoutesByFullPath {
   '/sponsor': typeof SponsorRoute
   '/support-us': typeof SupportUsRoute
   '/terms': typeof TermsRoute
+  '/updates': typeof UpdatesRoute
   '/verified-certificates': typeof VerifiedCertificatesRoute
   '/verify-student': typeof VerifyStudentRoute
   '/achievements': typeof AuthenticatedAchievementsRoute
@@ -877,6 +884,7 @@ export interface FileRoutesByTo {
   '/sponsor': typeof SponsorRoute
   '/support-us': typeof SupportUsRoute
   '/terms': typeof TermsRoute
+  '/updates': typeof UpdatesRoute
   '/verified-certificates': typeof VerifiedCertificatesRoute
   '/verify-student': typeof VerifyStudentRoute
   '/achievements': typeof AuthenticatedAchievementsRoute
@@ -992,6 +1000,7 @@ export interface FileRoutesById {
   '/sponsor': typeof SponsorRoute
   '/support-us': typeof SupportUsRoute
   '/terms': typeof TermsRoute
+  '/updates': typeof UpdatesRoute
   '/verified-certificates': typeof VerifiedCertificatesRoute
   '/verify-student': typeof VerifyStudentRoute
   '/_authenticated/achievements': typeof AuthenticatedAchievementsRoute
@@ -1109,6 +1118,7 @@ export interface FileRouteTypes {
     | '/sponsor'
     | '/support-us'
     | '/terms'
+    | '/updates'
     | '/verified-certificates'
     | '/verify-student'
     | '/achievements'
@@ -1224,6 +1234,7 @@ export interface FileRouteTypes {
     | '/sponsor'
     | '/support-us'
     | '/terms'
+    | '/updates'
     | '/verified-certificates'
     | '/verify-student'
     | '/achievements'
@@ -1338,6 +1349,7 @@ export interface FileRouteTypes {
     | '/sponsor'
     | '/support-us'
     | '/terms'
+    | '/updates'
     | '/verified-certificates'
     | '/verify-student'
     | '/_authenticated/achievements'
@@ -1455,6 +1467,7 @@ export interface RootRouteChildren {
   SponsorRoute: typeof SponsorRoute
   SupportUsRoute: typeof SupportUsRoute
   TermsRoute: typeof TermsRoute
+  UpdatesRoute: typeof UpdatesRoute
   VerifiedCertificatesRoute: typeof VerifiedCertificatesRoute
   VerifyStudentRoute: typeof VerifyStudentRoute
   ApiChatRoute: typeof ApiChatRoute
@@ -1663,6 +1676,13 @@ declare module '@tanstack/react-router' {
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/updates': {
+      id: '/updates'
+      path: '/updates'
+      fullPath: '/updates'
+      preLoaderRoute: typeof UpdatesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/verified-certificates': {
@@ -2503,6 +2523,7 @@ const rootRouteChildren: RootRouteChildren = {
   SponsorRoute: SponsorRoute,
   SupportUsRoute: SupportUsRoute,
   TermsRoute: TermsRoute,
+  UpdatesRoute: UpdatesRoute,
   VerifiedCertificatesRoute: VerifiedCertificatesRoute,
   VerifyStudentRoute: VerifyStudentRoute,
   ApiChatRoute: ApiChatRoute,

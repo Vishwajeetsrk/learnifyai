@@ -44,7 +44,12 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { ScrimbaWorkspace, PracticeChallenge } from "@/components/courses/ScrimbaWorkspace";
 import { ScrimbaLearningHub } from "./ScrimbaLearningHub";
-import { generateTopicBundle } from "./topicCodeGenerator";
+import {
+  generateTopicBundle,
+  generateTopicPlaylist,
+  TopicPlaylist,
+  TopicPlaylistItem,
+} from "./topicCodeGenerator";
 
 // ─── 7 Persona Configurations ───────────────────────────────────────────────
 export type TeachingPersona =
@@ -174,6 +179,9 @@ export function UnpackAnythingStudio() {
     sizeFormat: "custom",
   });
 
+  const [activePlaylist, setActivePlaylist] = useState<TopicPlaylist | null>(null);
+  const [selectedPlaylistItemId, setSelectedPlaylistItemId] = useState<string | null>(null);
+
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -231,21 +239,40 @@ export function UnpackAnythingStudio() {
     setTimeout(() => {
       const queryText = prompt.trim() || uploadedFiles[0]?.name || "Interactive Studio";
       const bundle = generateTopicBundle(queryText);
+      const playlist = generateTopicPlaylist(queryText);
+
+      setActivePlaylist(playlist);
+      const firstItem = playlist.items[0];
+      setSelectedPlaylistItemId(firstItem ? firstItem.id : null);
 
       setActiveExplainer({
-        title: bundle.title,
+        title: firstItem ? firstItem.title : bundle.title,
         topic: queryText,
         persona: selectedPersona,
         sizeFormat,
-        code: bundle.files[bundle.defaultFile],
-        lang: bundle.lang,
-        practiceChallenges: bundle.practiceChallenges,
+        code: firstItem ? firstItem.bundle.files[firstItem.bundle.defaultFile] : bundle.files[bundle.defaultFile],
+        lang: firstItem ? firstItem.bundle.lang : bundle.lang,
+        practiceChallenges: firstItem ? firstItem.bundle.practiceChallenges : bundle.practiceChallenges,
       });
 
       setIsGenerating(false);
       setGenerationStep("");
-      toast.success("✨ Learnify AI Explainer generated! Code and live preview are now active.");
+      toast.success(`✨ Learnify AI Explainer generated with ${playlist.totalVideos}-part playlist curriculum!`);
     }, 3200);
+  };
+
+  const handleSelectPlaylistItem = (item: TopicPlaylistItem) => {
+    setSelectedPlaylistItemId(item.id);
+    setActiveExplainer({
+      title: item.title,
+      topic: item.bundle.title,
+      persona: selectedPersona,
+      sizeFormat,
+      code: item.bundle.files[item.bundle.defaultFile],
+      lang: item.bundle.lang,
+      practiceChallenges: item.bundle.practiceChallenges,
+    });
+    toast.success(`Loaded video: ${item.title}`);
   };
 
   const copyApiSnippet = () => {
@@ -522,6 +549,58 @@ export function UnpackAnythingStudio() {
               </Button>
             </div>
           </div>
+
+          {/* ─── Multi-Video Topic Playlist Selector Bar ─── */}
+          {activePlaylist && activePlaylist.items.length > 1 && (
+            <div className="p-4 rounded-2xl border border-sky-500/30 bg-sky-500/5 backdrop-blur-md space-y-3 shadow-lg">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <div className="flex items-center gap-2">
+                  <ListPlus className="h-4 w-4 text-sky-400" />
+                  <span className="font-display font-bold text-sm text-foreground">
+                    {activePlaylist.topicTitle} &middot;{" "}
+                    <span className="text-sky-400 font-normal">{activePlaylist.totalVideos} Video Lessons</span>
+                  </span>
+                </div>
+                <Badge variant="outline" className="text-[10px] font-mono border-sky-500/30 text-sky-400">
+                  Continuous Curriculum
+                </Badge>
+              </div>
+
+              {/* Video playlist cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+                {activePlaylist.items.map((item, idx) => {
+                  const isSelected = selectedPlaylistItemId === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => handleSelectPlaylistItem(item)}
+                      className={cn(
+                        "p-3 rounded-xl border text-left transition-all cursor-pointer space-y-1.5 flex flex-col justify-between group",
+                        isSelected
+                          ? "bg-sky-500/20 border-sky-400 shadow-[0_0_15px_rgba(56,189,248,0.25)] ring-1 ring-sky-400/40"
+                          : "bg-card/70 border-border/70 hover:border-sky-500/40 hover:bg-card"
+                      )}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span
+                          className={cn(
+                            "text-[10px] font-bold font-mono px-1.5 py-0.5 rounded",
+                            isSelected ? "bg-sky-400 text-slate-950" : "bg-muted text-muted-foreground group-hover:text-foreground"
+                          )}
+                        >
+                          Lesson {idx + 1}
+                        </span>
+                        <span className="text-[10px] font-mono text-muted-foreground">{item.durationFormatted}</span>
+                      </div>
+                      <div className="font-semibold text-xs text-foreground line-clamp-1">{item.title}</div>
+                      <p className="text-[11px] text-muted-foreground line-clamp-2 leading-snug">{item.subtitle}</p>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {/* The Live Interactive Learnify AI Workspace */}
           <div className="rounded-2xl border border-slate-800 bg-[#0e111a] overflow-hidden shadow-2xl">

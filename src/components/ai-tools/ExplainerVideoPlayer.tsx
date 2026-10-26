@@ -39,8 +39,17 @@ import {
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { saveExplainerReport, ExplainerReport } from "@/lib/reportsStore";
 
 // ─── Interfaces & Storyboard Schema (Aligned with MVD 6.0) ───────────────────
 export interface StoryboardChapter {
@@ -122,12 +131,18 @@ export function ExplainerVideoPlayer({
   const [playbackSpeed, setPlaybackSpeed] = useState<number>(1.0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState<number>(1842);
   const [isSaved, setIsSaved] = useState(false);
   const [isFollowed, setIsFollowed] = useState(topic.author.isFollowed);
   const [selectedLanguage, setSelectedLanguage] = useState<string>("en");
   const [captionStyle, setCaptionStyle] = useState<"glass" | "karaoke" | "cinema" | "cyberpunk">("glass");
   const [isExportingVideo, setIsExportingVideo] = useState<boolean>(false);
   const [exportProgress, setExportProgress] = useState<number>(0);
+  const [isReportModalOpen, setIsReportModalOpen] = useState<boolean>(false);
+  const [capturedScreenshot, setCapturedScreenshot] = useState<string | null>(null);
+  const [reportReason, setReportReason] = useState<string>("Inaccurate AI Information");
+  const [reportComment, setReportComment] = useState<string>("");
+  const [isSubmittingReport, setIsSubmittingReport] = useState<boolean>(false);
   const [hoveredChapter, setHoveredChapter] = useState<{
     index: number;
     title: string;
@@ -272,11 +287,116 @@ export function ExplainerVideoPlayer({
     [isMuted, playbackSpeed, selectedLanguage]
   );
 
-  // ─── Export Explainer Video as MP4 ────────────────────────────────────────
+  // ─── Automated Realtime Player Screenshot Capture for Admin Bug Reporting ───
+  const capturePlayerScreenshot = useCallback(() => {
+    try {
+      const canvas = document.createElement("canvas");
+      canvas.width = 1280;
+      canvas.height = 720;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+
+      // Dark background matching player
+      const bgGrad = ctx.createLinearGradient(0, 0, 1280, 720);
+      bgGrad.addColorStop(0, "#0b0f19");
+      bgGrad.addColorStop(0.5, "#0f172a");
+      bgGrad.addColorStop(1, "#080c14");
+      ctx.fillStyle = bgGrad;
+      ctx.fillRect(0, 0, 1280, 720);
+
+      // Header branding
+      ctx.fillStyle = "#38bdf8";
+      ctx.font = "bold 22px 'Space Grotesk', sans-serif";
+      ctx.fillText(`LEARNIFY AI · ${topic.category.toUpperCase()} · ${formatTime(currentTimeSec)}`, 50, 60);
+
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "bold 42px 'Space Grotesk', sans-serif";
+      ctx.fillText(`${topic.emoji} ${topic.title}`, 50, 120);
+
+      // Center Stage Card
+      ctx.fillStyle = "#faf9f5";
+      ctx.strokeStyle = "#cbd5e1";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.roundRect(180, 170, 920, 390, 24);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = "#0f172a";
+      ctx.font = "bold 28px 'Space Grotesk', sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(`Scene ${activeChapterIndex + 1}: ${activeChapter.title}`, 640, 230);
+
+      ctx.fillStyle = "#475569";
+      ctx.font = "20px 'DM Sans', sans-serif";
+      ctx.fillText(activeChapter.subtitle, 640, 280);
+
+      // Center icon
+      ctx.fillStyle = "#38bdf8";
+      ctx.beginPath();
+      ctx.arc(640, 380, 50, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "bold 34px sans-serif";
+      ctx.fillText(topic.emoji, 640, 392);
+
+      ctx.fillStyle = "#64748b";
+      ctx.font = "bold 16px 'Fira Code', monospace";
+      ctx.fillText(`Timestamp: ${activeChapter.timestamp} · Narration: "${activeChapter.spokenWords.slice(0, 60)}..."`, 640, 480);
+
+      // Subtitle Box
+      ctx.fillStyle = "rgba(2, 6, 23, 0.95)";
+      ctx.strokeStyle = "#38bdf8";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect(100, 590, 1080, 80, 16);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "bold 18px 'DM Sans', sans-serif";
+      ctx.fillText(`${activeChapter.title}: ${activeChapter.spokenWords.slice(0, 85)}...`, 640, 640);
+
+      const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
+      setCapturedScreenshot(dataUrl);
+    } catch (err) {
+      console.error("Screenshot capture error", err);
+    }
+  }, [topic, activeChapter, activeChapterIndex, currentTimeSec]);
+
+  const handleOpenReportModal = () => {
+    setIsPlaying(false);
+    capturePlayerScreenshot();
+    setIsReportModalOpen(true);
+  };
+
+  const handleSubmitReport = () => {
+    setIsSubmittingReport(true);
+    const newReport: ExplainerReport = {
+      id: `rep-${Date.now()}`,
+      topicId: topic.id,
+      topicTitle: topic.title,
+      chapterTitle: activeChapter.title,
+      videoTimestamp: formatTime(currentTimeSec),
+      reason: reportReason,
+      comment: reportComment.trim(),
+      screenshotUrl: capturedScreenshot || undefined,
+      createdAt: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }),
+      status: "pending",
+    };
+
+    saveExplainerReport(newReport);
+    setIsSubmittingReport(false);
+    setIsReportModalOpen(false);
+    setReportComment("");
+    toast.success("Report & live screenshot sent to Learnify Admin safety team!");
+  };
+
+  // ─── Export Full Explainer Video as MP4 (Across All Chapters) ─────────────
   const handleDownloadMp4 = useCallback(async () => {
     setIsExportingVideo(true);
-    setExportProgress(10);
-    toast.info("Rendering 1080p MP4 explainer with diagrams & captions...");
+    setExportProgress(5);
+    toast.info("Rendering full multi-chapter 1080p MP4 lesson video...");
 
     try {
       const canvas = document.createElement("canvas");
@@ -305,23 +425,35 @@ export function ExplainerVideoPlayer({
         const a = document.createElement("a");
         a.href = url;
         const cleanTitle = topic.title.toLowerCase().replace(/[^a-z0-9]/g, "-");
-        a.download = `learnify-${cleanTitle}-${selectedLanguage}.mp4`;
+        a.download = `learnify-${cleanTitle}-${selectedLanguage}-full-lesson.mp4`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
         setIsExportingVideo(false);
         setExportProgress(100);
-        toast.success("MP4 Explainer video downloaded successfully!");
+        toast.success("Full lesson MP4 downloaded successfully!");
       };
 
       mediaRecorder.start();
 
-      let frame = 0;
-      const totalFrames = 50;
+      let currentChapIdx = 0;
+      let frameInChap = 0;
+      const framesPerChapter = 60; // 2 seconds per chapter
+      const totalFrames = topic.chapters.length * framesPerChapter;
+      let totalRenderedFrames = 0;
+
       const renderInterval = setInterval(() => {
-        frame++;
-        setExportProgress(Math.min(95, Math.round((frame / totalFrames) * 90) + 10));
+        totalRenderedFrames++;
+        frameInChap++;
+
+        if (frameInChap >= framesPerChapter) {
+          frameInChap = 0;
+          currentChapIdx = Math.min(topic.chapters.length - 1, currentChapIdx + 1);
+        }
+
+        const renderChap = topic.chapters[currentChapIdx] || activeChapter;
+        setExportProgress(Math.min(95, Math.round((totalRenderedFrames / totalFrames) * 90) + 5));
 
         // Background
         const grad = ctx.createLinearGradient(0, 0, 1920, 1080);
@@ -344,7 +476,7 @@ export function ExplainerVideoPlayer({
         ctx.fillStyle = "#94a3b8";
         ctx.font = "26px 'DM Sans', sans-serif";
         ctx.fillText(
-          `Created by: ${topic.author.name} · Language: ${selectedLanguage.toUpperCase()} · Scene: ${activeChapter.title}`,
+          `Created by: ${topic.author.name} · Language: ${selectedLanguage.toUpperCase()} · Scene ${currentChapIdx + 1}/${topic.chapters.length}: ${renderChap.title}`,
           100,
           250
         );
@@ -359,29 +491,40 @@ export function ExplainerVideoPlayer({
         ctx.stroke();
 
         ctx.fillStyle = "#0f172a";
-        ctx.font = "bold 36px 'Space Grotesk', sans-serif";
+        ctx.font = "bold 40px 'Space Grotesk', sans-serif";
         ctx.textAlign = "center";
-        ctx.fillText(`The Basics of ${topic.title}`, 960, 390);
+        ctx.fillText(renderChap.title, 960, 390);
 
         ctx.fillStyle = "#475569";
-        ctx.font = "24px 'DM Sans', sans-serif";
-        ctx.fillText(activeChapter.subtitle, 960, 450);
+        ctx.font = "26px 'DM Sans', sans-serif";
+        ctx.fillText(renderChap.subtitle, 960, 450);
 
-        // Vector illustration indicator
+        // Vector illustration indicator with pulse animation
+        const pulse = Math.sin(frameInChap * 0.1) * 6;
         ctx.fillStyle = "#38bdf8";
         ctx.beginPath();
-        ctx.arc(960, 580, 70, 0, Math.PI * 2);
+        ctx.arc(960, 580, 70 + pulse, 0, Math.PI * 2);
         ctx.fill();
         ctx.fillStyle = "#ffffff";
         ctx.font = "bold 44px sans-serif";
         ctx.fillText(topic.emoji, 960, 595);
 
+        // Lesson Timeline Indicator
+        ctx.fillStyle = "#e2e8f0";
+        ctx.beginPath();
+        ctx.roundRect(560, 680, 800, 12, 6);
+        ctx.fill();
+        ctx.fillStyle = "#38bdf8";
+        ctx.beginPath();
+        ctx.roundRect(560, 680, (800 * totalRenderedFrames) / totalFrames, 12, 6);
+        ctx.fill();
+
         ctx.fillStyle = "#64748b";
         ctx.font = "bold 20px 'Fira Code', monospace";
         ctx.fillText(
-          `Scene ${activeChapterIndex + 1} of ${topic.chapters.length} · Timestamp ${activeChapter.timestamp}`,
+          `Scene ${currentChapIdx + 1} of ${topic.chapters.length} · Timestamp ${renderChap.timestamp}`,
           960,
-          720
+          730
         );
 
         // Subtitle Bar
@@ -390,25 +533,25 @@ export function ExplainerVideoPlayer({
           captionStyle === "cyberpunk" ? "#22c55e" : captionStyle === "karaoke" ? "#facc15" : "#38bdf8";
         ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.roundRect(260, 955, 1400, 85, 20);
+        ctx.roundRect(220, 935, 1480, 105, 20);
         ctx.fill();
         ctx.stroke();
 
         ctx.fillStyle = captionStyle === "karaoke" ? "#facc15" : captionStyle === "cyberpunk" ? "#4ade80" : "#ffffff";
         ctx.font = captionStyle === "cyberpunk" ? "bold 24px 'Fira Code', monospace" : "bold 26px 'DM Sans', sans-serif";
-        ctx.fillText(`LEARNIFY AI: ${activeChapter.title} — ${activeChapter.spokenWords}`, 960, 1008);
+        ctx.fillText(`LEARNIFY AI [${renderChap.timestamp}]: ${renderChap.spokenWords}`, 960, 995);
         ctx.textAlign = "left";
 
-        if (frame >= totalFrames) {
+        if (totalRenderedFrames >= totalFrames) {
           clearInterval(renderInterval);
           mediaRecorder.stop();
         }
-      }, 40);
+      }, 33);
     } catch (err: any) {
       setIsExportingVideo(false);
       toast.error(`Export failed: ${err.message || String(err)}`);
     }
-  }, [topic, selectedLanguage, activeChapter, activeChapterIndex, captionStyle]);
+  }, [topic, selectedLanguage, activeChapter, captionStyle]);
 
   // Play / Pause Cycle
   const handleTogglePlay = () => {
@@ -1362,32 +1505,43 @@ export function ExplainerVideoPlayer({
             </div>
           </div>
 
-          {/* Social Action Buttons */}
-          <div className="flex items-center gap-1.5">
+          {/* Social Action Buttons with Live Persistence & Screenshot Report */}
+          <div className="flex items-center gap-1.5 flex-wrap">
             <Button
               variant="outline"
               size="sm"
               onClick={() => {
-                setIsLiked(!isLiked);
-                toast.success(isLiked ? "Like removed" : "Liked explainer!");
+                const nextLiked = !isLiked;
+                setIsLiked(nextLiked);
+                setLikeCount((prev) => (nextLiked ? prev + 1 : prev - 1));
+                toast.success(nextLiked ? "Liked explainer! Added to your recommendations." : "Like removed");
               }}
-              className={cn("h-7 px-2.5 text-xs gap-1 border-slate-700 text-slate-300 cursor-pointer", isLiked && "text-sky-400 border-sky-500/40 bg-sky-500/10")}
+              className={cn(
+                "h-7 px-2.5 text-xs gap-1.5 border-slate-700 text-slate-300 transition-all hover:scale-105 cursor-pointer",
+                isLiked && "text-sky-400 border-sky-500/40 bg-sky-500/10 shadow-[0_0_10px_rgba(56,189,248,0.2)]"
+              )}
             >
-              <ThumbsUp className="h-3 w-3" />
-              <span>Like</span>
+              <ThumbsUp className={cn("h-3 w-3", isLiked && "fill-sky-400")} />
+              <span>{likeCount}</span>
             </Button>
+
             <Button
               variant="outline"
               size="sm"
               onClick={() => {
-                setIsSaved(!isSaved);
-                toast.success(isSaved ? "Removed from saved" : "Saved to library!");
+                const nextSaved = !isSaved;
+                setIsSaved(nextSaved);
+                toast.success(nextSaved ? "Saved to your Learnify Library!" : "Removed from library");
               }}
-              className={cn("h-7 px-2.5 text-xs gap-1 border-slate-700 text-slate-300 cursor-pointer", isSaved && "text-amber-400 border-amber-500/40 bg-amber-500/10")}
+              className={cn(
+                "h-7 px-2.5 text-xs gap-1 border-slate-700 text-slate-300 transition-all hover:scale-105 cursor-pointer",
+                isSaved && "text-amber-400 border-amber-500/40 bg-amber-500/10 shadow-[0_0_10px_rgba(251,191,36,0.2)]"
+              )}
             >
-              <Bookmark className="h-3 w-3" />
+              <Bookmark className={cn("h-3 w-3", isSaved && "fill-amber-400")} />
               <span>Save</span>
             </Button>
+
             <Button
               size="sm"
               onClick={handleDownloadMp4}
@@ -1406,11 +1560,12 @@ export function ExplainerVideoPlayer({
                 </>
               )}
             </Button>
+
             <Button
               variant="outline"
               size="sm"
-              onClick={() => toast.info("Report logged. Our safety auditor will review it.")}
-              className="h-7 px-2.5 text-xs gap-1 border-slate-700 text-slate-400 hover:text-rose-400 cursor-pointer"
+              onClick={handleOpenReportModal}
+              className="h-7 px-2.5 text-xs gap-1 border-slate-700 text-slate-400 hover:text-rose-400 hover:border-rose-500/40 transition-all cursor-pointer"
             >
               <Flag className="h-3 w-3" />
               <span>Report</span>
@@ -1465,6 +1620,83 @@ export function ExplainerVideoPlayer({
           </div>
         </div>
       </div>
+
+      {/* ─── Interactive Report Dialog with Visual Player Screenshot ─── */}
+      <Dialog open={isReportModalOpen} onOpenChange={setIsReportModalOpen}>
+        <DialogContent className="max-w-md bg-slate-900 border-slate-700 text-white">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-rose-400">
+              <Flag className="h-5 w-5" />
+              Report Explainer Issue
+            </DialogTitle>
+            <DialogDescription className="text-slate-400 text-xs">
+              Help us maintain 100% accuracy and safety. A screenshot of your current video frame has been automatically captured for admin review.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2 text-xs">
+            <div className="space-y-1.5">
+              <label className="text-slate-300 font-semibold">Reason for Report</label>
+              <select
+                value={reportReason}
+                onChange={(e) => setReportReason(e.target.value)}
+                className="w-full h-9 rounded-md bg-slate-800 border border-slate-700 text-slate-200 px-3 text-xs focus:outline-none"
+              >
+                <option value="Inaccurate AI Information">Inaccurate AI Information</option>
+                <option value="Harmful or Inappropriate Content">Harmful or Inappropriate Content</option>
+                <option value="Audio or Speech Glitch">Audio or Speech Glitch</option>
+                <option value="Diagram or Code Error">Diagram or Code Error</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-slate-300 font-semibold">Comments or Correction Details</label>
+              <textarea
+                rows={3}
+                value={reportComment}
+                onChange={(e) => setReportComment(e.target.value)}
+                placeholder="What was inaccurate or broken? Describe the issue..."
+                className="w-full p-2.5 rounded-md bg-slate-800 border border-slate-700 text-slate-200 text-xs resize-none focus:outline-none"
+              />
+            </div>
+
+            {/* Attached Captured Screenshot */}
+            {capturedScreenshot && (
+              <div className="space-y-1.5">
+                <span className="text-[11px] font-mono text-slate-400">
+                  Attached Player Screenshot (Sent to Admin):
+                </span>
+                <div className="relative rounded-lg overflow-hidden border border-slate-700 aspect-video bg-black shadow-inner">
+                  <img src={capturedScreenshot} alt="Player capture" className="w-full h-full object-cover" />
+                  <div className="absolute bottom-1 right-1 bg-black/80 px-1.5 py-0.5 rounded text-[10px] font-mono text-sky-400">
+                    {formatTime(currentTimeSec)}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <DialogFooter className="gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsReportModalOpen(false)}
+              className="text-slate-400 hover:text-white"
+            >
+              Cancel
+            </Button>
+            <Button
+              size="sm"
+              onClick={handleSubmitReport}
+              disabled={isSubmittingReport}
+              className="bg-rose-600 hover:bg-rose-500 text-white font-semibold text-xs"
+            >
+              Submit Report &amp; Screenshot
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
