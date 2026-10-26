@@ -1,5 +1,3 @@
-import logoLightUrl from "@/assets/learnify-logo-light.png?url";
-import logoDarkUrl from "@/assets/learnify-logo-dark.png?url";
 import logoMarkUrl from "@/assets/learnify-mark.png?url";
 import { cn } from "@/lib/utils";
 
@@ -11,17 +9,17 @@ interface LogoProps {
 
 /**
  * Official Learnify AI Brand Logo.
- * Displays the authentic vibrant electric blue & cyan brand emblem with
- * pixel-perfect contrast typography tailored for both dark and light modes.
- * Zero distortion, zero wash-out, and tightly cropped bounding box.
+ * Displays the high-resolution vibrant brand emblem paired with crisp,
+ * pixel-perfect vector typography tailored for both dark and light modes.
+ * Zero distortion, zero wash-out, and no blurry raster sub-taglines.
  */
 export function Logo({ className, height = "h-9", markOnly = false }: LogoProps) {
   if (markOnly) {
     return (
-      <span className={cn("inline-flex items-center justify-center select-none transition-transform hover:scale-105", className)}>
+      <span className={cn("inline-flex items-center justify-center select-none transition-transform hover:scale-105 shrink-0", className)}>
         <img
           src={logoMarkUrl}
-          alt="Learnify AI Emblem"
+          alt="Learnify AI"
           className={cn(height, "w-auto object-contain drop-shadow-sm")}
           draggable={false}
         />
@@ -30,28 +28,18 @@ export function Logo({ className, height = "h-9", markOnly = false }: LogoProps)
   }
 
   return (
-    <span className={cn("inline-flex items-center justify-center select-none transition-transform hover:scale-[1.02]", className)}>
-      {/* Light Mode: Original Electric Blue Emblem + Dark Navy Text */}
+    <span className={cn("inline-flex items-center gap-2.5 select-none transition-transform hover:scale-[1.02] shrink-0", className)}>
       <img
-        src={logoLightUrl}
+        src={logoMarkUrl}
         alt="Learnify AI"
-        className={cn(
-          height,
-          "w-auto object-contain block dark:hidden drop-shadow-sm",
-        )}
+        className={cn(height, "w-auto object-contain drop-shadow-sm shrink-0")}
         draggable={false}
       />
-      {/* Dark Mode: Vibrant Electric Blue Emblem + Crisp White & Sky-400 Text */}
-      <img
-        src={logoDarkUrl}
-        alt="Learnify AI"
-        className={cn(
-          height,
-          "w-auto object-contain hidden dark:block drop-shadow-[0_2px_12px_rgba(56,189,248,0.2)]",
-        )}
-        draggable={false}
-      />
+      <span className="font-display font-black text-xl tracking-tight text-foreground flex items-baseline">
+        Learnify<span className="text-sky-500 ml-0.5">AI</span>
+      </span>
     </span>
   );
 }
+
 
