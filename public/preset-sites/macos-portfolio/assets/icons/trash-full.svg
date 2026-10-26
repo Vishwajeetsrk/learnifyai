@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Base Can Gradient -->
+    <linearGradient id="fullCanBody" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#94a3b8" stop-opacity="0.8" />
+      <stop offset="25%" stop-color="#cbd5e1" stop-opacity="0.9" />
+      <stop offset="50%" stop-color="#f8fafc" stop-opacity="0.95" />
+      <stop offset="75%" stop-color="#cbd5e1" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#64748b" stop-opacity="0.85" />
+    </linearGradient>
+
+    <!-- Chrome Rim Gradient -->
+    <linearGradient id="fullRimGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#64748b" />
+      <stop offset="20%" stop-color="#e2e8f0" />
+      <stop offset="50%" stop-color="#ffffff" />
+      <stop offset="80%" stop-color="#cbd5e1" />
+      <stop offset="100%" stop-color="#475569" />
+    </linearGradient>
+
+    <!-- Paper Gradients -->
+    <linearGradient id="paper1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="60%" stop-color="#e2e8f0" />
+      <stop offset="100%" stop-color="#cbd5e1" />
+    </linearGradient>
+    <linearGradient id="paperYellow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a" />
+      <stop offset="100%" stop-color="#eab308" />
+    </linearGradient>
+    <linearGradient id="paperBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e0f2fe" />
+      <stop offset="100%" stop-color="#38bdf8" />
+    </linearGradient>
+
+    <filter id="fullShadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#000000" flood-opacity="0.35" />
+    </filter>
+  </defs>
+
+  <g filter="url(#fullShadow)">
+    <!-- Base Shadow -->
+    <ellipse cx="256" cy="460" rx="140" ry="24" fill="rgba(0,0,0,0.25)" />
+
+    <!-- Crumpled Paper Sticking Out -->
+    <!-- Yellow sticky note -->
+    <polygon points="170,140 220,70 260,110 200,160" fill="url(#paperYellow)" stroke="#ca8a04" stroke-width="1" />
+    <!-- White Crumpled Sheets -->
+    <path d="M190 150 Q160 100 200 80 Q240 60 270 95 Q300 65 330 90 Q360 120 330 155 Z" fill="url(#paper1)" />
+    <!-- Blue note -->
+    <polygon points="260,130 310,75 350,110 300,150" fill="url(#paperBlue)" opacity="0.9" />
+    <!-- Ball of paper -->
+    <circle cx="245" cy="115" r="28" fill="#f8fafc" />
+    <path d="M225 110 Q245 95 265 115 Q245 130 225 110" fill="none" stroke="#94a3b8" stroke-width="1.5" />
+    <circle cx="285" cy="125" r="22" fill="#e2e8f0" />
+
+    <!-- Basket Body (Tapered Cylinder) -->
+    <path d="M125 150 L155 440 Q158 460 256 460 Q354 460 357 440 L387 150 Z" fill="url(#fullCanBody)" />
+
+    <!-- Paper visible through frosted glass -->
+    <ellipse cx="256" cy="200" rx="90" ry="30" fill="rgba(255,255,255,0.25)" />
+    <ellipse cx="230" cy="260" rx="60" ry="24" fill="rgba(254,240,138,0.2)" />
+    <ellipse cx="280" cy="320" rx="70" ry="25" fill="rgba(224,242,254,0.2)" />
+
+    <!-- Vertical Mesh Lines -->
+    <g stroke="rgba(255, 255, 255, 0.4)" stroke-width="2.5" stroke-linecap="round">
+      <line x1="160" y1="162" x2="180" y2="445" />
+      <line x1="184" y1="168" x2="200" y2="452" />
+      <line x1="208" y1="172" x2="220" y2="456" />
+      <line x1="232" y1="174" x2="238" y2="458" />
+      <line x1="256" y1="175" x2="256" y2="459" stroke="rgba(255,255,255,0.7)" stroke-width="3" />
+      <line x1="280" y1="174" x2="274" y2="458" />
+      <line x1="304" y1="172" x2="292" y2="456" />
+      <line x1="328" y1="168" x2="312" y2="452" />
+      <line x1="352" y1="162" x2="332" y2="445" />
+    </g>
+
+    <!-- Horizontal Rib Bands -->
+    <ellipse cx="256" cy="240" rx="122" ry="18" fill="none" stroke="rgba(255, 255, 255, 0.3)" stroke-width="2" />
+    <ellipse cx="256" cy="330" rx="114" ry="16" fill="none" stroke="rgba(255, 255, 255, 0.3)" stroke-width="2" />
+    <ellipse cx="256" cy="410" rx="106" ry="14" fill="none" stroke="rgba(255, 255, 255, 0.3)" stroke-width="2" />
+
+    <!-- Chrome Top Rim -->
+    <ellipse cx="256" cy="150" rx="131" ry="25" fill="none" stroke="url(#fullRimGrad)" stroke-width="12" />
+    <ellipse cx="256" cy="148" rx="131" ry="25" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="2" />
+
+    <!-- Base Rim -->
+    <ellipse cx="256" cy="445" rx="102" ry="15" fill="none" stroke="url(#fullRimGrad)" stroke-width="6" />
+  </g>
+</svg>

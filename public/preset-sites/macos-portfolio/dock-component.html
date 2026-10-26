@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>macOS Dock — Pure HTML/CSS/JS Component</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justifyContent: center;
+      background: radial-gradient(circle at 50% 30%, #1e293b, #0f172a 70%);
+      color: #f8fafc;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Ambient background lighting */
+    .glow-orb {
+      position: absolute;
+      width: 450px;
+      height: 450px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(56, 189, 248, 0.15), transparent 70%);
+      pointer-events: none;
+      filter: blur(40px);
+      z-index: 0;
+    }
+
+    .header-info {
+      position: absolute;
+      top: 40px;
+      text-align: center;
+      z-index: 10;
+    }
+
+    .header-info h1 {
+      font-size: 28px;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, #ffffff 30%, #94a3b8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header-info p {
+      font-size: 14px;
+      color: #94a3b8;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      margin-top: 10px;
+      font-size: 12px;
+      color: #38bdf8;
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #38bdf8;
+      box-shadow: 0 0 8px #38bdf8;
+    }
+
+    /* Container for the Dock */
+    .dock-wrapper {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 50;
+    }
+
+    /* Authentic macOS Dock Container */
+    .macos-dock {
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      background: rgba(45, 45, 45, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 24px;
+      box-shadow:
+        0 10px 30px rgba(0, 0, 0, 0.45),
+        0 4px 12px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.25);
+      position: relative;
+      user-select: none;
+      transition: width 0.15s ease-out;
+    }
+
+    .dock-stage {
+      position: relative;
+      width: 100%;
+    }
+
+    .dock-item {
+      position: absolute;
+      bottom: 0;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      transform-origin: bottom center;
+      will-change: transform, left, width, height;
+    }
+
+    .dock-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      pointer-events: none;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* Tooltip */
+    .dock-item::before {
+      content: attr(data-name);
+      position: absolute;
+      top: -34px;
+      left: 50%;
+      transform: translateX(-50%) translateY(4px);
+      background: rgba(28, 28, 30, 0.9);
+      color: #ffffff;
+      padding: 4px 10px;
+      font-size: 11px;
+      font-weight: 500;
+      border-radius: 6px;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.15s ease, transform 0.15s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(10px);
+      z-index: 100;
+    }
+
+    .dock-item:hover::before {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Active Indicator Dot */
+    .dock-dot {
+      position: absolute;
+      bottom: -4px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.85);
+      box-shadow: 0 0 6px rgba(255, 255, 255, 0.5);
+    }
+
+    /* Click Bounce Animation */
+    @keyframes dockBounce {
+      0% { transform: translateY(0); }
+      40% { transform: translateY(-16px); }
+      75% { transform: translateY(-4px); }
+      100% { transform: translateY(0); }
+    }
+
+    .bouncing {
+      animation: dockBounce 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* Notification click feedback */
+    .notification-toast {
+      position: fixed;
+      top: 100px;
+      background: rgba(30, 41, 59, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(16px);
+      padding: 10px 18px;
+      border-radius: 12px;
+      font-size: 13px;
+      color: #e2e8f0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: opacity 0.2s, transform 0.2s;
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    .notification-toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="glow-orb"></div>
+
+  <div class="header-info">
+    <h1>macOS Dock Component (Pure HTML/CSS/JS)</h1>
+    <p>Authentic Cosine-based Magnification • Dynamic Lerp • Physics Bounce</p>
+    <div class="status-badge">
+      <div class="status-dot"></div>
+      <span>Converted from mac-os-dock.tsx (Zero Dependencies)</span>
+    </div>
+  </div>
+
+  <div class="notification-toast" id="toast">
+    <span id="toast-text">App launched</span>
+  </div>
+
+  <div class="dock-wrapper">
+    <div class="macos-dock" id="dock">
+      <div class="dock-stage" id="dock-stage"></div>
+    </div>
+  </div>
+
+  <script>
+    // App configuration identical to mac-os-dock.tsx & demo.tsx
+    const apps = [
+      { id: 'finder', name: 'Finder', icon: 'assets/icons/finder.png' },
+      { id: 'calculator', name: 'Calculator', icon: 'assets/icons/calculator.png' },
+      { id: 'terminal', name: 'Terminal', icon: 'assets/icons/terminal.webp' },
+      { id: 'mail', name: 'Mail', icon: 'assets/icons/mail.png' },
+      { id: 'notes', name: 'Notes', icon: 'assets/icons/notes.png' },
+      { id: 'safari', name: 'Safari', icon: 'assets/icons/safari.png' },
+      { id: 'photos', name: 'Photos', icon: 'assets/icons/photos.png' },
+      { id: 'music', name: 'Music', icon: 'assets/icons/music.png' },
+      { id: 'calendar', name: 'Calendar', icon: 'assets/icons/calendar.png' },
+      { id: 'settings', name: 'Settings', icon: 'assets/icons/settings.png' },
+      { id: 'trash', name: 'Trash', icon: 'assets/icons/trash-empty.png' }
+    ];
+
+    let openApps = new Set(['finder', 'safari']);
+
+    // Config calculation based on viewport
+    function getResponsiveConfig() {
+      const smallerDimension = Math.min(window.innerWidth, window.innerHeight);
+      if (smallerDimension < 480) {
+        return { baseIconSize: Math.max(40, smallerDimension * 0.08), maxScale: 1.4, effectWidth: smallerDimension * 0.4 };
+      } else if (smallerDimension < 768) {
+        return { baseIconSize: Math.max(48, smallerDimension * 0.07), maxScale: 1.5, effectWidth: smallerDimension * 0.35 };
+      } else if (smallerDimension < 1024) {
+        return { baseIconSize: Math.max(56, smallerDimension * 0.06), maxScale: 1.6, effectWidth: smallerDimension * 0.3 };
+      } else {
+        return { baseIconSize: Math.max(64, Math.min(80, smallerDimension * 0.05)), maxScale: 1.8, effectWidth: 300 };
+      }
+    }
+
+    let config = getResponsiveConfig();
+    const minScale = 1.0;
+    let baseSpacing = Math.max(4, config.baseIconSize * 0.08);
+    let mouseX = null;
+    let currentScales = apps.map(() => 1.0);
+    let currentPositions = [];
+    let animationFrame = null;
+    let lastMouseMoveTime = 0;
+
+    const dock = document.getElementById('dock');
+    const dockStage = document.getElementById('dock-stage');
+    const toast = document.getElementById('toast');
+    const toastText = document.getElementById('toast-text');
+
+    function calculatePositions(scales) {
+      let currentX = 0;
+      return scales.map(scale => {
+        const scaledWidth = config.baseIconSize * scale;
+        const centerX = currentX + (scaledWidth / 2);
+        currentX += scaledWidth + baseSpacing;
+        return centerX;
+      });
+    }
+
+    function calculateTargetMagnification(pos) {
+      if (pos === null) return apps.map(() => minScale);
+      return apps.map((_, index) => {
+        const normalCenter = (index * (config.baseIconSize + baseSpacing)) + (config.baseIconSize / 2);
+        const minX = pos - (config.effectWidth / 2);
+        const maxX = pos + (config.effectWidth / 2);
+
+        if (normalCenter < minX || normalCenter > maxX) return minScale;
+
+        const theta = ((normalCenter - minX) / config.effectWidth) * 2 * Math.PI;
+        const cappedTheta = Math.min(Math.max(theta, 0), 2 * Math.PI);
+        const scaleFactor = (1 - Math.cos(cappedTheta)) / 2;
+        return minScale + (scaleFactor * (config.maxScale - minScale));
+      });
+    }
+
+    // Build DOM elements
+    const itemElements = apps.map(app => {
+      const el = document.createElement('div');
+      el.className = 'dock-item';
+      el.dataset.name = app.name;
+      el.title = app.name;
+
+      const img = document.createElement('img');
+      img.src = app.icon;
+      img.alt = app.name;
+      el.appendChild(img);
+
+      const dot = document.createElement('div');
+      dot.className = 'dock-dot';
+      dot.style.display = openApps.has(app.id) ? 'block' : 'none';
+      el.appendChild(dot);
+
+      el.addEventListener('click', () => {
+        el.classList.remove('bouncing');
+        void el.offsetWidth; // trigger reflow
+        el.classList.add('bouncing');
+
+        if (openApps.has(app.id)) {
+          openApps.delete(app.id);
+          dot.style.display = 'none';
+        } else {
+          openApps.add(app.id);
+          dot.style.display = 'block';
+        }
+
+        toastText.textContent = `Launched ${app.name} (${openApps.has(app.id) ? 'Running' : 'Closed'})`;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 1500);
+      });
+
+      dockStage.appendChild(el);
+      return { el, img, dot };
+    });
+
+    function updateDockStyles() {
+      const padding = Math.max(8, config.baseIconSize * 0.12);
+      const contentWidth = currentPositions.length > 0
+        ? Math.max(...currentPositions.map((p, idx) => p + (config.baseIconSize * currentScales[idx]) / 2))
+        : (apps.length * (config.baseIconSize + baseSpacing)) - baseSpacing;
+
+      dock.style.width = `${contentWidth + padding * 2}px`;
+      dock.style.padding = `${padding}px`;
+      dockStage.style.height = `${config.baseIconSize}px`;
+
+      itemElements.forEach((item, idx) => {
+        const scale = currentScales[idx];
+        const pos = currentPositions[idx] || 0;
+        const scaledSize = config.baseIconSize * scale;
+
+        item.el.style.left = `${pos - scaledSize / 2}px`;
+        item.el.style.width = `${scaledSize}px`;
+        item.el.style.height = `${scaledSize}px`;
+        item.el.style.zIndex = Math.round(scale * 10);
+
+        const shadowSpread = scale > 1.2 ? config.baseIconSize * 0.1 : config.baseIconSize * 0.06;
+        const shadowBlur = scale > 1.2 ? config.baseIconSize * 0.05 : config.baseIconSize * 0.03;
+        const shadowAlpha = 0.2 + (scale - 1) * 0.15;
+        item.img.style.filter = `drop-shadow(0 ${shadowBlur}px ${shadowSpread}px rgba(0,0,0,${shadowAlpha}))`;
+      });
+    }
+
+    function animate() {
+      const targetScales = calculateTargetMagnification(mouseX);
+      const targetPositions = calculatePositions(targetScales);
+      const lerpFactor = mouseX !== null ? 0.2 : 0.12;
+
+      let scalesNeedUpdate = false;
+      let positionsNeedUpdate = false;
+
+      currentScales = currentScales.map((scale, i) => {
+        const diff = targetScales[i] - scale;
+        if (Math.abs(diff) > 0.002) scalesNeedUpdate = true;
+        return scale + (diff * lerpFactor);
+      });
+
+      currentPositions = currentPositions.map((pos, i) => {
+        const diff = targetPositions[i] - pos;
+        if (Math.abs(diff) > 0.1) positionsNeedUpdate = true;
+        return pos + (diff * lerpFactor);
+      });
+
+      updateDockStyles();
+
+      if (scalesNeedUpdate || positionsNeedUpdate || mouseX !== null) {
+        animationFrame = requestAnimationFrame(animate);
+      }
+    }
+
+    function startAnimation() {
+      if (animationFrame) cancelAnimationFrame(animationFrame);
+      animationFrame = requestAnimationFrame(animate);
+    }
+
+    dock.addEventListener('mousemove', (e) => {
+      const now = performance.now();
+      if (now - lastMouseMoveTime < 16) return;
+      lastMouseMoveTime = now;
+
+      const rect = dock.getBoundingClientRect();
+      const padding = Math.max(8, config.baseIconSize * 0.12);
+      mouseX = e.clientX - rect.left - padding;
+      startAnimation();
+    });
+
+    dock.addEventListener('mouseleave', () => {
+      mouseX = null;
+      startAnimation();
+    });
+
+    window.addEventListener('resize', () => {
+      config = getResponsiveConfig();
+      baseSpacing = Math.max(4, config.baseIconSize * 0.08);
+      currentPositions = calculatePositions(currentScales);
+      startAnimation();
+    });
+
+    // Initial setup
+    currentPositions = calculatePositions(currentScales);
+    updateDockStyles();
+  </script>
+</body>
+</html>

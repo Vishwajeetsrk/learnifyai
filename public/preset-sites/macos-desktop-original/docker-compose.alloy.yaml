@@ -1,0 +1,8 @@
+services:
+  site:
+    image: python:3.12-slim
+    working_dir: /workspace
+    network_mode: host
+    volumes:
+      - .:/workspace
+    command: python -m http.server 3000 --bind 0.0.0.0

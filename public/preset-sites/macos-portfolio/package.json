@@ -1,0 +1,19 @@
+{
+  "name": "clean-macos-portfolio",
+  "version": "1.0.0",
+  "description": "Interactive macOS desktop portfolio with glassmorphism, dock physics, and apps",
+  "scripts": {
+    "start": "npx serve -l 3002",
+    "dev": "npx serve -l 3002"
+  },
+  "keywords": [
+    "macos",
+    "portfolio",
+    "desktop-ui",
+    "dock-animation",
+    "glassmorphism",
+    "web-os"
+  ],
+  "author": "Vishwajeet",
+  "license": "MIT"
+}

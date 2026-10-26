@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Folder Back Gradient -->
+    <linearGradient id="folderBack" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0284c7" />
+      <stop offset="100%" stop-color="#0369a1" />
+    </linearGradient>
+
+    <!-- Folder Front Flap Gradient -->
+    <linearGradient id="folderFront" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="50%" stop-color="#0ea5e9" />
+      <stop offset="100%" stop-color="#0284c7" />
+    </linearGradient>
+
+    <filter id="folderShadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#000000" flood-opacity="0.4" />
+    </filter>
+  </defs>
+
+  <g filter="url(#folderShadow)">
+    <!-- Back Plate + Tab -->
+    <path d="M48 110 C48 95 60 85 75 85 L180 85 C200 85 215 100 230 115 L245 130 C255 140 268 145 282 145 L437 145 C452 145 464 157 464 172 L464 380 C464 405 445 425 420 425 L92 425 C67 425 48 405 48 380 Z" fill="url(#folderBack)" />
+
+    <!-- Sheet of white paper peaking inside -->
+    <rect x="80" y="125" width="352" height="150" rx="8" fill="#ffffff" opacity="0.85" />
+    <line x1="110" y1="155" x2="260" y2="155" stroke="#cbd5e1" stroke-width="4" stroke-linecap="round" />
+    <line x1="110" y1="175" x2="220" y2="175" stroke="#cbd5e1" stroke-width="4" stroke-linecap="round" />
+
+    <!-- Front Pocket / Cover -->
+    <path d="M48 200 C48 180 64 165 84 165 L428 165 C448 165 464 180 464 200 L464 380 C464 405 445 425 420 425 L92 425 C67 425 48 405 48 380 Z" fill="url(#folderFront)" stroke="rgba(255, 255, 255, 0.4)" stroke-width="1.5" />
+
+    <!-- Subtle Embossed Center Glyph (Project symbol) -->
+    <path d="M226 270 L286 270 L256 320 Z" fill="rgba(255,255,255,0.2)" />
+    <circle cx="256" cy="300" r="32" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="4" />
+  </g>
+</svg>

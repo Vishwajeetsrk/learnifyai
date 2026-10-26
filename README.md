@@ -2,7 +2,7 @@
 
 <img src="src/assets/learnify-logo.png" alt="Learnify AI Logo" width="180" style="margin-bottom: 12px; filter: drop-shadow(0 4px 12px rgba(99, 102, 241, 0.25));" />
 
-# Learnify AI 6.1.0
+# Learnify AI 6.2.0
 
 **The AI-Native Learning & Career Operating System**
 
@@ -23,6 +23,12 @@
 ## 🎯 What is Learnify AI?
 
 Learnify AI is a **full-stack, AI-powered learning and career growth platform** that integrates intelligent tutoring, 11-in-1 career studio tools, autonomous AI agents, gamification, and creator economy tools into one seamless experience.
+
+### 🌟 What's New in Learnify AI 6.2.0
+* 🍎 **macOS Big Sur & Ventura Interactive Desktop**: Added a 55KB zero-dependency macOS replica with 105 authentic Apple Big Sur icons, parallax Dock magnification physics, multi-window z-index management, and 5 interactive course modules with quizzes and sandbox code.
+* 🚀 **Aceternity Productized Agency Template**: Added a high-converting agency template with interactive 4-tab navigation (**Preview**, **Code**, **Mode (Dark/Light)**, and **Shop ₹99**), full code inspector, and Pop Top fullscreen preview.
+* 🛒 **Template Shop & Interactive Modal Redesign**: Upgraded the project showcase modal at `/projects` with responsive viewports, syntax code viewer, live dark/light mode inverter, and instant ₹99 template purchases with Career Pro ZIP export.
+* 🧠 **403 Agent Skills Architecture**: Categorized 403 specialized agent skills across 8 domains with dynamic intent-based routing to accelerate AI generation by 3x–5x and prevent prompt bloat.
 
 ### 🌟 What's New in Learnify AI 6.1.0
 * 🖥️ **Scrimba Split (Watch & Code) Interactive Engine**: Eliminated all non-MP4 & YouTube video embeds in favor of an interactive Scrimba code workspace. Features topic-aware multi-file architectures (Python 3.12, React 19, HTML/CSS/JS), live web preview with hot-reload, cloud sandbox execution runner, dynamic file tree creation, speech synthesis narration, and fullscreen theater mode.

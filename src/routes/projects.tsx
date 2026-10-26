@@ -35,6 +35,9 @@ import {
   Eye,
   Download,
   Loader2,
+  ShoppingBag,
+  Sun,
+  Code2,
 } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -63,6 +66,13 @@ type Project = {
   title: string;
   description: string;
   path: string;
+  thumbnail?: string;
+  category?: string;
+  tech?: string[];
+  tags?: string[];
+  price?: number;
+  course_modules?: any[];
+  [key: string]: any;
 };
 
 type ViewportType = "desktop" | "tablet" | "mobile";
@@ -464,11 +474,235 @@ function ProjectCard({
   );
 }
 
+const getProjectCodeSnippet = (p: Project): string => {
+  if (p.id === "macos-portfolio") {
+    return `// ==========================================
+// Learnify AI — Clean macOS Ventura & Big Sur Desktop
+// Stack: Vanilla JS + CSS3 + Canvas + 105 Big Sur Icons
+// ==========================================
+
+import React, { useState, useEffect } from 'react';
+
+export default function MacOSDesktop() {
+  const [activeWindow, setActiveWindow] = useState<string | null>('finder');
+  const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString());
+  const [dockBounce, setDockBounce] = useState<string | null>(null);
+
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const openApp = (appId: string) => {
+    setDockBounce(appId);
+    setTimeout(() => {
+      setActiveWindow(appId);
+      setDockBounce(null);
+    }, 400);
+  };
+
+  return (
+    <div className="relative w-screen h-screen overflow-hidden bg-cover bg-center select-none" style={{ backgroundImage: "url('/preset-sites/macos-portfolio/assets/wallpaper.jpg')" }}>
+      {/* Top Menu Bar with Glassmorphism */}
+      <header className="h-7 w-full bg-black/40 backdrop-blur-2xl text-white text-xs flex items-center justify-between px-4 z-50 border-b border-white/10">
+        <div className="flex items-center gap-4">
+          <span className="font-bold text-sm cursor-pointer hover:opacity-80"></span>
+          <span className="font-semibold">Finder</span>
+          <span className="text-white/70 hover:text-white cursor-pointer hidden sm:inline">File</span>
+          <span className="text-white/70 hover:text-white cursor-pointer hidden sm:inline">Edit</span>
+          <span className="text-white/70 hover:text-white cursor-pointer hidden sm:inline">View</span>
+          <span className="text-white/70 hover:text-white cursor-pointer hidden sm:inline">Go</span>
+          <span className="text-white/70 hover:text-white cursor-pointer hidden sm:inline">Window</span>
+          <span className="text-white/70 hover:text-white cursor-pointer hidden sm:inline">Help</span>
+        </div>
+        <div className="flex items-center gap-3 font-mono text-[11px]">
+          <span>{currentTime}</span>
+        </div>
+      </header>
+
+      {/* Floating Active Window */}
+      {activeWindow && (
+        <div className="absolute top-16 left-1/2 -translate-x-1/2 w-[720px] h-[460px] bg-[#1e1e1e]/90 backdrop-blur-xl rounded-xl shadow-2xl border border-white/15 flex flex-col z-40 overflow-hidden">
+          <div className="h-9 bg-[#2d2d2d]/80 border-b border-white/10 flex items-center justify-between px-3">
+            <div className="flex items-center gap-2">
+              <button onClick={() => setActiveWindow(null)} className="w-3 h-3 rounded-full bg-[#ff5f56] hover:opacity-80" />
+              <button className="w-3 h-3 rounded-full bg-[#ffbd2e] hover:opacity-80" />
+              <button className="w-3 h-3 rounded-full bg-[#27c93f] hover:opacity-80" />
+            </div>
+            <span className="text-xs font-medium text-white/80 capitalize">{activeWindow}</span>
+            <div className="w-12" />
+          </div>
+          <div className="flex-1 p-6 text-white text-sm font-sans overflow-auto">
+            <h2 className="text-xl font-bold mb-2">Welcome to macOS Portfolio</h2>
+            <p className="text-white/70">Interactive macOS replica featuring parallax Dock magnification, genuine window management, and 105 Apple Big Sur icons.</p>
+          </div>
+        </div>
+      )}
+
+      {/* Parallax Dock with Magnification */}
+      <footer className="absolute bottom-3 left-1/2 -translate-x-1/2 px-3 py-1.5 bg-white/20 backdrop-blur-2xl rounded-2xl border border-white/20 flex items-end gap-2 shadow-2xl z-50">
+        {['finder', 'terminal', 'safari', 'code', 'settings'].map((app) => (
+          <button
+            key={app}
+            onClick={() => openApp(app)}
+            className="w-12 h-12 rounded-xl transition-all duration-200 hover:scale-125 hover:-translate-y-2 flex items-center justify-center bg-white/10 border border-white/20 text-white shadow-md"
+          >
+            <span className="text-xs capitalize">{app[0]}</span>
+          </button>
+        ))}
+      </footer>
+    </div>
+  );
+}
+`;
+  }
+
+  if (p.id === "productized-agency") {
+    return `// ==========================================
+// Learnify AI — Aceternity Productized Agency Template
+// Stack: Next.js 15 + React 19 + Tailwind CSS + Framer Motion
+// ==========================================
+
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+
+export default function ProductizedAgencyHero() {
+  const [activePlan, setActivePlan] = useState<'standard' | 'pro'>('pro');
+
+  return (
+    <section className="relative min-h-screen bg-black text-white flex flex-col items-center justify-center px-4 py-20 overflow-hidden">
+      {/* Background radial gradient */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.3),rgba(255,255,255,0))]" />
+
+      {/* Hero Badge */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-white/10 bg-white/5 backdrop-blur-md text-xs font-medium text-purple-300 mb-8"
+      >
+        ✨ Productized Design & Dev Agency for SaaS Founders
+      </motion.div>
+
+      {/* Hero Title */}
+      <motion.h1
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="text-4xl md:text-7xl font-bold tracking-tight text-center max-w-4xl bg-gradient-to-b from-white via-white/90 to-white/40 bg-clip-text text-transparent"
+      >
+        High-impact design & code subscriptions for fast-growing startups.
+      </motion.h1>
+
+      {/* Subtitle */}
+      <motion.p
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="mt-6 text-base md:text-xl text-zinc-400 text-center max-w-2xl leading-relaxed"
+      >
+        One flat monthly fee. Pause or cancel anytime. Get top 1% design & full-stack development delivered in days.
+      </motion.p>
+
+      {/* CTA Buttons */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className="mt-10 flex flex-col sm:flex-row items-center gap-4"
+      >
+        <a
+          href="#pricing"
+          className="px-8 py-3.5 rounded-xl font-semibold text-black bg-white hover:bg-zinc-200 transition-all shadow-xl hover:scale-105 flex items-center gap-2 text-sm"
+        >
+          View Subscription Plans →
+        </a>
+        <a
+          href="#work"
+          className="px-8 py-3.5 rounded-xl font-semibold text-white bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 transition-all text-sm"
+        >
+          Explore Recent Work
+        </a>
+      </motion.div>
+    </section>
+  );
+}
+`;
+  }
+
+  return `// ==========================================
+// Learnify AI — ${p.title}
+// Tech: ${(p.tech || []).join(", ") || "React, Tailwind CSS, TypeScript"}
+// ==========================================
+
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+
+export default function ${p.name.replace(/[^a-zA-Z0-9]/g, "") || "TemplateComponent"}() {
+  const [active, setActive] = useState(false);
+
+  return (
+    <div className="relative min-h-[500px] w-full rounded-2xl bg-card border border-border p-8 flex flex-col items-center justify-center text-center overflow-hidden">
+      <motion.div
+        animate={{ scale: active ? 1.05 : 1 }}
+        transition={{ duration: 0.3 }}
+        className="max-w-xl space-y-4"
+      >
+        <span className="text-xs uppercase tracking-wider font-mono text-primary bg-primary/10 px-3 py-1 rounded-full border border-primary/20">
+          ${p.category || "Interactive UI"}
+        </span>
+        <h2 className="text-3xl font-bold font-display tracking-tight text-foreground">
+          ${p.title}
+        </h2>
+        <p className="text-sm text-muted-foreground leading-relaxed">
+          ${p.description}
+        </p>
+        <div className="pt-4 flex items-center justify-center gap-3">
+          <button
+            onClick={() => setActive(!active)}
+            className="px-5 py-2.5 rounded-xl text-xs font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-md"
+          >
+            {active ? "Active State" : "Interact"}
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+`;
+};
+
 function ProjectsPage() {
   const [search, setSearch] = useState("");
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [viewport, setViewport] = useState<ViewportType>("desktop");
   const [filter, setFilter] = useState("all");
+  const [modalTab, setModalTab] = useState<"preview" | "code" | "shop">("preview");
+  const [templateMode, setTemplateMode] = useState<"dark" | "light">("dark");
+  const [copiedModalCode, setCopiedModalCode] = useState(false);
+  const modalIframeRef = useRef<HTMLIFrameElement | null>(null);
+
+  const openProjectModal = (p: Project) => {
+    setSelectedProject(p);
+    setModalTab("preview");
+    setTemplateMode("dark");
+  };
+
+  const toggleTemplateMode = () => {
+    const next = templateMode === "dark" ? "light" : "dark";
+    setTemplateMode(next);
+    toast.info(`Switched template to ${next} mode`);
+    if (modalIframeRef.current?.contentWindow) {
+      modalIframeRef.current.contentWindow.postMessage({ type: "SET_THEME_MODE", mode: next }, "*");
+    }
+  };
+
+  const handleCopyModalCode = (code: string) => {
+    navigator.clipboard.writeText(code).then(() => {
+      setCopiedModalCode(true);
+      toast.success("Source code snippet copied!");
+      setTimeout(() => setCopiedModalCode(false), 2000);
+    });
+  };
 
   const { data: dbProjects = (projectsData as Project[]) } = useQuery({
     queryKey: ["design-projects-public"],
@@ -721,7 +955,7 @@ function ProjectsPage() {
                 <ProjectCard
                   key={p.id}
                   p={p}
-                  onClick={() => setSelectedProject(p)}
+                  onClick={() => openProjectModal(p)}
                   hasCareerPro={hasCareerPro}
                   onDownloadZip={handleDownloadZip}
                   isDownloadingZip={downloadingZipId === p.id}
@@ -766,46 +1000,122 @@ function ProjectsPage() {
               className="bg-background border-0 md:border md:border-border rounded-none md:rounded-3xl shadow-2xl w-full h-full md:h-[92vh] max-w-7xl flex flex-col overflow-hidden"
             >
               {/* Modal Header */}
-              <div className="h-14 bg-card border-b border-border flex items-center justify-between px-4 shrink-0">
-                <div className="flex items-center gap-3 min-w-0">
+              <div className="h-16 bg-card border-b border-border flex items-center justify-between px-3 sm:px-5 shrink-0 gap-2">
+                <div className="flex items-center gap-2.5 min-w-0">
                   <button
                     onClick={() => setSelectedProject(null)}
                     className="p-1.5 text-muted-foreground hover:text-foreground rounded-lg hover:bg-accent transition-colors shrink-0"
+                    title="Close"
                   >
                     <ArrowLeft className="h-4 w-4" />
                   </button>
                   <div className="min-w-0">
-                    <h3 className="font-display text-sm font-semibold text-foreground leading-none truncate">
-                      {selectedProject.name}
-                    </h3>
-                    <p className="text-[10px] text-muted-foreground mt-0.5 hidden sm:block truncate max-w-xs">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-display text-sm font-bold text-foreground leading-none truncate">
+                        {selectedProject.name}
+                      </h3>
+                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-primary/10 text-primary border border-primary/20 hidden sm:inline">
+                        ₹{selectedProject.price || 99}
+                      </span>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground mt-0.5 hidden md:block truncate max-w-xs">
                       {selectedProject.title}
                     </p>
                   </div>
                 </div>
 
-                {/* Viewport toggles */}
-                <div className="flex items-center gap-1 bg-muted/60 p-1 rounded-lg border border-border">
-                  {(["desktop", "tablet", "mobile"] as const).map((v) => {
-                    const Icon = v === "mobile" ? Smartphone : v === "tablet" ? Tablet : Monitor;
-                    return (
-                      <button
-                        key={v}
-                        onClick={() => setViewport(v)}
-                        title={`${v.charAt(0).toUpperCase() + v.slice(1)} View`}
-                        className={`p-1.5 rounded-md transition-all ${
-                          viewport === v
-                            ? "bg-primary text-primary-foreground shadow-sm"
-                            : "text-muted-foreground hover:text-foreground"
-                        }`}
-                      >
-                        <Icon className="h-3.5 w-3.5" />
-                      </button>
-                    );
-                  })}
+                {/* Interactive Navigation Tabs: Preview, Code, Mode, Shop */}
+                <div className="flex items-center gap-1 bg-muted/80 p-1 rounded-xl border border-border shrink-0">
+                  <button
+                    onClick={() => setModalTab("preview")}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
+                      modalTab === "preview"
+                        ? "bg-primary text-primary-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <Eye className="h-3.5 w-3.5" />
+                    <span>Preview</span>
+                  </button>
+
+                  <button
+                    onClick={() => setModalTab("code")}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
+                      modalTab === "code"
+                        ? "bg-primary text-primary-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <Code2 className="h-3.5 w-3.5" />
+                    <span>Code</span>
+                  </button>
+
+                  <button
+                    onClick={toggleTemplateMode}
+                    title="Toggle Preview Light/Dark Mode"
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-all cursor-pointer"
+                  >
+                    {templateMode === "dark" ? (
+                      <Moon className="h-3.5 w-3.5 text-indigo-400" />
+                    ) : (
+                      <Sun className="h-3.5 w-3.5 text-amber-400" />
+                    )}
+                    <span className="hidden sm:inline capitalize">{templateMode}</span>
+                  </button>
+
+                  <button
+                    onClick={() => setModalTab("shop")}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
+                      modalTab === "shop"
+                        ? "bg-primary text-primary-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <ShoppingBag className="h-3.5 w-3.5 text-emerald-400" />
+                    <span>Shop</span>
+                    <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-emerald-500/20 text-emerald-300">
+                      ₹{selectedProject.price || 99}
+                    </span>
+                  </button>
                 </div>
 
-                <div className="flex items-center gap-1.5">
+                {/* Right controls: Viewport toggles + Pop Top full preview + Action buttons */}
+                <div className="flex items-center gap-1.5 shrink-0">
+                  {modalTab === "preview" && (
+                    <div className="hidden lg:flex items-center gap-1 bg-muted/60 p-1 rounded-lg border border-border">
+                      {(["desktop", "tablet", "mobile"] as const).map((v) => {
+                        const Icon = v === "mobile" ? Smartphone : v === "tablet" ? Tablet : Monitor;
+                        return (
+                          <button
+                            key={v}
+                            onClick={() => setViewport(v)}
+                            title={`${v.charAt(0).toUpperCase() + v.slice(1)} View`}
+                            className={`p-1.5 rounded-md transition-all ${
+                              viewport === v
+                                ? "bg-primary text-primary-foreground shadow-sm"
+                                : "text-muted-foreground hover:text-foreground"
+                            }`}
+                          >
+                            <Icon className="h-3.5 w-3.5" />
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {/* Pop Top Full Preview button */}
+                  <a
+                    href={selectedProject.path}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1.5 text-xs font-medium text-foreground bg-accent/80 hover:bg-accent px-3 py-1.5 rounded-lg transition-all border border-border h-8"
+                    title="Open Fullscreen in New Tab [Pop Top]"
+                  >
+                    <ExternalLink className="h-3.5 w-3.5 text-primary" />
+                    <span className="hidden sm:inline">Full Preview</span>
+                    <span className="text-[10px] text-muted-foreground font-mono">[Pop Top]</span>
+                  </a>
+
                   {hasCareerPro ? (
                     <>
                       <Button
@@ -813,8 +1123,8 @@ function ProjectsPage() {
                         size="sm"
                         onClick={() => handleDownloadZip(selectedProject.id, selectedProject.name)}
                         disabled={downloadingZipId === selectedProject.id}
-                        className="hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 border-emerald-500/30 h-8 cursor-pointer"
-                        title="Download complete Vite + React template ZIP (Career Pro)"
+                        className="hidden xl:inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 border-emerald-500/30 h-8 cursor-pointer"
+                        title="Download complete template ZIP (Career Pro)"
                       >
                         {downloadingZipId === selectedProject.id ? (
                           <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -829,37 +1139,19 @@ function ProjectsPage() {
                         className="hidden sm:inline-flex items-center gap-1.5 text-xs font-medium text-primary-foreground bg-primary hover:bg-primary/90 px-3 py-1.5 rounded-lg transition-all border border-primary h-8"
                       >
                         <GraduationCap className="h-3.5 w-3.5" />
-                        Start Building Now
+                        Course
                       </Link>
                     </>
                   ) : (
-                    <>
-                      <Link
-                        to="/pricing"
-                        className="hidden sm:inline-flex items-center gap-1.5 text-xs font-medium text-amber-600 dark:text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 px-2.5 py-1.5 rounded-lg h-8"
-                        title="Career Pro includes instant ZIP download of all 46 templates"
-                      >
-                        <Lock className="h-3 w-3" />
-                        Export ZIP (Pro)
-                      </Link>
-                      <Link
-                        to="/pricing"
-                        className="hidden sm:inline-flex items-center gap-1.5 text-xs font-medium text-primary-foreground bg-primary hover:bg-primary/90 px-3 py-1.5 rounded-lg transition-all border border-primary shadow-glow h-8"
-                      >
-                        <Lock className="h-3.5 w-3.5" />
-                        Career Pro
-                      </Link>
-                    </>
+                    <button
+                      onClick={() => setModalTab("shop")}
+                      className="hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold text-primary-foreground bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 px-3 py-1.5 rounded-lg transition-all shadow-md h-8 cursor-pointer"
+                    >
+                      <ShoppingBag className="h-3.5 w-3.5" />
+                      Buy ₹{selectedProject.price || 99}
+                    </button>
                   )}
-                  <a
-                    href={selectedProject.path}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="hidden sm:inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground bg-transparent hover:bg-accent px-3 py-1.5 rounded-lg transition-all border border-border"
-                  >
-                    <ExternalLink className="h-3.5 w-3.5" />
-                    Fullscreen
-                  </a>
+
                   <button
                     onClick={() => setSelectedProject(null)}
                     className="p-1.5 text-muted-foreground hover:text-foreground rounded-lg hover:bg-accent transition-colors"
@@ -869,60 +1161,214 @@ function ProjectsPage() {
                 </div>
               </div>
 
-              {/* Iframe Sandbox */}
-              <div className="flex-1 bg-muted/20 p-3 sm:p-4 flex items-center justify-center overflow-hidden">
-                <div
-                  style={{
-                    width: getViewportWidth(),
-                    transition: "width 0.35s cubic-bezier(0.4, 0, 0.2, 1)",
-                  }}
-                  className="h-full rounded-2xl border border-border shadow-card bg-black overflow-hidden relative flex flex-col"
-                >
-                  {/* Browser chrome */}
-                  <div className="h-8 bg-card border-b border-border px-3 flex items-center gap-2 shrink-0 select-none">
-                    <div className="flex gap-1.5">
-                      <div className="w-2.5 h-2.5 rounded-full bg-destructive/60" />
-                      <div className="w-2.5 h-2.5 rounded-full bg-amber-400/60" />
-                      <div className="w-2.5 h-2.5 rounded-full bg-emerald-400/60" />
-                    </div>
-                    <div className="bg-muted rounded px-4 py-0.5 flex-1 flex items-center justify-center gap-1.5 text-muted-foreground font-mono text-[10px]">
-                      <Globe className="h-2.5 w-2.5 text-primary" />
-                      <span className="text-primary/80">learnifyai.in</span>
-                      <span>{selectedProject.path}</span>
-                    </div>
-                  </div>
-
-                  <iframe
-                    src={selectedProject.path}
-                    title={selectedProject.name}
-                    className="w-full flex-1 bg-white border-0"
-                    sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-modals allow-downloads"
-                    onLoad={(e) => {
-                      (e.target as HTMLIFrameElement).style.display = "block";
-                    }}
-                    onError={() => {
-                      /* fallback handles timeout */
-                    }}
-                  />
+              {/* Tab 1: Preview Frame */}
+              {modalTab === "preview" && (
+                <div className="flex-1 bg-muted/20 p-2 sm:p-4 flex items-center justify-center overflow-hidden">
                   <div
-                    id="modal-iframe-fallback"
-                    className="hidden flex-col items-center justify-center w-full h-full bg-muted/30"
+                    style={{
+                      width: getViewportWidth(),
+                      transition: "width 0.35s cubic-bezier(0.4, 0, 0.2, 1)",
+                    }}
+                    className="h-full rounded-2xl border border-border shadow-card bg-black overflow-hidden relative flex flex-col"
                   >
-                    <Lock className="h-8 w-8 text-amber-400 mb-2" />
-                    <p className="text-sm text-muted-foreground mb-3">
-                      Preview blocked by the site
-                    </p>
-                    <a
-                      href={selectedProject.path}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary-foreground bg-primary hover:bg-primary/90 px-4 py-2 rounded-xl transition-all"
-                    >
-                      <ExternalLink className="h-4 w-4" /> Open in new tab
-                    </a>
+                    {/* Browser chrome */}
+                    <div className="h-8 bg-card border-b border-border px-3 flex items-center gap-2 shrink-0 select-none">
+                      <div className="flex gap-1.5">
+                        <div className="w-2.5 h-2.5 rounded-full bg-destructive/60" />
+                        <div className="w-2.5 h-2.5 rounded-full bg-amber-400/60" />
+                        <div className="w-2.5 h-2.5 rounded-full bg-emerald-400/60" />
+                      </div>
+                      <div className="bg-muted rounded px-4 py-0.5 flex-1 flex items-center justify-center gap-1.5 text-muted-foreground font-mono text-[10px]">
+                        <Globe className="h-2.5 w-2.5 text-primary" />
+                        <span className="text-primary/80">learnifyai.in</span>
+                        <span>{selectedProject.path}</span>
+                      </div>
+                      <div className="text-[10px] font-mono text-muted-foreground px-2 py-0.5 rounded bg-muted/80">
+                        {templateMode.toUpperCase()}
+                      </div>
+                    </div>
+
+                    <iframe
+                      ref={modalIframeRef}
+                      src={selectedProject.path}
+                      title={selectedProject.name}
+                      style={{
+                        filter: templateMode === "light" ? "invert(0.92) hue-rotate(180deg)" : "none",
+                        transition: "filter 0.3s ease",
+                      }}
+                      className="w-full flex-1 bg-white border-0"
+                      sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-modals allow-downloads"
+                      onLoad={(e) => {
+                        (e.target as HTMLIFrameElement).style.display = "block";
+                      }}
+                    />
                   </div>
                 </div>
-              </div>
+              )}
+
+              {/* Tab 2: Code Inspector */}
+              {modalTab === "code" && (
+                <div className="flex-1 p-4 sm:p-6 bg-slate-950 text-slate-100 flex flex-col overflow-hidden font-mono text-xs">
+                  <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+                    <div className="flex items-center gap-2">
+                      <span className="text-slate-400 text-xs">Component:</span>
+                      <span className="px-2 py-0.5 rounded bg-slate-800 text-emerald-400 font-semibold">
+                        {selectedProject.id}.tsx
+                      </span>
+                      <div className="hidden sm:flex items-center gap-1.5 ml-2">
+                        {(selectedProject.tech || []).map((t: string) => (
+                          <span key={t} className="text-[10px] px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-400">
+                            {t}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleCopyModalCode(getProjectCodeSnippet(selectedProject))}
+                      className="border-slate-700 bg-slate-900 hover:bg-slate-800 text-slate-200 h-7 text-xs flex items-center gap-1.5 cursor-pointer"
+                    >
+                      {copiedModalCode ? (
+                        <CheckCheck className="h-3.5 w-3.5 text-emerald-400" />
+                      ) : (
+                        <ClipboardCopy className="h-3.5 w-3.5" />
+                      )}
+                      {copiedModalCode ? "Copied" : "Copy Code"}
+                    </Button>
+                  </div>
+                  <div className="flex-1 overflow-auto mt-3 rounded-xl bg-slate-900/60 p-4 border border-slate-800/80 leading-relaxed font-mono">
+                    <pre className="text-slate-300 whitespace-pre">
+                      {getProjectCodeSnippet(selectedProject)}
+                    </pre>
+                  </div>
+                </div>
+              )}
+
+              {/* Tab 3: Shop & Instant Purchase Screen */}
+              {modalTab === "shop" && (
+                <div className="flex-1 p-4 sm:p-8 bg-card flex flex-col overflow-y-auto">
+                  <div className="max-w-4xl mx-auto w-full py-4">
+                    <div className="text-center mb-8">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 mb-3">
+                        <ShoppingBag className="w-3.5 h-3.5" />
+                        Commercial Production Template
+                      </span>
+                      <h2 className="text-2xl sm:text-3xl font-display font-bold text-foreground">
+                        Unlock {selectedProject.name}
+                      </h2>
+                      <p className="text-muted-foreground text-sm mt-2 max-w-lg mx-auto">
+                        Get immediate access to full clean source code, commercial licensing, components, and exportable ZIP.
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
+                      {/* Left: Template Preview Card */}
+                      <div className="rounded-2xl border border-border bg-muted/30 p-5 flex flex-col justify-between">
+                        <div>
+                          <div className="relative aspect-video rounded-xl overflow-hidden border border-border mb-4 bg-black">
+                            <img
+                              src={selectedProject.thumbnail}
+                              alt={selectedProject.name}
+                              className="w-full h-full object-cover"
+                            />
+                            <div className="absolute top-2 right-2 bg-black/70 backdrop-blur-md px-2.5 py-1 rounded-md text-[10px] font-mono text-emerald-400 border border-white/10">
+                              Instant ZIP Download
+                            </div>
+                          </div>
+                          <h4 className="font-display font-semibold text-foreground text-base">
+                            {selectedProject.title}
+                          </h4>
+                          <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">
+                            {selectedProject.description}
+                          </p>
+                        </div>
+
+                        <div className="pt-4 border-t border-border mt-4 flex items-center justify-between text-xs text-muted-foreground">
+                          <span>Category: <strong className="text-foreground capitalize">{selectedProject.category}</strong></span>
+                          <span>License: <strong className="text-emerald-500">Commercial</strong></span>
+                        </div>
+                      </div>
+
+                      {/* Right: Checkout & Benefits Card */}
+                      <div className="rounded-2xl border border-primary/30 bg-primary/5 p-6 flex flex-col justify-between relative shadow-lg">
+                        <div>
+                          <div className="flex items-baseline gap-3 mb-4">
+                            <span className="text-4xl font-extrabold text-foreground font-display">
+                              ₹{selectedProject.price || 99}
+                            </span>
+                            <span className="text-muted-foreground line-through text-base">
+                              ₹2,999
+                            </span>
+                            <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400">
+                              97% OFF Today
+                            </span>
+                          </div>
+
+                          <div className="space-y-3 mb-6">
+                            {[
+                              "Complete Clean Source Code (ZIP Export)",
+                              "Commercial Use License for unlimited client projects",
+                              "100% Responsive (Mobile, Tablet & Desktop)",
+                              "Clean Tailwind CSS + React 19 + Framer Motion / GSAP",
+                              "105+ Big Sur Icons / High-Res Design Assets",
+                              "Lifetime Updates & Free Bug Fixes",
+                            ].map((item, idx) => (
+                              <div key={idx} className="flex items-start gap-2.5 text-xs text-foreground/90">
+                                <CheckCheck className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                                <span>{item}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="space-y-3 pt-4 border-t border-border/80">
+                          {hasCareerPro ? (
+                            <Button
+                              onClick={() => handleDownloadZip(selectedProject.id, selectedProject.name)}
+                              disabled={downloadingZipId === selectedProject.id}
+                              className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-xl shadow-lg cursor-pointer"
+                            >
+                              {downloadingZipId === selectedProject.id ? (
+                                <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                              ) : (
+                                <Download className="w-4 h-4 mr-2" />
+                              )}
+                              Included in Career Pro — Instant Download ZIP
+                            </Button>
+                          ) : (
+                            <>
+                              <button
+                                onClick={() => {
+                                  if (!user) {
+                                    toast.info("Please login to purchase this template");
+                                    navigate({ to: "/login" });
+                                  } else {
+                                    handleDownloadZip(selectedProject.id, selectedProject.name);
+                                  }
+                                }}
+                                className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition-all hover:scale-[1.02] flex items-center justify-center gap-2 cursor-pointer text-sm"
+                              >
+                                <ShoppingBag className="w-4 h-4" />
+                                Buy Template Now — ₹{selectedProject.price || 99}
+                              </button>
+                              <Link
+                                to="/pricing"
+                                className="w-full text-center block text-xs text-primary hover:underline font-medium"
+                              >
+                                Or get all 49 templates with Career Pro (₹999/mo) →
+                              </Link>
+                            </>
+                          )}
+                          <p className="text-[11px] text-center text-muted-foreground">
+                            Instant delivery • Secure payment via Cashfree • 100% Money-back guarantee
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </motion.div>
           </div>
         )}

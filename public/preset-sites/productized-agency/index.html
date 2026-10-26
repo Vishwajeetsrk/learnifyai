@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Productized Agency Template — Aceternity UI | Learnify AI</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: '#6366f1',
+            accent: '#06b6d4'
+          }
+        }
+      }
+    };
+  </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: #030712;
+      color: #f3f4f6;
+    }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 9999px; }
+  </style>
+</head>
+<body class="h-screen w-screen flex flex-col bg-slate-950 text-slate-100 antialiased select-none">
+
+  <!-- ==================== TOP NAVIGATION BAR ==================== -->
+  <header class="h-14 border-b border-slate-800 bg-slate-900/95 backdrop-blur-md px-4 flex items-center justify-between z-30 shrink-0">
+    <div class="flex items-center gap-3">
+      <div class="h-8 w-8 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-cyan-500/20">
+        <i class="fa-solid fa-shapes text-sm"></i>
+      </div>
+      <div>
+        <h1 class="text-xs sm:text-sm font-bold text-white flex items-center gap-2">
+          Productized Agency
+          <span class="text-[10px] font-mono font-medium px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">Aceternity UI</span>
+        </h1>
+      </div>
+    </div>
+
+    <!-- Active Mode Tabs: Preview | Code | Mode | Shop -->
+    <div class="flex items-center gap-1 bg-slate-950/80 p-1 rounded-xl border border-slate-800">
+      <!-- Preview Tab -->
+      <button id="tab-preview-btn" onclick="switchTab('preview')" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all text-white bg-indigo-600 shadow-sm cursor-pointer">
+        <i class="fa-solid fa-eye text-xs"></i>
+        <span>Preview</span>
+      </button>
+
+      <!-- Code Tab -->
+      <button id="tab-code-btn" onclick="switchTab('code')" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all text-slate-400 hover:text-white cursor-pointer">
+        <i class="fa-solid fa-code text-xs"></i>
+        <span>Code</span>
+      </button>
+
+      <!-- Mode (Dark / Light) -->
+      <button id="tab-mode-btn" onclick="toggleThemeMode()" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all text-slate-400 hover:text-white cursor-pointer" title="Toggle Dark/Light Mode">
+        <i id="theme-mode-icon" class="fa-solid fa-moon text-xs text-amber-400"></i>
+        <span id="theme-mode-text">Dark</span>
+      </button>
+
+      <!-- Shop Tab -->
+      <button id="tab-shop-btn" onclick="switchTab('shop')" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all text-emerald-400 hover:text-emerald-300 bg-emerald-500/10 border border-emerald-500/30 cursor-pointer">
+        <i class="fa-solid fa-bag-shopping text-xs"></i>
+        <span>Shop <span class="bg-emerald-500 text-slate-950 font-bold px-1.5 py-0.2 rounded-full text-[10px]">₹99</span></span>
+      </button>
+    </div>
+
+    <!-- Actions: Viewport + Pop Top (Full Preview) -->
+    <div class="flex items-center gap-2">
+      <!-- Viewport Controls (only active on Preview) -->
+      <div id="viewport-controls" class="hidden sm:flex items-center gap-1 bg-slate-950/80 p-0.5 rounded-lg border border-slate-800">
+        <button onclick="setViewport('desktop')" id="vp-desktop" class="vp-btn p-1.5 rounded text-white bg-slate-800" title="Desktop View">
+          <i class="fa-solid fa-desktop text-xs"></i>
+        </button>
+        <button onclick="setViewport('tablet')" id="vp-tablet" class="vp-btn p-1.5 rounded text-slate-400 hover:text-white" title="Tablet View">
+          <i class="fa-solid fa-tablet-screen-button text-xs"></i>
+        </button>
+        <button onclick="setViewport('mobile')" id="vp-mobile" class="vp-btn p-1.5 rounded text-slate-400 hover:text-white" title="Mobile View">
+          <i class="fa-solid fa-mobile-screen-button text-xs"></i>
+        </button>
+      </div>
+
+      <!-- Pop Top / Full Preview Button -->
+      <a href="https://productized-agency-template-acetern.vercel.app/" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium flex items-center gap-1.5 transition-all border border-slate-700" title="Pop Top (Full Preview in New Tab)">
+        <i class="fa-solid fa-arrow-up-right-from-square text-[11px]"></i>
+        <span class="hidden md:inline">Full Preview</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- ==================== MAIN CONTENT WRAPPER ==================== -->
+  <main class="flex-1 relative overflow-hidden flex items-center justify-center p-2 sm:p-4 bg-slate-950">
+
+    <!-- 1. PREVIEW TAB CONTAINER -->
+    <div id="pane-preview" class="tab-pane w-full h-full flex items-center justify-center">
+      <div id="preview-wrapper" class="h-full w-full rounded-2xl border border-slate-800 shadow-2xl bg-black overflow-hidden flex flex-col transition-all duration-300">
+        <!-- Mock Browser Top Bar -->
+        <div class="h-7 bg-slate-900 border-b border-slate-800 px-3 flex items-center gap-2 shrink-0">
+          <div class="flex gap-1.5">
+            <div class="w-2.5 h-2.5 rounded-full bg-rose-500/80"></div>
+            <div class="w-2.5 h-2.5 rounded-full bg-amber-500/80"></div>
+            <div class="w-2.5 h-2.5 rounded-full bg-emerald-500/80"></div>
+          </div>
+          <div class="flex-1 max-w-sm mx-auto bg-slate-950/80 rounded px-2.5 py-0.5 text-center text-[10px] font-mono text-slate-400 border border-slate-800/80 truncate">
+            https://productized-agency.aceternity.com
+          </div>
+        </div>
+        <!-- Live Template Iframe -->
+        <iframe
+          id="template-iframe"
+          src="https://productized-agency-template-acetern.vercel.app/"
+          class="w-full flex-1 border-0 bg-slate-950"
+          title="Productized Agency Template"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        ></iframe>
+      </div>
+    </div>
+
+    <!-- 2. CODE TAB CONTAINER -->
+    <div id="pane-code" class="tab-pane w-full h-full hidden flex-col max-w-6xl mx-auto rounded-2xl border border-slate-800 bg-slate-900/90 shadow-2xl overflow-hidden">
+      <div class="h-10 bg-slate-900 border-b border-slate-800 px-4 flex items-center justify-between shrink-0">
+        <div class="flex items-center gap-2 text-xs font-mono text-slate-300">
+          <i class="fa-solid fa-file-code text-indigo-400"></i>
+          <span>src/components/ProductizedAgency.tsx</span>
+        </div>
+        <button onclick="copySnippetCode()" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-200 flex items-center gap-1.5 transition">
+          <i id="copy-icon" class="fa-solid fa-copy text-xs"></i>
+          <span id="copy-text">Copy Code</span>
+        </button>
+      </div>
+      <div class="flex-1 overflow-auto p-4 bg-slate-950 font-mono text-xs text-slate-300 leading-relaxed">
+        <pre><code id="source-code-block">// Productized Agency Template — Built with Next.js 15, Tailwind CSS & Aceternity UI
+import React from 'react';
+import { motion } from 'framer-motion';
+import { LampContainer } from '@/components/ui/lamp';
+import { BentoGrid, BentoGridItem } from '@/components/ui/bento-grid';
+import { BackgroundBeams } from '@/components/ui/background-beams';
+
+export default function ProductizedAgency() {
+  return (
+    &lt;main className="min-h-screen bg-slate-950 text-white overflow-hidden relative"&gt;
+      {/* 1. HERO SECTION WITH ACETERNITY LAMP */}
+      &lt;LampContainer&gt;
+        &lt;motion.h1
+          initial={{ opacity: 0.5, y: 100 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, duration: 0.8, ease: "easeInOut" }}
+          className="bg-gradient-to-br from-slate-100 to-slate-500 py-4 bg-clip-text text-center text-4xl font-medium tracking-tight text-transparent md:text-7xl"
+        &gt;
+          Scale Your Product &lt;br /&gt; Faster Than Ever
+        &lt;/motion.h1&gt;
+        &lt;p className="text-slate-400 text-center max-w-lg mx-auto text-sm md:text-base mt-4"&gt;
+          A modern productized design &amp; development agency for high-growth tech startups.
+        &lt;/p&gt;
+        &lt;div className="mt-8 flex justify-center gap-4"&gt;
+          &lt;a href="#pricing" className="px-6 py-3 rounded-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-sm shadow-lg shadow-cyan-500/20"&gt;
+            View Packages (₹99)
+          &lt;/a&gt;
+        &lt;/div&gt;
+      &lt;/LampContainer&gt;
+
+      {/* 2. BENTO SERVICES GRID */}
+      &lt;section className="max-w-7xl mx-auto px-6 py-20"&gt;
+        &lt;BentoGrid&gt;
+          &lt;BentoGridItem
+            title="Design Systems"
+            description="Production-ready Figma and Tailwind design systems built for infinite scale."
+            header={&lt;div className="h-full min-h-[6rem] rounded-xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-white/10" /&gt;}
+            className="md:col-span-2"
+          /&gt;
+          &lt;BentoGridItem
+            title="Next.js 15 Full-Stack"
+            description="Sub-second latency React Server Components with Supabase &amp; Tailwind."
+            header={&lt;div className="h-full min-h-[6rem] rounded-xl bg-gradient-to-br from-cyan-500/20 to-blue-500/20 border border-white/10" /&gt;}
+          /&gt;
+        &lt;/BentoGrid&gt;
+      &lt;/section&gt;
+
+      {/* 3. BACKGROUND BEAMS */}
+      &lt;BackgroundBeams /&gt;
+    &lt;/main&gt;
+  );
+}</code></pre>
+      </div>
+    </div>
+
+    <!-- 3. SHOP TAB CONTAINER (PRICING & BUY ₹99) -->
+    <div id="pane-shop" class="tab-pane w-full h-full hidden flex items-center justify-center p-4">
+      <div class="max-w-lg w-full bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+        <div class="absolute -top-24 -right-24 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -bottom-24 -left-24 w-48 h-48 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+          <div>
+            <span class="text-[10px] font-mono uppercase tracking-widest text-emerald-400 font-bold bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-full">
+              Full Template Package
+            </span>
+            <h2 class="text-xl font-bold text-white mt-2">Productized Agency License</h2>
+          </div>
+          <div class="text-right">
+            <span class="text-3xl font-extrabold text-white">₹99</span>
+            <span class="text-xs text-slate-400 block line-through">₹4,999</span>
+          </div>
+        </div>
+
+        <ul class="py-6 space-y-3 text-xs sm:text-sm text-slate-300">
+          <li class="flex items-center gap-2.5">
+            <i class="fa-solid fa-circle-check text-emerald-400 text-sm"></i>
+            <span>Complete <strong>Next.js 15 &amp; React 19</strong> Source Code</span>
+          </li>
+          <li class="flex items-center gap-2.5">
+            <i class="fa-solid fa-circle-check text-emerald-400 text-sm"></i>
+            <span>Aceternity UI Components (Lamp, Bento Grid, Sparkles, Beams)</span>
+          </li>
+          <li class="flex items-center gap-2.5">
+            <i class="fa-solid fa-circle-check text-emerald-400 text-sm"></i>
+            <span><strong>Commercial License</strong> for unlimited client websites</span>
+          </li>
+          <li class="flex items-center gap-2.5">
+            <i class="fa-solid fa-circle-check text-emerald-400 text-sm"></i>
+            <span>Dark &amp; Light mode responsive styles</span>
+          </li>
+          <li class="flex items-center gap-2.5">
+            <i class="fa-solid fa-circle-check text-emerald-400 text-sm"></i>
+            <span>Instant <strong>.ZIP Archive</strong> Download upon unlock</span>
+          </li>
+        </ul>
+
+        <div class="space-y-3 pt-2">
+          <button onclick="handlePurchase()" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-bold text-sm shadow-lg shadow-emerald-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer">
+            <i class="fa-solid fa-bag-shopping"></i>
+            <span>Unlock Template for ₹99</span>
+          </button>
+          <p class="text-[11px] text-center text-slate-500">
+            Secure checkout via Cashfree / UPI / Cards • GST Invoice Included
+          </p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    let currentMode = 'dark';
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('bg-indigo-600', 'text-white', 'shadow-sm');
+        btn.classList.add('text-slate-400');
+      });
+
+      if (tabId === 'preview') {
+        document.getElementById('pane-preview').classList.remove('hidden');
+        document.getElementById('tab-preview-btn').classList.add('bg-indigo-600', 'text-white', 'shadow-sm');
+        document.getElementById('viewport-controls').classList.remove('hidden');
+      } else if (tabId === 'code') {
+        document.getElementById('pane-code').classList.remove('hidden');
+        document.getElementById('pane-code').classList.add('flex');
+        document.getElementById('tab-code-btn').classList.add('bg-indigo-600', 'text-white', 'shadow-sm');
+        document.getElementById('viewport-controls').classList.add('hidden');
+      } else if (tabId === 'shop') {
+        document.getElementById('pane-shop').classList.remove('hidden');
+        document.getElementById('pane-shop').classList.add('flex');
+        document.getElementById('tab-shop-btn').classList.add('bg-indigo-600', 'text-white', 'shadow-sm');
+        document.getElementById('viewport-controls').classList.add('hidden');
+      }
+    }
+
+    function toggleThemeMode() {
+      currentMode = currentMode === 'dark' ? 'light' : 'dark';
+      const icon = document.getElementById('theme-mode-icon');
+      const text = document.getElementById('theme-mode-text');
+      
+      if (currentMode === 'light') {
+        document.documentElement.classList.remove('dark');
+        icon.className = 'fa-solid fa-sun text-xs text-amber-500';
+        text.innerText = 'Light';
+      } else {
+        document.documentElement.classList.add('dark');
+        icon.className = 'fa-solid fa-moon text-xs text-amber-400';
+        text.innerText = 'Dark';
+      }
+
+      // Relay theme mode to template iframe
+      const iframe = document.getElementById('template-iframe');
+      if (iframe && iframe.contentWindow) {
+        iframe.contentWindow.postMessage({ type: 'SET_THEME_MODE', mode: currentMode }, '*');
+      }
+    }
+
+    function setViewport(size) {
+      const wrapper = document.getElementById('preview-wrapper');
+      document.querySelectorAll('.vp-btn').forEach(b => {
+        b.classList.remove('bg-slate-800', 'text-white');
+        b.classList.add('text-slate-400');
+      });
+
+      if (size === 'mobile') {
+        wrapper.style.width = '375px';
+        document.getElementById('vp-mobile').classList.add('bg-slate-800', 'text-white');
+      } else if (size === 'tablet') {
+        wrapper.style.width = '768px';
+        document.getElementById('vp-tablet').classList.add('bg-slate-800', 'text-white');
+      } else {
+        wrapper.style.width = '100%';
+        document.getElementById('vp-desktop').classList.add('bg-slate-800', 'text-white');
+      }
+    }
+
+    function copySnippetCode() {
+      const code = document.getElementById('source-code-block').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        document.getElementById('copy-text').innerText = 'Copied!';
+        document.getElementById('copy-icon').className = 'fa-solid fa-check text-emerald-400';
+        setTimeout(() => {
+          document.getElementById('copy-text').innerText = 'Copy Code';
+          document.getElementById('copy-icon').className = 'fa-solid fa-copy text-xs';
+        }, 2000);
+      });
+    }
+
+    function handlePurchase() {
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({ type: 'BUY_TEMPLATE', projectId: 'productized-agency', price: 99 }, '*');
+      } else {
+        window.location.href = '/pricing';
+      }
+    }
+  </script>
+</body>
+</html>

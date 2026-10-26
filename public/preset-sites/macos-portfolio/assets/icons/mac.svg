@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Screen Bezel Gradient -->
+    <linearGradient id="macScreen" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+
+    <!-- Aluminum Silver Gradient -->
+    <linearGradient id="macMetal" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f8fafc" />
+      <stop offset="35%" stop-color="#e2e8f0" />
+      <stop offset="70%" stop-color="#cbd5e1" />
+      <stop offset="100%" stop-color="#94a3b8" />
+    </linearGradient>
+
+    <linearGradient id="macScreenGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.9" />
+      <stop offset="50%" stop-color="#818cf8" stop-opacity="0.8" />
+      <stop offset="100%" stop-color="#ec4899" stop-opacity="0.9" />
+    </linearGradient>
+
+    <filter id="macShadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="16" stdDeviation="20" flood-color="#000000" flood-opacity="0.45" />
+    </filter>
+  </defs>
+
+  <g filter="url(#macShadow)">
+    <!-- Stand Base -->
+    <ellipse cx="256" cy="460" rx="90" ry="14" fill="#94a3b8" />
+    <path d="M236 340 L220 455 Q256 465 292 455 L276 340 Z" fill="url(#macMetal)" />
+    <!-- Stand Shadow -->
+    <ellipse cx="256" cy="466" rx="95" ry="8" fill="rgba(0,0,0,0.3)" />
+
+    <!-- iMac Display Shell (Aluminum) -->
+    <rect x="56" y="50" width="400" height="290" rx="20" fill="url(#macMetal)" stroke="rgba(255,255,255,0.6)" stroke-width="2" />
+    
+    <!-- Dark Display Bezel -->
+    <rect x="66" y="60" width="380" height="236" rx="12" fill="#09090b" />
+
+    <!-- Screen Display Wallpaper -->
+    <rect x="74" y="68" width="364" height="220" rx="8" fill="url(#macScreenGlow)" />
+
+    <!-- Menu bar on screen -->
+    <rect x="74" y="68" width="364" height="12" rx="4" fill="rgba(0,0,0,0.4)" />
+    <!-- Mini Apple logo on screen -->
+    <circle cx="85" cy="74" r="2.5" fill="#ffffff" opacity="0.9" />
+
+    <!-- Mini Dock on screen -->
+    <rect x="180" y="272" width="152" height="12" rx="6" fill="rgba(255,255,255,0.3)" />
+    <circle cx="195" cy="278" r="3" fill="#38bdf8" />
+    <circle cx="210" cy="278" r="3" fill="#a855f7" />
+    <circle cx="225" cy="278" r="3" fill="#22c55e" />
+    <circle cx="240" cy="278" r="3" fill="#facc15" />
+    <circle cx="255" cy="278" r="3" fill="#ef4444" />
+    <circle cx="270" cy="278" r="3" fill="#ec4899" />
+    <circle cx="285" cy="278" r="3" fill="#64748b" />
+    <circle cx="300" cy="278" r="3" fill="#ffffff" />
+    <circle cx="315" cy="278" r="3" fill="#0284c7" />
+
+    <!-- Chin (Lower Aluminum Bezel with Apple Logo) -->
+    <rect x="66" y="296" width="380" height="34" rx="4" fill="url(#macMetal)" />
+    <!-- Apple Logo on Chin -->
+    <path d="M260.5 315c-.4.9-.9 1.7-1.4 2.5-.7 1-1.4 1.7-1.9 2.1-.8.6-1.5 1-2.4 1-.6 0-1.3-.2-2.1-.5-.9-.4-1.6-.5-2.3-.5-.7 0-1.5.2-2.4.5-.8.3-1.5.5-2 .5-.7 0-1.5-.3-2.3-1-.6-.5-1.3-1.2-1.9-2.2-.9-1.4-1.7-3.1-2.2-5-.5-1.9-.8-3.7-.8-5.5 0-2.3.5-4.2 1.6-5.7 1.1-1.5 2.5-2.3 4.2-2.3.8 0 1.6.2 2.5.6.9.4 1.5.6 1.8.6.4 0 1-.2 1.9-.6.9-.4 1.7-.6 2.5-.6 2.2.1 3.9 1 5.1 2.4-1.9 1.1-2.8 2.7-2.8 4.7 0 1.6.6 2.9 1.8 3.9 1.1 1 2.5 1.6 4.1 1.7-.4 1.3-1 2.6-1.8 4.1zm-5.1-16.1c0-1.2.4-2.3 1.3-3.3.9-1 1.9-1.6 3.2-1.9 0 .2.1.4.1.6 0 1.2-.5 2.3-1.4 3.4-.9 1.1-2 1.7-3.2 1.9v-.7z" transform="scale(0.8) translate(64, 66)" fill="#475569" />
+  </g>
+</svg>
