@@ -39,11 +39,34 @@ export function SiteHeader() {
     { label: tr("nav.supportUs", "Support Us"), url: "/support-us" },
     { label: tr("nav.blog", "Blog"), url: "/blog" },
   ];
+  const isSupportHidden = siteSettings?.support_us_enabled === "false";
+
   const navItems = (menuItems.length > 0 ? menuItems : fallbackNav).filter(
-    (item: any) =>
-      item.url !== "/system-design" &&
-      !item.label?.includes("System Design") &&
-      !(item.url === "/support-us" && siteSettings?.support_us_enabled === "false")
+    (item: any) => {
+      const url = (item.url || "").toLowerCase().trim();
+      const label = (item.label || "").toLowerCase().trim();
+
+      if (url === "/system-design" || label.includes("system design")) {
+        return false;
+      }
+
+      if (
+        isSupportHidden &&
+        (url === "/support-us" ||
+          url === "/support-us/" ||
+          url === "support-us" ||
+          url === "/sponsor" ||
+          url === "/sponsor/" ||
+          url.endsWith("/support-us") ||
+          label === "support us" ||
+          label.includes("support us") ||
+          label === "sponsor")
+      ) {
+        return false;
+      }
+
+      return true;
+    }
   );
 
   return (

@@ -69,6 +69,6 @@ export function useSiteSettings() {
       });
       return { ...defaults, ...(map as Partial<SiteSettings>) };
     },
-    staleTime: 60_000,
+    staleTime: 10_000,
   });
 }

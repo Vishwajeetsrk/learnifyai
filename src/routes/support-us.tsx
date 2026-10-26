@@ -22,6 +22,7 @@ import {
   HelpCircle,
   AlertTriangle,
   QrCode,
+  Eye,
 } from "lucide-react";
 import { toast } from "sonner";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -105,6 +106,7 @@ function SupportUsPage() {
   const [copiedLink, setCopiedLink] = useState(false);
   const [copiedUpi, setCopiedUpi] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [adminPreview, setAdminPreview] = useState(false);
 
   const { data: s } = useSiteSettings();
   const { isAdmin } = useAuth();
@@ -120,7 +122,7 @@ function SupportUsPage() {
       });
       return map;
     },
-    staleTime: 60_000,
+    staleTime: 10_000,
   });
 
   const isSupportHidden =
@@ -173,19 +175,59 @@ function SupportUsPage() {
     )
   );
 
-  // If support is hidden and user is not admin, show paused notice
-  if (isSupportHidden && !isAdmin) {
+  // If support is hidden and user hasn't explicitly activated admin preview mode, show paused maintenance view
+  if (isSupportHidden && !(isAdmin && adminPreview)) {
     return (
       <div className="min-h-screen flex flex-col bg-background">
         <SiteHeader />
-        <main className="flex-1 container max-w-xl mx-auto px-4 py-24 text-center flex flex-col items-center justify-center">
-          <div className="h-16 w-16 rounded-2xl bg-primary/10 border border-primary/20 text-primary flex items-center justify-center mb-6 shadow-sm">
-            <Heart className="h-8 w-8 text-rose-500" />
+        <main className="flex-1 container max-w-xl mx-auto px-4 py-20 text-center flex flex-col items-center justify-center">
+          <div className="h-16 w-16 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-500 flex items-center justify-center mb-5 shadow-sm">
+            <Heart className="h-8 w-8 text-rose-500 fill-rose-500/20" />
           </div>
+          <Badge
+            variant="outline"
+            className="mb-3 px-3 py-1 text-xs border-amber-500/40 text-amber-600 bg-amber-500/10 font-semibold"
+          >
+            Campaign Paused
+          </Badge>
           <h1 className="text-2xl sm:text-3xl font-bold font-display">Sponsorship Program Paused</h1>
           <p className="text-sm text-muted-foreground mt-3 max-w-md leading-relaxed">
             Our community sponsorship and contribution portal is currently paused for campaign updates. If you would like to partner with us or sponsor educational initiatives, please reach out to our team.
           </p>
+
+          {/* Admin Control Banner on the Paused Screen */}
+          {isAdmin && (
+            <div className="mt-6 p-4 rounded-xl border border-amber-500/40 bg-amber-500/10 text-left w-full space-y-2.5 shadow-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-amber-700 dark:text-amber-300 flex items-center gap-1.5">
+                  <ShieldCheck className="h-4 w-4 text-amber-600" /> Admin Notice: Page Status is Hidden
+                </span>
+                <Badge variant="outline" className="text-[10px] border-amber-500/40 text-amber-600 bg-amber-500/15">
+                  Hidden / Paused
+                </Badge>
+              </div>
+              <p className="text-[11px] text-muted-foreground leading-relaxed">
+                Public visitors see only this maintenance notice. Header navigation and footer links are hidden. As an admin, you can preview the active donation form.
+              </p>
+              <div className="pt-1 flex flex-wrap items-center gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-8 text-xs border-amber-500/40 hover:bg-amber-500/15 bg-background font-semibold"
+                  onClick={() => setAdminPreview(true)}
+                >
+                  <Eye className="h-3.5 w-3.5 mr-1.5 text-amber-600" />
+                  Preview Active Donation Form
+                </Button>
+                <Button asChild size="sm" variant="ghost" className="h-8 text-xs">
+                  <Link to="/admin/content" search={{ tab: "support-us" }}>
+                    Configure in Admin &rarr;
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          )}
+
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <Button asChild variant="outline">
               <Link to="/">Back to Home</Link>
@@ -299,15 +341,30 @@ function SupportUsPage() {
 
       {/* Admin preview banner if hidden */}
       {isSupportHidden && isAdmin && (
-        <div className="bg-amber-500/15 border-b border-amber-500/30 text-amber-900 dark:text-amber-200 px-4 py-2.5 text-xs font-medium text-center flex items-center justify-center gap-2">
-          <AlertTriangle className="h-4 w-4 shrink-0 text-amber-600" />
-          <span>
-            <strong>Admin Preview Mode:</strong> Support Us / Sponsor is currently <strong>HIDDEN</strong> from public visitors. Unhide it in{" "}
-            <Link to="/admin/content" search={{ tab: "support-us" }} className="underline font-bold hover:opacity-80">
-              Content Manager &rarr; Support Us / Sponsor
+        <div className="bg-amber-500/15 border-b border-amber-500/30 text-amber-900 dark:text-amber-200 px-4 py-2.5 text-xs font-medium text-center flex flex-wrap items-center justify-center gap-3">
+          <div className="flex items-center gap-1.5">
+            <AlertTriangle className="h-4 w-4 shrink-0 text-amber-600" />
+            <span>
+              <strong>Admin Preview Mode:</strong> Support Us is currently <strong>HIDDEN / PAUSED</strong> from public visitors.
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-6 text-[11px] px-2.5 bg-background border-amber-500/40 font-semibold"
+              onClick={() => setAdminPreview(false)}
+            >
+              Exit Preview &amp; View Paused Screen
+            </Button>
+            <Link
+              to="/admin/content"
+              search={{ tab: "support-us" }}
+              className="underline font-bold text-[11px] hover:opacity-80"
+            >
+              Configure in Admin &rarr;
             </Link>
-            .
-          </span>
+          </div>
         </div>
       )}
 

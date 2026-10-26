@@ -16,6 +16,7 @@ import { PricingComparisonTable } from "@/components/interactive/PricingComparis
 import { SavingsCalculator } from "@/components/interactive/SavingsCalculator";
 import { InteractiveSalaryHikeCalculator } from "@/components/pricing/InteractiveSalaryHikeCalculator";
 import { usePublicSection } from "@/hooks/use-wcms-public";
+import { useSiteSettings } from "@/hooks/use-site-settings";
 import {
   Check,
   Loader2,
@@ -503,6 +504,7 @@ function PricingPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [selectedTestimonial, setSelectedTestimonial] = useState<any>(null);
   const [origin, setOrigin] = useState("https://learnifyai.in");
+  const { data: siteSettings } = useSiteSettings();
   const { data: platformStats } = useQuery({
     queryKey: ["platform-stats"],
     queryFn: () => getPlatformStats(),
@@ -1269,30 +1271,32 @@ function PricingPage() {
         </section>
 
         {/* ========== SPONSOR A CAREER INITIATIVE BANNER ========== */}
-        <section className="py-8">
-          <div className="container mx-auto px-6 max-w-4xl">
-            <div className="rounded-2xl border border-primary/30 bg-gradient-to-r from-primary/10 via-indigo-500/5 to-primary/10 p-6 md:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-sm">
-              <div className="space-y-2 text-center sm:text-left">
-                <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary uppercase tracking-wider">
-                  <Heart className="h-3.5 w-3.5 fill-red-500 text-red-500 animate-pulse" />
-                  Sponsor a Career Initiative
+        {siteSettings?.support_us_enabled !== "false" && (
+          <section className="py-8">
+            <div className="container mx-auto px-6 max-w-4xl">
+              <div className="rounded-2xl border border-primary/30 bg-gradient-to-r from-primary/10 via-indigo-500/5 to-primary/10 p-6 md:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-sm">
+                <div className="space-y-2 text-center sm:text-left">
+                  <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary uppercase tracking-wider">
+                    <Heart className="h-3.5 w-3.5 fill-red-500 text-red-500 animate-pulse" />
+                    Sponsor a Career Initiative
+                  </div>
+                  <h3 className="text-xl md:text-2xl font-bold tracking-tight text-foreground font-display">
+                    Help Us Build a Free Career-Learning Ecosystem
+                  </h3>
+                  <p className="text-xs md:text-sm text-muted-foreground max-w-xl">
+                    Support ambitious students facing financial barriers, with a special focus on care leavers. 
+                    Sponsor free courses, mentorship, and career resources.
+                  </p>
                 </div>
-                <h3 className="text-xl md:text-2xl font-bold tracking-tight text-foreground font-display">
-                  Help Us Build a Free Career-Learning Ecosystem
-                </h3>
-                <p className="text-xs md:text-sm text-muted-foreground max-w-xl">
-                  Support ambitious students facing financial barriers, with a special focus on care leavers. 
-                  Sponsor free courses, mentorship, and career resources.
-                </p>
+                <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold shrink-0 shadow-md">
+                  <Link to="/support-us">
+                    Support Us &rarr;
+                  </Link>
+                </Button>
               </div>
-              <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold shrink-0 shadow-md">
-                <Link to="/support-us">
-                  Support Us &rarr;
-                </Link>
-              </Button>
             </div>
-          </div>
-        </section>
+          </section>
+        )}
 
         {/* ========== TESTIMONIALS (Marquee) ========== */}
         <section className="py-16 md:py-20 overflow-hidden">

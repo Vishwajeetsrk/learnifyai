@@ -89,10 +89,24 @@ export function SiteFooter() {
     : APPROVED_SECTIONS;
 
   const sections: FooterSection[] = useMemo(() => {
+    const isSupportHidden = s?.support_us_enabled === "false";
     return rawSections.map((sec) => ({
       ...sec,
       links: (sec.links || []).filter((link) => {
-        if (link.url === "/support-us" && s?.support_us_enabled === "false") return false;
+        const url = (link.url || "").toLowerCase().trim();
+        const label = (link.label || "").toLowerCase().trim();
+
+        if (
+          isSupportHidden &&
+          (url === "/support-us" ||
+            url === "/sponsor" ||
+            url.includes("support-us") ||
+            label.includes("support us") ||
+            label === "sponsor")
+        ) {
+          return false;
+        }
+
         if (link.url === "/legal" && s?.legal_center_enabled === "false") return false;
         return true;
       }),
