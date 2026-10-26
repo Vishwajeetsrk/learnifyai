@@ -476,6 +476,42 @@
     ]
   },
   {
+    "id": "macos-desktop-original",
+    "name": "macOS Big Sur OS",
+    "title": "Complete macOS Interactive Operating System (70+ Icons)",
+    "description": "Full interactive macOS Big Sur desktop featuring authentic multi-window architecture, Finder with real project files, active terminal, dark mode wallpapers, and sound effects.",
+    "path": "/preset-sites/macos-desktop-original/index.html",
+    "price": 99,
+    "course_modules": [
+      {
+        "step": 1,
+        "title": "Multi-Window Desktop OS Architecture",
+        "text": "Build the full React window management system supporting z-index layering, minimize, maximize, and smooth drag mechanics.",
+        "voice_script": "Welcome to the macOS OS architecture course. In step one, we construct the multi-window desktop coordinate matrix.",
+        "code_snippet": "const bringToFront = (id) => setWindows(prev => prev.map(w => w.id === id ? { ...w, zIndex: Math.max(...prev.map(x => x.zIndex)) + 1 } : w));",
+        "quiz": {
+          "question": "How does macOS manage active window focus layering in DOM?",
+          "options": [
+            "By incrementing the active window's zIndex above all sibling windows",
+            "By reloading the entire page",
+            "By destroying all other windows",
+            "By converting the window to SVG"
+          ],
+          "correct": 0,
+          "explanation": "Dynamic zIndex stacking simulates true desktop OS window hierarchies seamlessly."
+        }
+      }
+    ],
+    "architecture_nodes": [
+      {
+        "id": "macos-root",
+        "label": "<div className='macos-desktop wallpaper-bigsur'>",
+        "type": "container",
+        "children": []
+      }
+    ]
+  },
+  {
     "id": "asme",
     "name": "Asme",
     "title": "Asme — Built for the curious",

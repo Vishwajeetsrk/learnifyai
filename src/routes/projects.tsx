@@ -1003,9 +1003,15 @@ function ProjectsPage() {
               <div className="h-16 bg-card border-b border-border flex items-center justify-between px-3 sm:px-5 shrink-0 gap-2">
                 <div className="flex items-center gap-2.5 min-w-0">
                   <button
-                    onClick={() => setSelectedProject(null)}
+                    onClick={() => {
+                      if (modalTab !== "preview") {
+                        setModalTab("preview");
+                      } else {
+                        setSelectedProject(null);
+                      }
+                    }}
                     className="p-1.5 text-muted-foreground hover:text-foreground rounded-lg hover:bg-accent transition-colors shrink-0"
-                    title="Close"
+                    title={modalTab !== "preview" ? "Back to Preview" : "Close"}
                   >
                     <ArrowLeft className="h-4 w-4" />
                   </button>
@@ -1022,61 +1028,6 @@ function ProjectsPage() {
                       {selectedProject.title}
                     </p>
                   </div>
-                </div>
-
-                {/* Interactive Navigation Tabs: Preview, Code, Mode, Shop */}
-                <div className="flex items-center gap-1 bg-muted/80 p-1 rounded-xl border border-border shrink-0">
-                  <button
-                    onClick={() => setModalTab("preview")}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
-                      modalTab === "preview"
-                        ? "bg-primary text-primary-foreground shadow-sm"
-                        : "text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    <Eye className="h-3.5 w-3.5" />
-                    <span>Preview</span>
-                  </button>
-
-                  <button
-                    onClick={() => setModalTab("code")}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
-                      modalTab === "code"
-                        ? "bg-primary text-primary-foreground shadow-sm"
-                        : "text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    <Code2 className="h-3.5 w-3.5" />
-                    <span>Code</span>
-                  </button>
-
-                  <button
-                    onClick={toggleTemplateMode}
-                    title="Toggle Preview Light/Dark Mode"
-                    className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-all cursor-pointer"
-                  >
-                    {templateMode === "dark" ? (
-                      <Moon className="h-3.5 w-3.5 text-indigo-400" />
-                    ) : (
-                      <Sun className="h-3.5 w-3.5 text-amber-400" />
-                    )}
-                    <span className="hidden sm:inline capitalize">{templateMode}</span>
-                  </button>
-
-                  <button
-                    onClick={() => setModalTab("shop")}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
-                      modalTab === "shop"
-                        ? "bg-primary text-primary-foreground shadow-sm"
-                        : "text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    <ShoppingBag className="h-3.5 w-3.5 text-emerald-400" />
-                    <span>Shop</span>
-                    <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-emerald-500/20 text-emerald-300">
-                      ₹{selectedProject.price || 99}
-                    </span>
-                  </button>
                 </div>
 
                 {/* Right controls: Viewport toggles + Pop Top full preview + Action buttons */}

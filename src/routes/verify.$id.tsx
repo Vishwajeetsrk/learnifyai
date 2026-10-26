@@ -48,8 +48,12 @@ import {
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { downloadElementAsPdf, downloadElementAsImage } from "@/lib/certificate-pdf";
-import { EngravedCertificateTemplate } from "@/components/certificate/EngravedCertificateTemplate";
 import { DEFAULT_DESIGN, type CertDesign } from "@/components/CertificateDesign";
+import {
+  EngravedCertificateTemplate,
+  type CertificateThemeKey,
+  type CertificateSealType,
+} from "@/components/certificate/EngravedCertificateTemplate";
 import { BadgeRow } from "@/components/ui/AwardBadge";
 
 export const Route = createFileRoute("/verify/$id")({
@@ -307,6 +311,8 @@ function CertificateVerificationPage() {
       ? { ...DEFAULT_DESIGN, ...cert.design_snapshot }
       : { ...DEFAULT_DESIGN };
 
+  const codeUpper = (cert?.code || id || "").toUpperCase();
+
   // ─── Loading ───────────────────────────────────────────────────────────────
   if (isLoading) {
     return (
@@ -433,7 +439,7 @@ function CertificateVerificationPage() {
               {/* Learnify logo */}
               <div className="h-10 w-10 rounded-xl bg-white/10 backdrop-blur-sm flex items-center justify-center flex-shrink-0">
                 <img
-                  src="https://www.learnifyai.in/assets/learnify-logo-Dbtnnfk3.png"
+                  src="/assets/learnify-logo.png"
                   alt="Learnify AI"
                   className="h-7 w-7 object-contain"
                   onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
@@ -497,13 +503,29 @@ function CertificateVerificationPage() {
               />
               <EngravedCertificateTemplate
                 ref={certRef}
+                initialTheme={
+                  codeUpper.includes("CERT-PL") || codeUpper.includes("PLATINUM")
+                    ? "platinum"
+                    : codeUpper.includes("CERT-ML") || codeUpper.includes("LEARNIFY") || codeUpper.includes("NAVY")
+                    ? "learnify"
+                    : codeUpper.includes("CERT-AI") || codeUpper.includes("OBSIDIAN") || codeUpper.includes("PURPLE")
+                    ? "obsidian"
+                    : codeUpper.includes("CERT-EM") || codeUpper.includes("EMERALD")
+                    ? "emerald"
+                    : "parchment"
+                }
+                initialSealType={
+                  codeUpper.includes("CERT-PL") || codeUpper.includes("CERT-ML")
+                    ? "crypto_attested"
+                    : "gold_foil"
+                }
                 initialRecipientName={cert.recipient_name}
                 initialCourseTitle={cert.course_title}
                 initialIssueDate={issueDate}
                 initialCredentialId={cert.code}
                 initialSignatoryName={design.signatory_name || "Vishwajeet"}
                 initialSignatoryTitle={design.signatory_title || "Founder & CEO, Learnify AI"}
-                logoUrl="/logo.png"
+                logoUrl="/assets/learnify-logo.png"
                 qrDataUrl={qrDataUrl}
                 onDownloadPdf={handleDownloadPdf}
                 onDownloadImage={handleDownloadImage}

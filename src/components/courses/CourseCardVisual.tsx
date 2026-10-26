@@ -22,9 +22,28 @@ interface CourseCardVisualProps {
  * Add new entries here as more covers are generated.
  */
 const LOCAL_COVERS: Record<string, string> = {
+  // Generated high-definition photo covers
+  "chatgpt-claude-ai": "/course-covers/chatgpt-claude-ai.jpg",
   "chatgpt-claude-ai-productivity": "/course-covers/chatgpt-claude-ai.jpg",
   "java-fundamentals": "/course-covers/java-fundamentals.jpg",
   "designing-user-interfaces-and-experiences": "/course-covers/designing-user-interfaces-and-experiences.jpg",
+
+  // Vector brand illustration covers
+  "excel-sheets-mastery": "/course-covers/excel-sheets-mastery.svg",
+  "excel-and-sheets-mastery": "/course-covers/excel-sheets-mastery.svg",
+  "figma-ui-bootcamp": "/course-covers/figma-ui-bootcamp.svg",
+  "google-workspace-pro": "/course-covers/google-workspace-pro.svg",
+  "html-css-essentials": "/course-covers/html-css-essentials.svg",
+  "javascript-zero-to-pro": "/course-covers/javascript-zero-to-pro.svg",
+  "javascript-essentials": "/course-covers/javascript-zero-to-pro.svg",
+  "power-bi-visuals": "/course-covers/power-bi-visuals.svg",
+  "power-bi-and-data-analytics": "/course-covers/power-bi-visuals.svg",
+  "python-for-everyone": "/course-covers/python-for-everyone.svg",
+  "python-for-beginners": "/course-covers/python-for-everyone.svg",
+  "vs-code-git-essentials": "/course-covers/vs-code-git-essentials.svg",
+  "vs-code-and-git-mastery": "/course-covers/vs-code-git-essentials.svg",
+  "word-powerpoint-pro": "/course-covers/word-powerpoint-pro.svg",
+  "word-and-powerpoint-pro": "/course-covers/word-powerpoint-pro.svg",
 };
 
 /**
@@ -203,9 +222,8 @@ export function CourseCardVisual({
   // Local generated covers take priority — slug-based lookup
   const localCover = course.slug ? LOCAL_COVERS[course.slug] ?? null : null;
 
-  // Effective cover: prefer local generated JPG, then fall back to DB cover_url
-  // SVG-only paths without extension = placeholder, skip them
-  const effectiveCover = localCover ?? (cleanCover?.endsWith(".svg") ? null : cleanCover);
+  // Effective cover: prefer local generated cover, then fall back to DB cover_url
+  const effectiveCover = localCover ?? cleanCover;
 
   // Render actual image if we have a valid raster or SVG file reference
   const hasValidCustomCover = Boolean(effectiveCover);

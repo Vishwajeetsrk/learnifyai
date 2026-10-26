@@ -90,11 +90,11 @@ export function SiteFooter() {
   const hasWcmsFooter = footerItems.length > 0;
   const wcmsSections: FooterSection[] = hasWcmsFooter
     ? footerItems
-        .filter((i: any) => !i.parent_id)
-        .map((section: any) => ({
-          title: section.label,
-          links: footerItems.filter((i: any) => i.parent_id === section.id),
-        }))
+      .filter((i: any) => !i.parent_id)
+      .map((section: any) => ({
+        title: section.label,
+        links: footerItems.filter((i: any) => i.parent_id === section.id),
+      }))
     : [];
 
   const rawSections: FooterSection[] =
@@ -137,10 +137,14 @@ export function SiteFooter() {
       {/* ─── Main Footer Content ─── */}
       <div className="container relative z-10 mx-auto px-6 pt-16 pb-24 md:pt-20 md:pb-32">
         <div className="grid gap-12 md:grid-cols-12 items-start">
-          {/* Brand & Creator Identity (Left Column - Matches Reference Video) */}
+          {/* Brand & Creator Identity */}
           <div className="space-y-6 md:col-span-4 lg:col-span-4">
-            <Link to="/" className="inline-flex items-center" aria-label="Learnify AI">
-              <Logo height="h-9" textClassName="text-white font-bold" />
+            <Link to="/" className="inline-flex items-center hover:opacity-95 transition-opacity" aria-label="Learnify AI">
+              <img
+                src="/assets/learnify-logo.png"
+                alt="Learnify AI"
+                className="h-11 w-auto object-contain drop-shadow-md"
+              />
             </Link>
             <p className="text-sm text-slate-400 max-w-sm leading-relaxed">
               Learn smarter. Grow faster. The AI-native learning &amp; career operating system for developers, AI engineers, and modern creators.
@@ -344,7 +348,11 @@ export function SiteFooter() {
         <div className="border-t border-white/10 mt-16 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
           <div className="flex items-center gap-3">
             <Link to="/" className="inline-flex items-center gap-2 hover:opacity-90 transition-opacity" aria-label="Learnify AI">
-              <Logo height="h-6" textClassName="text-slate-200 font-bold text-sm" />
+              <img
+                src="/assets/learnify-logo.png"
+                alt="Learnify AI"
+                className="h-6 w-auto object-contain"
+              />
             </Link>
             <span className="text-slate-700 hidden sm:inline">|</span>
             <p className="font-mono text-[11px] text-slate-400">

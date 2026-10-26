@@ -57,6 +57,9 @@ export interface EngravedCertificateTemplateProps {
   initialHonorsDistinction?: string;
   initialSecondSignatoryName?: string;
   initialSecondSignatoryTitle?: string;
+  initialTheme?: CertificateThemeKey;
+  initialSealType?: CertificateSealType;
+  initialBorderType?: CertificateBorderType;
   logoUrl?: string;
   qrDataUrl?: string;
   isDemo?: boolean;
@@ -162,7 +165,10 @@ export const EngravedCertificateTemplate = React.forwardRef<
     initialHonorsDistinction = "Honors with Distinction • Top 1% Percentile",
     initialSecondSignatoryName = "Dr. Michael Chen",
     initialSecondSignatoryTitle = "Academic Dean, Learnify Council",
-    logoUrl = "/Logo Learnify AI.png",
+    initialTheme = "parchment",
+    initialSealType = "gold_foil",
+    initialBorderType = "banknote",
+    logoUrl = "/assets/learnify-logo.png",
     qrDataUrl,
     isDemo = true,
     watermarkText = "DEMO SPECIMEN • NOT A VALID CREDENTIAL • COMPLETE COURSE TO UNLOCK",
@@ -218,9 +224,9 @@ export const EngravedCertificateTemplate = React.forwardRef<
   }, [qrDataUrl, credentialId]);
 
   // Styling & Theme State
-  const [activeTheme, setActiveTheme] = useState<CertificateThemeKey>("parchment");
-  const [sealType, setSealType] = useState<CertificateSealType>("gold_foil");
-  const [borderType, setBorderType] = useState<CertificateBorderType>("banknote");
+  const [activeTheme, setActiveTheme] = useState<CertificateThemeKey>(initialTheme);
+  const [sealType, setSealType] = useState<CertificateSealType>(initialSealType);
+  const [borderType, setBorderType] = useState<CertificateBorderType>(initialBorderType);
   const [rosetteIntensity, setRosetteIntensity] = useState<number>(0.55);
   const [isEditing, setIsEditing] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -235,6 +241,9 @@ export const EngravedCertificateTemplate = React.forwardRef<
     if (initialSignatoryName) setSignatoryName(initialSignatoryName);
     if (initialSignatoryTitle) setSignatoryTitle(initialSignatoryTitle);
     if (initialHonorsDistinction) setHonorsDistinction(initialHonorsDistinction);
+    if (initialTheme) setActiveTheme(initialTheme);
+    if (initialSealType) setSealType(initialSealType);
+    if (initialBorderType) setBorderType(initialBorderType);
   }, [
     initialRecipientName,
     initialCourseTitle,
@@ -243,6 +252,9 @@ export const EngravedCertificateTemplate = React.forwardRef<
     initialSignatoryName,
     initialSignatoryTitle,
     initialHonorsDistinction,
+    initialTheme,
+    initialSealType,
+    initialBorderType,
   ]);
 
   const currentTheme = THEMES[activeTheme] || THEMES.parchment;

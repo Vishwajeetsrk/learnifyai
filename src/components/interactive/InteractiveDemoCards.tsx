@@ -51,82 +51,174 @@ type DemoCard = {
   preview: React.ReactNode;
 };
 
+const CERTIFICATE_EDITIONS = [
+  {
+    id: "CERT-PA-2026",
+    label: "Parchment",
+    title: "Royal Parchment & Gold",
+    bg: "bg-gradient-to-br from-[#FDFBF7] via-[#F8F3E6] to-[#EDE3D0]",
+    borderOuter: "border-[#C5A059]",
+    borderInner: "border-[#C5A059]/40",
+    textPrimary: "text-[#451A03]",
+    textSecondary: "text-[#78350F]",
+    accentGold: "text-[#B4832C]",
+    tagBg: "bg-[#B4832C]/15 border-[#B4832C]/30 text-[#92400E]",
+    isLight: true,
+  },
+  {
+    id: "CERT-PL-2026",
+    label: "Platinum",
+    title: "Executive Platinum & Diamond",
+    bg: "bg-gradient-to-br from-[#FFFFFF] via-[#F8FAFC] to-[#E2E8F0]",
+    borderOuter: "border-[#94A3B8]",
+    borderInner: "border-[#94A3B8]/40",
+    textPrimary: "text-[#0F172A]",
+    textSecondary: "text-[#475569]",
+    accentGold: "text-[#0284C7]",
+    tagBg: "bg-[#0284C7]/15 border-[#0284C7]/30 text-[#0369A1]",
+    isLight: true,
+  },
+  {
+    id: "CERT-ML-2026",
+    label: "Classic",
+    title: "Blue & Gold Classic",
+    bg: "bg-gradient-to-br from-[#070D1E] via-[#0D1836] to-[#060B18]",
+    borderOuter: "border-[#D4AF37]",
+    borderInner: "border-[#D4AF37]/35",
+    textPrimary: "text-white",
+    textSecondary: "text-white/70",
+    accentGold: "text-[#F59E0B]",
+    tagBg: "bg-[#F59E0B]/15 border-[#F59E0B]/30 text-amber-300",
+    isLight: false,
+  },
+  {
+    id: "CERT-AI-2026",
+    label: "Prestige",
+    title: "Purple & Gold Prestige",
+    bg: "bg-gradient-to-br from-[#19092B] via-[#260E42] to-[#140624]",
+    borderOuter: "border-[#EAB308]",
+    borderInner: "border-[#EAB308]/35",
+    textPrimary: "text-white",
+    textSecondary: "text-white/70",
+    accentGold: "text-[#C084FC]",
+    tagBg: "bg-[#A855F7]/15 border-[#A855F7]/30 text-purple-300",
+    isLight: false,
+  },
+  {
+    id: "CERT-EM-2026",
+    label: "Emerald",
+    title: "Emerald & Gold Elite",
+    bg: "bg-gradient-to-br from-[#041A12] via-[#0A2E20] to-[#02130D]",
+    borderOuter: "border-[#10B981]",
+    borderInner: "border-[#10B981]/35",
+    textPrimary: "text-white",
+    textSecondary: "text-white/70",
+    accentGold: "text-[#34D399]",
+    tagBg: "bg-[#10B981]/15 border-[#10B981]/30 text-emerald-300",
+    isLight: false,
+  },
+];
+
 function CertificateCardThumbnail() {
+  const [activeIdx, setActiveIdx] = useState(2); // Blue & Gold default
   const [qrUrl, setQrUrl] = useState<string | null>(null);
+  const edition = CERTIFICATE_EDITIONS[activeIdx];
 
   useEffect(() => {
     import("qrcode")
       .then((mod) => {
         const QRCode = (mod as any).default || mod;
-        QRCode.toDataURL("https://www.learnifyai.in/verify/CERT-ML-2026", {
+        QRCode.toDataURL(`https://www.learnifyai.in/verify/${edition.id}`, {
           margin: 1,
           width: 90,
-          color: { dark: "#0A1128", light: "#ffffff" },
+          color: { dark: edition.isLight ? "#1e293b" : "#0A1128", light: "#ffffff" },
         }).then((data: string) => setQrUrl(data));
       })
       .catch(() => {});
-  }, []);
+  }, [edition.id, edition.isLight]);
 
   return (
-    <div className="relative w-full h-full min-h-[160px] bg-[#0A1128] text-white p-3 overflow-hidden select-none flex flex-col justify-between border border-amber-500/30">
-      {/* Background radial gradient */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-950/20 via-[#0A1128] to-[#050914] pointer-events-none" />
-
-      {/* Ornate Gold border */}
-      <div className="absolute inset-1.5 rounded border border-amber-400/40 pointer-events-none" />
-      <div className="absolute inset-2 rounded border border-dashed border-amber-400/25 pointer-events-none" />
-
-      {/* Watermark Overlay */}
-      <div className="absolute inset-0 z-20 pointer-events-none flex items-center justify-center">
-        <div className="rotate-[-22deg] select-none text-center transform scale-90 sm:scale-95">
-          <div className="text-[8.5px] font-black tracking-widest text-red-400/50 uppercase border-y border-dashed border-red-400/50 py-0.5 px-2.5 bg-red-950/40 backdrop-blur-[0.5px]">
-            DEMO SPECIMEN • NOT VALID UNTIL COMPLETION
-          </div>
-          <div className="text-[6.5px] font-bold tracking-wider text-amber-300/40 uppercase mt-0.5">
-            COPYRIGHT © LEARNIFY AI 2026
-          </div>
-        </div>
+    <div className="flex flex-col gap-1.5 w-full">
+      {/* 5 Editions Quick Selector */}
+      <div className="flex items-center justify-between gap-1 p-1 rounded-lg bg-black/40 border border-white/10 overflow-x-auto select-none">
+        {CERTIFICATE_EDITIONS.map((ed, idx) => (
+          <button
+            key={ed.id}
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setActiveIdx(idx);
+            }}
+            className={`text-[9px] font-bold px-2 py-0.5 rounded transition-all whitespace-nowrap cursor-pointer ${
+              activeIdx === idx
+                ? "bg-primary text-primary-foreground shadow-xs"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {ed.label}
+          </button>
+        ))}
       </div>
 
-      {/* Header */}
-      <div className="relative z-10 text-center pt-0.5">
-        <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-amber-400/10 border border-amber-400/20 text-[7px] font-bold text-amber-300">
-          <Award className="w-2 h-2 text-amber-400" />
-          <span>LEARNIFY AI VERIFIED CREDENTIAL</span>
-        </div>
-        <div className="text-[8.5px] font-serif font-bold text-amber-300 uppercase tracking-widest mt-0.5">
-          Certificate of Completion
-        </div>
-      </div>
+      <div
+        className={`relative w-full min-h-[175px] ${edition.bg} ${edition.textPrimary} p-3 rounded-xl overflow-hidden select-none flex flex-col justify-between border ${edition.borderOuter} transition-all duration-300 shadow-md`}
+      >
+        {/* Ornate border frame */}
+        <div className={`absolute inset-1.5 rounded border ${edition.borderOuter}/40 pointer-events-none`} />
+        <div className={`absolute inset-2.5 rounded border border-dashed ${edition.borderInner} pointer-events-none`} />
 
-      {/* Body */}
-      <div className="relative z-10 text-center my-auto py-0.5">
-        <p className="text-[7px] text-white/60 uppercase tracking-wider">Awarded to</p>
-        <p className="text-[11px] font-serif font-bold text-white tracking-wide">Demo Learner</p>
-        <p className="text-[8px] font-semibold text-amber-300 truncate px-2">
-          Machine Learning Fundamentals
-        </p>
-      </div>
-
-      {/* Footer */}
-      <div className="relative z-10 flex items-end justify-between border-t border-white/10 pt-1 text-[7px]">
-        <div className="space-y-0.5 text-left text-white/70">
-          <div className="text-[6.5px] font-mono text-amber-300">ID: CERT-ML-2026</div>
-          <div className="text-[6.5px] text-emerald-400 flex items-center gap-0.5">
-            <Check className="w-2 h-2 stroke-[3]" /> Verified QR
+        {/* Watermark Overlay */}
+        <div className="absolute inset-0 z-20 pointer-events-none flex items-center justify-center opacity-70">
+          <div className="rotate-[-22deg] select-none text-center transform scale-90 sm:scale-95">
+            <div className="text-[8px] font-black tracking-widest text-red-500/40 uppercase border-y border-dashed border-red-500/40 py-0.5 px-2.5 bg-red-950/20 backdrop-blur-[0.5px]">
+              DEMO SPECIMEN &bull; NOT VALID UNTIL COMPLETION
+            </div>
+            <div className={`text-[6.5px] font-bold tracking-wider ${edition.accentGold} uppercase mt-0.5`}>
+              COPYRIGHT &copy; LEARNIFY AI 2026
+            </div>
           </div>
         </div>
 
-        {/* QR Code thumbnail */}
-        <div className="flex flex-col items-center">
-          <div className="w-7 h-7 rounded bg-white p-0.5 shadow-sm border border-white/40 flex items-center justify-center overflow-hidden">
-            {qrUrl ? (
-              <img src={qrUrl} alt="Verify QR" className="w-full h-full object-contain" />
-            ) : (
-              <div className="w-full h-full bg-slate-900 rounded-[1px]" />
-            )}
+        {/* Header */}
+        <div className="relative z-10 text-center pt-0.5">
+          <div className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[7.5px] font-bold ${edition.tagBg}`}>
+            <Award className="w-2.5 h-2.5" />
+            <span>LEARNIFY AI VERIFIED CREDENTIAL</span>
           </div>
-          <span className="text-[5.5px] text-white/50 mt-0.5">Scan to verify</span>
+          <div className={`text-[9px] font-serif font-bold uppercase tracking-widest mt-0.5 ${edition.accentGold}`}>
+            Certificate of Completion
+          </div>
+        </div>
+
+        {/* Body */}
+        <div className="relative z-10 text-center my-auto py-1">
+          <p className={`text-[7px] uppercase tracking-wider ${edition.textSecondary}`}>Conferred upon</p>
+          <p className="text-[12px] font-serif font-black tracking-wide">Demo Learner</p>
+          <p className={`text-[8.5px] font-semibold truncate px-2 ${edition.accentGold}`}>
+            {edition.title}
+          </p>
+        </div>
+
+        {/* Footer */}
+        <div className="relative z-10 flex items-end justify-between border-t border-black/10 dark:border-white/10 pt-1.5 text-[7px]">
+          <div className={`space-y-0.5 text-left ${edition.textSecondary}`}>
+            <div className="text-[7px] font-mono font-bold">{edition.id}</div>
+            <div className="text-[6.5px] text-emerald-500 font-semibold flex items-center gap-0.5">
+              <Check className="w-2 h-2 stroke-[3]" /> Guilloche Rosette Verified
+            </div>
+          </div>
+
+          {/* QR Code thumbnail */}
+          <div className="flex flex-col items-center">
+            <div className="w-8 h-8 rounded bg-white p-0.5 shadow-sm border border-black/10 flex items-center justify-center overflow-hidden">
+              {qrUrl ? (
+                <img src={qrUrl} alt="Verify QR" className="w-full h-full object-contain" />
+              ) : (
+                <div className="w-full h-full bg-slate-900 rounded-[1px]" />
+              )}
+            </div>
+            <span className={`text-[6px] ${edition.textSecondary} mt-0.5`}>Scan to verify</span>
+          </div>
         </div>
       </div>
     </div>
