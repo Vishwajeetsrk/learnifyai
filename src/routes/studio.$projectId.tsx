@@ -36,6 +36,11 @@ import {
   Trash2,
   Check,
   Zap,
+  Copy,
+  CheckCheck,
+  Lightbulb,
+  Layers,
+  FileCode,
 } from "lucide-react";
 import Editor from "@monaco-editor/react";
 import confetti from "canvas-confetti";
@@ -551,6 +556,9 @@ function StudioClassroomPage() {
     }
   };
 
+  const [speechRate, setSpeechRate] = useState<number>(1.0);
+  const [copiedSnippet, setCopiedSnippet] = useState(false);
+
   const toggleVoice = () => {
     if (!synthRef.current) return;
     if (isPlayingVoice) {
@@ -560,12 +568,43 @@ function StudioClassroomPage() {
       const script = modules[activeStep]?.voice_script;
       if (script) {
         const utterance = new SpeechSynthesisUtterance(script);
-        utterance.rate = 0.95;
+        utterance.rate = speechRate;
         utterance.pitch = 1;
         utterance.onend = () => setIsPlayingVoice(false);
+        utterance.onerror = () => setIsPlayingVoice(false);
         synthRef.current.speak(utterance);
         setIsPlayingVoice(true);
       }
+    }
+  };
+
+  const cycleSpeechRate = () => {
+    const nextRate = speechRate === 0.8 ? 1.0 : speechRate === 1.0 ? 1.25 : 0.8;
+    setSpeechRate(nextRate);
+    toast.info(`Voice Narration Speed: ${nextRate}x`);
+    if (isPlayingVoice && synthRef.current) {
+      synthRef.current.cancel();
+      setIsPlayingVoice(false);
+    }
+  };
+
+  const handleCopySnippet = () => {
+    if (!editorCode) return;
+    navigator.clipboard.writeText(editorCode).then(() => {
+      setCopiedSnippet(true);
+      toast.success("Code snippet copied!");
+      setTimeout(() => setCopiedSnippet(false), 2000);
+    });
+  };
+
+  const handleFormatCode = () => {
+    try {
+      const lines = editorCode.split("\n");
+      const cleaned = lines.map((l) => l.trimEnd()).join("\n");
+      setEditorCode(cleaned);
+      toast.success("Code formatting cleaned!");
+    } catch {
+      toast.info("Formatting preserved");
     }
   };
 
@@ -738,22 +777,59 @@ function StudioClassroomPage() {
 
           {sidebarMode === "curriculum" ? (
             <>
-              {/* Progress Bar */}
-              <div className="px-5 py-3 border-b border-border/60">
-                <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground mb-1.5">
-                  <span>Lesson Progress</span>
-                  <span className="text-foreground">
+              {/* Progress Bar & Interactive Timeline Markers */}
+              <div className="px-5 py-3 border-b border-border/60 space-y-2.5">
+                <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground">
+                  <span className="flex items-center gap-1.5">
+                    <Layers className="h-3.5 w-3.5 text-primary" />
+                    <span>Curriculum Milestones</span>
+                  </span>
+                  <span className="text-foreground font-mono">
                     {Math.round(((activeStep + 1) / Math.max(1, modules.length)) * 100)}%
                   </span>
                 </div>
-                <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+
+                {/* Progress bar */}
+                <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
                   <motion.div
-                    className="h-full bg-gradient-to-r from-primary to-primary/70"
+                    className="h-full bg-gradient-to-r from-primary via-indigo-500 to-accent"
                     initial={{ width: 0 }}
                     animate={{
                       width: `${((activeStep + 1) / Math.max(1, modules.length)) * 100}%`,
                     }}
                   />
+                </div>
+
+                {/* Step Milestone Markers (Interactive Practice Markers) */}
+                <div className="flex items-center gap-1.5 overflow-x-auto py-1 scrollbar-none">
+                  {modules.map((m: any, idx: number) => {
+                    const isDone = completedSteps.includes(idx);
+                    const isCurrent = activeStep === idx;
+                    return (
+                      <button
+                        key={idx}
+                        onClick={() => setActiveStep(idx)}
+                        title={`Step ${idx + 1}: ${m.title}`}
+                        className={cn(
+                          "flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold transition-all shrink-0 cursor-pointer border",
+                          isCurrent
+                            ? "bg-primary text-primary-foreground border-primary shadow-xs ring-2 ring-primary/30"
+                            : isDone
+                              ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/30 hover:bg-emerald-500/20"
+                              : "bg-muted/40 text-muted-foreground border-border/40 hover:text-foreground hover:bg-muted",
+                        )}
+                      >
+                        {isDone ? (
+                          <CheckCircle2 className="h-3 w-3 text-emerald-500 shrink-0" />
+                        ) : (
+                          <span className="w-3.5 h-3.5 rounded-full bg-background/50 flex items-center justify-center text-[9px] font-bold">
+                            {idx + 1}
+                          </span>
+                        )}
+                        <span className="max-w-[75px] truncate">{m.title}</span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -768,6 +844,17 @@ function StudioClassroomPage() {
                       exit={{ opacity: 0, x: -20 }}
                       className="space-y-4"
                     >
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 font-bold">
+                          Step {activeStep + 1} of {modules.length}
+                        </span>
+                        {completedSteps.includes(activeStep) && (
+                          <span className="text-[10px] text-emerald-500 font-semibold flex items-center gap-1">
+                            <CheckCircle2 className="h-3 w-3" /> Step Mastered
+                          </span>
+                        )}
+                      </div>
+
                       <h2 className="text-base sm:text-lg font-bold text-foreground leading-snug">
                         {currentModule.title}
                       </h2>
@@ -777,10 +864,15 @@ function StudioClassroomPage() {
 
                       {/* Voice Narration Player */}
                       {currentModule.voice_script && (
-                        <div className="p-4 rounded-2xl border border-primary/30 bg-primary/10 flex items-center gap-3.5 shadow-sm">
+                        <div className="p-3.5 rounded-2xl border border-primary/30 bg-primary/10 flex items-center gap-3 shadow-sm">
                           <button
                             onClick={toggleVoice}
-                            className="shrink-0 h-10 w-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:scale-105 transition-all shadow-md cursor-pointer"
+                            className={cn(
+                              "shrink-0 h-10 w-10 rounded-full flex items-center justify-center transition-all shadow-md cursor-pointer",
+                              isPlayingVoice
+                                ? "bg-primary text-primary-foreground animate-pulse"
+                                : "bg-primary text-primary-foreground hover:scale-105",
+                            )}
                           >
                             {isPlayingVoice ? (
                               <Pause className="h-4 w-4" />
@@ -789,15 +881,48 @@ function StudioClassroomPage() {
                             )}
                           </button>
                           <div className="space-y-0.5 min-w-0 flex-1">
-                            <p className="text-xs font-bold text-primary flex items-center gap-1">
-                              <Sparkles className="h-3 w-3" /> Voice Narration
-                            </p>
+                            <div className="flex items-center justify-between">
+                              <p className="text-xs font-bold text-primary flex items-center gap-1.5">
+                                <Sparkles className="h-3 w-3" /> Voice Narration
+                                {isPlayingVoice && (
+                                  <span className="flex items-center gap-0.5 ml-1.5 h-2.5">
+                                    <span className="w-0.5 h-2 bg-primary rounded-full animate-bounce [animation-delay:-0.3s]" />
+                                    <span className="w-0.5 h-3 bg-primary rounded-full animate-bounce [animation-delay:-0.15s]" />
+                                    <span className="w-0.5 h-2 bg-primary rounded-full animate-bounce" />
+                                  </span>
+                                )}
+                              </p>
+                              <button
+                                onClick={cycleSpeechRate}
+                                className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-primary/20 hover:bg-primary/30 text-primary transition-colors cursor-pointer"
+                                title="Change voice narration speed"
+                              >
+                                {speechRate}x
+                              </button>
+                            </div>
                             <p className="text-[11px] text-foreground/80 italic leading-tight truncate">
                               "{currentModule.voice_script}"
                             </p>
                           </div>
                         </div>
                       )}
+
+                      {/* Deep Learning Concept Card */}
+                      <div className="p-3.5 rounded-xl border border-border/80 bg-muted/30 space-y-1.5">
+                        <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
+                          <Lightbulb className="h-3.5 w-3.5 text-amber-500" />
+                          <span>Core Engineering Concept</span>
+                        </div>
+                        <p className="text-[11px] text-muted-foreground leading-relaxed">
+                          {activeStep === 0
+                            ? "Establishing the core canvas, viewport coordinate spaces, and component mounting lifecycle before layering animations."
+                            : activeStep === 1
+                              ? "Synchronizing GPU-accelerated transforms (xPercent, scale) on compositor threads to achieve high-performance 60fps renders."
+                              : activeStep === 2
+                                ? "Handling reactive state changes and fluid event binding to ensure responsive, lag-free user interactivity."
+                                : "Fine-tuning easing curves, physics inertia, and micro-interactions for a truly cinematic user experience."}
+                        </p>
+                      </div>
 
                       {/* Quiz Knowledge Check */}
                       {currentModule.quiz && (
@@ -909,6 +1034,30 @@ function StudioClassroomPage() {
               </div>
 
               <div className="flex items-center gap-2">
+                {/* Copy Snippet */}
+                <button
+                  onClick={handleCopySnippet}
+                  title="Copy snippet code"
+                  className="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-muted text-xs flex items-center gap-1 cursor-pointer transition-colors"
+                >
+                  {copiedSnippet ? (
+                    <CheckCheck className="h-3 w-3 text-emerald-500" />
+                  ) : (
+                    <Copy className="h-3 w-3" />
+                  )}
+                  <span className="hidden sm:inline text-[10px]">{copiedSnippet ? "Copied" : "Copy"}</span>
+                </button>
+
+                {/* Format code */}
+                <button
+                  onClick={handleFormatCode}
+                  title="Clean up whitespace formatting"
+                  className="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-muted text-xs flex items-center gap-1 cursor-pointer transition-colors"
+                >
+                  <FileCode className="h-3 w-3" />
+                  <span className="hidden sm:inline text-[10px]">Format</span>
+                </button>
+
                 {/* Reset button */}
                 <button
                   onClick={() => {
@@ -957,12 +1106,12 @@ function StudioClassroomPage() {
                   <span>{autoRun ? "Auto-Run: ON" : "Auto-Run: OFF"}</span>
                 </button>
 
-                {/* Run Code Button */}
+                {/* Run Code Button with Keyboard Shortcut Badge */}
                 <Button
                   size="sm"
                   onClick={runCodeNow}
                   disabled={isRunning}
-                  className="h-7 px-3 text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg flex items-center gap-1.5 shadow-xs cursor-pointer"
+                  className="h-7 px-2.5 text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg flex items-center gap-1.5 shadow-xs cursor-pointer"
                   title="Run code (Ctrl + Enter)"
                 >
                   {isRunning ? (
@@ -971,6 +1120,9 @@ function StudioClassroomPage() {
                     <Play className="h-3 w-3 fill-white" />
                   )}
                   <span>Run</span>
+                  <kbd className="hidden md:inline text-[9px] bg-black/30 px-1 py-0.5 rounded font-mono font-normal opacity-90">
+                    ⌘↵
+                  </kbd>
                 </Button>
               </div>
             </div>

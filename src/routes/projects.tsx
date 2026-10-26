@@ -50,8 +50,7 @@ export const Route = createFileRoute("/projects")({
       { title: "Design Projects Showcase — Learnify AI" },
       {
         name: "description",
-        content:
-          "Explore 46 interactive website design templates, micro-sites, and UX prototypes built with next-generation aesthetics.",
+        content: `Explore ${projectsData.length} interactive website design templates, micro-sites, and UX prototypes built with next-generation aesthetics.`,
       },
     ],
   }),
@@ -643,22 +642,29 @@ function ProjectsPage() {
               )}
             </motion.div>
 
-            {/* Featured ThreeUI WebGL Shader Pill Button */}
+            {/* Quick Search Suggestion Chips */}
             <motion.div
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.35 }}
-              className="pt-6 flex flex-col items-center justify-center gap-2"
+              className="pt-4 flex flex-wrap items-center justify-center gap-2"
             >
-              <div className="flex items-center justify-center">
-                <ShaderButtons variant="raking-light-pill" mode="dark">
-                  Field Notes 2026
-                </ShaderButtons>
-              </div>
-              <span className="text-[11px] font-mono text-muted-foreground flex items-center gap-1.5">
-                <Sparkles className="h-3 w-3 text-primary animate-pulse" />
-                ThreeUI Raw WebGL Shader • Raking Light Pill
-              </span>
+              <span className="text-xs text-muted-foreground font-medium mr-1">Trending:</span>
+              {[
+                { label: "Porsche Carrera Cup", query: "porsche" },
+                { label: "Nike Next-Gen", query: "nike" },
+                { label: "GSAP 3", query: "gsap" },
+                { label: "3D Spline", query: "3d" },
+                { label: "WebGL Shaders", query: "shader" },
+              ].map((item) => (
+                <button
+                  key={item.label}
+                  onClick={() => setSearch(item.query)}
+                  className="px-2.5 py-1 rounded-full text-xs bg-muted/60 hover:bg-primary/10 hover:text-primary border border-border/60 hover:border-primary/30 transition-all cursor-pointer font-medium"
+                >
+                  {item.label}
+                </button>
+              ))}
             </motion.div>
           </div>
         </section>
@@ -691,7 +697,7 @@ function ProjectsPage() {
         </section>
 
         {/* ── ThreeUI Shader Lab Section ──────────────────────── */}
-        {(filter === "all" || filter === "shaders") && (
+        {filter === "shaders" && (
           <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-8 pb-4">
             <ShaderShowcase />
           </section>

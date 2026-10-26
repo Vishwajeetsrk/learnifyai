@@ -57,6 +57,158 @@
     ]
   },
   {
+    "id": "nick-ho-porsche",
+    "name": "Nick Ho Porsche",
+    "title": "Nick Ho — Porsche Carrera Cup Showcase",
+    "description": "High-octane motorsport portfolio with WebGL 3D depth-map driver/car parallax, GSAP SplitText telemetry HUD, fluid Lenis scroll, and interactive circuit track telemetry.",
+    "path": "/preset-sites/nick-ho-porsche/index.html",
+    "course_modules": [
+      {
+        "step": 1,
+        "title": "WebGL 2.5D Depth Map Parallax",
+        "text": "Initialize a Three.js / WebGL shader pipeline using grayscale displacement depth maps (depth-map-car.avif and depth-map-nick.avif) to create real-time cursor perspective tilt.",
+        "voice_script": "Welcome to the Nick Ho Porsche Carrera Cup masterclass. In step one, we construct the WebGL 2.5D depth-displacement shader that creates 3D depth from 2D motorsport assets.",
+        "code_snippet": "const vertexShader = `\n  varying vec2 vUv;\n  void main() {\n    vUv = uv;\n    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);\n  }\n`;\nconst fragmentShader = `\n  uniform sampler2D uTexture;\n  uniform sampler2D uDepth;\n  uniform vec2 uMouse;\n  varying vec2 vUv;\n  void main() {\n    vec4 depth = texture2D(uDepth, vUv);\n    vec2 offset = uMouse * (depth.r * 0.04);\n    gl_FragColor = texture2D(uTexture, vUv + offset);\n  }\n`;",
+        "quiz": {
+          "question": "How does a 2.5D depth-map fragment shader compute parallax perspective?",
+          "options": [
+            "By sampling depth texture luminance (depth.r) to displace UV sampling coordinates based on mouse position",
+            "By rotating the camera in 360-degree orthographic space",
+            "By rendering 500,000 polygon vertices in a geometry shader",
+            "By downscaling the canvas resolution to 240p"
+          ],
+          "correct": 0,
+          "explanation": "Depth maps encode distance from the lens into pixel brightness (luminance); multiplying mouse delta by depth.r simulates realistic optical perspective shift."
+        }
+      },
+      {
+        "step": 2,
+        "title": "GSAP Telemetry HUD & SplitText",
+        "text": "Implement the high-precision racing telemetry HUD with GSAP SplitText, animating RPM meters, lap time counters, and race statistics on scroll.",
+        "voice_script": "In step two, we engineer the telemetry HUD overlay. Using GSAP and SplitText, each character and digital metric animates with precision as the user navigates.",
+        "code_snippet": "gsap.registerPlugin(ScrollTrigger, SplitText);\nconst split = new SplitText('.telemetry-val', { type: 'chars' });\ngsap.from(split.chars, {\n  yPercent: 120,\n  stagger: 0.03,\n  duration: 0.8,\n  ease: 'power4.out',\n  scrollTrigger: {\n    trigger: '.hud-container',\n    start: 'top 75%'\n  }\n});",
+        "quiz": {
+          "question": "Why is SplitText effective for racing telemetry typography?",
+          "options": [
+            "It splits DOM text into separate character spans allowing precise per-digit stagger and roll animations",
+            "It converts text into JPEG images",
+            "It translates text into German automatically",
+            "It reduces DOM node counts"
+          ],
+          "correct": 0,
+          "explanation": "SplitText wraps characters or words into individual elements, unlocking micro-staggered flip, roll, and elevation effects ideal for digital dashboards."
+        }
+      },
+      {
+        "step": 3,
+        "title": "Lenis Smooth Scroll & Circuit Timeline",
+        "text": "Configure Lenis inertia smooth scrolling synchronized with ScrollTrigger for sticky circuit track breakdowns and career milestones.",
+        "voice_script": "Now, we synchronize Lenis smooth inertia scrolling with GSAP ScrollTrigger to achieve that signature 60 frames-per-second track navigation experience.",
+        "code_snippet": "const lenis = new Lenis({\n  duration: 1.2,\n  easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),\n  smoothWheel: true\n});\nlenis.on('scroll', ScrollTrigger.update);\ngsap.ticker.add((time) => lenis.raf(time * 1000));\ngsap.ticker.lagSmoothing(0);",
+        "quiz": {
+          "question": "What role does gsap.ticker.add((time) => lenis.raf(time * 1000)) play?",
+          "options": [
+            "It synchronizes the smooth scroll render loop with GSAP's internal ticker for zero jitter and exact frame alignment",
+            "It resets window scroll to zero every frame",
+            "It converts CSS animations to SVG",
+            "It limits the monitor refresh rate to 30Hz"
+          ],
+          "correct": 0,
+          "explanation": "Binding Lenis's RequestAnimationFrame loop directly to the GSAP Ticker guarantees that ScrollTrigger coordinates update in lockstep with smooth scrolling."
+        }
+      },
+      {
+        "step": 4,
+        "title": "Radial Sliders & Career Milestones",
+        "text": "Build the interactive radial track slider and driver career timeline with touch-draggable circular navigation and SVG circuit maps.",
+        "voice_script": "Step four brings the career progression to life. We construct the interactive radial track slider, allowing fans to inspect lap sectors and podium finishes.",
+        "code_snippet": "const dial = document.querySelector('.radial-dial');\nlet activeAngle = 0;\nfunction updateDial(angle) {\n  activeAngle = angle;\n  gsap.to(dial, {\n    rotation: angle,\n    duration: 0.5,\n    ease: 'power2.out'\n  });\n  updateCircuitDetails(Math.floor((angle / 360) * 14));\n}",
+        "quiz": {
+          "question": "What is the key benefit of radial dial navigation in interactive portfolio websites?",
+          "options": [
+            "It provides a tactile, analog steering-wheel-like interaction that deeply reinforces the motorsport brand identity",
+            "It consumes less RAM than text buttons",
+            "It prevents mobile screens from rotating",
+            "It removes all CSS from the stylesheet"
+          ],
+          "correct": 0,
+          "explanation": "Motorsport UI benefits immensely from steering-wheel inspired radial inputs, creating a memorable tactile sensation for site visitors."
+        }
+      },
+      {
+        "step": 5,
+        "title": "Sponsor Marquee & Dutch Heritage Theme",
+        "text": "Polish the high-contrast matte dark palette, glowing Dutch neon accents, infinite sponsor logo wall, and production performance optimizations.",
+        "voice_script": "Finally, we apply the finishing aesthetic touches: the infinite marquee sponsor loop, Dutch orange laser accents, and WebP asset optimization.",
+        "code_snippet": "gsap.to('.sponsor-track', {\n  xPercent: -50,\n  ease: 'none',\n  duration: 25,\n  repeat: -1\n});",
+        "quiz": {
+          "question": "Why is xPercent preferred over left/right pixel values for infinite marquees?",
+          "options": [
+            "xPercent utilizes GPU-accelerated CSS transforms avoiding layout recalculation and repaint thrashing",
+            "xPercent works only in dark mode",
+            "xPercent disables image downloads",
+            "xPercent requires Flash player"
+          ],
+          "correct": 0,
+          "explanation": "Transform properties (translateX / xPercent) run on the browser compositor thread at 60-120fps without triggering expensive DOM reflows."
+        }
+      }
+    ],
+    "architecture_nodes": [
+      {
+        "id": "root",
+        "label": "<main className='nick-ho-experience relative bg-black'>",
+        "type": "container",
+        "children": [
+          {
+            "id": "hero-depth-canvas",
+            "label": "<canvas id='webgl-depth-map' className='fixed inset-0' />",
+            "type": "media",
+            "children": []
+          },
+          {
+            "id": "telemetry-hud",
+            "label": "<div className='telemetry-hud-overlay fixed z-20 pointer-events-none' />",
+            "type": "component",
+            "children": [
+              {
+                "id": "rpm-speedo",
+                "label": "<SpeedometerHUD gear='6' rpm='8750' />",
+                "type": "component",
+                "children": []
+              },
+              {
+                "id": "driver-stats",
+                "label": "<DriverBio name='Nick Ho' car='Porsche 992 GT3 Cup' />",
+                "type": "component",
+                "children": []
+              }
+            ]
+          },
+          {
+            "id": "circuit-timeline",
+            "label": "<section className='circuit-timeline-sticky'>",
+            "type": "container",
+            "children": [
+              {
+                "id": "radial-slider",
+                "label": "<RadialCircuitSlider circuits={14} />",
+                "type": "component",
+                "children": []
+              }
+            ]
+          },
+          {
+            "id": "sponsors-marquee",
+            "label": "<div className='infinite-marquee sponsor-wall' />",
+            "type": "component",
+            "children": []
+          }
+        ]
+      }
+    ]
+  },
+  {
     "id": "asme",
     "name": "Asme",
     "title": "Asme — Built for the curious",
