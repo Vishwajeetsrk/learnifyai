@@ -29,6 +29,8 @@ export function SiteHeader() {
     return val === key ? fallback : val;
   };
 
+  const isSupportVisible = siteSettings?.support_us_enabled === "true";
+
   const fallbackNav = [
     { label: tr("nav.features", "Features"), url: "/features" },
     { label: tr("nav.aiTools", "AI Tools"), url: "/features#ai-tools" },
@@ -36,10 +38,9 @@ export function SiteHeader() {
     { label: tr("nav.coaches", "Coaches"), url: "/coaches" },
     { label: tr("nav.projects", "Projects"), url: "/projects" },
     { label: tr("nav.pricing", "Pricing"), url: "/pricing" },
-    { label: tr("nav.supportUs", "Support Us"), url: "/support-us" },
+    ...(isSupportVisible ? [{ label: tr("nav.supportUs", "Support Us"), url: "/support-us" }] : []),
     { label: tr("nav.blog", "Blog"), url: "/blog" },
   ];
-  const isSupportHidden = siteSettings?.support_us_enabled === "false";
 
   const navItems = (menuItems.length > 0 ? menuItems : fallbackNav).filter(
     (item: any) => {
@@ -51,7 +52,7 @@ export function SiteHeader() {
       }
 
       if (
-        isSupportHidden &&
+        !isSupportVisible &&
         (url === "/support-us" ||
           url === "/support-us/" ||
           url === "support-us" ||
@@ -60,7 +61,8 @@ export function SiteHeader() {
           url.endsWith("/support-us") ||
           label === "support us" ||
           label.includes("support us") ||
-          label === "sponsor")
+          label === "sponsor" ||
+          label.includes("sponsor"))
       ) {
         return false;
       }

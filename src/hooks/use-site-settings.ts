@@ -39,7 +39,7 @@ const defaults: SiteSettings = {
   linkedin_url: "",
   youtube_url: "",
   instagram_url: "",
-  support_us_enabled: "true",
+  support_us_enabled: "false",
   support_us_title: "Support Us & Sponsor a Career",
   support_us_subtitle:
     "Help us build a free career-learning ecosystem. Sponsor a career and make practical education accessible to people facing financial barriers.",

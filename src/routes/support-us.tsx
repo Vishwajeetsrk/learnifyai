@@ -42,6 +42,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { getRealHumanAvatar } from "@/lib/real-avatars";
+import { getSupportUsPublicConfig } from "@/lib/support-us.functions";
 
 export const Route = createFileRoute("/support-us")({
   head: () => ({
@@ -61,6 +62,9 @@ export const Route = createFileRoute("/support-us")({
     ],
     links: [{ rel: "canonical", href: "https://www.learnifyai.in/support-us" }],
   }),
+  loader: async () => {
+    return await getSupportUsPublicConfig();
+  },
   component: SupportUsPage,
 });
 
@@ -96,6 +100,7 @@ const POPULAR_COUNTRY_CODES = [
 ];
 
 function SupportUsPage() {
+  const loaderData = Route.useLoaderData();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [countryCode, setCountryCode] = useState("+91");
@@ -106,27 +111,31 @@ function SupportUsPage() {
   const [copiedLink, setCopiedLink] = useState(false);
   const [copiedUpi, setCopiedUpi] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [adminPreview, setAdminPreview] = useState(false);
+  const [adminViewNotice, setAdminViewNotice] = useState(false);
 
   const { data: s } = useSiteSettings();
   const { isAdmin } = useAuth();
 
-  const { data: customSettings = {} } = useQuery({
+  const { data: customSettings = loaderData?.settings || {} } = useQuery({
     queryKey: ["public-support-us-settings"],
     queryFn: async () => {
       const { data, error } = await supabase.from("site_settings").select("key,value");
-      if (error) return {};
+      if (error) return loaderData?.settings || {};
       const map: Record<string, string> = {};
       (data ?? []).forEach((r: any) => {
         if (r.key && r.value != null) map[r.key] = r.value;
       });
       return map;
     },
+    initialData: loaderData?.settings,
     staleTime: 10_000,
   });
 
   const isSupportHidden =
-    customSettings["support_us_enabled"] === "false" || s?.support_us_enabled === "false";
+    loaderData?.enabled === false ||
+    customSettings["support_us_enabled"] === "false" ||
+    s?.support_us_enabled === "false" ||
+    (customSettings["support_us_enabled"] ? customSettings["support_us_enabled"] !== "true" : !loaderData?.enabled);
 
   const pageTitle =
     customSettings["support_us_title"] ||
@@ -175,8 +184,9 @@ function SupportUsPage() {
     )
   );
 
-  // If support is hidden and user hasn't explicitly activated admin preview mode, show paused maintenance view
-  if (isSupportHidden && !(isAdmin && adminPreview)) {
+  // Non-admins visiting /support-us see a polite maintenance notice
+  // (Or if an admin chooses to preview the public maintenance notice)
+  if (isSupportHidden && (!isAdmin || adminViewNotice)) {
     return (
       <div className="min-h-screen flex flex-col bg-background">
         <SiteHeader />
@@ -207,17 +217,17 @@ function SupportUsPage() {
                 </Badge>
               </div>
               <p className="text-[11px] text-muted-foreground leading-relaxed">
-                Public visitors see only this maintenance notice. Header navigation and footer links are hidden. As an admin, you can preview the active donation form.
+                Public visitors see only this maintenance notice. Header navigation and footer links are hidden. As an admin, you can view the active donation form in preview mode.
               </p>
               <div className="pt-1 flex flex-wrap items-center gap-2">
                 <Button
                   size="sm"
                   variant="outline"
                   className="h-8 text-xs border-amber-500/40 hover:bg-amber-500/15 bg-background font-semibold"
-                  onClick={() => setAdminPreview(true)}
+                  onClick={() => setAdminViewNotice(false)}
                 >
                   <Eye className="h-3.5 w-3.5 mr-1.5 text-amber-600" />
-                  Preview Active Donation Form
+                  View Admin Preview Mode
                 </Button>
                 <Button asChild size="sm" variant="ghost" className="h-8 text-xs">
                   <Link to="/admin/content" search={{ tab: "support-us" }}>
@@ -353,9 +363,9 @@ function SupportUsPage() {
               size="sm"
               variant="outline"
               className="h-6 text-[11px] px-2.5 bg-background border-amber-500/40 font-semibold"
-              onClick={() => setAdminPreview(false)}
+              onClick={() => setAdminViewNotice(true)}
             >
-              Exit Preview &amp; View Paused Screen
+              View Public Paused Notice
             </Button>
             <Link
               to="/admin/content"

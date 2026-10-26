@@ -6268,7 +6268,24 @@ function SupportUsManager() {
           </span>
           <Switch
             checked={form.enabled}
-            onCheckedChange={(v) => setForm({ ...form, enabled: v })}
+            onCheckedChange={async (v) => {
+              setForm((prev) => ({ ...prev, enabled: v }));
+              try {
+                await supabase
+                  .from("site_settings")
+                  .upsert([{ key: "support_us_enabled", value: v ? "true" : "false" }], { onConflict: "key" });
+                qc.invalidateQueries({ queryKey: ["admin-support-us-settings"] });
+                qc.invalidateQueries({ queryKey: ["site-settings"] });
+                qc.invalidateQueries({ queryKey: ["public-support-us-settings"] });
+                toast.success(
+                  v
+                    ? "Support Us is now publicly visible in menus & at /support-us"
+                    : "Support Us is now hidden from public visitors (admin preview only)"
+                );
+              } catch (e: any) {
+                console.warn("[SupportUsManager] Auto-sync visibility failed:", e);
+              }
+            }}
           />
         </div>
       </div>

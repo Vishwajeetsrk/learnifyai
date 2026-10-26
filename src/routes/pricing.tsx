@@ -1271,7 +1271,7 @@ function PricingPage() {
         </section>
 
         {/* ========== SPONSOR A CAREER INITIATIVE BANNER ========== */}
-        {siteSettings?.support_us_enabled !== "false" && (
+        {siteSettings?.support_us_enabled === "true" && (
           <section className="py-8">
             <div className="container mx-auto px-6 max-w-4xl">
               <div className="rounded-2xl border border-primary/30 bg-gradient-to-r from-primary/10 via-indigo-500/5 to-primary/10 p-6 md:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-sm">

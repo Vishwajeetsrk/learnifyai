@@ -89,7 +89,7 @@ export function SiteFooter() {
     : APPROVED_SECTIONS;
 
   const sections: FooterSection[] = useMemo(() => {
-    const isSupportHidden = s?.support_us_enabled === "false";
+    const isSupportVisible = s?.support_us_enabled === "true";
     return rawSections.map((sec) => ({
       ...sec,
       links: (sec.links || []).filter((link) => {
@@ -97,12 +97,13 @@ export function SiteFooter() {
         const label = (link.label || "").toLowerCase().trim();
 
         if (
-          isSupportHidden &&
+          !isSupportVisible &&
           (url === "/support-us" ||
             url === "/sponsor" ||
             url.includes("support-us") ||
             label.includes("support us") ||
-            label === "sponsor")
+            label === "sponsor" ||
+            label.includes("sponsor"))
         ) {
           return false;
         }
