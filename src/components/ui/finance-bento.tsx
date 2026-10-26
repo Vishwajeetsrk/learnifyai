@@ -36,7 +36,7 @@ export interface FinanceBentoProps {
   style?: React.CSSProperties;
 }
 
-const CSS = `.fpb{font-family:Geist,ui-sans-serif,system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;color:#fff;width:100%}
+const CSS = `.fpb{font-family:Geist,ui-sans-serif,system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;color:#fff;width:100%;max-width:100%;overflow-x:hidden}
 .fpb *{box-sizing:border-box}
 .fpb .fpb-c{border-radius:28px}
 .fpb .vbrow{display:flex;justify-content:flex-end;margin-top:16px}
@@ -44,14 +44,14 @@ const CSS = `.fpb{font-family:Geist,ui-sans-serif,system-ui,-apple-system,sans-s
     --fiat:#FFFFFF;--stocks:#A9B2FF;--crypto:#FFB37A}
 .fpb *{box-sizing:border-box}
 .fpb .fpb-c{position:relative;padding:20px 22px 22px;background:#000;color:#fff}
-.fpb .top{display:flex;align-items:center;gap:14px;height:44px;margin-bottom:16px}
+.fpb .top{display:flex;align-items:center;gap:14px;min-height:44px;margin-bottom:16px}
 .fpb .top h1{margin:0;font-size:28px;font-weight:700;letter-spacing:-.03em;flex:1}
 .fpb .top h1 span{font-weight:500;color:var(--t3);font-size:15px;letter-spacing:-.01em;margin-left:12px}
 .fpb .seg{display:flex;padding:3px;gap:2px;border-radius:14px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12)}
-.fpb .seg button{border:0;height:28px;min-width:44px;padding:0 12px;border-radius:11px;background:transparent;color:var(--t2);font:600 12.5px Geist,sans-serif;cursor:pointer;transition:background .25s,color .25s}
+.fpb .seg button{border:0;height:30px;min-width:40px;padding:0 10px;border-radius:11px;background:transparent;color:var(--t2);font:600 12px Geist,sans-serif;cursor:pointer;transition:background .25s,color .25s;touch-action:manipulation}
 .fpb .seg button[aria-pressed="true"]{background:#fff;color:#0b0b0c}
 .fpb .seg button:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
-.fpb .ctrls{display:flex;gap:10px}
+.fpb .ctrls{display:flex;gap:10px;flex-wrap:wrap}
 .fpb .ava{width:40px;height:40px;border-radius:50%;object-fit:cover;box-shadow:0 0 0 2px rgba(255,255,255,.18);flex:0 0 auto}
 .fpb .grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:14px}
 .fpb .h1{height:376px}
@@ -63,26 +63,41 @@ const CSS = `.fpb{font-family:Geist,ui-sans-serif,system-ui,-apple-system,sans-s
 .fpb #flow{grid-column:span 5}
 .fpb #crypto{grid-column:span 4}
 .fpb #stocks{grid-column:span 3}
-@media (max-width:1199px){.fpb #nw{grid-column:span 12}
-.fpb #alloc{grid-column:span 6;grid-row:span 2;height:auto}
-.fpb .kpi{grid-column:span 6}
-.fpb #flow{grid-column:span 12}
-.fpb #crypto,.fpb #stocks{grid-column:span 6}}
-@media (max-width:767px){.fpb .fpb-c{padding:16px 14px}
-.fpb .top{flex-wrap:wrap;height:auto;gap:12px}
-.fpb .top h1{flex:1;font-size:24px}
-.fpb .top h1 span{display:block;margin:4px 0 0}
-.fpb .ctrls{order:3;flex:1 0 100%;justify-content:space-between}
-.fpb .ava{order:2}
-.fpb #nw{height:420px}
-.fpb #nw .legend{flex:1 0 100%;order:3;margin-top:8px}
-.fpb #nw .hrow{flex-wrap:wrap}
-.fpb #nw .nrow{flex-wrap:wrap;gap:6px 16px}
-.fpb #alloc{grid-column:span 12;grid-row:auto;height:376px}
-.fpb .kpi{grid-column:span 6}
-.fpb #crypto,.fpb #stocks{grid-column:span 12}
-.fpb .grid{gap:12px}}
-@media (max-width:520px){.fpb .kpi{grid-column:span 12}}
+@media (max-width:1199px){
+  .fpb #nw{grid-column:span 12}
+  .fpb #alloc{grid-column:span 6;grid-row:span 2;height:auto;min-height:376px}
+  .fpb .kpi{grid-column:span 6}
+  .fpb #flow{grid-column:span 12}
+  .fpb #crypto,.fpb #stocks{grid-column:span 6}
+}
+@media (max-width:767px){
+  .fpb .fpb-c{padding:16px 12px;border-radius:20px}
+  .fpb .card{border-radius:20px}
+  .fpb .top{flex-direction:column;align-items:stretch;height:auto;gap:12px;position:relative}
+  .fpb .top h1{font-size:22px;padding-right:48px}
+  .fpb .top h1 span{display:block;margin:4px 0 0;font-size:12.5px}
+  .fpb .ctrls{order:3;width:100%;justify-content:space-between;gap:8px}
+  .fpb .seg{flex:1;justify-content:center}
+  .fpb .seg button{flex:1;min-width:32px;padding:0 6px;font-size:11px}
+  .fpb .ava{position:absolute;top:0;right:0}
+  .fpb #nw{height:390px}
+  .fpb #nw .legend{flex:1 0 100%;order:3;margin-top:8px}
+  .fpb #nw .hrow{flex-wrap:wrap}
+  .fpb #nw .nrow{flex-wrap:wrap;gap:6px 16px}
+  .fpb #alloc{grid-column:span 12;grid-row:auto;height:380px}
+  .fpb .kpi{grid-column:span 6;height:168px}
+  .fpb #crypto,.fpb #stocks{grid-column:span 12}
+  .fpb .grid{gap:12px}
+  .fpb .big{font-size:32px}
+}
+@media (max-width:520px){
+  .fpb .kpi{grid-column:span 12;height:auto;min-height:148px}
+  .fpb #nw{height:370px}
+  .fpb #flow{height:310px}
+  .fpb #crypto{height:340px}
+  .fpb #stocks{height:280px}
+  .fpb .in-c{padding:16px 16px}
+}
 .fpb .card{position:relative;border-radius:28px;overflow:hidden;opacity:0;transform:translateY(14px) scale(.985);transition:opacity .7s ease,transform .9s var(--ease)}
 .fpb .in .card{opacity:1;transform:none}
 .fpb .card .rim{position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 1px 0 rgba(255,255,255,.2),inset 0 0 0 1px rgba(255,255,255,.06);pointer-events:none;z-index:9}
@@ -169,11 +184,16 @@ const el=(t,a={},p)=>{const e=document.createElementNS(NS,t);for(const k in a)e.
 let uid=0;
 
 /* ---------- state ---------- */
-const S={period:'1Y',ccy:'USD'};
-const RATE={USD:1,EUR:.92},SYM={USD:'$',EUR:'€'};
-const money=(v,{dec=0,compact=false}={})=>{v*=RATE[S.ccy];const s=SYM[S.ccy];
-  if(compact&&Math.abs(v)>=1000)return s+(v/1000).toFixed(Math.abs(v)>=10000?0:1)+'K';
-  return (v<0?'−':'')+s+Math.abs(v).toLocaleString('en-US',{minimumFractionDigits:dec,maximumFractionDigits:dec})};
+const S={period:'1Y',ccy:'INR'};
+const RATE={INR:86.5,USD:1,EUR:.92},SYM={INR:'₹',USD:'$',EUR:'€'};
+const money=(v,{dec=0,compact=false}={})=>{
+  v*=RATE[S.ccy]||1;const s=SYM[S.ccy]||'₹',isINR=S.ccy==='INR';
+  if(compact&&Math.abs(v)>=1000){
+    if(isINR&&Math.abs(v)>=100000)return s+(v/100000).toFixed(Math.abs(v)>=1000000?0:1)+'L';
+    return s+(v/1000).toFixed(Math.abs(v)>=10000?0:1)+'K';
+  }
+  return (v<0?'−':'')+s+Math.abs(v).toLocaleString(isINR?'en-IN':'en-US',{minimumFractionDigits:dec,maximumFractionDigits:dec});
+};
 
 /* ---------- data: 36 months of fiat / stocks / crypto ---------- */
 const H=data.history.map(h=>({d:new Date(h.date),fiat:h.fiat,stocks:h.stocks,crypto:h.crypto}));
@@ -200,7 +220,7 @@ const GR={
 function smoothPath(P,move=true){let d=(move?'M':'L')+`${P[0][0]},${P[0][1]}`;for(let i=0;i<P.length-1;i++){const p0=P[i-1]||P[i],p1=P[i],p2=P[i+1],p3=P[i+2]||p2,k=.17;
   d+=`C${p1[0]+(p2[0]-p0[0])*k},${p1[1]+(p2[1]-p0[1])*k} ${p2[0]-(p3[0]-p1[0])*k},${p2[1]-(p3[1]-p1[1])*k} ${p2[0]},${p2[1]}`}return d}
 const P2=(r,a)=>[r*Math.cos(a*Math.PI/180),r*Math.sin(a*Math.PI/180)];
-const F={'0':['01110','10001','10011','10101','11001','10001','01110'],'1':['00100','01100','00100','00100','00100','00100','01110'],'2':['01110','10001','00001','00010','00100','01000','11111'],'3':['11111','00010','00100','00010','00001','10001','01110'],'4':['00010','00110','01010','10010','11111','00010','00010'],'5':['11111','10000','11110','00001','00001','10001','01110'],'6':['00110','01000','10000','11110','10001','10001','01110'],'7':['11111','00001','00010','00100','01000','01000','01000'],'8':['01110','10001','10001','01110','10001','10001','01110'],'9':['01110','10001','10001','01111','00001','00010','01100'],'$':['00100','01111','10100','01110','00101','11110','00100'],'€':['00111','01000','11110','01000','11110','01000','00111'],',':['0','0','0','0','0','1','1'],' ':['00','00','00','00','00','00','00']};
+const F={'0':['01110','10001','10011','10101','11001','10001','01110'],'1':['00100','01100','00100','00100','00100','00100','01110'],'2':['01110','10001','00001','00010','00100','01000','11111'],'3':['11111','00010','00100','00010','00001','10001','01110'],'4':['00010','00110','01010','10010','11111','00010','00010'],'5':['11111','10000','11110','00001','00001','10001','01110'],'6':['00110','01000','10000','11110','10001','10001','01110'],'7':['11111','00001','00010','00100','01000','01000','01000'],'8':['01110','10001','10001','01110','10001','10001','01110'],'9':['01110','10001','10001','01111','00001','00010','01100'],'$':['00100','01111','10100','01110','00101','11110','00100'],'€':['00111','01000','11110','01000','11110','01000','00111'],'₹':['11111','00100','11110','00010','01100','00100','00011'],',':['0','0','0','0','0','1','1'],' ':['00','00','00','00','00','00','00']};
 function DotNumber(host,pitch){
   const cols=48,svg=el('svg',{class:'dots','aria-hidden':'true'},host),cells=[];
   for(let c=0;c<cols;c++)for(let r=0;r<7;r++){const ci=el('circle',{cx:c*pitch+pitch/2,cy:r*pitch+pitch/2,r:pitch*.36,fill:'#fff',opacity:0},svg);ci.style.transitionDelay=(c*7)+'ms';cells.push([c,r,ci])}
@@ -209,7 +229,7 @@ function DotNumber(host,pitch){
     svg.setAttribute('width',used*pitch);svg.setAttribute('height',7*pitch);svg.setAttribute('viewBox',`0 0 ${used*pitch} ${7*pitch}`)};
   let raf=0,cur=0;
   return {count(to,dur=900){cancelAnimationFrame(raf);const from=cur,t0=performance.now();let last='';
-    const f=now=>{const t=reduce?1:Math.min(1,(now-t0)/dur);cur=from+(to-from)*ease(t);const s=SYM[S.ccy]+Math.round(cur*RATE[S.ccy]).toLocaleString('en-US');if(s!==last){set(s);last=s}if(t<1)raf=RAF(f)};raf=RAF(f)}};
+    const f=now=>{const t=reduce?1:Math.min(1,(now-t0)/dur);cur=from+(to-from)*ease(t);const s=SYM[S.ccy]+Math.round(cur*RATE[S.ccy]).toLocaleString(S.ccy==='INR'?'en-IN':'en-US');if(s!==last){set(s);last=s}if(t<1)raf=RAF(f)};raf=RAF(f)}};
 }
 function tween(node,to,fmt,dur=900){const from=+node.dataset.v||0,t0=performance.now();node.dataset.v=to;
   (function f(now){const t=reduce?1:Math.min(1,(now-t0)/dur);node.textContent=fmt(from+(to-from)*ease(t));if(t<1)RAF(f)})(t0)}
@@ -270,7 +290,7 @@ function updateNW(){
 const al=$id('alloc');
 al.innerHTML=`${bg(GR.graph)}<div class="in-c">
   <div class="row" style="justify-content:space-between"><div class="ttl">Allocation</div><span class="chip" style="background:rgba(255,255,255,.12)">Target 60/40</span></div>
-  <svg class="alg" width="300" height="168" viewBox="-150 -150 300 168" style="position:absolute;left:50%;margin-left:-150px;top:70px" aria-hidden="true"></svg>
+  <svg class="alg" width="300" height="168" viewBox="-150 -150 300 168" style="position:absolute;left:50%;transform:translateX(-50%);top:70px;max-width:calc(100% - 32px);height:auto" aria-hidden="true"></svg>
   <div class="all" style="position:absolute;left:24px;right:24px;bottom:20px"></div></div><div class="rim"></div>`;
 function updateAlloc(){
   const p=nwData[nwData.length-1],t=total(p),fr={stocks:p.stocks/t,crypto:p.crypto/t,fiat:p.fiat/t};
@@ -404,7 +424,7 @@ function updateStocks(instant){const v=nwData[nwData.length-1].stocks;if(!instan
 function seg(host,items,key){host.innerHTML=items.map(k=>`<button type="button" aria-pressed="${S[key]===k}">${k}</button>`).join('');
   host.querySelectorAll('button').forEach(b=>b.onclick=()=>{S[key]=b.textContent;host.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));updateAll()})}
 seg($id('period'),['1M','3M','1Y','All'],'period');
-seg($id('ccy'),['USD','EUR'],'ccy');
+seg($id('ccy'),['INR','USD','EUR'],'ccy');
 function updateAll(){updateNW();updateAlloc();updateRet();updateCash();updatePay();updateGoals();updateFlow();updateCrypto();updateStocks()}
 
 let rz;const ro=new ResizeObserver(()=>{clearTimeout(rz);rz=setTimeout(()=>{if(!nwData)return;cancelAnimationFrame(nwRaf);nwGrow=1;drawNW();updateFlow(true);updateStocks(true);updateCash();updateGoals()},120)});

@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { downloadInvoicePdf } from "@/lib/invoice-pdf";
 import {
   CreditCard,
@@ -65,6 +65,8 @@ import {
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { BillingSkeleton } from "@/components/Skeletons";
+import { FinanceBento, FinanceBentoData } from "@/components/ui/finance-bento";
+import { sampleFinanceData } from "@/components/ui/finance-bento.demo";
 
 export const Route = createFileRoute("/_authenticated/billing")({
   head: () => ({ meta: [{ title: "Billing & Subscriptions — Learnify AI" }] }),
@@ -304,6 +306,23 @@ function BillingPage() {
       }));
     },
   });
+
+  const bentoData: FinanceBentoData = useMemo(() => {
+    const paymentRows = (payments.data || []).slice(0, 3).map((p: any) => ({
+      name: p.description?.replace("Learnify AI - ", "") || "Subscription",
+      date: p.created_at ? format(new Date(p.created_at), "MMM d") : "Nov 1",
+      amount: Number(p.amount_inr || p.amount || 499),
+    }));
+
+    return {
+      ...sampleFinanceData,
+      payments: paymentRows.length > 0 ? paymentRows : sampleFinanceData.payments,
+      goals: [
+        { name: "Full-Stack AI Path", progress: 0.72, target: 12000 },
+        { name: "Cloud Architect Cert", progress: 0.48, target: 8500 },
+      ],
+    };
+  }, [payments.data]);
 
   const handleRefundSubmit = async () => {
     if (!refundPayment) return;
@@ -559,6 +578,9 @@ function BillingPage() {
             </TabsTrigger>
             <TabsTrigger value="credits" className="gap-2">
               <Wallet className="h-4 w-4" /> Credits
+            </TabsTrigger>
+            <TabsTrigger value="bento" className="gap-2">
+              <TrendingUp className="h-4 w-4" /> Financial Bento
             </TabsTrigger>
           </TabsList>
 
@@ -960,6 +982,36 @@ function BillingPage() {
                   ))}
                 </div>
               )}
+            </div>
+          </TabsContent>
+
+          {/* ──────── Financial Bento Tab ──────── */}
+          <TabsContent value="bento" className="space-y-4">
+            <div className="rounded-3xl border border-white/10 bg-black p-3 sm:p-5 overflow-hidden shadow-2xl">
+              <div className="p-3 sm:p-4 border-b border-white/10 flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                    <Sparkles className="h-4 w-4 text-[#E8FF1F]" />
+                    Personal Financial Bento
+                  </h3>
+                  <p className="text-xs text-white/60">
+                    Pro interactive dashboard visualizing your balances, learning milestones, and multi-asset split.
+                  </p>
+                </div>
+                <Badge variant="outline" className="border-[#E8FF1F]/30 text-[#E8FF1F] bg-[#E8FF1F]/10 text-xs">
+                  Realtime SVG Analytics
+                </Badge>
+              </div>
+              <div className="pt-2 w-full overflow-hidden">
+                <FinanceBento
+                  data={bentoData}
+                  title="My Wealth & Expenses"
+                  subtitle={format(new Date(), "'Updated' dd MMM, HH:mm")}
+                  avatar={user?.user_metadata?.avatar_url || "/assets/vishwajeet-profile.png"}
+                  avatarAlt={user?.user_metadata?.full_name || "Profile"}
+                  credit={false}
+                />
+              </div>
             </div>
           </TabsContent>
         </Tabs>
