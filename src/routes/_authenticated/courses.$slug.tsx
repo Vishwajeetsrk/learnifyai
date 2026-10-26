@@ -103,6 +103,36 @@ import { ScrimbaWorkspace } from "@/components/courses/ScrimbaWorkspace";
 type CourseTab = "notes" | "summary" | "doubt" | "exercise" | "playground" | "visual";
 const VALID_TABS: CourseTab[] = ["notes", "summary", "doubt", "exercise", "playground", "visual"];
 
+export function isDirectMp4Video(url: string | null | undefined): boolean {
+  if (!url) return false;
+  const raw = url.trim().toLowerCase();
+  if (raw.includes("youtube.com") || raw.includes("youtu.be") || raw.includes("vimeo.com")) return false;
+  if (
+    raw.endsWith(".mp4") ||
+    raw.includes(".mp4?") ||
+    raw.includes("/storage/v1/object/public/") ||
+    raw.includes("/storage/v1/object/authenticated/") ||
+    raw.includes("cloudinary.com") ||
+    raw.startsWith("/videos/") ||
+    raw.startsWith("blob:")
+  ) {
+    return true;
+  }
+  try {
+    const parsed = new URL(url);
+    const pathname = parsed.pathname.toLowerCase();
+    if (
+      pathname.endsWith(".mp4") ||
+      pathname.endsWith(".webm") ||
+      pathname.endsWith(".mov") ||
+      pathname.endsWith(".m4v")
+    ) {
+      return true;
+    }
+  } catch {}
+  return false;
+}
+
 export const Route = createFileRoute("/_authenticated/courses/$slug")({
   head: ({ params }) => ({
     meta: [{ title: "Course — Learnify AI" }],
@@ -175,7 +205,6 @@ function CourseDetail() {
   const [playerRetry, setPlayerRetry] = useState(0);
   const [playerLoadFailed, setPlayerLoadFailed] = useState(false);
   const [showCertNudge, setShowCertNudge] = useState(false);
-  const [workspaceMode, setWorkspaceMode] = useState<"cinema" | "scrimba" | "ide">("cinema");
 
   const courseQuery = useQuery({
     queryKey: ["course", slug],
@@ -446,6 +475,7 @@ function CourseDetail() {
         typeof window !== "undefined" ? window.location.origin : undefined,
       )
     : null;
+  const hasDirectMp4 = Boolean(active?.video_url && isDirectMp4Video(active.video_url));
   const pct = lessons.length ? Math.round((completed.size / lessons.length) * 100) : 0;
 
   const activeLessonCode = useMemo(() => {
@@ -983,84 +1013,9 @@ function CourseDetail() {
           </div>
         )}
 
-        {/* Workstation Mode Switcher: Theater / Scrimba Split (Watch & Code) / IDE */}
-        <div className="mt-6 flex flex-wrap items-center justify-between gap-3 bg-card/70 p-2.5 rounded-2xl border border-border/80 backdrop-blur-sm shadow-sm">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold font-display uppercase tracking-wider text-muted-foreground ml-1">
-              Workstation:
-            </span>
-            <div className="inline-flex items-center rounded-xl bg-muted/60 p-1 border border-border/50 text-xs">
-              <button
-                type="button"
-                onClick={() => setWorkspaceMode("cinema")}
-                className={cn(
-                  "px-3 py-1.5 rounded-lg font-semibold transition-all flex items-center gap-1.5 cursor-pointer",
-                  workspaceMode === "cinema"
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground",
-                )}
-              >
-                <Play className="h-3.5 w-3.5" />
-                <span>Lecture Theater</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setWorkspaceMode("scrimba")}
-                className={cn(
-                  "px-3 py-1.5 rounded-lg font-semibold transition-all flex items-center gap-1.5 cursor-pointer",
-                  workspaceMode === "scrimba"
-                    ? "bg-gradient-to-r from-indigo-500 to-sky-500 text-white shadow-sm"
-                    : "text-muted-foreground hover:text-foreground",
-                )}
-              >
-                <Sparkles className="h-3.5 w-3.5 text-amber-300" />
-                <span>Scrimba Split (Watch & Code)</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setWorkspaceMode("ide")}
-                className={cn(
-                  "px-3 py-1.5 rounded-lg font-semibold transition-all flex items-center gap-1.5 cursor-pointer",
-                  workspaceMode === "ide"
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground",
-                )}
-              >
-                <Code2 className="h-3.5 w-3.5" />
-                <span>Full IDE</span>
-              </button>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            {workspaceMode === "scrimba" ? (
-              <span className="inline-flex items-center gap-1.5 text-indigo-400 font-medium">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" /> Live Dual-Pane Practice Active
-              </span>
-            ) : !activeVideo?.ok ? (
-              <span className="inline-flex items-center gap-1.5 text-sky-400 font-medium">
-                <span className="w-2 h-2 rounded-full bg-sky-400 animate-pulse" /> Interactive IDE Video Player Active
-              </span>
-            ) : (
-              <span className="hidden sm:inline-block text-[11px] text-muted-foreground">
-                Switch to Scrimba mode to code alongside the lecture
-              </span>
-            )}
-          </div>
-        </div>
-
-        <div
-          className={cn(
-            "mt-4 gap-6",
-            workspaceMode === "scrimba" && activeVideo?.ok
-              ? "grid grid-cols-1 xl:grid-cols-2"
-              : workspaceMode === "ide" || (workspaceMode === "scrimba" && !activeVideo?.ok)
-                ? "grid grid-cols-1"
-                : "grid grid-cols-1 lg:grid-cols-[1fr_320px]"
-          )}
-        >
-          {/* Player Column */}
-          <div className={cn("space-y-4 min-w-0", workspaceMode === "ide" && "hidden")}>
+        <div className="mt-4 grid grid-cols-1 lg:grid-cols-[1fr_340px] xl:grid-cols-[1fr_380px] gap-6">
+          {/* Main Column: Video Player (MP4 only) OR Scrimba Split (Watch & Code) */}
+          <div className="space-y-4 min-w-0">
             {active && (
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center gap-2 min-w-0">
@@ -1071,10 +1026,16 @@ function CourseDetail() {
                     </span>
                   )}
                 </div>
+                {!hasDirectMp4 && (
+                  <Badge variant="outline" className="bg-sky-500/10 text-sky-400 border-sky-500/30 text-xs font-mono">
+                    <Sparkles className="h-3 w-3 mr-1 text-amber-300" />
+                    Scrimba Split (Watch &amp; Code)
+                  </Badge>
+                )}
               </div>
             )}
-            {activeVideo?.ok && !playerLoadFailed ? (
-              <div className="aspect-video rounded-2xl border bg-black overflow-hidden">
+            {hasDirectMp4 && activeVideo?.ok && !playerLoadFailed ? (
+              <div className="aspect-video rounded-2xl border bg-black overflow-hidden shadow-xl">
                 <CoursePlayer
                   key={`${active?.id}-${playerRetry}-${isAdmin}-${user?.id}`}
                   mode="advanced"
@@ -1122,7 +1083,7 @@ function CourseDetail() {
               <div className="rounded-2xl border border-slate-800 bg-[#0e111a] overflow-hidden shadow-2xl">
                 <ScrimbaWorkspace
                   courseTitle={course?.title || "Fullstack Path"}
-                  lessonTitle={active?.title || "Let's Make a Cake!"}
+                  lessonTitle={active?.title || "Interactive Lesson"}
                   instructorName={course?.instructor || "Tom Chant"}
                   injectedCode={activeLessonCode}
                   injectedLang={activeLessonLang}
@@ -1175,77 +1136,8 @@ function CourseDetail() {
             )}
           </div>
 
-          {/* Right Column in Scrimba Mode: Live Scrimba Multi-File Sandbox & Runner */}
-          {workspaceMode === "scrimba" && activeVideo?.ok && (
-            <div className="space-y-4 min-w-0">
-              <ScrimbaWorkspace
-                courseTitle={course.title}
-                lessonTitle={active?.title}
-                injectedCode={activeLessonCode}
-                injectedLang={activeLessonLang}
-                activeVideoTime={activeProgress?.watched_seconds ?? 0}
-              />
-
-              {/* Collapsible Curriculum in Scrimba Mode */}
-              <div className="rounded-2xl border border-border/80 bg-card shadow-sm overflow-hidden">
-                <div className="px-4 py-3 border-b border-border/60 bg-muted/20 flex items-center justify-between">
-                  <h3 className="font-display font-bold text-sm text-foreground">Course Curriculum</h3>
-                  <span className="text-[11px] text-muted-foreground font-medium">
-                    {lessons.length} lessons
-                  </span>
-                </div>
-                <ul className="divide-y divide-border/60 max-h-48 overflow-y-auto">
-                  {lessons.map((l, i) => {
-                    const isUnlocked = unlocked.has(l.id);
-                    const isDone = completed.has(l.id);
-                    const isActive = activeLessonId === l.id;
-                    return (
-                      <li key={l.id}>
-                        <button
-                          onClick={() => isUnlocked && setActiveLessonId(l.id)}
-                          disabled={!isUnlocked}
-                          className={cn(
-                            "w-full text-left px-4 py-2.5 flex items-center gap-2.5 transition text-xs",
-                            isActive && "bg-primary/10 border-l-4 border-primary font-bold text-primary",
-                            isUnlocked ? "hover:bg-accent cursor-pointer" : "opacity-50 cursor-not-allowed",
-                          )}
-                        >
-                          <span className="shrink-0">
-                            {!isUnlocked ? (
-                              <Lock className="h-3.5 w-3.5 text-muted-foreground" />
-                            ) : isDone ? (
-                              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
-                            ) : (
-                              <Circle className="h-3.5 w-3.5 text-muted-foreground" />
-                            )}
-                          </span>
-                          <span className="truncate flex-1">{i + 1}. {l.title}</span>
-                        </button>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
-            </div>
-          )}
-
-          {/* Right Column in IDE Mode */}
-          {workspaceMode === "ide" && (
-            <div className="space-y-4 min-w-0">
-              <div className="rounded-2xl border border-border/80 bg-card p-4 shadow-sm">
-                <CodePlayground
-                  course={{ id: course.id, title: course.title, slug: course.slug }}
-                  exerciseText={active?.title}
-                  injectedCode={activeLessonCode}
-                  injectedLang={activeLessonLang}
-                />
-              </div>
-            </div>
-          )}
-
-          {/* Right Sidebar (Content + Details) in Cinema / Standard Mode */}
-          {workspaceMode === "cinema" && (
-            <div className="space-y-6">
+          {/* Right Sidebar: Course Details & Curriculum */}
+          <div className="space-y-6">
               {/* Course Summary Card */}
               <div className="rounded-2xl border border-border/80 bg-card p-5 shadow-sm space-y-4">
               <h3 className="font-display font-bold text-sm text-foreground">Course Details</h3>
@@ -1479,7 +1371,6 @@ function CourseDetail() {
                 )}
               </div>
             </div>
-          )}
         </div>
 
         {course && user && isEnrolled && <AssignmentsPanel courseId={course.id} userId={user.id} />}

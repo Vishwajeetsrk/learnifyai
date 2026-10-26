@@ -493,6 +493,399 @@ const LESSON_NARRATIONS: NarrationClip[] = [
   },
 ];
 
+// ─── Dynamic Topic Workspace Generator ─────────────────────────────────────
+export function getDefaultFilesForTopic(
+  topic = "",
+  lang = "html",
+  injectedCode?: string
+): {
+  files: Record<string, string>;
+  defaultFile: string;
+  openTabs: string[];
+  isWebRunner: boolean;
+} {
+  const t = topic.toLowerCase();
+  const l = (lang || "").toLowerCase();
+
+  // 1. Python / Algorithms / Data Structures
+  if (
+    l === "python" ||
+    l === "py" ||
+    t.includes("python") ||
+    t.includes("binary search") ||
+    t.includes("algorithm") ||
+    t.includes("dsa") ||
+    t.includes("tree") ||
+    t.includes("graph") ||
+    t.includes("sort")
+  ) {
+    const pythonCode =
+      injectedCode ||
+      `# ==============================================================================
+# Interactive Python & Algorithms Workstation
+# Topic: ${topic || "Binary Search Algorithm"}
+# ==============================================================================
+
+def binary_search(arr, target):
+    """
+    Search for target in sorted array arr.
+    Returns the index if found, or -1 if not found.
+    Time Complexity: O(log N) | Space Complexity: O(1)
+    """
+    low = 0
+    high = len(arr) - 1
+    steps = 0
+
+    print(f"[*] Starting search for target: {target}")
+    print(f"[*] Sorted dataset: {arr}\\n")
+
+    while low <= high:
+        steps += 1
+        mid = (low + high) // 2
+        guess = arr[mid]
+        print(f"Step {steps}: low={low} (val={arr[low]}), mid={mid} (val={guess}), high={high} (val={arr[high]})")
+
+        if guess == target:
+            print(f"[✓] SUCCESS: Target {target} found at index {mid} in {steps} steps!")
+            return mid
+        elif guess < target:
+            low = mid + 1
+            print(f"    -> guess {guess} < {target}, shifting low pointer to {low}")
+        else:
+            high = mid - 1
+            print(f"    -> guess {guess} > {target}, shifting high pointer to {high}")
+
+    print(f"[✗] NOT FOUND: Target {target} does not exist in dataset.")
+    return -1
+
+# Interactive demonstration
+if __name__ == "__main__":
+    dataset = [2, 5, 8, 12, 16, 23, 38, 45, 56, 72, 91]
+    result = binary_search(dataset, 23)
+    print(f"\\nFinal Result: Index {result}")
+`;
+
+    const solutionCode = `"""
+Solution Reference: Leftmost Boundary Search
+Optimized for duplicate keys with exact boundary convergence.
+"""
+
+def search_leftmost(nums, target):
+    l, r = 0, len(nums)
+    while l < r:
+        mid = (l + r) // 2
+        if nums[mid] < target:
+            l = mid + 1
+        else:
+            r = mid
+    return l if (l < len(nums) and nums[l] == target) else -1
+`;
+
+    const testsCode = `import unittest
+from main import binary_search
+
+class TestBinarySearch(unittest.TestCase):
+    def test_found_middle(self):
+        arr = [1, 3, 5, 7, 9, 11]
+        self.assertEqual(binary_search(arr, 7), 3)
+
+    def test_found_first(self):
+        arr = [2, 4, 6, 8]
+        self.assertEqual(binary_search(arr, 2), 0)
+
+    def test_not_found(self):
+        arr = [10, 20, 30]
+        self.assertEqual(binary_search(arr, 15), -1)
+
+if __name__ == '__main__':
+    unittest.main()
+`;
+
+    const readmeCode = `# ${topic || "Python & Algorithms Masterclass"}
+
+## Workspace Architecture
+- \`main.py\`: Primary interactive walkthrough script with step-by-step logs.
+- \`solution.py\`: Production solution reference for comparison.
+- \`tests.py\`: Unit test suite verifying edge cases.
+
+## Complexity
+- **Time Complexity**: \`O(log N)\` logarithmic time
+- **Space Complexity**: \`O(1)\` auxiliary memory
+`;
+
+    return {
+      files: {
+        "main.py": pythonCode,
+        "solution.py": solutionCode,
+        "tests.py": testsCode,
+        "README.md": readmeCode,
+      },
+      defaultFile: "main.py",
+      openTabs: ["main.py", "solution.py", "README.md"],
+      isWebRunner: false,
+    };
+  }
+
+  // 2. React / JSX / Hooks
+  if (
+    l === "react" ||
+    l === "jsx" ||
+    l === "tsx" ||
+    t.includes("react") ||
+    t.includes("hook") ||
+    t.includes("component") ||
+    t.includes("state")
+  ) {
+    const appJsx =
+      injectedCode ||
+      `import React, { useState } from "react";
+
+export default function CounterApp() {
+  const [count, setCount] = useState(0);
+  const [history, setHistory] = useState([0]);
+
+  const increment = () => {
+    setCount((prev) => {
+      const next = prev + 1;
+      setHistory((h) => [...h, next]);
+      return next;
+    });
+  };
+
+  const decrement = () => {
+    setCount((prev) => {
+      const next = prev - 1;
+      setHistory((h) => [...h, next]);
+      return next;
+    });
+  };
+
+  const reset = () => {
+    setCount(0);
+    setHistory([0]);
+  };
+
+  return (
+    <div className="app-container">
+      <header className="app-header">
+        <h1>⚛️ React 19 State &amp; Hooks</h1>
+        <p className="subtitle">${topic || "Interactive Scrimba State Management"}</p>
+      </header>
+
+      <main className="counter-card">
+        <span className="count-label">Current Count</span>
+        <div className="count-display">{count}</div>
+
+        <div className="button-group">
+          <button onClick={decrement} className="btn btn-secondary">-1</button>
+          <button onClick={reset} className="btn btn-danger">Reset</button>
+          <button onClick={increment} className="btn btn-primary">+1</button>
+        </div>
+
+        <div className="history-section">
+          <h4>State History ({history.length} updates)</h4>
+          <div className="history-chips">
+            {history.slice(-8).map((val, i) => (
+              <span key={i} className="chip">{val}</span>
+            ))}
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}
+`;
+
+    const reactHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>React 19 Interactive Workspace</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    ${appJsx.replace(/export default function CounterApp/, "function CounterApp")}
+    ReactDOM.createRoot(document.getElementById('root')).render(<CounterApp />);
+  </script>
+</body>
+</html>`;
+
+    const reactCss = `body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: #0f172a;
+  color: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 16px;
+}
+.app-container {
+  width: 100%;
+  max-width: 360px;
+  background: #1e293b;
+  border-radius: 20px;
+  border: 1px solid #334155;
+  padding: 24px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
+}
+.app-header h1 {
+  font-size: 20px;
+  font-weight: 800;
+  color: #38bdf8;
+  margin: 0 0 4px 0;
+  text-align: center;
+}
+.subtitle {
+  font-size: 12px;
+  color: #94a3b8;
+  margin: 0 0 20px 0;
+  text-align: center;
+}
+.counter-card {
+  text-align: center;
+}
+.count-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #64748b;
+  font-weight: 700;
+}
+.count-display {
+  font-size: 54px;
+  font-weight: 900;
+  color: #f8fafc;
+  margin: 8px 0 16px 0;
+  font-feature-settings: "tnum";
+}
+.button-group {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+.btn {
+  border: none;
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 14px;
+  transition: transform 0.15s ease;
+}
+.btn:hover { transform: translateY(-2px); }
+.btn-primary { background: #38bdf8; color: #0f172a; }
+.btn-secondary { background: #475569; color: #f8fafc; }
+.btn-danger { background: #e11d48; color: #fff; }
+.history-section {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #334155;
+  text-align: left;
+}
+.history-section h4 {
+  font-size: 11px;
+  color: #94a3b8;
+  margin: 0 0 8px 0;
+  text-transform: uppercase;
+}
+.history-chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.chip {
+  background: #334155;
+  color: #38bdf8;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+}`;
+
+    const reactPackage = `{
+  "name": "react-scrimba-workspace",
+  "version": "1.0.0",
+  "dependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  }
+}`;
+
+    return {
+      files: {
+        "App.jsx": appJsx,
+        "index.html": reactHtml,
+        "styles.css": reactCss,
+        "package.json": reactPackage,
+      },
+      defaultFile: "App.jsx",
+      openTabs: ["App.jsx", "styles.css", "index.html"],
+      isWebRunner: true,
+    };
+  }
+
+  // 3. Default: Cake Recipe App (Frames 001, 007, 008)
+  return {
+    files: {
+      "index.html": injectedCode || DEFAULT_CAKE_HTML,
+      "styles.css": DEFAULT_CAKE_CSS,
+      "index.js": DEFAULT_CAKE_JS,
+      "package-lock.json": DEFAULT_PACKAGE_JSON,
+    },
+    defaultFile: "index.html",
+    openTabs: ["index.js", "index.html"],
+    isWebRunner: true,
+  };
+}
+
+export function generateTopicNarrations(topic: string, instructor: string): NarrationClip[] {
+  const isCake = topic.toLowerCase().includes("cake");
+  if (isCake) return LESSON_NARRATIONS;
+
+  return [
+    {
+      time: 0,
+      text: `Hello! I'm ${instructor}, and welcome to this Scrimba session on ${topic}.`,
+      caption: `Welcome to ${topic} with ${instructor}.`,
+    },
+    {
+      time: 5,
+      text: "You are inside a real live IDE. On the left are your project files, in the center is the editor, and on the right is your live execution runner.",
+      caption: "Interactive Scrimba: Files on left, code in center, live runner on right.",
+    },
+    {
+      time: 14,
+      text: "Look through the code structure. You can click into any line to pause and test your own variations.",
+      caption: "Click anywhere in the code to pause and experiment.",
+    },
+    {
+      time: 25,
+      text: "Practice checkpoint! Try modifying a variable or adding a function, and see the runner update.",
+      caption: "Practice checkpoint: Try your own code modifications.",
+      autoPause: true,
+    },
+    {
+      time: 50,
+      text: "Whenever you edit code, your personal fork stays active. When you want to return to the lecture, just click Back to Teacher.",
+      caption: "Click 'Back to Teacher' when you're ready to resume.",
+    },
+    {
+      time: 100,
+      text: "Great progress! Continue exploring the code files to master this topic.",
+      caption: "Great progress! Master the concept by experimenting.",
+    },
+  ];
+}
+
 export interface ScrimbaWorkspaceProps {
   courseTitle?: string;
   lessonTitle?: string;
@@ -518,6 +911,15 @@ export function ScrimbaWorkspace({
   onCodeChange,
   onForkChange,
 }: ScrimbaWorkspaceProps) {
+  const executeCodeFn = useServerFn(executeCode);
+
+  // ─── Initial Dynamic Workspace Setup ───────────────────────────────────────
+  const initialTopicConfig = useMemo(
+    () => getDefaultFilesForTopic(lessonTitle, injectedLang, injectedCode),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  );
+
   // ─── Playback Engine State ─────────────────────────────────────────────────
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [currentTime, setCurrentTime] = useState<number>(activeVideoTime);
@@ -527,29 +929,19 @@ export function ScrimbaWorkspace({
   const [showIntroBumper, setShowIntroBumper] = useState<boolean>(currentTime < 4);
   const [playbackSpeed, setPlaybackSpeed] = useState<number>(1);
   const [showExplainModal, setShowExplainModal] = useState<boolean>(false);
+  const [isMaximized, setIsMaximized] = useState<boolean>(false);
 
   // ─── Responsive Tabs (Mobile & Tablet) ────────────────────────────────────
   const [mobileTab, setMobileTab] = useState<"code" | "preview" | "files">("code");
 
   // ─── Files and Editor State ────────────────────────────────────────────────
-  const [files, setFiles] = useState<Record<string, string>>({
-    "index.html": injectedCode || DEFAULT_CAKE_HTML,
-    "styles.css": DEFAULT_CAKE_CSS,
-    "index.js": DEFAULT_CAKE_JS,
-    "package-lock.json": DEFAULT_PACKAGE_JSON,
-  });
-
-  const [activeFileName, setActiveFileName] = useState<string>("index.html");
+  const [files, setFiles] = useState<Record<string, string>>(initialTopicConfig.files);
+  const [activeFileName, setActiveFileName] = useState<string>(initialTopicConfig.defaultFile);
   const [isImagesFolderOpen, setIsImagesFolderOpen] = useState<boolean>(true);
-  const [openTabs, setOpenTabs] = useState<string[]>(["index.js", "index.html"]);
+  const [openTabs, setOpenTabs] = useState<string[]>(initialTopicConfig.openTabs);
   const [isForked, setIsForked] = useState<boolean>(false);
   const [forkTimestamp, setForkTimestamp] = useState<number>(0);
-  const [teacherSnapshot, setTeacherSnapshot] = useState<Record<string, string>>({
-    "index.html": injectedCode || DEFAULT_CAKE_HTML,
-    "styles.css": DEFAULT_CAKE_CSS,
-    "index.js": DEFAULT_CAKE_JS,
-    "package-lock.json": DEFAULT_PACKAGE_JSON,
-  });
+  const [teacherSnapshot, setTeacherSnapshot] = useState<Record<string, string>>(initialTopicConfig.files);
 
   // ─── Runner & Console State ────────────────────────────────────────────────
   const [bottomTab, setBottomTab] = useState<"runner" | "console">("runner");
@@ -557,6 +949,91 @@ export function ScrimbaWorkspace({
   const [deviceViewport, setDeviceViewport] = useState<"desktop" | "mobile">("desktop");
   const [previewKey, setPreviewKey] = useState<number>(0);
   const [isMuted, setIsMuted] = useState<boolean>(false);
+  const [isRunningScript, setIsRunningScript] = useState<boolean>(false);
+  const [scriptOutput, setScriptOutput] = useState<string>("");
+  const [scriptExitCode, setScriptExitCode] = useState<number | null>(null);
+  const [scriptDurationMs, setScriptDurationMs] = useState<number | null>(null);
+
+  // Active topic narrations
+  const narrations = useMemo(
+    () => generateTopicNarrations(lessonTitle, instructorName),
+    [lessonTitle, instructorName]
+  );
+
+  const isWebRunner = useMemo(() => {
+    const l = (injectedLang || "").toLowerCase();
+    const t = lessonTitle.toLowerCase();
+    if (l === "python" || l === "py" || t.includes("python") || t.includes("binary search") || t.includes("dsa")) {
+      return false;
+    }
+    return true;
+  }, [injectedLang, lessonTitle]);
+
+  // Synchronize when topic, lesson, or injected code changes
+  useEffect(() => {
+    const config = getDefaultFilesForTopic(lessonTitle, injectedLang, injectedCode);
+    setFiles(config.files);
+    setTeacherSnapshot(config.files);
+    setActiveFileName(config.defaultFile);
+    setOpenTabs(config.openTabs);
+    setIsForked(false);
+    setCurrentTime(0);
+    setIsPlaying(false);
+    setShowIntroBumper(true);
+    setScriptOutput("");
+    setScriptExitCode(null);
+  }, [lessonTitle, injectedCode, injectedLang]);
+
+  // Escape key exits fullscreen
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isMaximized) {
+        setIsMaximized(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isMaximized]);
+
+  // Cloud script execution runner
+  const handleRunScript = useCallback(async () => {
+    setIsRunningScript(true);
+    const start = Date.now();
+    try {
+      const code = files[activeFileName] || Object.values(files)[0] || "";
+      const lang = activeFileName.endsWith(".py") ? "python" : activeFileName.endsWith(".js") ? "javascript" : "html";
+      const res = await executeCodeFn({ data: { language: lang, code } });
+      const duration = Date.now() - start;
+      setScriptDurationMs(duration);
+      if (res) {
+        const rawRes = res as any;
+        const out = rawRes.stdout || rawRes.output || rawRes.stderr || rawRes.error || "[Execution finished with no stdout]";
+        setScriptOutput(out);
+        setScriptExitCode(typeof rawRes.code === "number" ? rawRes.code : rawRes.error ? 1 : 0);
+        setConsoleLogs((prev) => [
+          ...prev,
+          {
+            id: Math.random().toString(36).substring(7),
+            type: rawRes.error || rawRes.stderr ? "error" : "log",
+            text: out,
+            time: new Date().toLocaleTimeString(),
+          },
+        ]);
+        if (rawRes.error || rawRes.stderr) {
+          toast.error("Execution finished with errors");
+        } else {
+          toast.success(`Executed in ${duration}ms`);
+        }
+      }
+    } catch (err: any) {
+      const msg = err.message || String(err);
+      toast.error(`Execution failed: ${msg}`);
+      setScriptOutput(`Error: ${msg}`);
+      setScriptExitCode(1);
+    } finally {
+      setIsRunningScript(false);
+    }
+  }, [activeFileName, executeCodeFn, files]);
 
   // ─── Speech Synthesis Narration ───────────────────────────────────────────
   const speakText = useCallback(
@@ -603,7 +1080,7 @@ export function ScrimbaWorkspace({
           }
 
           // Check if milestone narration fires at this second
-          const clip = LESSON_NARRATIONS.find((c) => c.time === next);
+          const clip = narrations.find((c) => c.time === next);
           if (clip) {
             setActiveCaption(clip.caption);
             speakText(clip.text);
@@ -706,9 +1183,9 @@ export function ScrimbaWorkspace({
       setIsPlaying(true);
       setShowIntroBumper(currentTime < 4);
       // Play initial clip if starting from zero
-      if (currentTime === 0) {
-        speakText(LESSON_NARRATIONS[0].text);
-        setActiveCaption(LESSON_NARRATIONS[0].caption);
+      if (currentTime === 0 && narrations[0]) {
+        speakText(narrations[0].text);
+        setActiveCaption(narrations[0].caption);
       }
     } else {
       setIsPlaying(false);
@@ -796,7 +1273,14 @@ export function ScrimbaWorkspace({
   const activeImageAsset = isImageFile ? FOOD_ASSETS[activeFileName] : null;
 
   return (
-    <div className="flex flex-col rounded-2xl border border-slate-800 bg-[#0e111a] text-slate-100 shadow-2xl overflow-hidden min-h-[640px] font-sans select-none">
+    <div
+      className={cn(
+        "flex flex-col bg-[#0e111a] text-slate-100 shadow-2xl font-sans select-none transition-all",
+        isMaximized
+          ? "fixed inset-0 z-50 rounded-none w-screen h-screen overflow-hidden"
+          : "rounded-2xl border border-slate-800 overflow-hidden min-h-[640px]"
+      )}
+    >
       {/* ─── 1. TOP NAV BAR (Frame 001, 007, 008) ──────────────────────────── */}
       <div className="flex items-center justify-between px-3 sm:px-4 py-2.5 bg-[#141824] border-b border-slate-800/80 text-xs gap-2">
         {/* Left: Brand Icon + Breadcrumbs + Timer + "BACK TO TEACHER" */}
@@ -857,6 +1341,27 @@ export function ScrimbaWorkspace({
             <span>EXPLAIN</span>
           </Button>
 
+          {/* Fullscreen Expand / Minimize */}
+          <Button
+            onClick={() => setIsMaximized((m) => !m)}
+            size="sm"
+            variant="outline"
+            className="h-7 px-2 text-[11px] font-bold text-slate-300 border-slate-700 hover:text-white hover:bg-slate-800 cursor-pointer"
+            title={isMaximized ? "Exit Fullscreen (Esc)" : "Fullscreen Workstation"}
+          >
+            {isMaximized ? (
+              <>
+                <Minimize2 className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">MINIMIZE</span>
+              </>
+            ) : (
+              <>
+                <Maximize2 className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">EXPAND</span>
+              </>
+            )}
+          </Button>
+
           {/* Mobile responsive tab toggle (< 1024px) */}
           <div className="flex lg:hidden items-center bg-slate-900 p-0.5 rounded-lg border border-slate-700 text-[11px]">
             <button
@@ -895,15 +1400,25 @@ export function ScrimbaWorkspace({
               <span>FILES</span>
               <div className="flex items-center gap-1">
                 <button
-                  onClick={() => toast.info("Create file in virtual sandbox")}
-                  className="hover:text-slate-100 p-0.5 rounded"
+                  onClick={() => {
+                    const name = window.prompt("Enter new file name (e.g. utils.js, helpers.py):");
+                    if (name && name.trim()) {
+                      const trimmed = name.trim();
+                      setFiles((prev) => ({ ...prev, [trimmed]: "" }));
+                      setOpenTabs((prev) => [...prev, trimmed]);
+                      setActiveFileName(trimmed);
+                      triggerFork();
+                      toast.success(`Created ${trimmed} in sandbox!`);
+                    }
+                  }}
+                  className="hover:text-slate-100 p-0.5 rounded cursor-pointer"
                   title="New File"
                 >
                   <FilePlus className="h-3.5 w-3.5" />
                 </button>
                 <button
                   onClick={() => setIsImagesFolderOpen((o) => !o)}
-                  className="hover:text-slate-100 p-0.5 rounded"
+                  className="hover:text-slate-100 p-0.5 rounded cursor-pointer"
                   title="Toggle Folders"
                 >
                   <FolderPlus className="h-3.5 w-3.5" />
@@ -949,65 +1464,69 @@ export function ScrimbaWorkspace({
                 </div>
               )}
 
-              {/* Code Files */}
-              <button
-                onClick={() => handleSelectFile("index.html")}
-                className={cn(
-                  "w-full flex items-center gap-2 px-2 py-1.5 rounded text-left transition text-[11px]",
-                  activeFileName === "index.html"
-                    ? "bg-slate-800 text-sky-400 font-bold"
-                    : "text-slate-300 hover:text-white hover:bg-slate-800/40"
-                )}
-              >
-                <span className="text-orange-400 font-bold">&lt;&gt;</span>
-                <span>index.html</span>
-              </button>
+              {/* Dynamic Code Files */}
+              {Object.keys(files)
+                .filter((f) => !f.includes("package") && !f.startsWith("images/"))
+                .map((fName) => {
+                  const isSelected = activeFileName === fName;
+                  const isPy = fName.endsWith(".py");
+                  const isHtml = fName.endsWith(".html");
+                  const isCss = fName.endsWith(".css");
+                  const isJs = fName.endsWith(".js") || fName.endsWith(".jsx");
+                  const isJson = fName.endsWith(".json");
+                  const isMd = fName.endsWith(".md");
 
-              <button
-                onClick={() => handleSelectFile("index.js")}
-                className={cn(
-                  "w-full flex items-center gap-2 px-2 py-1.5 rounded text-left transition text-[11px]",
-                  activeFileName === "index.js"
-                    ? "bg-slate-800 text-yellow-400 font-bold"
-                    : "text-slate-300 hover:text-white hover:bg-slate-800/40"
-                )}
-              >
-                <span className="text-yellow-400 font-bold">JS</span>
-                <span>index.js</span>
-              </button>
-
-              <button
-                onClick={() => handleSelectFile("styles.css")}
-                className={cn(
-                  "w-full flex items-center gap-2 px-2 py-1.5 rounded text-left transition text-[11px]",
-                  activeFileName === "styles.css"
-                    ? "bg-slate-800 text-sky-400 font-bold"
-                    : "text-slate-300 hover:text-white hover:bg-slate-800/40"
-                )}
-              >
-                <span className="text-sky-400 font-bold">#</span>
-                <span>styles.css</span>
-              </button>
+                  return (
+                    <button
+                      key={fName}
+                      onClick={() => handleSelectFile(fName)}
+                      className={cn(
+                        "w-full flex items-center gap-2 px-2 py-1.5 rounded text-left transition text-[11px] font-mono truncate cursor-pointer",
+                        isSelected
+                          ? "bg-slate-800 text-sky-400 font-bold"
+                          : "text-slate-300 hover:text-white hover:bg-slate-800/40"
+                      )}
+                    >
+                      {isPy && <span className="text-yellow-400 font-bold text-[10px]">Py</span>}
+                      {isHtml && <span className="text-orange-400 font-bold text-[10px]">&lt;&gt;</span>}
+                      {isCss && <span className="text-sky-400 font-bold text-[10px]">#</span>}
+                      {isJs && <span className="text-yellow-400 font-bold text-[10px]">JS</span>}
+                      {isJson && <span className="text-red-400 font-bold text-[10px]">&#123;&#125;</span>}
+                      {isMd && <span className="text-purple-400 font-bold text-[10px]">MD</span>}
+                      {!isPy && !isHtml && !isCss && !isJs && !isJson && !isMd && (
+                        <FileCode className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                      )}
+                      <span className="truncate">{fName}</span>
+                    </button>
+                  );
+                })}
             </div>
 
             {/* Configuration Header */}
-            <div className="pt-4 mt-4 border-t border-slate-800">
-              <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider block mb-1">
-                Configuration
-              </span>
-              <button
-                onClick={() => handleSelectFile("package-lock.json")}
-                className={cn(
-                  "w-full flex items-center gap-1.5 px-2 py-1 rounded text-left transition text-[11px]",
-                  activeFileName === "package-lock.json"
-                    ? "bg-slate-800 text-red-400 font-bold"
-                    : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/40"
-                )}
-              >
-                <span className="text-[9px] bg-red-950 text-red-400 px-1 rounded font-bold">npm</span>
-                <span className="truncate">package-lock.json</span>
-              </button>
-            </div>
+            {Object.keys(files).some((f) => f.includes("package")) && (
+              <div className="pt-4 mt-4 border-t border-slate-800">
+                <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider block mb-1">
+                  Configuration
+                </span>
+                {Object.keys(files)
+                  .filter((f) => f.includes("package"))
+                  .map((pkgFile) => (
+                    <button
+                      key={pkgFile}
+                      onClick={() => handleSelectFile(pkgFile)}
+                      className={cn(
+                        "w-full flex items-center gap-1.5 px-2 py-1 rounded text-left transition text-[11px] cursor-pointer",
+                        activeFileName === pkgFile
+                          ? "bg-slate-800 text-red-400 font-bold"
+                          : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/40"
+                      )}
+                    >
+                      <span className="text-[9px] bg-red-950 text-red-400 px-1 rounded font-bold">npm</span>
+                      <span className="truncate">{pkgFile}</span>
+                    </button>
+                  ))}
+              </div>
+            )}
           </div>
 
           <div className="pt-3 border-t border-slate-800/80 text-[10px] text-slate-500 space-y-1">
@@ -1104,9 +1623,15 @@ export function ScrimbaWorkspace({
                       ? "html"
                       : activeFileName.endsWith(".css")
                         ? "css"
-                        : activeFileName.endsWith(".json")
-                          ? "json"
-                          : "javascript"
+                        : activeFileName.endsWith(".py")
+                          ? "python"
+                          : activeFileName.endsWith(".json")
+                            ? "json"
+                            : activeFileName.endsWith(".md")
+                              ? "markdown"
+                              : activeFileName.endsWith(".tsx") || activeFileName.endsWith(".ts")
+                                ? "typescript"
+                                : "javascript"
                   }
                   theme="vs-dark"
                   value={files[activeFileName] || ""}
@@ -1230,19 +1755,88 @@ export function ScrimbaWorkspace({
             </div>
           </div>
 
-          {/* Iframe Preview Container */}
-          <div className="flex-1 bg-white relative flex justify-center items-center overflow-auto min-h-[340px]">
-            <iframe
-              key={previewKey}
-              title="Live Scrimba Sandbox Preview"
-              sandbox="allow-scripts allow-modals"
-              srcDoc={bundledSrcDoc}
-              className={cn(
-                "h-full border-0 transition-all duration-300",
-                deviceViewport === "desktop" ? "w-full" : "w-[375px] shadow-2xl border-x border-slate-300"
-              )}
-            />
-          </div>
+          {/* Iframe Preview Container or Python Interactive Runtime */}
+          {isWebRunner ? (
+            <div className="flex-1 bg-white relative flex justify-center items-center overflow-auto min-h-[340px]">
+              <iframe
+                key={previewKey}
+                title="Live Scrimba Sandbox Preview"
+                sandbox="allow-scripts allow-modals"
+                srcDoc={bundledSrcDoc}
+                className={cn(
+                  "h-full border-0 transition-all duration-300",
+                  deviceViewport === "desktop" ? "w-full" : "w-[375px] shadow-2xl border-x border-slate-300"
+                )}
+              />
+            </div>
+          ) : (
+            <div className="flex-1 bg-[#090D16] text-slate-200 flex flex-col min-h-[340px] font-mono">
+              <div className="p-3 bg-[#111625] border-b border-slate-800 flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2">
+                  <div className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="font-bold text-slate-200">Python 3.12 Cloud Runtime</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    onClick={handleRunScript}
+                    disabled={isRunningScript}
+                    className="h-7 px-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs gap-1.5 shadow-md shadow-emerald-600/20 cursor-pointer"
+                  >
+                    <Play className="h-3.5 w-3.5 fill-white" />
+                    <span>{isRunningScript ? "Running..." : "Run Script"}</span>
+                  </Button>
+                  {scriptOutput && (
+                    <button
+                      onClick={() => {
+                        setScriptOutput("");
+                        setScriptExitCode(null);
+                        setScriptDurationMs(null);
+                      }}
+                      className="text-[11px] text-slate-400 hover:text-slate-200 p-1 rounded"
+                      title="Clear Terminal"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex-1 p-4 overflow-y-auto space-y-2 text-xs leading-relaxed bg-[#07090F]">
+                <div className="text-slate-500 text-[11px]">
+                  Learnify AI Sandbox Terminal [Version 4.2.0-cloud]<br />
+                  Ready to execute {activeFileName}. Press &quot;Run Script&quot; to test your code.
+                </div>
+
+                {isRunningScript && (
+                  <div className="flex items-center gap-2 text-sky-400 py-3">
+                    <RefreshCw className="h-4 w-4 animate-spin" />
+                    <span>Executing {activeFileName} in sandbox container...</span>
+                  </div>
+                )}
+
+                {scriptOutput ? (
+                  <div className="mt-2 space-y-2">
+                    <div className="flex items-center gap-3 text-[10px] text-slate-400 pb-1 border-b border-slate-800">
+                      <span className="text-emerald-400 font-bold">● Exit Code: {scriptExitCode ?? 0}</span>
+                      {scriptDurationMs && <span>● Duration: {scriptDurationMs}ms</span>}
+                      <span>● Memory: 18.4MB</span>
+                    </div>
+                    <pre className="text-slate-100 whitespace-pre-wrap font-mono text-xs bg-slate-950/60 p-3 rounded-lg border border-slate-800/80">
+                      {scriptOutput}
+                    </pre>
+                  </div>
+                ) : (
+                  !isRunningScript && (
+                    <div className="mt-8 text-center text-slate-500 space-y-2">
+                      <Terminal className="h-8 w-8 mx-auto text-slate-600 stroke-[1.5]" />
+                      <p className="text-xs">Click <strong className="text-emerald-400">&quot;Run Script&quot;</strong> above to execute <code className="text-sky-300">{activeFileName}</code></p>
+                    </div>
+                  )
+                )}
+              </div>
+            </div>
+          )}
 
           {/* ─── Runner / Console Tray ─────────────────────────────────────── */}
           <div className="border-t border-slate-800 bg-[#121622]">
@@ -1420,7 +2014,7 @@ export function ScrimbaWorkspace({
               </div>
               <button
                 onClick={() => setShowExplainModal(false)}
-                className="text-slate-400 hover:text-white p-1 rounded"
+                className="text-slate-400 hover:text-white p-1 rounded cursor-pointer"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -1428,30 +2022,40 @@ export function ScrimbaWorkspace({
 
             <div className="space-y-3 text-xs leading-relaxed text-slate-300">
               <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
-                <span className="font-bold text-sky-300 block">HTML Architecture:</span>
+                <span className="font-bold text-sky-300 block">Architecture &amp; Purpose:</span>
                 <p>
-                  The structure defines a 4-column CSS grid recipe layout containing 8 food items. The egg item contains
-                  the class <code className="text-amber-300">.scared</code> which activates the CSS keyframe shake on hover.
+                  This file <code className="text-amber-300">{activeFileName}</code> provides the core logic for <strong>{lessonTitle}</strong>.
+                  {activeFileName.endsWith(".html") && " It structures the DOM elements, asset hierarchy, and viewport layout."}
+                  {activeFileName.endsWith(".css") && " It configures visual rules, responsive layouts, micro-animations, and typography tokens."}
+                  {activeFileName.endsWith(".js") && " It hooks up event listeners, interactive DOM manipulation, and console logging."}
+                  {activeFileName.endsWith(".jsx") && " It manages React component state, lifecycle hooks, and virtual DOM rendering."}
+                  {activeFileName.endsWith(".py") && " It contains clean, idiomatic Python code with step-by-step algorithms and complexity analysis."}
                 </p>
               </div>
 
               <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
-                <span className="font-bold text-indigo-300 block">CSS Micro-Interaction:</span>
+                <span className="font-bold text-indigo-300 block">How Scrimba Dual-Pane Works:</span>
                 <p>
-                  The <code className="text-sky-300">@keyframes shake</code> animation applies subtle rotational and translational
-                  deviations across 10 keyframes, producing a playful reaction when the user hovers over the egg.
+                  You are inside an interactive recording. Whenever you click or modify the code in the editor, your lecture auto-pauses and creates a personal fork. Test your changes in the live runner on the right, and click <strong className="text-sky-300">↺ BACK TO TEACHER</strong> at any time to resume the teacher walkthrough.
                 </p>
               </div>
 
               <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
-                <span className="font-bold text-emerald-300 block">Virtual Dev Server:</span>
+                <span className="font-bold text-emerald-300 block">Suggested Experiment:</span>
                 <p>
-                  Live changes hot-reload directly into the virtual runner at port 8080 without full page reloads.
+                  {activeFileName.endsWith(".py")
+                    ? "Try changing the target value in binary_search or adding negative numbers to test edge cases."
+                    : activeFileName.endsWith(".jsx")
+                    ? "Try adding a step size multiplier or storing max and min count values in React state."
+                    : "Try editing colors or modifying values in styles.css to customize the live layout."}
                 </p>
               </div>
             </div>
 
-            <div className="pt-2 flex justify-end">
+            <div className="pt-2 flex justify-between items-center">
+              <span className="text-[11px] text-slate-500">
+                Instructor: {instructorName} · Scrimba 4.2
+              </span>
               <Button
                 onClick={() => setShowExplainModal(false)}
                 size="sm"

@@ -45,6 +45,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { UnpackAnythingStudio } from "@/components/ai-tools/UnpackAnythingStudio";
 import {
   Dialog,
   DialogContent,
@@ -180,18 +181,26 @@ function AIToolsPage() {
           </div>
         </div>
 
-        <Tabs defaultValue="tools" className="mt-6">
-          <TabsList>
-            <TabsTrigger value="tools">
-              <Sparkles className="h-3.5 w-3.5" /> Tools
+        <Tabs defaultValue="unpack" className="mt-6">
+          <TabsList className="bg-muted/60 p-1 rounded-xl">
+            <TabsTrigger value="unpack" className="gap-1.5 font-semibold">
+              <Sparkles className="h-3.5 w-3.5 text-primary" /> Unpack Anything (Scrimba)
             </TabsTrigger>
-            <TabsTrigger value="library">
+            <TabsTrigger value="tools" className="gap-1.5 font-semibold">
+              <Code2 className="h-3.5 w-3.5" /> Specialized Tools
+            </TabsTrigger>
+            <TabsTrigger value="library" className="gap-1.5 font-semibold">
               <Layers className="h-3.5 w-3.5" /> Library
             </TabsTrigger>
-            <TabsTrigger value="history">
+            <TabsTrigger value="history" className="gap-1.5 font-semibold">
               <History className="h-3.5 w-3.5" /> History
             </TabsTrigger>
           </TabsList>
+
+          {/* Unpack Anything Studio Tab Content */}
+          <TabsContent value="unpack" className="pt-6">
+            <UnpackAnythingStudio />
+          </TabsContent>
 
           <TabsContent value="tools" className="pt-4">
             {/* Category Filter Chips */}
