@@ -2,7 +2,7 @@
 
 <img src="src/assets/learnify-logo.png" alt="Learnify AI Logo" width="180" style="margin-bottom: 12px; filter: drop-shadow(0 4px 12px rgba(99, 102, 241, 0.25));" />
 
-# Learnify AI 6.0.0
+# Learnify AI 6.1.0
 
 **The AI-Native Learning & Career Operating System**
 
@@ -23,6 +23,10 @@
 ## 🎯 What is Learnify AI?
 
 Learnify AI is a **full-stack, AI-powered learning and career growth platform** that integrates intelligent tutoring, 11-in-1 career studio tools, autonomous AI agents, gamification, and creator economy tools into one seamless experience.
+
+### 🌟 What's New in Learnify AI 6.1.0
+* 🖥️ **Scrimba Split (Watch & Code) Interactive Engine**: Eliminated all non-MP4 & YouTube video embeds in favor of an interactive Scrimba code workspace. Features topic-aware multi-file architectures (Python 3.12, React 19, HTML/CSS/JS), live web preview with hot-reload, cloud sandbox execution runner, dynamic file tree creation, speech synthesis narration, and fullscreen theater mode.
+* 🪄 **AI Suite: Unpack Anything Studio**: Universal question-to-explainer video studio mounted at `/ai-tools`. Features multi-format asset ingestion (PDF, Word, Video, Image), automated playlist synthesis, 3 size formats (Mobile 9:16, Desktop 16:9, Custom Scrimba), 7 distinct teaching personas (Explain, Standard, Per, Tom Chant, LOL, Professor, TLDR), and native integrations for ChatGPT Plugin, Chrome Extension, Claude + MCP, and Developer API.
 
 ### 🌟 What's New in Learnify AI 6.0.0
 * 📜 **Interactive Certificate Engine (Guilloche Micro-Lathe Vector Stage)**: 100% native HTML5 vector canvas guilloche security rosette engine, 6 background themes, customizable seals, dual cursive signatures, and 300 DPI landscape A4 PDF / 3x PNG master exports.
