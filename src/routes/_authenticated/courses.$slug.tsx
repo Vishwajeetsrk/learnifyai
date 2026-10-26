@@ -1014,7 +1014,7 @@ function CourseDetail() {
         )}
 
         <div className="mt-4 grid grid-cols-1 lg:grid-cols-[1fr_340px] xl:grid-cols-[1fr_380px] gap-6">
-          {/* Main Column: Video Player (MP4 only) OR Scrimba Split (Watch & Code) */}
+          {/* Main Column: Video Player (MP4 only) OR Learnify (Watch & Code) */}
           <div className="space-y-4 min-w-0">
             {active && (
               <div className="flex flex-wrap items-center justify-between gap-2">

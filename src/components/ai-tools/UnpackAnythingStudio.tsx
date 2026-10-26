@@ -42,8 +42,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { ScrimbaWorkspace } from "@/components/courses/ScrimbaWorkspace";
+import { ScrimbaWorkspace, PracticeChallenge } from "@/components/courses/ScrimbaWorkspace";
 import { ScrimbaLearningHub } from "./ScrimbaLearningHub";
+import { generateTopicBundle } from "./topicCodeGenerator";
 
 // ─── 7 Persona Configurations ───────────────────────────────────────────────
 export type TeachingPersona =
@@ -165,8 +166,9 @@ export function UnpackAnythingStudio() {
     sizeFormat: SizeFormat;
     code?: string;
     lang?: string;
+    practiceChallenges?: PracticeChallenge[];
   } | null>({
-    title: "Let's Make a Cake! (Interactive Cake Scrimba)",
+    title: "Let's Make a Cake! (Interactive Cake Lab)",
     topic: "Fullstack Introduction & CSS Animations",
     persona: "tom",
     sizeFormat: "custom",
@@ -227,22 +229,22 @@ export function UnpackAnythingStudio() {
     }, 2600);
 
     setTimeout(() => {
-      const chosenTitle = prompt.trim()
-        ? prompt.trim().slice(0, 60) + (prompt.length > 60 ? "..." : "")
-        : uploadedFiles[0]?.name
-        ? `Explaining ${uploadedFiles[0].name}`
-        : "Interactive Scrimba Explainer";
+      const queryText = prompt.trim() || uploadedFiles[0]?.name || "Interactive Studio";
+      const bundle = generateTopicBundle(queryText);
 
       setActiveExplainer({
-        title: chosenTitle,
-        topic: prompt.trim() || "Multi-document explainer",
+        title: bundle.title,
+        topic: queryText,
         persona: selectedPersona,
         sizeFormat,
+        code: bundle.files[bundle.defaultFile],
+        lang: bundle.lang,
+        practiceChallenges: bundle.practiceChallenges,
       });
 
       setIsGenerating(false);
       setGenerationStep("");
-      toast.success("✨ Scrimba Explainer generated! Code and live preview are now active.");
+      toast.success("✨ Learnify AI Explainer generated! Code and live preview are now active.");
     }, 3200);
   };
 
@@ -266,13 +268,13 @@ export function UnpackAnythingStudio() {
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/15 border border-primary/30 text-primary text-xs font-semibold tracking-wide uppercase">
               <Sparkles className="h-3.5 w-3.5" />
-              <span>AI Explainer Engine · Scrimba Split</span>
+              <span>AI Explainer Engine · Learnify AI Split</span>
             </div>
             <h2 className="mt-3 text-3xl sm:text-4xl md:text-5xl font-extrabold font-display tracking-tight text-foreground">
               Unpack anything
             </h2>
             <p className="mt-2 text-sm sm:text-base text-muted-foreground max-w-2xl leading-relaxed">
-              Type a question and get an explainer video back in Scrimba Split (Watch &amp; Code) format. Share it with the community to help others learn.
+              Type a question and get an explainer video back in Learnify AI (Watch &amp; Code) format. Share it with the community to help others learn.
             </p>
           </div>
 
@@ -464,7 +466,7 @@ export function UnpackAnythingStudio() {
           <div className="flex flex-wrap items-center justify-between gap-4 pt-2">
             <div className="text-xs text-muted-foreground flex items-center gap-1.5">
               <Sparkles className="h-3.5 w-3.5 text-amber-400" />
-              <span>Full Scrimba Split output with editable code, speech narration &amp; live runner</span>
+              <span>Full Learnify AI output with editable code, speech narration &amp; live runner</span>
             </div>
 
             <Button
@@ -476,12 +478,12 @@ export function UnpackAnythingStudio() {
               {isGenerating ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  <span>{generationStep || "Generating Scrimba Explainer..."}</span>
+                  <span>{generationStep || "Generating Learnify AI Explainer..."}</span>
                 </>
               ) : (
                 <>
                   <Play className="h-4 w-4 mr-2 fill-white" />
-                  <span>Generate Scrimba Explainer</span>
+                  <span>Generate Learnify AI Explainer</span>
                 </>
               )}
             </Button>
@@ -521,7 +523,7 @@ export function UnpackAnythingStudio() {
             </div>
           </div>
 
-          {/* The Live Interactive Scrimba Workspace */}
+          {/* The Live Interactive Learnify AI Workspace */}
           <div className="rounded-2xl border border-slate-800 bg-[#0e111a] overflow-hidden shadow-2xl">
             <ScrimbaWorkspace
               courseTitle="AI Suite Explainer"
@@ -535,6 +537,7 @@ export function UnpackAnythingStudio() {
               }
               injectedCode={activeExplainer.code}
               injectedLang={activeExplainer.lang || "html"}
+              practiceChallenges={activeExplainer.practiceChallenges}
               isStandAlonePlayer={true}
             />
           </div>
@@ -547,7 +550,7 @@ export function UnpackAnythingStudio() {
           <div className="space-y-1">
             <div className="inline-flex items-center gap-1.5 text-xs font-bold text-sky-400 uppercase tracking-wider font-mono">
               <Zap className="h-3.5 w-3.5" />
-              <span>Live Explainer &amp; Scrimba Engine Demo</span>
+              <span>Live Explainer &amp; Learnify AI Engine Demo</span>
             </div>
             <h3 className="text-xl sm:text-2xl font-bold font-display tracking-tight text-foreground">
               Watch &amp; Code Studio · High-Retention Explainer Engine

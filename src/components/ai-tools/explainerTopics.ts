@@ -282,4 +282,199 @@ export const EXPLAINER_TOPIC_PRESETS: Record<string, ExplainerTopicData> = {
       },
     ],
   },
+
+  html_basics: {
+    id: "html_basics",
+    title: "HTML5 Basics & Semantic Web",
+    emoji: "🌐",
+    category: "Web Development",
+    tagline: "How the browser constructs the DOM tree, layout hierarchy, and user interaction.",
+    author: {
+      name: "Learnify AI Web Team",
+      handle: "learnify_web",
+      avatar: "L",
+      isFollowed: true,
+    },
+    durationFormatted: "2:05",
+    totalDurationSec: 125,
+    views: 4890,
+    timeAgo: "2 hours ago",
+    quadrants: {
+      q1: {
+        title: "Document Skeleton",
+        subtitle: "The root container <!DOCTYPE html>, head & body.",
+        desc: "Defines encoding, responsive viewport, metadata, and body DOM root.",
+      },
+      q2: {
+        title: "Semantic Structure",
+        subtitle: "Meaningful tags: <header>, <main>, <article>, <footer>.",
+        desc: "Powers search crawler SEO and screen reader accessibility (a11y).",
+      },
+      q3: {
+        title: "Interactive Elements",
+        subtitle: "Buttons, text inputs, forms & event listeners.",
+        desc: "Captures user clicks and keystrokes for two-way application logic.",
+      },
+      q4: {
+        title: "The Live DOM Tree",
+        subtitle: "Hierarchical node parsing and browser painting.",
+        desc: "Turns HTML text into living interactive objects in memory.",
+      },
+    },
+    chapters: [
+      {
+        id: "html-intro",
+        title: "What is HTML?",
+        timestamp: "0:00",
+        timeSec: 0,
+        durationSec: 20,
+        subtitle: "The foundational markup language of the World Wide Web.",
+        spokenWords:
+          "HTML provides the structural skeleton of every website on the internet, transforming text into organized, interactive documents.",
+        zoomTarget: "all",
+      },
+      {
+        id: "html-skeleton",
+        title: "Document Skeleton",
+        timestamp: "0:20",
+        timeSec: 20,
+        durationSec: 25,
+        subtitle: "Doctype, HTML root, head metadata, and body viewport.",
+        spokenWords:
+          "Every modern webpage starts with DOCTYPE html, followed by the head for metadata and the body for visible content.",
+        zoomTarget: "q1",
+      },
+      {
+        id: "html-semantics",
+        title: "Semantic Layout",
+        timestamp: "0:45",
+        timeSec: 45,
+        durationSec: 25,
+        subtitle: "Choosing semantic elements for structure, SEO, and accessibility.",
+        spokenWords:
+          "Using semantic tags like header, main, and footer gives explicit meaning to the layout for both browsers and search crawlers.",
+        zoomTarget: "q2",
+      },
+      {
+        id: "html-interactive",
+        title: "Interactive Elements",
+        timestamp: "1:10",
+        timeSec: 70,
+        durationSec: 25,
+        subtitle: "Wiring inputs and buttons to capture user interactions.",
+        spokenWords:
+          "Forms, inputs, and buttons allow users to send data and trigger responsive JavaScript actions in real-time.",
+        zoomTarget: "q3",
+      },
+      {
+        id: "html-dom",
+        title: "The DOM Tree",
+        timestamp: "1:35",
+        timeSec: 95,
+        durationSec: 30,
+        subtitle: "How the browser converts markup into living node trees.",
+        spokenWords:
+          "The browser parses HTML tags into a Document Object Model tree, making every element queryable and dynamically editable.",
+        zoomTarget: "q4",
+      },
+    ],
+  },
+
+  react_state: {
+    id: "react_state",
+    title: "React 19 useEffect & State",
+    emoji: "⚛️",
+    category: "Frontend Frameworks",
+    tagline: "Unidirectional data flow, state hooks, and synchronization lifecycles.",
+    author: {
+      name: "React Core Academy",
+      handle: "react_core",
+      avatar: "R",
+      isFollowed: true,
+    },
+    durationFormatted: "2:20",
+    totalDurationSec: 140,
+    views: 7120,
+    timeAgo: "1 hour ago",
+    quadrants: {
+      q1: {
+        title: "useState Dispatcher",
+        subtitle: "Immutable state triggers and component re-render schedules.",
+        desc: "Tracks component values across renders and queues batched UI updates.",
+      },
+      q2: {
+        title: "useEffect Lifecycle",
+        subtitle: "Side-effects, subscriptions, and dependency triggers.",
+        desc: "Synchronizes the component with external systems and APIs.",
+      },
+      q3: {
+        title: "Virtual DOM Diff",
+        subtitle: "Fiber architecture reconciling minimal browser DOM mutations.",
+        desc: "Compares tree snapshots to apply surgical updates at 60 FPS.",
+      },
+      q4: {
+        title: "Cleanup & Safety",
+        subtitle: "Preventing memory leaks, orphan listeners & stale closures.",
+        desc: "Executes teardown functions whenever dependencies mutate or components unmount.",
+      },
+    },
+    chapters: [
+      {
+        id: "react-intro",
+        title: "Component State",
+        timestamp: "0:00",
+        timeSec: 0,
+        durationSec: 20,
+        subtitle: "How React components remember and respond to changing data.",
+        spokenWords:
+          "In React, state represents values that can change over time, triggering automatic recalculations of the rendered user interface.",
+        zoomTarget: "all",
+      },
+      {
+        id: "react-usestate",
+        title: "useState Dispatcher",
+        timestamp: "0:20",
+        timeSec: 20,
+        durationSec: 30,
+        subtitle: "Declaring state variables and updater functions.",
+        spokenWords:
+          "The useState hook returns a state value and a setter function, safely queuing state updates without mutating the original object.",
+        zoomTarget: "q1",
+      },
+      {
+        id: "react-useeffect",
+        title: "useEffect & Dependencies",
+        timestamp: "0:50",
+        timeSec: 50,
+        durationSec: 30,
+        subtitle: "Synchronizing with external systems after render.",
+        spokenWords:
+          "useEffect lets you run code after DOM updates, re-firing only when values in the dependency array actually change.",
+        zoomTarget: "q2",
+      },
+      {
+        id: "react-vdom",
+        title: "Virtual DOM Diffing",
+        timestamp: "1:20",
+        timeSec: 80,
+        durationSec: 30,
+        subtitle: "Fiber architecture reconciling minimal updates.",
+        spokenWords:
+          "React compares the new component tree against the previous snapshot, updating only the exact DOM nodes that changed.",
+        zoomTarget: "q3",
+      },
+      {
+        id: "react-cleanup",
+        title: "Teardown & Cleanup",
+        timestamp: "1:50",
+        timeSec: 110,
+        durationSec: 30,
+        subtitle: "Guarding against stale timers and memory leaks.",
+        spokenWords:
+          "Returning a cleanup function ensures intervals and event listeners are safely removed when the component unmounts.",
+        zoomTarget: "q4",
+      },
+    ],
+  },
 };
+

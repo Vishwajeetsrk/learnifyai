@@ -43,6 +43,16 @@ import {
   Palette,
   Video,
   Globe2,
+  RotateCw,
+  Scissors,
+  Copy,
+  Clipboard,
+  Clock,
+  Keyboard,
+  FileUp,
+  SlidersHorizontal,
+  Timer,
+  AlertCircle,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
@@ -837,7 +847,305 @@ export default function CounterApp() {
     };
   }
 
-  // 3. Default: Cake Recipe App (Frames 001, 007, 008)
+  // 3. Earth's Spheres and Systems
+  if (t.includes("earth") || t.includes("sphere") || t.includes("atmosphere") || t.includes("hydrosphere")) {
+    const pythonCode =
+      injectedCode ||
+      `# ==============================================================================
+# EARTH'S SPHERES AND SYSTEMS: BIOGEOCHEMICAL EQUILIBRIUM MODEL
+# Simulating Atmosphere, Hydrosphere, Geosphere, and Biosphere feedbacks
+# ==============================================================================
+
+class EarthSystem:
+    def __init__(self):
+        self.atmosphere_co2_ppm = 421.0
+        self.ocean_carbon_sink_gt = 38000.0
+        self.biosphere_biomass_gt = 550.0
+        self.temperature_anomaly_c = 1.15
+
+    def simulate_year(self, anthropogenic_emissions_gt=37.0):
+        # Ocean absorbs ~25% of annual carbon emissions
+        ocean_uptake = anthropogenic_emissions_gt * 0.25
+        self.ocean_carbon_sink_gt += ocean_uptake
+
+        # Biosphere photosynthesis absorbs ~30%
+        biosphere_uptake = anthropogenic_emissions_gt * 0.30
+        self.biosphere_biomass_gt += biosphere_uptake * 0.01
+
+        # Remaining stays in atmospheric gaseous envelope
+        atmospheric_addition_gt = anthropogenic_emissions_gt - ocean_uptake - biosphere_uptake
+        ppm_increase = atmospheric_addition_gt / 7.82 # 1 ppm CO2 ≈ 7.82 Gt CO2
+        self.atmosphere_co2_ppm += ppm_increase
+
+        # Radiative forcing feedback
+        self.temperature_anomaly_c += ppm_increase * 0.012
+
+    def report(self):
+        print("=== EARTH SYSTEM BALANCE SIMULATION ===")
+        print(f"Atmospheric CO2:      {self.atmosphere_co2_ppm:.2f} ppm")
+        print(f"Ocean Carbon Sink:    {self.ocean_carbon_sink_gt:.1f} Gt")
+        print(f"Biosphere Biomass:    {self.biosphere_biomass_gt:.1f} Gt")
+        print(f"Global Temp Anomaly:  +{self.temperature_anomaly_c:.3f} °C")
+
+earth = EarthSystem()
+for year in range(5):
+    earth.simulate_year()
+earth.report()
+`;
+
+    const earthHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Earth's 4 Interconnected Spheres</title>
+  <style>
+    body { font-family: -apple-system, sans-serif; background: #0b0f19; color: #f8fafc; padding: 20px; }
+    h2 { color: #38bdf8; text-align: center; font-size: 18px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; max-width: 380px; margin: 0 auto; }
+    .sphere { padding: 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); }
+    .atmo { background: rgba(56, 189, 248, 0.15); color: #38bdf8; }
+    .hydro { background: rgba(14, 165, 233, 0.15); color: #0ea5e9; }
+    .geo { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+    .bio { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+    h4 { margin: 0 0 6px 0; font-size: 14px; font-weight: 700; }
+    p { margin: 0; font-size: 11px; opacity: 0.9; line-height: 1.4; }
+  </style>
+</head>
+<body>
+  <h2>🌍 Earth's 4 Dynamic Spheres</h2>
+  <div class="grid">
+    <div class="sphere atmo"><h4>☁️ Atmosphere</h4><p>Gaseous Envelope (78% N₂, 21% O₂)</p></div>
+    <div class="sphere hydro"><h4>🌊 Hydrosphere</h4><p>71% Oceanic &amp; Fresh Water Cycle</p></div>
+    <div class="sphere geo"><h4>🌋 Geosphere</h4><p>Crust, Mantle &amp; Core Convection</p></div>
+    <div class="sphere bio"><h4>🌿 Biosphere</h4><p>Photosynthesis &amp; Carbon Sinks</p></div>
+  </div>
+</body>
+</html>`;
+
+    return {
+      files: {
+        "earth_systems.py": pythonCode,
+        "visualization.html": earthHtml,
+      },
+      defaultFile: "earth_systems.py",
+      openTabs: ["earth_systems.py", "visualization.html"],
+      isWebRunner: false,
+    };
+  }
+
+  // 4. HTML Basics & Semantic Web Architecture
+  if (t.includes("html") || t.includes("web") || t.includes("frontend") || (l === "html" && !t.includes("cake"))) {
+    const htmlFile =
+      injectedCode ||
+      `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Learnify AI — HTML5 Basics</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="card">
+    <header class="card-header">
+      <span class="badge">🌐 HTML5 Foundations</span>
+      <h1>Structure, Not Just Text!</h1>
+      <p class="subtitle">Learn how browsers parse HTML elements into a live DOM tree.</p>
+    </header>
+
+    <main class="content-section">
+      <article class="article-box">
+        <h2>1. Semantic Heading</h2>
+        <p>HTML gives <strong>meaning</strong> to content for screen readers and SEO.</p>
+      </article>
+
+      <section class="interactive-box">
+        <h3>2. Interactive Elements</h3>
+        <p>Type your name below to see live DOM two-way binding:</p>
+        
+        <div class="input-group">
+          <input type="text" id="nameInput" placeholder="Type your name..." />
+          <button id="greetBtn" class="btn primary-btn">Say Hello 👋</button>
+        </div>
+
+        <div id="greetingOutput" class="output-pill hidden">
+          Hello, <strong id="displayName">Student</strong>! Welcome to Learnify AI.
+        </div>
+      </section>
+
+      <section class="list-section">
+        <h3>3. Essential Tags Checklist</h3>
+        <ul class="tag-list">
+          <li><code>&lt;header&gt;</code> — Top branding &amp; navigation</li>
+          <li><code>&lt;main&gt;</code> — The central body content</li>
+          <li><code>&lt;button&gt;</code> — User click interaction</li>
+          <li><code>&lt;footer&gt;</code> — Copyright &amp; metadata</li>
+        </ul>
+      </section>
+    </main>
+
+    <footer class="card-footer">
+      <p>Built with ❤️ inside Learnify AI Studio · Editable in real-time</p>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>`;
+
+    const htmlCss = `body {
+  margin: 0;
+  padding: 16px;
+  background: #0f172a;
+  color: #f8fafc;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+.card {
+  width: 100%;
+  max-width: 380px;
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 20px 25px -5px rgba(0,0,0,0.4);
+}
+.badge {
+  display: inline-block;
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  margin-bottom: 8px;
+}
+.card-header h1 {
+  font-size: 20px;
+  font-weight: 800;
+  margin: 0 0 6px 0;
+  color: #f8fafc;
+}
+.subtitle {
+  font-size: 12px;
+  color: #94a3b8;
+  margin: 0 0 16px 0;
+}
+.article-box, .interactive-box, .list-section {
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+}
+h2, h3 {
+  font-size: 13px;
+  margin: 0 0 6px 0;
+  color: #38bdf8;
+}
+p {
+  font-size: 12px;
+  color: #cbd5e1;
+  margin: 0 0 8px 0;
+  line-height: 1.4;
+}
+.input-group {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+input {
+  flex: 1;
+  background: #1e293b;
+  border: 1px solid #475569;
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: #fff;
+  font-size: 12px;
+  outline: none;
+}
+input:focus { border-color: #38bdf8; }
+.btn {
+  background: #38bdf8;
+  color: #0f172a;
+  font-weight: 700;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: transform 0.1s;
+}
+.btn:hover { transform: scale(1.03); }
+.output-pill {
+  margin-top: 10px;
+  padding: 8px 12px;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #34d399;
+  border-radius: 8px;
+  font-size: 12px;
+}
+.hidden { display: none; }
+.tag-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 11px;
+}
+.tag-list li {
+  padding: 3px 0;
+  color: #94a3b8;
+}
+code {
+  background: #334155;
+  color: #f43f5e;
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-family: monospace;
+}
+.card-footer {
+  text-align: center;
+  font-size: 10px;
+  color: #64748b;
+  margin-top: 12px;
+}`;
+
+    const htmlJs = `const nameInput = document.getElementById("nameInput");
+const greetBtn = document.getElementById("greetBtn");
+const greetingOutput = document.getElementById("greetingOutput");
+const displayName = document.getElementById("displayName");
+
+function handleGreet() {
+  const name = nameInput.value.trim() || "Student";
+  displayName.textContent = name;
+  greetingOutput.classList.remove("hidden");
+  console.log("Interactive greeting triggered for:", name);
+}
+
+greetBtn.addEventListener("click", handleGreet);
+nameInput.addEventListener("keypress", (e) => {
+  if (e.key === "Enter") handleGreet();
+});
+
+console.log("HTML5 Foundations initialized. Edit this file live in Learnify AI Studio!");`;
+
+    return {
+      files: {
+        "index.html": htmlFile,
+        "styles.css": htmlCss,
+        "script.js": htmlJs,
+      },
+      defaultFile: "index.html",
+      openTabs: ["index.html", "styles.css", "script.js"],
+      isWebRunner: true,
+    };
+  }
+
+  // 5. Default: Cake Recipe App (Frames 001, 007, 008)
   return {
     files: {
       "index.html": injectedCode || DEFAULT_CAKE_HTML,
@@ -890,6 +1198,19 @@ export function generateTopicNarrations(topic: string, instructor: string): Narr
   ];
 }
 
+export interface PracticeChallenge {
+  id: string;
+  timeSec: number;
+  cuteIcon: string;
+  title: string;
+  prompt: string;
+  hints?: string[];
+  suggestedDurationSec?: number;
+  solutionCode?: string;
+  explanation?: string;
+  targetFileName?: string;
+}
+
 export interface ScrimbaWorkspaceProps {
   courseTitle?: string;
   lessonTitle?: string;
@@ -899,6 +1220,7 @@ export interface ScrimbaWorkspaceProps {
   activeVideoTime?: number;
   totalDuration?: number;
   isStandAlonePlayer?: boolean;
+  practiceChallenges?: PracticeChallenge[];
   onCodeChange?: (code: string) => void;
   onForkChange?: (isForked: boolean) => void;
 }
@@ -939,10 +1261,51 @@ export function ScrimbaWorkspace({
   activeVideoTime = 0,
   totalDuration = 437, // 7:17
   isStandAlonePlayer = false,
+  practiceChallenges,
   onCodeChange,
   onForkChange,
 }: ScrimbaWorkspaceProps) {
   const executeCodeFn = useServerFn(executeCode);
+
+  // ─── Practice Checkpoints Setup ──────────────────────────────────────────
+  const allPracticeChallenges = useMemo<PracticeChallenge[]>(() => {
+    if (practiceChallenges && practiceChallenges.length > 0) return practiceChallenges;
+    return [
+      {
+        id: "chal-default-1",
+        timeSec: 31,
+        cuteIcon: "⭐",
+        title: "Hands-on Code Checkpoint",
+        prompt: "Pause and edit the code! Modify any tag, text, or CSS color to see live hot-reloading on the right.",
+        hints: ["Click into any line of code", "Make a change and test the runner", "Click 'I Solved It' to continue"],
+        suggestedDurationSec: 60,
+        solutionCode: "<!-- Practice Checkpoint Verified -->",
+        explanation: "Active practice while listening to narration locks in 10x higher memory retention.",
+      },
+      {
+        id: "chal-default-2",
+        timeSec: 135,
+        cuteIcon: "🎯",
+        title: "Custom Styling & Interactive Logic",
+        prompt: "Customize the design! Change colors, padding, or event listeners in the editor.",
+        hints: ["Switch files using the sidebar or top tabs", "Add a custom CSS rule", "Test in runner"],
+        suggestedDurationSec: 90,
+        solutionCode: "/* Custom styling applied */",
+        explanation: "Iterating directly inside a live sandbox turns theory into production skill.",
+      },
+      {
+        id: "chal-default-3",
+        timeSec: 285,
+        cuteIcon: "⚡",
+        title: "Advanced Mastery Challenge",
+        prompt: "Challenge yourself: create a new function or component and verify execution without errors.",
+        hints: ["Inspect the console logs below", "Verify execution at port 8080"],
+        suggestedDurationSec: 120,
+        solutionCode: "// Advanced Mastery Checkpoint Passed",
+        explanation: "Mastering debugging and console logs makes you an autonomous developer.",
+      },
+    ];
+  }, [practiceChallenges]);
 
   // ─── Initial Dynamic Workspace Setup ───────────────────────────────────────
   const initialTopicConfig = useMemo(
@@ -965,6 +1328,17 @@ export function ScrimbaWorkspace({
   const [captionStyle, setCaptionStyle] = useState<CaptionStyle>("glass");
   const [isExportingVideo, setIsExportingVideo] = useState<boolean>(false);
   const [exportProgress, setExportProgress] = useState<number>(0);
+
+  // ─── Practice Challenge State ──────────────────────────────────────────────
+  const [activePracticeChallenge, setActivePracticeChallenge] = useState<PracticeChallenge | null>(null);
+  const [challengeSecondsLeft, setChallengeSecondsLeft] = useState<number>(60);
+  const [showChallengeSolution, setShowChallengeSolution] = useState<boolean>(false);
+
+  // ─── IDE Language & UX Enhancement State ──────────────────────────────────
+  const [selectedIdeLanguage, setSelectedIdeLanguage] = useState<string>(injectedLang || "html");
+  const [showShortcutsModal, setShowShortcutsModal] = useState<boolean>(false);
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
+  const [isDraggingFile, setIsDraggingFile] = useState<boolean>(false);
 
   // ─── Responsive Tabs (Mobile & Tablet) ────────────────────────────────────
   const [mobileTab, setMobileTab] = useState<"code" | "preview" | "files">("code");
@@ -1019,16 +1393,98 @@ export function ScrimbaWorkspace({
     setScriptExitCode(null);
   }, [lessonTitle, injectedCode, injectedLang]);
 
-  // Escape key exits fullscreen
+  // Practice Challenge Countdown Timer
+  useEffect(() => {
+    if (!activePracticeChallenge || challengeSecondsLeft <= 0) return;
+    const interval = setInterval(() => {
+      setChallengeSecondsLeft((prev) => {
+        if (prev <= 1) {
+          toast.info("⏱️ Practice time is up! Click 'I Solved It' or 'Solve & Explain' to proceed.");
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [activePracticeChallenge, challengeSecondsLeft]);
+
+  // Global Keyboard Shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && isMaximized) {
-        setIsMaximized(false);
+      if (e.key === "Escape") {
+        if (contextMenu) setContextMenu(null);
+        if (showShortcutsModal) setShowShortcutsModal(false);
+        if (isMaximized) setIsMaximized(false);
+        return;
+      }
+
+      const target = e.target as HTMLElement;
+      const isInput = target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.classList.contains("monaco-mouse-cursor-text"));
+
+      // Ctrl/Cmd + Enter -> Execute / Run Code
+      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+        e.preventDefault();
+        if (!isWebRunner) {
+          handleRunScript();
+        } else {
+          setPreviewKey((k) => k + 1);
+          toast.success("⚡ Live runner re-executed!");
+        }
+        return;
+      }
+
+      // Ctrl/Cmd + S -> Save & format
+      if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+        e.preventDefault();
+        toast.success("💾 Workspace checkpoint saved!");
+        return;
+      }
+
+      // Hotkeys when not actively typing code
+      if (!isInput) {
+        if (e.key === " " || e.code === "Space") {
+          e.preventDefault();
+          togglePlayPause();
+        } else if (e.key === "ArrowLeft" || e.key === "j" || e.key === "J") {
+          e.preventDefault();
+          setCurrentTime((t) => Math.max(0, t - (e.key === "ArrowLeft" ? 5 : 10)));
+        } else if (e.key === "ArrowRight" || e.key === "l" || e.key === "L") {
+          e.preventDefault();
+          setCurrentTime((t) => Math.min(totalDuration, t + (e.key === "ArrowRight" ? 5 : 10)));
+        } else if (e.key === "m" || e.key === "M") {
+          e.preventDefault();
+          setIsMuted((m) => !m);
+        } else if (e.key === "f" || e.key === "F") {
+          e.preventDefault();
+          setIsMaximized((m) => !m);
+        } else if (e.key === "?") {
+          e.preventDefault();
+          setShowShortcutsModal((s) => !s);
+        }
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isMaximized]);
+  }, [contextMenu, showShortcutsModal, isMaximized, isWebRunner, totalDuration]);
+
+  // Drag and drop local file into workspace
+  const handleFileDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDraggingFile(false);
+    const droppedFiles = e.dataTransfer.files;
+    if (!droppedFiles || droppedFiles.length === 0) return;
+    const file = droppedFiles[0];
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const content = (event.target?.result as string) || "";
+      setFiles((prev) => ({ ...prev, [file.name]: content }));
+      setActiveFileName(file.name);
+      setOpenTabs((prev) => (prev.includes(file.name) ? prev : [...prev, file.name]));
+      setIsForked(true);
+      toast.success(`📂 Imported ${file.name} directly into workspace!`);
+    };
+    reader.readAsText(file);
+  }, []);
 
   // Cloud script execution runner
   const handleRunScript = useCallback(async () => {
@@ -1261,12 +1717,26 @@ export function ScrimbaWorkspace({
             return totalDuration;
           }
 
+          // Check if practice challenge checkpoint fires
+          const challenge = allPracticeChallenges.find((c) => c.timeSec === next);
+          if (challenge) {
+            setIsPlaying(false);
+            setIsForked(true);
+            setForkTimestamp(next);
+            onForkChange?.(true);
+            setActivePracticeChallenge(challenge);
+            setChallengeSecondsLeft(challenge.suggestedDurationSec || 60);
+            setShowChallengeSolution(false);
+            toast.info(`🎯 Practice Checkpoint: ${challenge.title}! Take some time to solve.`);
+            speakText(`Practice Challenge! ${challenge.title}. Take some time to solve this challenge in the editor.`);
+          }
+
           // Check if milestone narration fires at this second
           const clip = narrations.find((c) => c.time === next);
           if (clip) {
             setActiveCaption(clip.caption);
             speakText(clip.text);
-            if (clip.autoPause) {
+            if (clip.autoPause && !challenge) {
               setIsPlaying(false);
               setIsForked(true);
               setForkTimestamp(next);
@@ -1766,12 +2236,66 @@ export function ScrimbaWorkspace({
             </div>
 
             <div className="flex items-center gap-2 pr-2 text-[10px] text-slate-400 font-mono">
+              {/* Language Selector Dropdown */}
+              <div className="flex items-center gap-1 bg-slate-900 border border-slate-700/80 rounded px-1.5 py-0.5">
+                <Code2 className="h-3 w-3 text-sky-400" />
+                <select
+                  value={selectedIdeLanguage}
+                  onChange={(e) => {
+                    const nextLang = e.target.value;
+                    setSelectedIdeLanguage(nextLang);
+                    toast.success(`Editor language set to ${nextLang.toUpperCase()}`);
+                  }}
+                  className="bg-transparent text-[10px] font-mono font-bold text-slate-300 focus:outline-none cursor-pointer"
+                  title="Editor Language"
+                >
+                  <option value="html" className="bg-slate-900 text-slate-200">HTML5</option>
+                  <option value="css" className="bg-slate-900 text-slate-200">CSS3</option>
+                  <option value="javascript" className="bg-slate-900 text-slate-200">JavaScript</option>
+                  <option value="typescript" className="bg-slate-900 text-slate-200">TypeScript</option>
+                  <option value="python" className="bg-slate-900 text-slate-200">Python 3</option>
+                  <option value="jsx" className="bg-slate-900 text-slate-200">React (JSX)</option>
+                  <option value="cpp" className="bg-slate-900 text-slate-200">C++</option>
+                  <option value="java" className="bg-slate-900 text-slate-200">Java</option>
+                  <option value="rust" className="bg-slate-900 text-slate-200">Rust</option>
+                  <option value="go" className="bg-slate-900 text-slate-200">Go</option>
+                  <option value="sql" className="bg-slate-900 text-slate-200">SQL</option>
+                  <option value="json" className="bg-slate-900 text-slate-200">JSON</option>
+                  <option value="markdown" className="bg-slate-900 text-slate-200">Markdown</option>
+                </select>
+              </div>
+
+              {/* Keyboard Shortcuts Trigger Button */}
+              <button
+                onClick={() => setShowShortcutsModal(true)}
+                className="text-slate-400 hover:text-white p-1 rounded hover:bg-slate-800 transition"
+                title="Keyboard Shortcuts (Press ?)"
+              >
+                <Keyboard className="h-3.5 w-3.5" />
+              </button>
               <span>UTF-8</span>
             </div>
           </div>
 
-          {/* Editor Body or Image Showcase */}
-          <div className="flex-1 min-h-[380px] relative overflow-hidden flex flex-col">
+          {/* Editor Body or Image Showcase with Drag & Drop and Context Menu */}
+          <div
+            onDragOver={(e) => {
+              e.preventDefault();
+              setIsDraggingFile(true);
+            }}
+            onDragLeave={() => setIsDraggingFile(false)}
+            onDrop={handleFileDrop}
+            className="flex-1 min-h-[380px] relative overflow-hidden flex flex-col"
+          >
+            {/* Visual Drag and Drop Overlay Indicator */}
+            {isDraggingFile && (
+              <div className="absolute inset-0 z-40 bg-indigo-950/85 border-2 border-dashed border-sky-400 flex flex-col items-center justify-center p-6 backdrop-blur-sm pointer-events-none animate-in fade-in zoom-in-95">
+                <FileUp className="h-12 w-12 text-sky-400 animate-bounce" />
+                <h3 className="font-bold text-lg text-white mt-2 font-display">Drop File to Open in Learnify AI Studio</h3>
+                <p className="text-xs text-sky-200">Supports .html, .css, .js, .py, .tsx, .json, .md and images</p>
+              </div>
+            )}
+
             {isImageFile && activeImageAsset ? (
               /* Image Showcase (Frame 008) */
               <div className="flex-1 flex flex-col items-center justify-center p-6 bg-[#090C15] space-y-4">
@@ -1796,24 +2320,32 @@ export function ScrimbaWorkspace({
                 </Button>
               </div>
             ) : (
-              /* Monaco Code Editor (Frames 001, 007) */
-              <div className="flex-1 relative">
+              /* Monaco Code Editor with Right-Click Context Menu (Frames 001, 007) */
+              <div
+                onContextMenu={(e) => {
+                  e.preventDefault();
+                  setContextMenu({ x: e.clientX, y: e.clientY });
+                }}
+                className="flex-1 relative"
+              >
                 <Editor
                   height="100%"
                   language={
-                    activeFileName.endsWith(".html")
-                      ? "html"
-                      : activeFileName.endsWith(".css")
-                        ? "css"
-                        : activeFileName.endsWith(".py")
-                          ? "python"
-                          : activeFileName.endsWith(".json")
-                            ? "json"
-                            : activeFileName.endsWith(".md")
-                              ? "markdown"
-                              : activeFileName.endsWith(".tsx") || activeFileName.endsWith(".ts")
-                                ? "typescript"
-                                : "javascript"
+                    selectedIdeLanguage || (
+                      activeFileName.endsWith(".html")
+                        ? "html"
+                        : activeFileName.endsWith(".css")
+                          ? "css"
+                          : activeFileName.endsWith(".py")
+                            ? "python"
+                            : activeFileName.endsWith(".json")
+                              ? "json"
+                              : activeFileName.endsWith(".md")
+                                ? "markdown"
+                                : activeFileName.endsWith(".tsx") || activeFileName.endsWith(".ts")
+                                  ? "typescript"
+                                  : "javascript"
+                    )
                   }
                   theme="vs-dark"
                   value={files[activeFileName] || ""}
@@ -1830,14 +2362,131 @@ export function ScrimbaWorkspace({
                   }}
                 />
 
-                {/* Translucent Center Play Button Overlay When Paused (Frame 001) */}
-                {!isPlaying && (
+                {/* Translucent Center Play Button Overlay When Paused (Only when NOT in practice mode) */}
+                {!isPlaying && !isForked && !activePracticeChallenge && (
                   <div
                     onClick={togglePlayPause}
                     className="absolute inset-0 bg-slate-950/20 backdrop-blur-[1px] flex items-center justify-center cursor-pointer group transition-all"
                   >
                     <div className="w-16 h-16 rounded-full bg-sky-500/20 border-2 border-sky-400/40 flex items-center justify-center text-sky-400 group-hover:scale-110 group-hover:bg-sky-500/30 group-hover:border-sky-400 shadow-2xl transition-transform">
                       <Play className="h-8 w-8 fill-sky-400 ml-1" />
+                    </div>
+                  </div>
+                )}
+
+                {/* ─── Interactive Practice Challenge Overlay Card ─────────── */}
+                {activePracticeChallenge && (
+                  <div className="absolute top-3 left-3 right-3 z-30 p-4 rounded-2xl bg-gradient-to-r from-slate-900/95 via-indigo-950/95 to-slate-900/95 border-2 border-indigo-500/60 shadow-2xl backdrop-blur-md animate-in slide-in-from-top-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center gap-2">
+                        <span className="text-2xl animate-bounce">{activePracticeChallenge.cuteIcon || "🎯"}</span>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-sm text-white font-display">Code-Along Challenge: {activePracticeChallenge.title}</span>
+                            <Badge variant="outline" className="border-indigo-400 text-indigo-300 bg-indigo-500/20 text-[10px] font-mono">
+                              ⏱️ {challengeSecondsLeft}s Left
+                            </Badge>
+                          </div>
+                          <p className="text-xs text-slate-300 mt-1">{activePracticeChallenge.prompt}</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setChallengeSecondsLeft((s) => s + 30)}
+                          className="h-7 text-[11px] border-slate-700 bg-slate-800/80 text-slate-300 hover:text-white"
+                        >
+                          <Clock className="h-3 w-3 mr-1 text-sky-400" />
+                          +30s More
+                        </Button>
+                        <button
+                          onClick={() => {
+                            setActivePracticeChallenge(null);
+                            setIsPlaying(true);
+                          }}
+                          className="text-slate-400 hover:text-white p-1 rounded"
+                          title="Dismiss Challenge"
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Hints & Solutions */}
+                    {showChallengeSolution && activePracticeChallenge.solutionCode && (
+                      <div className="mt-3 p-2.5 rounded-xl bg-slate-950/80 border border-emerald-500/30 text-xs font-mono space-y-1">
+                        <div className="flex items-center justify-between text-emerald-400 font-bold text-[11px]">
+                          <span>💡 Solution Code &amp; Explanation:</span>
+                          <Button
+                            size="sm"
+                            onClick={() => {
+                              if (activePracticeChallenge.solutionCode) {
+                                const targetFile = activePracticeChallenge.targetFileName || activeFileName;
+                                setFiles((prev) => ({
+                                  ...prev,
+                                  [targetFile]: (prev[targetFile] || "") + "\n\n" + activePracticeChallenge.solutionCode,
+                                }));
+                                toast.success("Solution code inserted into editor!");
+                              }
+                            }}
+                            className="h-5 px-2 text-[10px] bg-emerald-600 hover:bg-emerald-500 text-white cursor-pointer"
+                          >
+                            Insert Solution into Editor
+                          </Button>
+                        </div>
+                        <pre className="text-slate-300 text-[11px] overflow-x-auto p-1.5 bg-black/40 rounded">
+                          {activePracticeChallenge.solutionCode}
+                        </pre>
+                        {activePracticeChallenge.explanation && (
+                          <p className="text-slate-400 text-[11px] font-sans pt-1">
+                            <strong>Why this works:</strong> {activePracticeChallenge.explanation}
+                          </p>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Action Buttons Row */}
+                    <div className="mt-3 flex items-center justify-between pt-2 border-t border-indigo-500/20">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setShowChallengeSolution((s) => !s)}
+                        className="h-7 text-xs text-amber-300 hover:text-amber-200 hover:bg-amber-500/10 cursor-pointer"
+                      >
+                        <Sparkles className="h-3.5 w-3.5 mr-1" />
+                        {showChallengeSolution ? "Hide Solution" : "💡 I'm Stuck — Solve & Explain"}
+                      </Button>
+
+                      <div className="flex items-center gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            setActivePracticeChallenge(null);
+                            setIsPlaying(true);
+                            toast.info("Resuming video...");
+                          }}
+                          className="h-7 text-xs text-slate-300 border-slate-700 cursor-pointer"
+                        >
+                          Skip &amp; Resume
+                        </Button>
+                        <Button
+                          size="sm"
+                          onClick={() => {
+                            setPreviewKey((k) => k + 1);
+                            setActivePracticeChallenge(null);
+                            setIsPlaying(true);
+                            toast.success("🎉 Great job! Challenge passed! Resuming lesson.");
+                            speakText("Awesome work solving that challenge! Resuming the lesson.");
+                          }}
+                          className="h-7 text-xs bg-emerald-600 hover:bg-emerald-500 text-white font-bold shadow-md gap-1 cursor-pointer"
+                        >
+                          <CheckCircle2 className="h-3.5 w-3.5" />
+                          ✨ I Solved It! (Run &amp; Test)
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -2107,8 +2756,8 @@ export function ScrimbaWorkspace({
 
       {/* ─── 3. BOTTOM TRANSPORT BAR (Frames 001, 007, 008) ───────────────── */}
       <div className="px-3 sm:px-4 py-2.5 bg-[#121622] border-t border-slate-800 flex flex-col gap-1.5">
-        {/* Timeline Scrubber with Ghost Markers */}
-        <div className="relative flex items-center group cursor-pointer pt-1">
+        {/* Timeline Scrubber with Cute Practice Mark Icons */}
+        <div className="relative flex items-center group cursor-pointer pt-2 pb-1">
           <input
             type="range"
             min={0}
@@ -2117,34 +2766,51 @@ export function ScrimbaWorkspace({
             onChange={(e) => {
               const val = Number(e.target.value);
               setCurrentTime(val);
-              // Find matching caption
-              const match = [...LESSON_NARRATIONS].reverse().find((c) => c.time <= val);
+              const match = [...narrations].reverse().find((c) => c.time <= val);
               if (match) setActiveCaption(match.caption);
             }}
             className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-sky-400"
           />
 
-          {/* Ghost Markers for Interactive Practice Points (Frames 001, 007) */}
-          <div
-            style={{ left: `${(31 / totalDuration) * 100}%` }}
-            className="absolute top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-purple-400 border border-slate-900 pointer-events-none shadow"
-            title="Ghost Marker: Challenge Point (0:31)"
-          />
-          <div
-            style={{ left: `${(135 / totalDuration) * 100}%` }}
-            className="absolute top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-purple-400 border border-slate-900 pointer-events-none shadow"
-            title="Ghost Marker: Challenge Point (2:15)"
-          />
-          <div
-            style={{ left: `${(285 / totalDuration) * 100}%` }}
-            className="absolute top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-purple-400 border border-slate-900 pointer-events-none shadow"
-            title="Ghost Marker: Challenge Point (4:45)"
-          />
+          {/* Cute Practice Mark Icons on Timeline */}
+          {allPracticeChallenges.map((chal) => {
+            const percent = Math.min(98, Math.max(2, (chal.timeSec / totalDuration) * 100));
+            return (
+              <div
+                key={chal.id}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setCurrentTime(chal.timeSec);
+                  setIsPlaying(false);
+                  setActivePracticeChallenge(chal);
+                  setChallengeSecondsLeft(chal.suggestedDurationSec || 60);
+                  setShowChallengeSolution(false);
+                }}
+                style={{ left: `${percent}%` }}
+                className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-5 h-5 rounded-full bg-slate-900 border-2 border-amber-400 hover:border-sky-400 flex items-center justify-center cursor-pointer shadow-lg hover:scale-125 transition-transform group/mark z-10"
+                title={`Practice: ${chal.title} (${formatTime(chal.timeSec)})`}
+              >
+                <span className="text-[10px] pointer-events-none">{chal.cuteIcon}</span>
+                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-slate-950 text-white text-[10px] px-2 py-0.5 rounded shadow-xl border border-slate-700 whitespace-nowrap opacity-0 group-hover/mark:opacity-100 transition-opacity pointer-events-none font-sans z-30">
+                  <strong>{chal.cuteIcon} {chal.title}</strong> ({formatTime(chal.timeSec)})
+                </div>
+              </div>
+            );
+          })}
         </div>
 
         {/* Transport Controls Row */}
-        <div className="flex items-center justify-between text-xs pt-1">
-          <div className="flex items-center gap-3">
+        <div className="flex items-center justify-between text-xs pt-0.5">
+          <div className="flex items-center gap-2 sm:gap-2.5">
+            {/* Rewind 10s */}
+            <button
+              onClick={() => setCurrentTime((t) => Math.max(0, t - 10))}
+              className="w-7 h-7 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center transition cursor-pointer"
+              title="Rewind 10s (Left Arrow / J)"
+            >
+              <RotateCcw className="h-3 w-3" />
+            </button>
+
             {/* Play / Pause Toggle */}
             <button
               onClick={togglePlayPause}
@@ -2153,8 +2819,17 @@ export function ScrimbaWorkspace({
               {isPlaying ? <Pause className="h-4 w-4 fill-slate-950" /> : <Play className="h-4 w-4 fill-slate-950 ml-0.5" />}
             </button>
 
+            {/* Forward 10s */}
+            <button
+              onClick={() => setCurrentTime((t) => Math.min(totalDuration, t + 10))}
+              className="w-7 h-7 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center transition cursor-pointer"
+              title="Forward 10s (Right Arrow / L)"
+            >
+              <RotateCw className="h-3 w-3" />
+            </button>
+
             {/* Time Indicator */}
-            <span className="font-mono text-[11px] text-slate-300">
+            <span className="font-mono text-[11px] text-slate-300 ml-1">
               {formatTime(currentTime)} <span className="text-slate-500">/</span> {formatTime(totalDuration)}
             </span>
           </div>
@@ -2163,8 +2838,8 @@ export function ScrimbaWorkspace({
             {/* Volume / Mute Toggle */}
             <button
               onClick={() => setIsMuted((m) => !m)}
-              className="text-slate-400 hover:text-white p-1 rounded transition"
-              title={isMuted ? "Unmute Voice" : "Mute Voice"}
+              className="text-slate-400 hover:text-white p-1 rounded transition cursor-pointer"
+              title={isMuted ? "Unmute Voice" : "Mute Voice (M)"}
             >
               {isMuted ? <VolumeX className="h-4 w-4 text-rose-400" /> : <Volume2 className="h-4 w-4" />}
             </button>
@@ -2173,7 +2848,7 @@ export function ScrimbaWorkspace({
             <button
               onClick={() => setCaptionsEnabled((c) => !c)}
               className={cn(
-                "px-2 py-0.5 rounded text-[10px] font-bold font-mono transition",
+                "px-2 py-0.5 rounded text-[10px] font-bold font-mono transition cursor-pointer",
                 captionsEnabled
                   ? "bg-sky-500/20 text-sky-400 border border-sky-400/40"
                   : "text-slate-500 hover:text-slate-300"
@@ -2186,11 +2861,11 @@ export function ScrimbaWorkspace({
             {/* Playback Speed */}
             <button
               onClick={() => {
-                const speeds = [1, 1.25, 1.5, 2];
+                const speeds = [0.75, 1, 1.25, 1.5, 2];
                 const nextIdx = (speeds.indexOf(playbackSpeed) + 1) % speeds.length;
                 setPlaybackSpeed(speeds[nextIdx]);
               }}
-              className="font-mono text-[11px] font-bold text-slate-400 hover:text-white px-1.5 py-0.5 rounded"
+              className="font-mono text-[11px] font-bold text-slate-400 hover:text-white px-1.5 py-0.5 rounded cursor-pointer"
               title="Playback Speed"
             >
               {playbackSpeed}x
@@ -2238,6 +2913,15 @@ export function ScrimbaWorkspace({
               </select>
             </div>
 
+            {/* Fullscreen / Maximize */}
+            <button
+              onClick={() => setIsMaximized((m) => !m)}
+              className="text-slate-400 hover:text-white p-1 rounded transition cursor-pointer"
+              title={isMaximized ? "Exit Fullscreen" : "Fullscreen (F)"}
+            >
+              {isMaximized ? <Minimize2 className="h-4 w-4 text-sky-400" /> : <Maximize2 className="h-4 w-4" />}
+            </button>
+
             {/* Download as MP4 Video Button */}
             <Button
               size="sm"
@@ -2261,6 +2945,142 @@ export function ScrimbaWorkspace({
           </div>
         </div>
       </div>
+
+      {/* ─── Right-Click Context Menu ────────────────────────────────────────── */}
+      {contextMenu && (
+        <div
+          style={{ top: contextMenu.y, left: contextMenu.x }}
+          className="fixed z-50 min-w-[180px] bg-slate-900/95 border border-slate-700/80 rounded-xl p-1.5 shadow-2xl backdrop-blur-md text-xs font-sans text-slate-200 animate-in fade-in zoom-in-95 space-y-0.5"
+          onClick={() => setContextMenu(null)}
+        >
+          <button
+            onClick={() => {
+              const current = files[activeFileName] || "";
+              navigator.clipboard.writeText(current);
+              toast.success("📋 All code copied to clipboard!");
+            }}
+            className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-slate-800 text-left transition cursor-pointer"
+          >
+            <Copy className="h-3.5 w-3.5 text-sky-400" />
+            <span>Copy All Code</span>
+          </button>
+
+          <button
+            onClick={() => {
+              if (!isWebRunner) handleRunScript();
+              else {
+                setPreviewKey((k) => k + 1);
+                toast.success("⚡ Live runner refreshed!");
+              }
+            }}
+            className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-slate-800 text-left transition cursor-pointer"
+          >
+            <Play className="h-3.5 w-3.5 text-emerald-400" />
+            <span>Run Code (Ctrl+Enter)</span>
+          </button>
+
+          <button
+            onClick={() => setShowExplainModal(true)}
+            className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-slate-800 text-left transition cursor-pointer"
+          >
+            <Sparkles className="h-3.5 w-3.5 text-amber-400" />
+            <span>Explain File with AI</span>
+          </button>
+
+          <button
+            onClick={() => {
+              const challengeAtCurrent: PracticeChallenge = {
+                id: `user-chal-${Date.now()}`,
+                timeSec: currentTime,
+                cuteIcon: "🎯",
+                title: "Custom Practice Marker",
+                prompt: "Practice challenge added at this timestamp! Test your edits in the runner.",
+                suggestedDurationSec: 60,
+                solutionCode: "// Practice checkpoint solution",
+                explanation: "Custom challenge checkpoint created.",
+              };
+              setActivePracticeChallenge(challengeAtCurrent);
+              setChallengeSecondsLeft(60);
+              toast.success(`🎯 Added practice marker at ${formatTime(currentTime)}!`);
+            }}
+            className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-slate-800 text-left transition cursor-pointer"
+          >
+            <Clock className="h-3.5 w-3.5 text-purple-400" />
+            <span>Add Practice Marker</span>
+          </button>
+
+          <div className="border-t border-slate-800 my-1" />
+
+          <button
+            onClick={handleBackToTeacher}
+            className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-rose-500/10 text-rose-300 text-left transition cursor-pointer"
+          >
+            <Undo2 className="h-3.5 w-3.5" />
+            <span>Reset to Teacher Code</span>
+          </button>
+        </div>
+      )}
+
+      {/* ─── Keyboard Shortcuts Modal ────────────────────────────────────────── */}
+      {showShortcutsModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#121624] border border-slate-700 rounded-2xl max-w-md w-full p-6 text-slate-100 shadow-2xl space-y-4 animate-in fade-in zoom-in-95">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="flex items-center gap-2">
+                <Keyboard className="h-5 w-5 text-sky-400" />
+                <h3 className="font-bold text-base text-white font-display">Keyboard Shortcuts</h3>
+              </div>
+              <button
+                onClick={() => setShowShortcutsModal(false)}
+                className="text-slate-400 hover:text-white p-1 rounded"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="space-y-2 text-xs">
+              <div className="flex items-center justify-between p-2 rounded-lg bg-slate-900 border border-slate-800">
+                <span className="text-slate-300">Run Code / Refresh Runner</span>
+                <kbd className="px-2 py-0.5 rounded bg-slate-800 text-sky-400 font-mono font-bold">Ctrl + Enter</kbd>
+              </div>
+              <div className="flex items-center justify-between p-2 rounded-lg bg-slate-900 border border-slate-800">
+                <span className="text-slate-300">Play / Pause Lesson</span>
+                <kbd className="px-2 py-0.5 rounded bg-slate-800 text-sky-400 font-mono font-bold">Space</kbd>
+              </div>
+              <div className="flex items-center justify-between p-2 rounded-lg bg-slate-900 border border-slate-800">
+                <span className="text-slate-300">Rewind 10s / Forward 10s</span>
+                <kbd className="px-2 py-0.5 rounded bg-slate-800 text-sky-400 font-mono font-bold">J / L or ← / →</kbd>
+              </div>
+              <div className="flex items-center justify-between p-2 rounded-lg bg-slate-900 border border-slate-800">
+                <span className="text-slate-300">Save Workspace Checkpoint</span>
+                <kbd className="px-2 py-0.5 rounded bg-slate-800 text-sky-400 font-mono font-bold">Ctrl + S</kbd>
+              </div>
+              <div className="flex items-center justify-between p-2 rounded-lg bg-slate-900 border border-slate-800">
+                <span className="text-slate-300">Mute / Unmute Voice</span>
+                <kbd className="px-2 py-0.5 rounded bg-slate-800 text-sky-400 font-mono font-bold">M</kbd>
+              </div>
+              <div className="flex items-center justify-between p-2 rounded-lg bg-slate-900 border border-slate-800">
+                <span className="text-slate-300">Toggle Fullscreen</span>
+                <kbd className="px-2 py-0.5 rounded bg-slate-800 text-sky-400 font-mono font-bold">F</kbd>
+              </div>
+              <div className="flex items-center justify-between p-2 rounded-lg bg-slate-900 border border-slate-800">
+                <span className="text-slate-300">Open Shortcuts Helper</span>
+                <kbd className="px-2 py-0.5 rounded bg-slate-800 text-sky-400 font-mono font-bold">?</kbd>
+              </div>
+            </div>
+
+            <div className="pt-2 flex justify-end">
+              <Button
+                size="sm"
+                onClick={() => setShowShortcutsModal(false)}
+                className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs"
+              >
+                Close
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ─── 4. AI CODE EXPLAIN MODAL ──────────────────────────────────────── */}
       {showExplainModal && (

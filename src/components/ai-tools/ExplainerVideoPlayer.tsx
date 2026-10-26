@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Play,
@@ -8,6 +8,7 @@ import {
   Maximize,
   Minimize,
   RotateCcw,
+  RotateCw,
   Sparkles,
   Sliders,
   Share2,
@@ -27,6 +28,13 @@ import {
   Palette,
   Download,
   Zap,
+  Timer,
+  Check,
+  CheckCircle2,
+  HelpCircle,
+  X,
+  AlertCircle,
+  Clock,
 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
@@ -45,6 +53,19 @@ export interface StoryboardChapter {
   spokenWords: string;
   zoomTarget?: "all" | "q1" | "q2" | "q3" | "q4";
   codeSnippet?: string;
+}
+
+export interface PracticeChallenge {
+  id: string;
+  timeSec: number;
+  cuteIcon?: string;
+  title: string;
+  prompt: string;
+  hints?: string[];
+  suggestedDurationSec?: number;
+  solutionCode?: string;
+  explanation?: string;
+  targetFileName?: string;
 }
 
 export interface ExplainerTopicData {
@@ -84,6 +105,7 @@ interface ExplainerVideoPlayerProps {
   onGoDeeper?: () => void;
   onSwitchToWatchAndCode?: () => void;
   isSplitMode?: boolean;
+  practiceChallenges?: PracticeChallenge[];
 }
 
 export function ExplainerVideoPlayer({
@@ -91,6 +113,7 @@ export function ExplainerVideoPlayer({
   onGoDeeper,
   onSwitchToWatchAndCode,
   isSplitMode = false,
+  practiceChallenges,
 }: ExplainerVideoPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTimeSec, setCurrentTimeSec] = useState(0);
@@ -111,6 +134,49 @@ export function ExplainerVideoPlayer({
     timestamp: string;
     xPercent: number;
   } | null>(null);
+
+  // ─── Cute Practice Markers & Interactive Challenges ────────────────────────
+  const [activePracticeChallenge, setActivePracticeChallenge] = useState<PracticeChallenge | null>(null);
+  const [challengeSecondsLeft, setChallengeSecondsLeft] = useState<number>(60);
+  const [showChallengeSolution, setShowChallengeSolution] = useState<boolean>(false);
+  const [passedCheckpoints, setPassedCheckpoints] = useState<Set<string>>(new Set());
+
+  const effectivePracticeChallenges = useMemo<PracticeChallenge[]>(() => {
+    if (practiceChallenges && practiceChallenges.length > 0) return practiceChallenges;
+    return [
+      {
+        id: "chal-1",
+        timeSec: Math.max(15, Math.round(topic.totalDurationSec * 0.25)),
+        cuteIcon: "⭐",
+        title: "Concept Verification Checkpoint",
+        prompt: `Pause and verify your understanding of ${topic.title}. Can you summarize the core mechanics in your mind?`,
+        hints: ["Observe the center infographic", "Think about what connects the components"],
+        suggestedDurationSec: 60,
+        solutionCode: "// Core concept verified",
+        explanation: `In ${topic.title}, mastering foundational interactions is key to understanding the macro system.`,
+      },
+      {
+        id: "chal-2",
+        timeSec: Math.max(30, Math.round(topic.totalDurationSec * 0.65)),
+        cuteIcon: "🎯",
+        title: "System Dynamics Mastery",
+        prompt: `How do changes in one quadrant affect the rest of ${topic.title}?`,
+        hints: ["Follow the energy and data arrows", "Identify equilibrium points"],
+        suggestedDurationSec: 90,
+        solutionCode: "// System dynamics feedback equilibrium",
+        explanation: "Every subsystem balances inputs and outputs continuously, maintaining steady-state equilibrium.",
+      },
+    ];
+  }, [practiceChallenges, topic]);
+
+  // Countdown timer for practice challenge modal
+  useEffect(() => {
+    if (!activePracticeChallenge || challengeSecondsLeft <= 0) return;
+    const interval = setInterval(() => {
+      setChallengeSecondsLeft((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [activePracticeChallenge, challengeSecondsLeft]);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -376,6 +442,20 @@ export function ExplainerVideoPlayer({
           return 0;
         }
 
+        // Check for practice checkpoints
+        const checkpoint = effectivePracticeChallenges.find(
+          (c) => Math.abs(c.timeSec - Math.floor(nextTime)) < 1 && !passedCheckpoints.has(c.id)
+        );
+        if (checkpoint) {
+          setIsPlaying(false);
+          setActivePracticeChallenge(checkpoint);
+          setChallengeSecondsLeft(checkpoint.suggestedDurationSec || 60);
+          setShowChallengeSolution(false);
+          setPassedCheckpoints((s) => new Set(s).add(checkpoint.id));
+          toast.info(`Practice Checkpoint: ${checkpoint.title}`);
+          return Math.floor(nextTime);
+        }
+
         // Determine active chapter
         let currentIdx = 0;
         for (let i = 0; i < topic.chapters.length; i++) {
@@ -395,7 +475,8 @@ export function ExplainerVideoPlayer({
     return () => {
       if (playTimerRef.current) clearInterval(playTimerRef.current);
     };
-  }, [isPlaying, playbackSpeed, topic, activeChapterIndex, speakChapter]);
+  }, [isPlaying, playbackSpeed, topic, activeChapterIndex, speakChapter, effectivePracticeChallenges, passedCheckpoints]);
+
 
   // Jump to specific chapter
   const jumpToChapter = (idx: number) => {
@@ -507,6 +588,143 @@ export function ExplainerVideoPlayer({
           </div>
         </div>
 
+        {/* ─── Practice Challenge Modal Overlay ─── */}
+        <AnimatePresence>
+          {activePracticeChallenge && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="absolute inset-0 z-40 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4"
+            >
+              <div className="w-full max-w-lg bg-[#0e111a] border border-slate-700/80 rounded-2xl p-6 shadow-2xl space-y-4 text-left">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-2xl">{activePracticeChallenge.cuteIcon || "⭐"}</span>
+                    <div>
+                      <span className="text-[11px] font-bold text-amber-400 uppercase tracking-wider font-mono">
+                        Interactive Practice Checkpoint
+                      </span>
+                      <h3 className="text-base font-bold text-white">
+                        {activePracticeChallenge.title}
+                      </h3>
+                    </div>
+                  </div>
+
+                  {/* Countdown Timer with Give Me Some Time (+30s) */}
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-xs font-bold">
+                      <Timer className="h-3.5 w-3.5" />
+                      <span>{challengeSecondsLeft}s</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setChallengeSecondsLeft((prev) => prev + 30)}
+                      className="text-[11px] px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold transition cursor-pointer"
+                    >
+                      +30s Time
+                    </button>
+                  </div>
+                </div>
+
+                <p className="text-xs text-slate-300 leading-relaxed">
+                  {activePracticeChallenge.prompt}
+                </p>
+
+                {activePracticeChallenge.hints && activePracticeChallenge.hints.length > 0 && (
+                  <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800 text-xs space-y-1">
+                    <span className="font-bold text-slate-400 flex items-center gap-1">
+                      <HelpCircle className="h-3.5 w-3.5 text-sky-400" /> Helpful Hints:
+                    </span>
+                    <ul className="list-disc list-inside space-y-0.5 text-slate-400 text-[11px]">
+                      {activePracticeChallenge.hints.map((h, i) => (
+                        <li key={i}>{h}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* If user clicks "Solve & Explain" */}
+                {showChallengeSolution && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    className="p-3 rounded-xl bg-indigo-950/40 border border-indigo-500/40 text-xs space-y-2"
+                  >
+                    <div className="font-bold text-indigo-300 flex items-center gap-1.5">
+                      <Sparkles className="h-3.5 w-3.5 text-amber-400" />
+                      <span>Step-by-Step Solution &amp; Deep Explanation:</span>
+                    </div>
+                    <p className="text-[11px] text-slate-300 leading-relaxed">
+                      {activePracticeChallenge.explanation}
+                    </p>
+                    {activePracticeChallenge.solutionCode && (
+                      <pre className="p-2 rounded-lg bg-black/50 text-[10px] font-mono text-emerald-400 overflow-x-auto">
+                        <code>{activePracticeChallenge.solutionCode}</code>
+                      </pre>
+                    )}
+                  </motion.div>
+                )}
+
+                {/* Action Buttons */}
+                <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-800">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowChallengeSolution(true);
+                      toast.info("Revealing solution & step-by-step logic.");
+                    }}
+                    className="text-xs text-amber-400 hover:text-amber-300 font-bold flex items-center gap-1 transition cursor-pointer"
+                  >
+                    <Sparkles className="h-3.5 w-3.5" />
+                    <span>💡 I&apos;m Stuck — Solve &amp; Explain</span>
+                  </button>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setActivePracticeChallenge(null);
+                        setIsPlaying(true);
+                      }}
+                      className="px-3 py-1.5 rounded-xl border border-slate-700 text-xs text-slate-400 hover:text-white font-semibold transition cursor-pointer"
+                    >
+                      Skip &amp; Resume
+                    </button>
+
+                    {onSwitchToWatchAndCode && (
+                      <Button
+                        size="sm"
+                        onClick={() => {
+                          setActivePracticeChallenge(null);
+                          onSwitchToWatchAndCode();
+                        }}
+                        className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs gap-1.5 cursor-pointer"
+                      >
+                        <Code2 className="h-3.5 w-3.5" />
+                        <span>Code in IDE</span>
+                      </Button>
+                    )}
+
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        setActivePracticeChallenge(null);
+                        toast.success("🎉 Practice verified! Resuming lesson.");
+                        setIsPlaying(true);
+                      }}
+                      className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs gap-1.5 cursor-pointer"
+                    >
+                      <Check className="h-3.5 w-3.5" />
+                      <span>✨ I Solved It!</span>
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* ─── Center Visual Presentation Stage ─── */}
         <div className="relative z-10 my-auto flex items-center justify-center w-full px-2">
           {/* SCENE TYPE A: 4-Quadrant Pinned Infographic Card (Exact match to Magnetism in recording) */}
@@ -529,7 +747,7 @@ export function ExplainerVideoPlayer({
 
               {/* 4 Quadrants Grid */}
               <div className="grid grid-cols-2 gap-4 sm:gap-6 divide-x divide-y divide-slate-200">
-                {/* Quadrant 1: The Two Poles */}
+                {/* Quadrant 1 */}
                 <div
                   onClick={() => jumpToChapter(1)}
                   className={cn(
@@ -540,18 +758,45 @@ export function ExplainerVideoPlayer({
                   <h4 className="font-serif font-bold text-sm text-slate-900 text-center">
                     {topic.quadrants.q1.title}
                   </h4>
-                  <div className="my-2 flex items-center justify-center gap-2">
-                    <span className="text-xs font-semibold text-slate-500">North</span>
-                    <div className="flex rounded-md overflow-hidden border border-slate-700 shadow-sm font-bold text-xs">
-                      <div className="bg-rose-500 text-white px-3 py-1.5 flex items-center justify-center">N</div>
-                      <div className="bg-sky-600 text-white px-3 py-1.5 flex items-center justify-center">S</div>
+
+                  {/* Dynamic Graphic for Quadrant 1 */}
+                  {topic.id === "earth" || topic.title.toLowerCase().includes("earth") ? (
+                    <div className="my-1.5 flex flex-col items-center justify-center">
+                      <div className="relative w-full max-w-[200px] h-12 rounded-lg bg-gradient-to-b from-indigo-950 via-sky-900 to-sky-600 overflow-hidden border border-sky-400/30 flex items-center justify-center p-1 shadow-inner">
+                        <div className="flex gap-1 z-10">
+                          <span className="px-1.5 py-0.5 rounded bg-sky-500/30 border border-sky-400/40 text-[8px] font-bold text-sky-200">78% N₂</span>
+                          <span className="px-1.5 py-0.5 rounded bg-emerald-500/30 border border-emerald-400/40 text-[8px] font-bold text-emerald-200">21% O₂</span>
+                          <span className="px-1.5 py-0.5 rounded bg-indigo-500/30 border border-indigo-400/40 text-[8px] font-bold text-indigo-200">Ozone O₃</span>
+                        </div>
+                      </div>
                     </div>
-                    <span className="text-xs font-semibold text-slate-500">South</span>
-                  </div>
+                  ) : topic.id.includes("html") || topic.title.toLowerCase().includes("html") ? (
+                    <div className="my-1.5 flex items-center justify-center">
+                      <div className="rounded border border-indigo-400/30 bg-slate-900/80 px-2 py-0.5 text-[9px] font-mono text-indigo-300">
+                        &lt;!DOCTYPE html&gt; &gt; &lt;head&gt; + &lt;body&gt;
+                      </div>
+                    </div>
+                  ) : topic.id.includes("react") || topic.title.toLowerCase().includes("react") ? (
+                    <div className="my-1.5 flex items-center justify-center">
+                      <div className="rounded border border-sky-400/30 bg-slate-900/80 px-2 py-0.5 text-[9px] font-mono text-sky-300">
+                        useState(init) → [state, setState]
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="my-2 flex items-center justify-center gap-2">
+                      <span className="text-xs font-semibold text-slate-500">North</span>
+                      <div className="flex rounded-md overflow-hidden border border-slate-700 shadow-sm font-bold text-xs">
+                        <div className="bg-rose-500 text-white px-3 py-1.5 flex items-center justify-center">N</div>
+                        <div className="bg-sky-600 text-white px-3 py-1.5 flex items-center justify-center">S</div>
+                      </div>
+                      <span className="text-xs font-semibold text-slate-500">South</span>
+                    </div>
+                  )}
+
                   <p className="text-[10px] text-slate-500 text-center">{topic.quadrants.q1.subtitle}</p>
                 </div>
 
-                {/* Quadrant 2: Push and Pull */}
+                {/* Quadrant 2 */}
                 <div
                   onClick={() => jumpToChapter(2)}
                   className={cn(
@@ -562,24 +807,51 @@ export function ExplainerVideoPlayer({
                   <h4 className="font-serif font-bold text-sm text-slate-900 text-center">
                     {topic.quadrants.q2.title}
                   </h4>
-                  <div className="my-1.5 space-y-1.5 text-[11px] font-semibold text-slate-700 flex flex-col items-center">
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] text-emerald-600 font-bold">Attract:</span>
-                      <div className="h-4 px-2 rounded bg-rose-500 text-white text-[10px] font-bold flex items-center">N</div>
-                      <span className="text-xs text-slate-400">→ ←</span>
-                      <div className="h-4 px-2 rounded bg-sky-600 text-white text-[10px] font-bold flex items-center">S</div>
+
+                  {/* Dynamic Graphic for Quadrant 2 */}
+                  {topic.id === "earth" || topic.title.toLowerCase().includes("earth") ? (
+                    <div className="my-1.5 flex flex-col items-center justify-center">
+                      <div className="relative w-full max-w-[200px] h-12 rounded-lg bg-gradient-to-b from-sky-900 via-cyan-900 to-blue-950 overflow-hidden border border-cyan-400/30 flex items-center justify-center p-1 shadow-inner">
+                        <div className="flex items-center gap-1.5 z-10 text-[9px] font-bold text-cyan-200">
+                          <span>🌊 71% Ocean Cover</span>
+                          <span className="text-white/60">·</span>
+                          <span>🌧️ Water Cycle</span>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] text-rose-500 font-bold">Repel:</span>
-                      <div className="h-4 px-2 rounded bg-rose-500 text-white text-[10px] font-bold flex items-center">N</div>
-                      <span className="text-xs text-slate-400">← →</span>
-                      <div className="h-4 px-2 rounded bg-rose-500 text-white text-[10px] font-bold flex items-center">N</div>
+                  ) : topic.id.includes("html") || topic.title.toLowerCase().includes("html") ? (
+                    <div className="my-1.5 flex flex-col items-center gap-1 w-full max-w-[170px] mx-auto text-[8px] font-mono">
+                      <div className="w-full bg-sky-500/20 border border-sky-400/40 text-sky-300 text-center rounded py-0.5">&lt;header&gt;</div>
+                      <div className="w-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-center rounded py-0.5">&lt;main&gt; · &lt;article&gt;</div>
+                      <div className="w-full bg-purple-500/20 border border-purple-400/40 text-purple-300 text-center rounded py-0.5">&lt;footer&gt;</div>
                     </div>
-                  </div>
+                  ) : topic.id.includes("react") || topic.title.toLowerCase().includes("react") ? (
+                    <div className="my-1.5 flex items-center justify-center">
+                      <div className="rounded border border-indigo-400/30 bg-slate-900/80 px-2 py-0.5 text-[9px] font-mono text-indigo-300">
+                        useEffect(() =&gt; &#123;&#125;, [deps])
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="my-1.5 space-y-1.5 text-[11px] font-semibold text-slate-700 flex flex-col items-center">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] text-emerald-600 font-bold">Attract:</span>
+                        <div className="h-4 px-2 rounded bg-rose-500 text-white text-[10px] font-bold flex items-center">N</div>
+                        <span className="text-xs text-slate-400">→ ←</span>
+                        <div className="h-4 px-2 rounded bg-sky-600 text-white text-[10px] font-bold flex items-center">S</div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] text-rose-500 font-bold">Repel:</span>
+                        <div className="h-4 px-2 rounded bg-rose-500 text-white text-[10px] font-bold flex items-center">N</div>
+                        <span className="text-xs text-slate-400">← →</span>
+                        <div className="h-4 px-2 rounded bg-rose-500 text-white text-[10px] font-bold flex items-center">N</div>
+                      </div>
+                    </div>
+                  )}
+
                   <p className="text-[10px] text-slate-500 text-center">{topic.quadrants.q2.subtitle}</p>
                 </div>
 
-                {/* Quadrant 3: The Field */}
+                {/* Quadrant 3 */}
                 <div
                   onClick={() => jumpToChapter(3)}
                   className={cn(
@@ -590,21 +862,50 @@ export function ExplainerVideoPlayer({
                   <h4 className="font-serif font-bold text-sm text-slate-900 text-center">
                     {topic.quadrants.q3.title}
                   </h4>
-                  <div className="my-1 flex items-center justify-center">
-                    {/* SVG Vector Field Lines */}
-                    <svg className="w-28 h-12" viewBox="0 0 140 60">
-                      <ellipse cx="70" cy="30" rx="60" ry="24" fill="none" stroke="#94a3b8" strokeDasharray="3 3" />
-                      <ellipse cx="70" cy="30" rx="42" ry="16" fill="none" stroke="#64748b" />
-                      <rect x="45" y="20" width="25" height="20" fill="#f43f5e" rx="2" />
-                      <text x="57" y="34" fill="#fff" fontSize="10" fontWeight="bold" textAnchor="middle">N</text>
-                      <rect x="70" y="20" width="25" height="20" fill="#0284c7" rx="2" />
-                      <text x="82" y="34" fill="#fff" fontSize="10" fontWeight="bold" textAnchor="middle">S</text>
-                    </svg>
-                  </div>
+
+                  {/* Dynamic Graphic for Quadrant 3 */}
+                  {topic.id === "earth" || topic.title.toLowerCase().includes("earth") ? (
+                    <div className="my-1.5 flex flex-col items-center justify-center">
+                      <div className="relative w-full max-w-[200px] h-12 rounded-lg bg-gradient-to-r from-amber-950 via-stone-900 to-orange-950 overflow-hidden border border-amber-500/30 flex items-center justify-around p-1 shadow-inner">
+                        <span className="text-[8px] font-bold text-amber-200">Crust</span>
+                        <span className="text-xs text-orange-400">→</span>
+                        <span className="text-[8px] font-bold text-orange-200">Mantle</span>
+                        <span className="text-xs text-orange-400">→</span>
+                        <span className="text-[8px] font-bold text-yellow-200">Core</span>
+                      </div>
+                    </div>
+                  ) : topic.id.includes("html") || topic.title.toLowerCase().includes("html") ? (
+                    <div className="my-1.5 flex items-center justify-center gap-1.5">
+                      <div className="px-2 py-0.5 rounded bg-primary/20 border border-primary/40 text-[8px] font-bold text-primary">
+                        &lt;button&gt; Click
+                      </div>
+                      <div className="px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-[8px] font-mono text-slate-300">
+                        &lt;input text&gt;
+                      </div>
+                    </div>
+                  ) : topic.id.includes("react") || topic.title.toLowerCase().includes("react") ? (
+                    <div className="my-1.5 flex items-center justify-center">
+                      <div className="rounded border border-emerald-400/30 bg-slate-900/80 px-2 py-0.5 text-[9px] font-mono text-emerald-300">
+                        Fiber Virtual DOM Diffing
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="my-1 flex items-center justify-center">
+                      <svg className="w-28 h-12" viewBox="0 0 140 60">
+                        <ellipse cx="70" cy="30" rx="60" ry="24" fill="none" stroke="#94a3b8" strokeDasharray="3 3" />
+                        <ellipse cx="70" cy="30" rx="42" ry="16" fill="none" stroke="#64748b" />
+                        <rect x="45" y="20" width="25" height="20" fill="#f43f5e" rx="2" />
+                        <text x="57" y="34" fill="#fff" fontSize="10" fontWeight="bold" textAnchor="middle">N</text>
+                        <rect x="70" y="20" width="25" height="20" fill="#0284c7" rx="2" />
+                        <text x="82" y="34" fill="#fff" fontSize="10" fontWeight="bold" textAnchor="middle">S</text>
+                      </svg>
+                    </div>
+                  )}
+
                   <p className="text-[10px] text-slate-500 text-center">{topic.quadrants.q3.subtitle}</p>
                 </div>
 
-                {/* Quadrant 4: Always Two */}
+                {/* Quadrant 4 */}
                 <div
                   onClick={() => jumpToChapter(4)}
                   className={cn(
@@ -615,21 +916,46 @@ export function ExplainerVideoPlayer({
                   <h4 className="font-serif font-bold text-sm text-slate-900 text-center">
                     {topic.quadrants.q4.title}
                   </h4>
-                  <div className="my-1 flex items-center justify-center gap-1.5">
-                    <div className="flex border border-slate-400 rounded text-[9px] font-bold">
-                      <span className="bg-rose-500 text-white px-1.5 py-0.5">N</span>
-                      <span className="bg-sky-600 text-white px-1.5 py-0.5">S</span>
+
+                  {/* Dynamic Graphic for Quadrant 4 */}
+                  {topic.id === "earth" || topic.title.toLowerCase().includes("earth") ? (
+                    <div className="my-1.5 flex flex-col items-center justify-center">
+                      <div className="relative w-full max-w-[200px] h-12 rounded-lg bg-gradient-to-b from-emerald-950 via-teal-950 to-green-950 overflow-hidden border border-emerald-400/30 flex items-center justify-center p-1 shadow-inner text-[8px] font-mono text-emerald-200">
+                        🌿 6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂
+                      </div>
                     </div>
-                    <span className="text-[10px] text-slate-400">✂ Cut →</span>
-                    <div className="flex border border-slate-400 rounded text-[9px] font-bold">
-                      <span className="bg-rose-500 text-white px-1.5 py-0.5">N</span>
-                      <span className="bg-sky-600 text-white px-1.5 py-0.5">S</span>
+                  ) : topic.id.includes("html") || topic.title.toLowerCase().includes("html") ? (
+                    <div className="my-1.5 flex items-center justify-center gap-1 text-[8px] font-mono text-slate-300">
+                      <span className="bg-slate-800 px-1 py-0.5 rounded">Document</span>
+                      <span>→</span>
+                      <span className="bg-sky-500/20 text-sky-300 px-1 py-0.5 rounded">Body</span>
+                      <span>→</span>
+                      <span className="bg-emerald-500/20 text-emerald-300 px-1 py-0.5 rounded">Nodes</span>
                     </div>
-                    <div className="flex border border-slate-400 rounded text-[9px] font-bold">
-                      <span className="bg-rose-500 text-white px-1.5 py-0.5">N</span>
-                      <span className="bg-sky-600 text-white px-1.5 py-0.5">S</span>
+                  ) : topic.id.includes("react") || topic.title.toLowerCase().includes("react") ? (
+                    <div className="my-1.5 flex items-center justify-center">
+                      <div className="rounded border border-purple-400/30 bg-slate-900/80 px-2 py-0.5 text-[9px] font-mono text-purple-300">
+                        return () =&gt; cleanup()
+                      </div>
                     </div>
-                  </div>
+                  ) : (
+                    <div className="my-1 flex items-center justify-center gap-1.5">
+                      <div className="flex border border-slate-400 rounded text-[9px] font-bold">
+                        <span className="bg-rose-500 text-white px-1.5 py-0.5">N</span>
+                        <span className="bg-sky-600 text-white px-1.5 py-0.5">S</span>
+                      </div>
+                      <span className="text-[10px] text-slate-400">✂ Cut →</span>
+                      <div className="flex border border-slate-400 rounded text-[9px] font-bold">
+                        <span className="bg-rose-500 text-white px-1.5 py-0.5">N</span>
+                        <span className="bg-sky-600 text-white px-1.5 py-0.5">S</span>
+                      </div>
+                      <div className="flex border border-slate-400 rounded text-[9px] font-bold">
+                        <span className="bg-rose-500 text-white px-1.5 py-0.5">N</span>
+                        <span className="bg-sky-600 text-white px-1.5 py-0.5">S</span>
+                      </div>
+                    </div>
+                  )}
+
                   <p className="text-[10px] text-slate-500 text-center">{topic.quadrants.q4.subtitle}</p>
                 </div>
               </div>
@@ -819,6 +1145,34 @@ export function ExplainerVideoPlayer({
               );
             })}
 
+            {/* Cute Practice Checkpoint Markers on Timeline */}
+            {effectivePracticeChallenges.map((chal) => {
+              const percent = (chal.timeSec / topic.totalDurationSec) * 100;
+              return (
+                <button
+                  key={chal.id}
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setCurrentTimeSec(chal.timeSec);
+                    setActivePracticeChallenge(chal);
+                    setIsPlaying(false);
+                  }}
+                  className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-30 group/marker cursor-pointer focus:outline-none"
+                  style={{ left: `${Math.min(97, Math.max(3, percent))}%` }}
+                  title={`Practice Checkpoint: ${chal.title}`}
+                >
+                  <div className="w-5 h-5 rounded-full bg-gradient-to-tr from-amber-400 to-yellow-300 text-slate-950 font-bold text-[11px] flex items-center justify-center shadow-lg border border-white hover:scale-125 transition-transform animate-pulse">
+                    {chal.cuteIcon || "⭐"}
+                  </div>
+                  <div className="hidden group-hover/marker:block absolute bottom-6 -translate-x-1/2 left-1/2 bg-slate-900/95 text-white text-[10px] py-1 px-2 rounded-md whitespace-nowrap border border-amber-400/40 shadow-xl pointer-events-none">
+                    <span className="text-amber-400 font-bold mr-1">{chal.cuteIcon || "⭐"} Practice:</span>
+                    <span>{chal.title}</span>
+                  </div>
+                </button>
+              );
+            })}
+
             {/* Hover Tooltip Card (Shown in frame_009 of user recording!) */}
             <AnimatePresence>
               {hoveredChapter && (
@@ -841,7 +1195,7 @@ export function ExplainerVideoPlayer({
 
           {/* Lower Control Bar */}
           <div className="flex items-center justify-between text-xs text-slate-300 pt-0.5">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               {/* Play / Pause */}
               <button
                 type="button"
@@ -850,6 +1204,28 @@ export function ExplainerVideoPlayer({
                 title={isPlaying ? "Pause" : "Play"}
               >
                 {isPlaying ? <Pause className="h-4 w-4 fill-sky-300" /> : <Play className="h-4 w-4 fill-sky-300 ml-0.5" />}
+              </button>
+
+              {/* Seek -10s */}
+              <button
+                type="button"
+                onClick={() => setCurrentTimeSec((t) => Math.max(0, t - 10))}
+                className="h-8 px-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center gap-1 text-[11px] font-mono transition cursor-pointer"
+                title="Seek back 10 seconds (↺ 10s)"
+              >
+                <RotateCcw className="h-3.5 w-3.5" />
+                <span>10s</span>
+              </button>
+
+              {/* Seek +10s */}
+              <button
+                type="button"
+                onClick={() => setCurrentTimeSec((t) => Math.min(topic.totalDurationSec, t + 10))}
+                className="h-8 px-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center gap-1 text-[11px] font-mono transition cursor-pointer"
+                title="Seek forward 10 seconds (↻ 10s)"
+              >
+                <RotateCw className="h-3.5 w-3.5" />
+                <span>10s</span>
               </button>
 
               {/* Volume / Mute */}

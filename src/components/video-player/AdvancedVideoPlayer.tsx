@@ -489,7 +489,7 @@ export function AdvancedVideoPlayer({
     else videoRef.current?.play().catch(() => {});
   }, [isYouTube, sendYtCommand]);
 
-  // Synchronize playback with external interactive sandboxes (Scrimba Watch & Practice)
+  // Synchronize playback with external interactive sandboxes (Learnify Watch & Practice)
   useEffect(() => {
     const handleGlobalPause = (e?: Event) => {
       pauseMedia();
@@ -762,7 +762,7 @@ export function AdvancedVideoPlayer({
       role="application"
       aria-label={`Video player: ${title}`}
     >
-      {/* Floating Scrimba "Back to Teacher" Bar */}
+      {/* Floating Learnify "Back to Teacher" Bar */}
       {studentForked && (
         <div className="absolute top-4 left-1/2 -translate-x-1/2 z-40 flex items-center gap-2.5 px-4 py-2 rounded-full bg-slate-950/90 border border-indigo-500/50 shadow-2xl backdrop-blur-md animate-in fade-in slide-in-from-top-3 max-w-[90%]">
           <span className="flex h-2.5 w-2.5 relative shrink-0">
@@ -786,7 +786,7 @@ export function AdvancedVideoPlayer({
         </div>
       )}
 
-      {/* Scrimba Explainer or YouTube iframe */}
+      {/* Interactive Explainer or YouTube iframe */}
       {scrimbaUrl ? (
         <div className="relative w-full aspect-video bg-black">
           <iframe
