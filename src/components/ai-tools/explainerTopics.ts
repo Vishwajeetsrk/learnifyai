@@ -1,0 +1,285 @@
+import { ExplainerTopicData } from "./ExplainerVideoPlayer";
+
+export const EXPLAINER_TOPIC_PRESETS: Record<string, ExplainerTopicData> = {
+  magnetism: {
+    id: "magnetism",
+    title: "Introduction to Magnetism",
+    emoji: "🧲",
+    category: "Physics & Science",
+    tagline: "Magnetism is a force that can attract or repel objects without touching them.",
+    author: {
+      name: "Joe Goldberg",
+      handle: "joegoldberg1055",
+      avatar: "J",
+      isFollowed: true,
+    },
+    durationFormatted: "2:17",
+    totalDurationSec: 137,
+    views: 1842,
+    timeAgo: "1 hour ago",
+    quadrants: {
+      q1: {
+        title: "The Two Poles",
+        subtitle: "Every magnet always has North and South poles.",
+        labelN: "North (N)",
+        labelS: "South (S)",
+        desc: "You can think of them like the two sides of a coin: you cannot have one without the other.",
+      },
+      q2: {
+        title: "Push and Pull",
+        subtitle: "Opposites attract, while likes repel.",
+        ruleA: "N → ← S (Attract)",
+        ruleB: "N ← → N (Repel)",
+        desc: "North seeks South, creating invisible magnetic lines of tension in space.",
+      },
+      q3: {
+        title: "The Field",
+        subtitle: "Field lines loop continuously from North to South.",
+        notes: "N to S loop",
+        desc: "The magnetic field surrounds the magnet in 3D loops of force that dictate motion.",
+      },
+      q4: {
+        title: "Always Two",
+        subtitle: "Cutting a magnet creates two new magnets with both poles.",
+        cutLabel: "Cut in half",
+        desc: "There are no magnetic monopoles in classical physics; every piece retains both poles.",
+      },
+    },
+    chapters: [
+      {
+        id: "intro",
+        title: "Introduction to Magnetism",
+        timestamp: "0:00",
+        timeSec: 0,
+        durationSec: 15,
+        subtitle: "A fundamental force of nature that acts across distance.",
+        spokenWords:
+          "Magnetism is a fundamental force of nature that allows objects to push or pull on each other from a distance without touching.",
+        zoomTarget: "all",
+      },
+      {
+        id: "two-poles",
+        title: "The Two Poles",
+        timestamp: "0:15",
+        timeSec: 15,
+        durationSec: 25,
+        subtitle: "The Two Poles are always North and South.",
+        spokenWords:
+          "The Two Poles are always North and South. You can think of them like the sides of a coin; you cannot have one without the other.",
+        zoomTarget: "q1",
+      },
+      {
+        id: "push-pull",
+        title: "Push and Pull",
+        timestamp: "0:40",
+        timeSec: 40,
+        durationSec: 30,
+        subtitle: "The fundamental rule: opposites attract, while likes repel.",
+        spokenWords:
+          "Every magnet follows one golden rule: opposite poles attract together with force, while identical poles repel and push away.",
+        zoomTarget: "q2",
+      },
+      {
+        id: "field",
+        title: "The Magnetic Field",
+        timestamp: "1:10",
+        timeSec: 70,
+        durationSec: 35,
+        subtitle: "Vector lines of force that loop continuously from North to South.",
+        spokenWords:
+          "Invisible magnetic field lines curve out of the North pole and loop back around into the South pole in continuous closed paths.",
+        zoomTarget: "q3",
+      },
+      {
+        id: "always-two",
+        title: "Always Two",
+        timestamp: "1:45",
+        timeSec: 105,
+        durationSec: 32,
+        subtitle: "Cutting any magnet yields two complete magnets with new poles.",
+        spokenWords:
+          "If you cut a magnet in half, you do not isolate a single pole. Instead, you immediately create two complete new magnets.",
+        zoomTarget: "q4",
+      },
+    ],
+  },
+
+  deeplearning: {
+    id: "deeplearning",
+    title: "Deep Learning: Neural Networks & Backprop",
+    emoji: "🧠",
+    category: "Artificial Intelligence",
+    tagline: "How multi-layer perceptrons learn representations through forward activation and gradient descent.",
+    author: {
+      name: "Dr. Geoffrey Hinton AI",
+      handle: "deepmind_research",
+      avatar: "G",
+      isFollowed: true,
+    },
+    durationFormatted: "2:45",
+    totalDurationSec: 165,
+    views: 9410,
+    timeAgo: "2 hours ago",
+    deepLearningGraph: {
+      inputFeatures: ["x₁ Feature", "x₂ Feature", "x₃ Bias"],
+      hiddenNodes: 4,
+      activation: "GELU",
+      outputClasses: ["Class A (0.87)", "Class B (0.13)"],
+      lossType: "Cross-Entropy Loss",
+    },
+    chapters: [
+      {
+        id: "dl-intro",
+        title: "Neural Architecture",
+        timestamp: "0:00",
+        timeSec: 0,
+        durationSec: 25,
+        subtitle: "Layers of interconnected nodes mapping complex input spaces to decisions.",
+        spokenWords:
+          "Deep learning models construct hierarchical representations of data through successive linear matrix multiplications and non-linear activations.",
+        zoomTarget: "all",
+      },
+      {
+        id: "dl-forward",
+        title: "Forward Propagation",
+        timestamp: "0:25",
+        timeSec: 25,
+        durationSec: 35,
+        subtitle: "Computing activations layer by layer: a = σ(Wx + b).",
+        spokenWords:
+          "In the forward pass, raw input features are weighted, summed with a bias term, and passed through non-linear activation functions like GELU or ReLU.",
+        zoomTarget: "all",
+      },
+      {
+        id: "dl-loss",
+        title: "Loss Computation",
+        timestamp: "1:00",
+        timeSec: 60,
+        durationSec: 30,
+        subtitle: "Measuring discrepancy between predictions Ŷ and ground truth Y.",
+        spokenWords:
+          "The objective function measures prediction error using cross-entropy or mean squared error to quantify how far our current weights are from optimal.",
+        zoomTarget: "all",
+      },
+      {
+        id: "dl-backprop",
+        title: "Backpropagation & Chain Rule",
+        timestamp: "1:30",
+        timeSec: 90,
+        durationSec: 40,
+        subtitle: "Propagating gradients backward to compute ∂Loss/∂Weights.",
+        spokenWords:
+          "Using the calculus chain rule, gradients flow backward through every synaptic connection, computing exactly how to nudge each weight to decrease loss.",
+        zoomTarget: "all",
+      },
+      {
+        id: "dl-optimization",
+        title: "Gradient Descent & Convergence",
+        timestamp: "2:10",
+        timeSec: 130,
+        durationSec: 35,
+        subtitle: "Updating parameters: W = W - η · ∇W using AdamW optimizer.",
+        spokenWords:
+          "The Adam optimizer applies adaptive learning rates with momentum, shifting network parameters downward along the loss surface until convergence.",
+        zoomTarget: "all",
+      },
+    ],
+  },
+
+  earth: {
+    id: "earth",
+    title: "Earth's Spheres and Systems",
+    emoji: "🌍",
+    category: "Earth & Planetary Science",
+    tagline: "The interconnected dynamics of the Atmosphere, Hydrosphere, Geosphere, and Biosphere.",
+    author: {
+      name: "Nova Planetary Labs",
+      handle: "novascience",
+      avatar: "N",
+      isFollowed: false,
+    },
+    durationFormatted: "1:52",
+    totalDurationSec: 112,
+    views: 3209,
+    timeAgo: "4 hours ago",
+    quadrants: {
+      q1: {
+        title: "The Atmosphere",
+        subtitle: "The gaseous envelope protecting life on Earth.",
+        desc: "78% Nitrogen, 21% Oxygen, and trace greenhouse gases maintaining temperature equilibrium.",
+      },
+      q2: {
+        title: "The Hydrosphere",
+        subtitle: "All liquid, frozen, and gaseous water covering 71% of Earth.",
+        desc: "Drives oceanic thermal conveyor belts and the global hydrological cycle.",
+      },
+      q3: {
+        title: "The Geosphere",
+        subtitle: "Crust, mantle, and metallic core driving plate tectonics.",
+        desc: "Generates the geomagnetic shield protecting Earth from ionizing solar wind.",
+      },
+      q4: {
+        title: "The Biosphere",
+        subtitle: "The living zone linking all terrestrial and marine ecosystems.",
+        desc: "Photosynthetic organisms modulating planetary carbon and oxygen cycles.",
+      },
+    },
+    chapters: [
+      {
+        id: "earth-intro",
+        title: "The Big Picture",
+        timestamp: "0:00",
+        timeSec: 0,
+        durationSec: 20,
+        subtitle: "Earth functions as an interconnected biogeochemical super-system.",
+        spokenWords:
+          "From space, Earth appears as an integrated spaceship where four primary spheres continually exchange matter and energy.",
+        zoomTarget: "all",
+      },
+      {
+        id: "atmosphere",
+        title: "Atmosphere Dynamics",
+        timestamp: "0:20",
+        timeSec: 20,
+        durationSec: 25,
+        subtitle: "The protective thermal shield of air and weather.",
+        spokenWords:
+          "The atmosphere absorbs harsh ultraviolet solar radiation and retains planetary warmth via the greenhouse effect.",
+        zoomTarget: "q1",
+      },
+      {
+        id: "hydrosphere",
+        title: "Hydrosphere & Water Cycle",
+        timestamp: "0:45",
+        timeSec: 45,
+        durationSec: 25,
+        subtitle: "Thermal regulation across oceans, ice caps, and atmospheric vapor.",
+        spokenWords:
+          "Oceans store immense heat, circulating warm equatorial currents toward the poles to moderate global climates.",
+        zoomTarget: "q2",
+      },
+      {
+        id: "geosphere",
+        title: "Geosphere & Tectonics",
+        timestamp: "1:10",
+        timeSec: 70,
+        durationSec: 22,
+        subtitle: "Continental drift and magma convection replenishing mineral nutrients.",
+        spokenWords:
+          "The solid geosphere recycles rocks and minerals through subduction zones and volcanic outgassing.",
+        zoomTarget: "q3",
+      },
+      {
+        id: "biosphere",
+        title: "Biosphere Harmony",
+        timestamp: "1:32",
+        timeSec: 92,
+        durationSec: 20,
+        subtitle: "Life sustaining ecological homeostasis across millions of species.",
+        spokenWords:
+          "The biosphere synthesizes sunlight into chemical energy, binding all four spheres into a living balance.",
+        zoomTarget: "q4",
+      },
+    ],
+  },
+};

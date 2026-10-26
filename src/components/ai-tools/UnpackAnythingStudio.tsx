@@ -34,6 +34,7 @@ import {
   MessageSquare,
   HelpCircle,
   File,
+  Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -42,6 +43,7 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { ScrimbaWorkspace } from "@/components/courses/ScrimbaWorkspace";
+import { ScrimbaLearningHub } from "./ScrimbaLearningHub";
 
 // ─── 7 Persona Configurations ───────────────────────────────────────────────
 export type TeachingPersona =
@@ -538,6 +540,26 @@ export function UnpackAnythingStudio() {
           </div>
         </div>
       )}
+
+      {/* ─── Featured Live Engine: Explainer Theater & Scrimba Split Demo ─── */}
+      <div className="space-y-4 pt-2">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div className="space-y-1">
+            <div className="inline-flex items-center gap-1.5 text-xs font-bold text-sky-400 uppercase tracking-wider font-mono">
+              <Zap className="h-3.5 w-3.5" />
+              <span>Live Explainer &amp; Scrimba Engine Demo</span>
+            </div>
+            <h3 className="text-xl sm:text-2xl font-bold font-display tracking-tight text-foreground">
+              Watch &amp; Code Studio · High-Retention Explainer Engine
+            </h3>
+            <p className="text-xs sm:text-sm text-muted-foreground">
+              Experience the dual architecture: switch between <strong>Watch Mode</strong> (ambient music, 4-quadrant infographic with camera zoom, segmented timeline) and <strong>Watch &amp; Code Mode</strong> (live Monaco editor and terminal).
+            </p>
+          </div>
+        </div>
+
+        <ScrimbaLearningHub initialTopicId="magnetism" defaultMode="watch" />
+      </div>
 
       {/* ─── 4 Ecosystem Integration Showcase Cards (Exact Specs) ─── */}
       <div className="space-y-4 pt-4">
