@@ -1,34 +1,26 @@
-import { Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
-import {
-  Twitter,
-  Github,
-  MessageSquare,
-  Linkedin,
-  Youtube,
-  Instagram,
-  ChevronDown,
-  Zap,
-  Sparkles,
-  ArrowRight,
-} from "lucide-react";
-import { Logo } from "@/components/Logo";
+import { useMemo } from "react";
 import { useSiteSettings } from "@/hooks/use-site-settings";
 import { usePublicMenu } from "@/hooks/use-wcms-public";
-import { cn } from "@/lib/utils";
+import {
+  DoodleCrewFooter,
+  FooterColumn,
+  FooterLink,
+  FooterAction,
+  CrewMember,
+} from "@/components/ui/doodle-crew-footer";
 
-interface FooterLink {
+interface WcmsFooterLink {
   label: string;
   url: string;
   open_new_tab?: boolean;
 }
 
-interface FooterSection {
+interface WcmsFooterSection {
   title: string;
-  links: FooterLink[];
+  links: WcmsFooterLink[];
 }
 
-const APPROVED_SECTIONS: FooterSection[] = [
+const APPROVED_SECTIONS: WcmsFooterSection[] = [
   {
     title: "Product",
     links: [
@@ -75,317 +67,162 @@ const APPROVED_SECTIONS: FooterSection[] = [
   },
 ];
 
+const LEARNIFY_CREW: CrewMember[] = [
+  { kind: "yeti", letter: 0, seat: "front", offset: -0.32, name: "Bruno", says: "Hungry for knowledge? Build something great!" },
+  { kind: "bird", letter: 1, seat: "top", offset: 0.02, name: "Pip", says: "Tweet us! Launch Studio v4.2." },
+  { kind: "mushroom", letter: 2, seat: "front", offset: 0.12, scale: 0.95, name: "Morel", says: "AI Engineers belong here." },
+  { kind: "kid", letter: 4, seat: "top", offset: -0.05, name: "Juno", says: "Best seat in the house. Welcome to Learnify AI!" },
+  { kind: "ghost", letter: 6, seat: "behind", offset: 0, name: "Boo", says: "Zero bugs in production!" },
+  { kind: "cat", letter: 7, seat: "front", offset: 0.42, flip: true, name: "Patch", says: "Purrfect prompts make perfect models." },
+];
+
+const ACTIONS: FooterAction[] = [
+  { label: "Launch Studio IDE v4.2", href: "/studio", icon: "bolt", variant: "solid" },
+  { label: "What's New", href: "/updates", icon: "sparkle", variant: "outline" },
+];
+
 export function SiteFooter() {
   const { data: s } = useSiteSettings();
   const { data: footerItems = [] } = usePublicMenu("footer");
-  const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
-
-  const toggleSection = (title: string) => {
-    setOpenSections((prev) => ({
-      ...prev,
-      [title]: !prev[title],
-    }));
-  };
 
   const hasWcmsFooter = footerItems.length > 0;
-  const wcmsSections: FooterSection[] = hasWcmsFooter
+  const wcmsSections: WcmsFooterSection[] = hasWcmsFooter
     ? footerItems
-      .filter((i: any) => !i.parent_id)
-      .map((section: any) => ({
-        title: section.label,
-        links: footerItems.filter((i: any) => i.parent_id === section.id),
-      }))
+        .filter((i: any) => !i.parent_id)
+        .map((section: any) => ({
+          title: section.label,
+          links: footerItems.filter((i: any) => i.parent_id === section.id),
+        }))
     : [];
 
-  const rawSections: FooterSection[] =
+  const rawSections: WcmsFooterSection[] =
     hasWcmsFooter && wcmsSections.length > 0 ? wcmsSections : APPROVED_SECTIONS;
 
-  const sections: FooterSection[] = useMemo(() => {
+  const columns: FooterColumn[] = useMemo(() => {
     const isSupportVisible = s?.support_us_enabled === "true";
     return rawSections.map((sec) => ({
-      ...sec,
-      links: (sec.links || []).filter((link) => {
-        const url = (link.url || "").toLowerCase().trim();
-        const label = (link.label || "").toLowerCase().trim();
+      title: sec.title,
+      links: (sec.links || [])
+        .filter((link) => {
+          const url = (link.url || "").toLowerCase().trim();
+          const label = (link.label || "").toLowerCase().trim();
 
-        if (
-          !isSupportVisible &&
-          (url === "/support-us" ||
-            url === "/sponsor" ||
-            url.includes("support-us") ||
-            label.includes("support us") ||
-            label === "sponsor" ||
-            label.includes("sponsor"))
-        ) {
-          return false;
-        }
+          if (
+            !isSupportVisible &&
+            (url === "/support-us" ||
+              url === "/sponsor" ||
+              url.includes("support-us") ||
+              label.includes("support us") ||
+              label === "sponsor" ||
+              label.includes("sponsor"))
+          ) {
+            return false;
+          }
 
-        if (link.url === "/legal" && s?.legal_center_enabled === "false") return false;
-        return true;
-      }),
+          if (link.url === "/legal" && s?.legal_center_enabled === "false") return false;
+          return true;
+        })
+        .map((link) => ({
+          label: link.label,
+          href: link.url,
+          openNewTab: link.open_new_tab,
+        })),
     }));
   }, [rawSections, s]);
 
+  const socials: FooterLink[] = useMemo(() => {
+    const list: FooterLink[] = [];
+    if (s?.github_url && s.github_url !== "#" && s.github_url.trim() !== "") {
+      list.push({ label: "GitHub", href: s.github_url, openNewTab: true });
+    }
+    if (s?.discord_url && s.discord_url !== "#" && s.discord_url.trim() !== "") {
+      list.push({ label: "Discord", href: s.discord_url, openNewTab: true });
+    }
+    if (s?.linkedin_url && s.linkedin_url !== "#" && s.linkedin_url.trim() !== "") {
+      list.push({ label: "LinkedIn", href: s.linkedin_url, openNewTab: true });
+    }
+    if (s?.twitter_url && s.twitter_url !== "#" && s.twitter_url.trim() !== "") {
+      list.push({ label: "X (Twitter)", href: s.twitter_url, openNewTab: true });
+    }
+    if (s?.youtube_url && s.youtube_url !== "#" && s.youtube_url.trim() !== "") {
+      list.push({ label: "YouTube", href: s.youtube_url, openNewTab: true });
+    }
+    if (s?.instagram_url && s.instagram_url !== "#" && s.instagram_url.trim() !== "") {
+      list.push({ label: "Instagram", href: s.instagram_url, openNewTab: true });
+    }
+
+    if (list.length === 0) {
+      list.push(
+        { label: "GitHub", href: "https://github.com/Vishwajeetsrk/learnifyai", openNewTab: true },
+        { label: "LinkedIn", href: "https://www.linkedin.com/in/vishwajeetsrk", openNewTab: true },
+        { label: "Discord", href: "https://discord.gg/learnify", openNewTab: true }
+      );
+    }
+    return list;
+  }, [s]);
+
+  const legal: FooterLink[] = [
+    { label: "Terms & Conditions", href: "/terms" },
+    { label: "Privacy Policy", href: "/privacy" },
+    { label: "Refund Policy", href: "/refund-policy" },
+    { label: "Shipping & Delivery", href: "/legal" },
+    { label: "Legal Center", href: "/legal" },
+  ];
+
   const currentYear = new Date().getFullYear();
 
+  const extraBrandContent = (
+    <div className="pt-2 flex flex-col gap-3">
+      <div className="flex items-center gap-2.5 text-xs text-slate-400">
+        <span>Built with 💙 by</span>
+        <a
+          href="https://www.linkedin.com/in/vishwajeetsrk"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900 border border-slate-700/80 text-slate-200 shadow-md hover:border-sky-500/60 hover:bg-slate-800 hover:scale-105 transition-all group"
+          title="Connect with Vishwajeet on LinkedIn"
+        >
+          <img
+            src="/assets/vishwajeet-profile.png"
+            alt="Vishwajeet"
+            className="w-5 h-5 rounded-full object-cover object-top ring-1 ring-sky-400/50 group-hover:ring-sky-400 transition"
+          />
+          <span className="font-semibold text-xs text-white group-hover:text-sky-300 transition-colors">Vishwajeet</span>
+        </a>
+      </div>
+    </div>
+  );
+
   return (
-    <footer className="relative mt-24 border-t border-white/10 bg-[#05060a] text-slate-100 overflow-hidden">
+    <div className="relative mt-20 border-t border-white/10 bg-[#05060a]">
       {/* ─── Ambient Glow Gradients ─── */}
       <div className="absolute top-0 left-1/4 -translate-y-1/2 w-96 h-96 bg-sky-500/5 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-96 h-96 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none" />
 
-      {/* ─── Main Footer Content ─── */}
-      <div className="container relative z-10 mx-auto px-6 pt-16 pb-24 md:pt-20 md:pb-32">
-        <div className="grid gap-12 md:grid-cols-12 items-start">
-          {/* Brand & Creator Identity */}
-          <div className="space-y-6 md:col-span-4 lg:col-span-4">
-            <Link to="/" className="inline-flex items-center hover:opacity-95 transition-opacity" aria-label="Learnify AI">
-              <img
-                src="/assets/learnify-logo.png"
-                alt="Learnify AI"
-                className="h-11 w-auto object-contain drop-shadow-md"
-              />
-            </Link>
-            <p className="text-sm text-slate-400 max-w-sm leading-relaxed">
-              Learn smarter. Grow faster. The AI-native learning &amp; career operating system for developers, AI engineers, and modern creators.
-            </p>
-
-            {/* CTA Button matching video */}
-            <div className="pt-1 flex flex-col sm:flex-row items-start sm:items-center gap-3">
-              <Link
-                to="/studio"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white hover:bg-slate-200 text-slate-950 font-semibold text-xs transition shadow-lg hover:scale-[1.02] active:scale-[0.98]"
-              >
-                <Zap className="h-3.5 w-3.5 fill-slate-950 text-slate-950" />
-                <span>Launch Studio IDE</span>
-                <span className="text-[10px] font-mono font-bold bg-slate-950/10 px-1.5 py-0.5 rounded">v4.2</span>
-              </Link>
-              <Link
-                to="/updates"
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-white/10 hover:border-sky-500/40 bg-white/5 hover:bg-white/10 text-xs font-medium text-slate-300 transition"
-              >
-                <Sparkles className="h-3 w-3 text-sky-400" />
-                <span>What's New</span>
-              </Link>
-            </div>
-
-            {/* Creator Attribution */}
-            <div className="pt-2 flex items-center gap-2.5 text-xs text-slate-400">
-              <span className="text-slate-400">Built with 💙 by</span>
-              <a
-                href="https://www.linkedin.com/in/vishwajeetsrk"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900 border border-slate-700/80 text-slate-200 shadow-md hover:border-sky-500/60 hover:bg-slate-800 hover:scale-105 transition-all group"
-                title="Connect with Vishwajeet on LinkedIn"
-              >
-                <img
-                  src="/assets/vishwajeet-profile.png"
-                  alt="Vishwajeet"
-                  className="w-5 h-5 rounded-full object-cover object-top ring-1 ring-sky-400/50 group-hover:ring-sky-400 transition"
-                />
-                <span className="font-semibold text-xs text-white group-hover:text-sky-300 transition-colors">Vishwajeet</span>
-              </a>
-            </div>
-
-            {/* Social Icons */}
-            <div className="flex items-center gap-2 pt-2">
-              {s?.github_url && s.github_url !== "#" && s.github_url.trim() !== "" && (
-                <a
-                  href={s.github_url}
-                  target="_blank"
-                  rel="noreferrer"
-                  aria-label="GitHub"
-                  className="h-8 w-8 rounded-full border border-slate-800 bg-slate-900/60 flex items-center justify-center text-slate-400 hover:border-sky-500/50 hover:text-white transition"
-                >
-                  <Github className="h-4 w-4" />
-                </a>
-              )}
-              {s?.discord_url && s.discord_url !== "#" && s.discord_url.trim() !== "" && (
-                <a
-                  href={s.discord_url}
-                  target="_blank"
-                  rel="noreferrer"
-                  aria-label="Discord"
-                  className="h-8 w-8 rounded-full border border-slate-800 bg-slate-900/60 flex items-center justify-center text-slate-400 hover:border-sky-500/50 hover:text-white transition"
-                >
-                  <MessageSquare className="h-4 w-4" />
-                </a>
-              )}
-              {s?.linkedin_url && s.linkedin_url !== "#" && s.linkedin_url.trim() !== "" && (
-                <a
-                  href={s.linkedin_url}
-                  target="_blank"
-                  rel="noreferrer"
-                  aria-label="LinkedIn"
-                  className="h-8 w-8 rounded-full border border-slate-800 bg-slate-900/60 flex items-center justify-center text-slate-400 hover:border-sky-500/50 hover:text-white transition"
-                >
-                  <Linkedin className="h-4 w-4" />
-                </a>
-              )}
-              {s?.twitter_url && s.twitter_url !== "#" && s.twitter_url.trim() !== "" && (
-                <a
-                  href={s.twitter_url}
-                  target="_blank"
-                  rel="noreferrer"
-                  aria-label="X (Twitter)"
-                  className="h-8 w-8 rounded-full border border-slate-800 bg-slate-900/60 flex items-center justify-center text-slate-400 hover:border-sky-500/50 hover:text-white transition"
-                >
-                  <Twitter className="h-4 w-4" />
-                </a>
-              )}
-              {s?.youtube_url && s.youtube_url !== "#" && s.youtube_url.trim() !== "" && (
-                <a
-                  href={s.youtube_url}
-                  target="_blank"
-                  rel="noreferrer"
-                  aria-label="YouTube"
-                  className="h-8 w-8 rounded-full border border-slate-800 bg-slate-900/60 flex items-center justify-center text-slate-400 hover:border-sky-500/50 hover:text-white transition"
-                >
-                  <Youtube className="h-4 w-4" />
-                </a>
-              )}
-              {s?.instagram_url && s.instagram_url !== "#" && s.instagram_url.trim() !== "" && (
-                <a
-                  href={s.instagram_url}
-                  target="_blank"
-                  rel="noreferrer"
-                  aria-label="Instagram"
-                  className="h-8 w-8 rounded-full border border-slate-800 bg-slate-900/60 flex items-center justify-center text-slate-400 hover:border-sky-500/50 hover:text-white transition"
-                >
-                  <Instagram className="h-4 w-4" />
-                </a>
-              )}
-            </div>
-          </div>
-
-          {/* Desktop Navigation Columns (4 Columns) */}
-          <div className="hidden md:grid md:grid-cols-4 gap-8 md:col-span-8 lg:col-span-8">
-            {sections.map((section) => (
-              <div key={section.title} className="space-y-3.5">
-                <h4 className="font-display font-semibold text-xs tracking-wider uppercase text-slate-200">
-                  {section.title}
-                </h4>
-                <ul className="space-y-2.5 text-xs text-slate-400">
-                  {section.links.map((link) => (
-                    <li key={link.label}>
-                      {link.open_new_tab ? (
-                        <a
-                          href={link.url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="hover:text-white hover:translate-x-0.5 inline-block transition-all"
-                        >
-                          {link.label}
-                        </a>
-                      ) : (
-                        <Link
-                          to={link.url || "/"}
-                          className="hover:text-white hover:translate-x-0.5 inline-block transition-all"
-                        >
-                          {link.label}
-                        </Link>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-
-          {/* Mobile Accordion Groups */}
-          <div className="block md:hidden col-span-1 divide-y divide-white/10 rounded-2xl border border-white/10 bg-slate-900/40 backdrop-blur-md overflow-hidden">
-            {sections.map((section) => {
-              const isOpen = Boolean(openSections[section.title]);
-              return (
-                <div key={section.title} className="p-3.5">
-                  <button
-                    type="button"
-                    onClick={() => toggleSection(section.title)}
-                    className="w-full flex items-center justify-between text-left text-xs font-semibold text-slate-200 py-1"
-                    aria-expanded={isOpen}
-                  >
-                    <span>{section.title}</span>
-                    <ChevronDown
-                      className={cn(
-                        "h-3.5 w-3.5 text-slate-400 transition-transform duration-200",
-                        isOpen && "rotate-180"
-                      )}
-                    />
-                  </button>
-                  {isOpen && (
-                    <ul className="mt-2.5 pl-1 space-y-2 text-xs text-slate-400 border-t border-white/5 pt-2 animate-in fade-in duration-200">
-                      {section.links.map((link) => (
-                        <li key={link.label}>
-                          {link.open_new_tab ? (
-                            <a
-                              href={link.url}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="hover:text-white transition-colors block py-0.5"
-                            >
-                              {link.label}
-                            </a>
-                          ) : (
-                            <Link
-                              to={link.url || "/"}
-                              className="hover:text-white transition-colors block py-0.5"
-                            >
-                              {link.label}
-                            </Link>
-                          )}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Footer Bottom Bar with Legal Links & Official Logo */}
-        <div className="border-t border-white/10 mt-16 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-          <div className="flex items-center gap-3">
-            <Link to="/" className="inline-flex items-center gap-2 hover:opacity-90 transition-opacity" aria-label="Learnify AI">
-              <img
-                src="/assets/learnify-logo.png"
-                alt="Learnify AI"
-                className="h-6 w-auto object-contain"
-              />
-            </Link>
-            <span className="text-slate-700 hidden sm:inline">|</span>
-            <p className="font-mono text-[11px] text-slate-400">
-              &copy; {currentYear} Learnify AI Inc. All rights reserved.
-            </p>
-          </div>
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-slate-400">
-            <Link to="/terms" className="hover:text-white transition-colors">
-              Terms &amp; Conditions
-            </Link>
-            <span>&middot;</span>
-            <Link to="/privacy" className="hover:text-white transition-colors">
-              Privacy Policy
-            </Link>
-            <span>&middot;</span>
-            <Link to="/refund-policy" className="hover:text-white transition-colors">
-              Refund Policy
-            </Link>
-            <span>&middot;</span>
-            <Link
-              to="/legal"
-              search={{ doc: "digital-delivery" }}
-              className="hover:text-white transition-colors"
-            >
-              Shipping &amp; Delivery
-            </Link>
-            <span>&middot;</span>
-            <Link to="/legal" className="hover:text-white transition-colors">
-              Legal Center
-            </Link>
-          </div>
-        </div>
-      </div>
-    </footer>
+      <DoodleCrewFooter
+        wordmark="LEARNIFY"
+        brand="Learnify AI"
+        logoUrl="/assets/learnify-logo.png"
+        blurb="Learn smarter. Grow faster. The AI-native learning & career operating system for developers, AI engineers, and modern creators."
+        extraBrandContent={extraBrandContent}
+        tagline="Hand-drawn intelligence for the builders and learners of tomorrow."
+        columns={columns}
+        actions={ACTIONS}
+        copyright={`© ${currentYear} Learnify AI Inc. All rights reserved.`}
+        legal={legal}
+        socials={socials}
+        crew={LEARNIFY_CREW}
+        preset="night"
+        palette={{
+          background: "#05060a",
+          ink: "#f8fafc",
+          accent: "#38bdf8",
+        }}
+        interactive={true}
+        backToTop={true}
+      />
+    </div>
   );
 }
+
+export default SiteFooter;
