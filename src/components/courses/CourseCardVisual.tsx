@@ -17,6 +17,17 @@ interface CourseCardVisualProps {
 }
 
 /**
+ * Local high-quality generated course covers (slug → path).
+ * These take priority over any database cover_url.
+ * Add new entries here as more covers are generated.
+ */
+const LOCAL_COVERS: Record<string, string> = {
+  "chatgpt-claude-ai-productivity": "/course-covers/chatgpt-claude-ai.jpg",
+  "java-fundamentals": "/course-covers/java-fundamentals.jpg",
+  "designing-user-interfaces-and-experiences": "/course-covers/designing-user-interfaces-and-experiences.jpg",
+};
+
+/**
  * Maps course slug/title to canonical brand logos.
  * Handles both existing platform courses and any newly created technologies.
  */
@@ -188,10 +199,16 @@ export function CourseCardVisual({
 }: CourseCardVisualProps) {
   const brands = getCourseBrands(course.slug, course.title);
   const cleanCover = course.cover_url ? getCleanBannerUrl(course.cover_url) : null;
-  const isSvgPath = cleanCover?.endsWith(".svg") || cleanCover?.startsWith("/course-covers");
 
-  // If a valid raster cover exists (and is not a placeholder svg path), render it with brand overlay
-  const hasValidCustomCover = Boolean(cleanCover && !isSvgPath);
+  // Local generated covers take priority — slug-based lookup
+  const localCover = course.slug ? LOCAL_COVERS[course.slug] ?? null : null;
+
+  // Effective cover: prefer local generated JPG, then fall back to DB cover_url
+  // SVG-only paths without extension = placeholder, skip them
+  const effectiveCover = localCover ?? (cleanCover?.endsWith(".svg") ? null : cleanCover);
+
+  // Render actual image if we have a valid raster or SVG file reference
+  const hasValidCustomCover = Boolean(effectiveCover);
 
   // Gradient themes matching brand colors
   const primaryBrand = String(brands[0] || "");
@@ -256,7 +273,7 @@ export function CourseCardVisual({
       {hasValidCustomCover ? (
         <>
           <SafeImage
-            src={cleanCover!}
+            src={effectiveCover!}
             alt={course.title || "Course Cover"}
             className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
           />

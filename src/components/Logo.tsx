@@ -37,7 +37,8 @@ export function Logo({ className, height = "h-9", markOnly = false, textClassNam
         draggable={false}
       />
       <span className={cn("font-display font-black text-xl tracking-tight text-foreground flex items-baseline drop-shadow-sm", textClassName)}>
-        Learnify<span className="text-sky-500 ml-0.5">AI</span>
+        <span>Learnify</span>
+        <span className="text-sky-400 font-extrabold ml-0.5">AI</span>
       </span>
     </span>
   );
