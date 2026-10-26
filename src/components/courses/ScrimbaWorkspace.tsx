@@ -40,7 +40,11 @@ import {
   FilePlus,
   FolderPlus,
   ArrowRight,
+  Palette,
+  Video,
+  Globe2,
 } from "lucide-react";
+import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -462,7 +466,7 @@ const LESSON_NARRATIONS: NarrationClip[] = [
   },
   {
     time: 5,
-    text: "Hey there! In this Scrimba video lesson, you're not just watching — you're inside a real live IDE.",
+    text: "Hey there! In this Learnify AI video lesson, you're not just watching — you're inside a real live IDE.",
     caption: "Hey there.",
   },
   {
@@ -669,7 +673,7 @@ export default function CounterApp() {
     <div className="app-container">
       <header className="app-header">
         <h1>⚛️ React 19 State &amp; Hooks</h1>
-        <p className="subtitle">${topic || "Interactive Scrimba State Management"}</p>
+        <p className="subtitle">${topic || "Interactive Learnify AI State Management"}</p>
       </header>
 
       <main className="counter-card">
@@ -854,13 +858,13 @@ export function generateTopicNarrations(topic: string, instructor: string): Narr
   return [
     {
       time: 0,
-      text: `Hello! I'm ${instructor}, and welcome to this Scrimba session on ${topic}.`,
+      text: `Hello! I'm ${instructor}, and welcome to this Learnify AI session on ${topic}.`,
       caption: `Welcome to ${topic} with ${instructor}.`,
     },
     {
       time: 5,
       text: "You are inside a real live IDE. On the left are your project files, in the center is the editor, and on the right is your live execution runner.",
-      caption: "Interactive Scrimba: Files on left, code in center, live runner on right.",
+      caption: "Interactive Learnify AI: Files on left, code in center, live runner on right.",
     },
     {
       time: 14,
@@ -899,6 +903,33 @@ export interface ScrimbaWorkspaceProps {
   onForkChange?: (isForked: boolean) => void;
 }
 
+export type CaptionStyle = "karaoke" | "glass" | "cinema" | "cyberpunk";
+
+export interface SupportedLanguage {
+  code: string;
+  label: string;
+  flag: string;
+  speechLocale: string;
+}
+
+export const SUPPORTED_LANGUAGES: SupportedLanguage[] = [
+  { code: "en", label: "English", flag: "🇬🇧", speechLocale: "en-US" },
+  { code: "hi", label: "हिंदी / Hinglish", flag: "🇮🇳", speechLocale: "hi-IN" },
+  { code: "es", label: "Español", flag: "🇪🇸", speechLocale: "es-ES" },
+  { code: "fr", label: "Français", flag: "🇫🇷", speechLocale: "fr-FR" },
+  { code: "de", label: "Deutsch", flag: "🇩🇪", speechLocale: "de-DE" },
+  { code: "ja", label: "日本語", flag: "🇯🇵", speechLocale: "ja-JP" },
+];
+
+const INTRO_TRANSLATIONS: Record<string, string> = {
+  en: "My name is {instructor}, and you'll be hearing challenges in order to learn the ropes.",
+  hi: "मेरा नाम {instructor} है, और आप व्यावहारिक कोड चुनौतियों के साथ सीखेंगे।",
+  es: "Mi nombre es {instructor}, y escucharás desafíos para aprender en la práctica.",
+  fr: "Je m'appelle {instructor}, et vous découvrirez des défis interactifs pour coder.",
+  de: "Mein Name ist {instructor}, und Sie werden praktische Aufgaben lösen, um zu lernen.",
+  ja: "講師の{instructor}です。インタラクティブな課題で実践的に学びましょう。",
+};
+
 export function ScrimbaWorkspace({
   courseTitle = "Fullstack Path",
   lessonTitle = "Let's Make a Cake!",
@@ -930,6 +961,10 @@ export function ScrimbaWorkspace({
   const [playbackSpeed, setPlaybackSpeed] = useState<number>(1);
   const [showExplainModal, setShowExplainModal] = useState<boolean>(false);
   const [isMaximized, setIsMaximized] = useState<boolean>(false);
+  const [selectedLanguage, setSelectedLanguage] = useState<string>("en");
+  const [captionStyle, setCaptionStyle] = useState<CaptionStyle>("glass");
+  const [isExportingVideo, setIsExportingVideo] = useState<boolean>(false);
+  const [exportProgress, setExportProgress] = useState<number>(0);
 
   // ─── Responsive Tabs (Mobile & Tablet) ────────────────────────────────────
   const [mobileTab, setMobileTab] = useState<"code" | "preview" | "files">("code");
@@ -1035,7 +1070,7 @@ export function ScrimbaWorkspace({
     }
   }, [activeFileName, executeCodeFn, files]);
 
-  // ─── Speech Synthesis Narration ───────────────────────────────────────────
+  // ─── Speech Synthesis Narration (Multi-Language Locale Matching) ─────────
   const speakText = useCallback(
     (text: string) => {
       if (!speechEnabled || isMuted || typeof window === "undefined" || !("speechSynthesis" in window)) {
@@ -1046,17 +1081,164 @@ export function ScrimbaWorkspace({
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.rate = playbackSpeed;
         utterance.pitch = 1.0;
-        // Try to pick a natural English voice
+
+        const langConfig = SUPPORTED_LANGUAGES.find((l) => l.code === selectedLanguage) || SUPPORTED_LANGUAGES[0];
+        utterance.lang = langConfig.speechLocale;
+
         const voices = window.speechSynthesis.getVoices();
-        const englishVoice = voices.find((v) => v.lang.startsWith("en") && !v.name.includes("Zira")) || voices[0];
-        if (englishVoice) utterance.voice = englishVoice;
+        const matchedVoice =
+          voices.find((v) => v.lang.toLowerCase().startsWith(langConfig.code.toLowerCase())) ||
+          voices.find((v) => v.lang.toLowerCase().includes(langConfig.speechLocale.toLowerCase())) ||
+          voices.find((v) => v.lang.startsWith("en") && !v.name.includes("Zira")) ||
+          voices[0];
+
+        if (matchedVoice) utterance.voice = matchedVoice;
         window.speechSynthesis.speak(utterance);
       } catch {
         // Speech API unsupported or blocked by browser
       }
     },
-    [speechEnabled, isMuted, playbackSpeed]
+    [speechEnabled, isMuted, playbackSpeed, selectedLanguage]
   );
+
+  // ─── Export Lesson as MP4 Video ───────────────────────────────────────────
+  const handleDownloadMp4 = useCallback(async () => {
+    setIsExportingVideo(true);
+    setExportProgress(10);
+    toast.info("Generating MP4 Explainer video with code, slides & captions...");
+
+    try {
+      const canvas = document.createElement("canvas");
+      canvas.width = 1920;
+      canvas.height = 1080;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) throw new Error("Canvas context unavailable");
+
+      const stream = canvas.captureStream(30);
+      const mimeType = MediaRecorder.isTypeSupported("video/mp4")
+        ? "video/mp4"
+        : MediaRecorder.isTypeSupported("video/webm;codecs=vp9")
+        ? "video/webm;codecs=vp9"
+        : "video/webm";
+
+      const mediaRecorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 6000000 });
+      const chunks: Blob[] = [];
+
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) chunks.push(e.data);
+      };
+
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(chunks, { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        const cleanTitle = lessonTitle.toLowerCase().replace(/[^a-z0-9]/g, "-");
+        a.download = `learnify-${cleanTitle}-${selectedLanguage}.mp4`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        setIsExportingVideo(false);
+        setExportProgress(100);
+        toast.success("MP4 Explainer video generated & downloaded successfully!");
+      };
+
+      mediaRecorder.start();
+
+      let frame = 0;
+      const totalFrames = 50;
+      const renderInterval = setInterval(() => {
+        frame++;
+        setExportProgress(Math.min(95, Math.round((frame / totalFrames) * 90) + 10));
+
+        // Background gradient
+        const grad = ctx.createLinearGradient(0, 0, 1920, 1080);
+        grad.addColorStop(0, "#0b0f19");
+        grad.addColorStop(0.5, "#0e1424");
+        grad.addColorStop(1, "#080c14");
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, 1920, 1080);
+
+        // Header with Learnify AI Branding
+        ctx.fillStyle = "#38bdf8";
+        ctx.font = "bold 32px 'Space Grotesk', sans-serif";
+        ctx.fillText("LEARNIFY AI · INTERACTIVE MASTERCLASS", 100, 100);
+
+        // Title & Track
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "bold 60px 'Space Grotesk', sans-serif";
+        ctx.fillText(lessonTitle, 100, 190);
+
+        ctx.fillStyle = "#94a3b8";
+        ctx.font = "26px 'DM Sans', sans-serif";
+        ctx.fillText(
+          `Teacher: ${instructorName} · Track: ${courseTitle} · Language: ${selectedLanguage.toUpperCase()} · Style: ${captionStyle.toUpperCase()}`,
+          100,
+          250
+        );
+
+        // Left Pane: Code Snapshot Card
+        ctx.fillStyle = "#141a2e";
+        ctx.strokeStyle = "#1e293b";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.roundRect(100, 310, 820, 610, 24);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = "#38bdf8";
+        ctx.font = "bold 22px 'Fira Code', monospace";
+        ctx.fillText(`// File: ${activeFileName}`, 140, 370);
+
+        ctx.fillStyle = "#e2e8f0";
+        ctx.font = "17px 'Fira Code', monospace";
+        const codeLines = (files[activeFileName] || "").split("\n").slice(0, 17);
+        codeLines.forEach((line, i) => {
+          ctx.fillText(line.substring(0, 52), 140, 420 + i * 28);
+        });
+
+        // Right Pane: Live Execution Preview Card
+        ctx.fillStyle = "#0f172a";
+        ctx.beginPath();
+        ctx.roundRect(980, 310, 840, 610, 24);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = "#10b981";
+        ctx.font = "bold 26px 'Space Grotesk', sans-serif";
+        ctx.fillText("● Live Interactive Execution Sandbox", 1020, 370);
+
+        ctx.fillStyle = "#cbd5e1";
+        ctx.font = "20px 'DM Sans', sans-serif";
+        ctx.fillText("Virtual Cloud Runtime Active · Zero-Latency Hot Reload", 1020, 420);
+        ctx.fillText("Student can fork code directly alongside this lecture.", 1020, 460);
+
+        // Subtitle Bar (Styled according to captionStyle)
+        ctx.fillStyle = captionStyle === "cyberpunk" ? "#022c22" : "rgba(2, 6, 23, 0.95)";
+        ctx.strokeStyle = captionStyle === "cyberpunk" ? "#22c55e" : captionStyle === "karaoke" ? "#facc15" : "#38bdf8";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.roundRect(260, 955, 1400, 85, 20);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = captionStyle === "karaoke" ? "#facc15" : captionStyle === "cyberpunk" ? "#4ade80" : "#ffffff";
+        ctx.font = captionStyle === "cyberpunk" ? "bold 24px 'Fira Code', monospace" : "bold 26px 'DM Sans', sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText(`LEARNIFY AI [${selectedLanguage.toUpperCase()}]: ${activeCaption}`, 960, 1010);
+        ctx.textAlign = "left";
+
+        if (frame >= totalFrames) {
+          clearInterval(renderInterval);
+          mediaRecorder.stop();
+        }
+      }, 40);
+    } catch (err: any) {
+      setIsExportingVideo(false);
+      toast.error(`Export failed: ${err.message || String(err)}`);
+    }
+  }, [lessonTitle, selectedLanguage, instructorName, courseTitle, captionStyle, activeFileName, files, activeCaption]);
 
   // Stop speech when unmounted or paused
   useEffect(() => {
@@ -1285,10 +1467,10 @@ export function ScrimbaWorkspace({
       <div className="flex items-center justify-between px-3 sm:px-4 py-2.5 bg-[#141824] border-b border-slate-800/80 text-xs gap-2">
         {/* Left: Brand Icon + Breadcrumbs + Timer + "BACK TO TEACHER" */}
         <div className="flex items-center gap-2.5 min-w-0">
-          <div className="flex items-center gap-1.5 text-sky-400 font-bold shrink-0">
-            <span className="flex gap-0.5">
-              <span className="w-1.5 h-3 bg-sky-400 rounded-sm" />
-              <span className="w-1.5 h-3 bg-indigo-400 rounded-sm" />
+          <div className="flex items-center gap-1.5 shrink-0 select-none">
+            <Logo markOnly height="h-5" />
+            <span className="font-bold text-[11px] tracking-wider text-white hidden md:inline font-display">
+              LEARNIFY AI
             </span>
           </div>
 
@@ -1666,35 +1848,54 @@ export function ScrimbaWorkspace({
             {showIntroBumper && (
               <div
                 onClick={() => setShowIntroBumper(false)}
-                className="absolute inset-4 z-20 rounded-2xl bg-gradient-to-br from-amber-600/90 via-orange-600/90 to-rose-700/90 p-8 text-white flex flex-col justify-between shadow-2xl backdrop-blur-md cursor-pointer animate-in fade-in zoom-in-95 duration-300"
+                className="absolute inset-4 z-20 rounded-2xl bg-gradient-to-br from-indigo-700/90 via-sky-700/90 to-purple-800/90 p-8 text-white flex flex-col justify-between shadow-2xl backdrop-blur-md cursor-pointer animate-in fade-in zoom-in-95 duration-300"
               >
-                <div className="flex justify-between items-center text-xs tracking-widest uppercase font-mono font-bold text-amber-200">
-                  <span>SCRIMBA</span>
-                  <span className="text-[10px] text-white/70">Click to enter code</span>
+                <div className="flex justify-between items-center text-xs tracking-widest uppercase font-mono font-bold text-sky-200">
+                  <div className="flex items-center gap-2">
+                    <Logo markOnly height="h-5" />
+                    <span className="font-bold text-white tracking-wider font-display">LEARNIFY AI</span>
+                  </div>
+                  <span className="text-[10px] text-white/70">Click anywhere to start coding</span>
                 </div>
 
                 <div className="my-auto text-center space-y-2">
                   <h2 className="text-3xl sm:text-4xl font-extrabold font-display tracking-tight text-white drop-shadow-md">
                     {lessonTitle}
                   </h2>
-                  <p className="text-sm sm:text-base font-semibold text-amber-100">
-                    Teacher: {instructorName}
+                  <p className="text-sm sm:text-base font-semibold text-sky-100">
+                    Teacher: {instructorName} · Language: {selectedLanguage.toUpperCase()}
                   </p>
                 </div>
 
-                <div className="bg-slate-950/70 border border-white/20 rounded-xl px-4 py-2.5 text-center text-xs sm:text-sm font-medium text-slate-100 backdrop-blur-sm mx-auto max-w-lg">
-                  <span className="font-bold text-sky-400 mr-2">SCRIMBA:</span>
-                  My name is {instructorName}, and you&apos;ll be hearing challenges in order to learn the ropes.
+                <div className="bg-slate-950/75 border border-white/20 rounded-xl px-4 py-2.5 text-center text-xs sm:text-sm font-medium text-slate-100 backdrop-blur-sm mx-auto max-w-lg shadow-xl">
+                  <span className="font-bold text-sky-400 mr-2">LEARNIFY AI:</span>
+                  {(INTRO_TRANSLATIONS[selectedLanguage] || INTRO_TRANSLATIONS.en).replace("{instructor}", instructorName)}
                 </div>
               </div>
             )}
 
-            {/* Floating Live Captions Bar (Frame 001, 007, 008) */}
+            {/* Dynamic Live Captions Bar (Styles: Glass, Karaoke, Cinema, Cyberpunk) */}
             {captionsEnabled && activeCaption && (
-              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 max-w-md w-[90%] text-center">
-                <div className="inline-block bg-slate-950/90 text-slate-100 border border-slate-700/80 px-4 py-1.5 rounded-xl text-xs sm:text-sm font-medium shadow-2xl backdrop-blur-md tracking-wide">
-                  {activeCaption}
-                </div>
+              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 max-w-lg w-[90%] text-center">
+                {captionStyle === "karaoke" ? (
+                  <div className="inline-block bg-black/90 text-yellow-300 font-extrabold text-sm sm:text-base border-2 border-yellow-400/80 px-6 py-2 rounded-2xl shadow-[0_0_20px_rgba(250,204,21,0.5)] tracking-wide animate-pulse">
+                    <span className="text-amber-400 mr-1.5">🔥</span>
+                    {activeCaption}
+                  </div>
+                ) : captionStyle === "cinema" ? (
+                  <div className="inline-block bg-black/95 text-white border-y border-white/20 px-8 py-2 text-xs sm:text-sm font-serif tracking-widest shadow-2xl">
+                    {activeCaption}
+                  </div>
+                ) : captionStyle === "cyberpunk" ? (
+                  <div className="inline-block bg-[#051c14] text-emerald-400 border border-emerald-500/80 px-5 py-1.5 rounded-lg text-xs font-mono shadow-[0_0_15px_rgba(16,185,129,0.3)] tracking-wider">
+                    <span className="text-emerald-500 font-bold mr-1">&gt;</span> {activeCaption}
+                  </div>
+                ) : (
+                  <div className="inline-block bg-slate-950/90 text-slate-100 border border-slate-700/80 px-4 py-1.5 rounded-xl text-xs sm:text-sm font-medium shadow-2xl backdrop-blur-md tracking-wide">
+                    <span className="text-sky-400 font-bold mr-1.5">LEARNIFY AI [{selectedLanguage.toUpperCase()}]:</span>
+                    {activeCaption}
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -1760,7 +1961,7 @@ export function ScrimbaWorkspace({
             <div className="flex-1 bg-white relative flex justify-center items-center overflow-auto min-h-[340px]">
               <iframe
                 key={previewKey}
-                title="Live Scrimba Sandbox Preview"
+                title="Live Learnify AI Sandbox Preview"
                 sandbox="allow-scripts allow-modals"
                 srcDoc={bundledSrcDoc}
                 className={cn(
@@ -1996,7 +2197,67 @@ export function ScrimbaWorkspace({
             </button>
 
             <span className="text-slate-600 hidden sm:inline">|</span>
-            <span className="text-[11px] font-mono text-slate-400 hidden sm:inline">ENGLISH</span>
+
+            {/* Multi-Language Selector Dropdown */}
+            <div className="flex items-center gap-1 bg-slate-900 border border-slate-700/80 rounded-md px-1.5 py-0.5">
+              <Globe2 className="h-3 w-3 text-sky-400 shrink-0" />
+              <select
+                value={selectedLanguage}
+                onChange={(e) => {
+                  setSelectedLanguage(e.target.value);
+                  const l = SUPPORTED_LANGUAGES.find((lang) => lang.code === e.target.value);
+                  toast.success(`Voice & subtitles set to ${l?.label || e.target.value}`);
+                }}
+                className="bg-transparent text-[10px] font-mono font-bold text-slate-300 focus:outline-none cursor-pointer"
+                title="Select Lesson Language"
+              >
+                {SUPPORTED_LANGUAGES.map((l) => (
+                  <option key={l.code} value={l.code} className="bg-slate-900 text-slate-100">
+                    {l.flag} {l.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Caption Style Picker */}
+            <div className="hidden lg:flex items-center gap-1 bg-slate-900 border border-slate-700/80 rounded-md px-1.5 py-0.5">
+              <Palette className="h-3 w-3 text-amber-400 shrink-0" />
+              <select
+                value={captionStyle}
+                onChange={(e) => {
+                  setCaptionStyle(e.target.value as CaptionStyle);
+                  toast.info(`Caption style: ${e.target.value.toUpperCase()}`);
+                }}
+                className="bg-transparent text-[10px] font-mono font-bold text-slate-300 focus:outline-none cursor-pointer"
+                title="Caption Visual Style"
+              >
+                <option value="glass" className="bg-slate-900 text-slate-100">Glass Pill</option>
+                <option value="karaoke" className="bg-slate-900 text-slate-100">🔥 Viral Karaoke</option>
+                <option value="cinema" className="bg-slate-900 text-slate-100">Cinema Bar</option>
+                <option value="cyberpunk" className="bg-slate-900 text-slate-100">Cyber Terminal</option>
+              </select>
+            </div>
+
+            {/* Download as MP4 Video Button */}
+            <Button
+              size="sm"
+              onClick={handleDownloadMp4}
+              disabled={isExportingVideo}
+              className="h-6 px-2.5 bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-bold text-[10px] gap-1 shadow-sm transition-all hover:scale-105 cursor-pointer ml-1"
+              title="Download interactive lesson as MP4 video"
+            >
+              {isExportingVideo ? (
+                <>
+                  <span className="w-2.5 h-2.5 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                  <span>{exportProgress}%</span>
+                </>
+              ) : (
+                <>
+                  <Download className="h-3 w-3" />
+                  <span className="hidden sm:inline">Download MP4</span>
+                </>
+              )}
+            </Button>
           </div>
         </div>
       </div>
@@ -2034,7 +2295,7 @@ export function ScrimbaWorkspace({
               </div>
 
               <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
-                <span className="font-bold text-indigo-300 block">How Scrimba Dual-Pane Works:</span>
+                <span className="font-bold text-indigo-300 block">How Learnify AI Watch & Code Works:</span>
                 <p>
                   You are inside an interactive recording. Whenever you click or modify the code in the editor, your lecture auto-pauses and creates a personal fork. Test your changes in the live runner on the right, and click <strong className="text-sky-300">↺ BACK TO TEACHER</strong> at any time to resume the teacher walkthrough.
                 </p>
@@ -2054,7 +2315,7 @@ export function ScrimbaWorkspace({
 
             <div className="pt-2 flex justify-between items-center">
               <span className="text-[11px] text-slate-500">
-                Instructor: {instructorName} · Scrimba 4.2
+                Instructor: {instructorName} · Learnify AI Studio 4.2
               </span>
               <Button
                 onClick={() => setShowExplainModal(false)}

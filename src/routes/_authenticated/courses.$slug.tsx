@@ -1029,7 +1029,7 @@ function CourseDetail() {
                 {!hasDirectMp4 && (
                   <Badge variant="outline" className="bg-sky-500/10 text-sky-400 border-sky-500/30 text-xs font-mono">
                     <Sparkles className="h-3 w-3 mr-1 text-amber-300" />
-                    Scrimba Split (Watch &amp; Code)
+                    Learnify AI (Watch &amp; Code)
                   </Badge>
                 )}
               </div>

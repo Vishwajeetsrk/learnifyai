@@ -238,7 +238,7 @@ print(f"Force Magnitude: {force * 1e6:.4f} micro-Newtons")
             type="button"
             onClick={() => {
               setHubMode("scrimba_split");
-              toast.success("Scrimba Split: Live Watch & Code dual workspace active!");
+              toast.success("Learnify AI: Live Watch & Code dual workspace active!");
             }}
             className={cn(
               "px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition cursor-pointer",
@@ -248,7 +248,7 @@ print(f"Force Magnitude: {force * 1e6:.4f} micro-Newtons")
             )}
           >
             <Zap className="h-3.5 w-3.5 text-amber-300 fill-amber-300" />
-            <span>Watch &amp; Code (Scrimba Split)</span>
+            <span>Watch &amp; Code (Learnify AI Split)</span>
           </button>
 
           <button
@@ -301,7 +301,7 @@ print(f"Force Magnitude: {force * 1e6:.4f} micro-Newtons")
             topic={topic}
             onGoDeeper={() => {
               setHubMode("scrimba_split");
-              toast.success("Diving deeper! Scrimba Split Watch & Code workspace activated.");
+              toast.success("Diving deeper! Learnify AI Watch & Code workspace activated.");
             }}
             onSwitchToWatchAndCode={() => setHubMode("scrimba_split")}
             isSplitMode={false}

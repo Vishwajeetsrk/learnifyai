@@ -184,7 +184,7 @@ function AIToolsPage() {
         <Tabs defaultValue="unpack" className="mt-6">
           <TabsList className="bg-muted/60 p-1 rounded-xl">
             <TabsTrigger value="unpack" className="gap-1.5 font-semibold">
-              <Sparkles className="h-3.5 w-3.5 text-primary" /> Unpack Anything (Scrimba)
+              <Sparkles className="h-3.5 w-3.5 text-primary" /> Unpack Anything (Learnify AI)
             </TabsTrigger>
             <TabsTrigger value="tools" className="gap-1.5 font-semibold">
               <Code2 className="h-3.5 w-3.5" /> Specialized Tools
