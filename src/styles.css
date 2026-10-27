@@ -51,6 +51,22 @@
   --color-learnify-surface: var(--learnify-surface);
 }
 
+/* Learnify AI Brand Logo Switcher (100% Specificity, Zero Hydration Flicker) */
+.learnify-light-logo {
+  display: inline-block !important;
+}
+.learnify-dark-logo {
+  display: none !important;
+}
+html.dark .learnify-light-logo,
+.dark .learnify-light-logo {
+  display: none !important;
+}
+html.dark .learnify-dark-logo,
+.dark .learnify-dark-logo {
+  display: inline-block !important;
+}
+
 :root {
   --radius: 0.875rem;
 

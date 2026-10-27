@@ -22,10 +22,16 @@ export function Logo({ className, height = "h-9", markOnly = false }: LogoProps)
     return (
       <span className={cn("inline-flex items-center justify-center select-none transition-transform hover:scale-105 shrink-0", className)}>
         <img
-          src={logoMarkUrl}
+          src={logoMarkUrl || "/assets/learnify-mark.png"}
           alt="Learnify AI"
           className={cn(height, "w-auto object-contain drop-shadow-sm")}
           draggable={false}
+          onError={(e) => {
+            const el = e.currentTarget;
+            if (!el.src.includes("/assets/learnify-mark.png")) {
+              el.src = "/assets/learnify-mark.png";
+            }
+          }}
         />
       </span>
     );
@@ -35,17 +41,29 @@ export function Logo({ className, height = "h-9", markOnly = false }: LogoProps)
     <span className={cn("inline-flex items-center select-none transition-transform hover:scale-[1.02] shrink-0", className)}>
       {/* Dark mode logo */}
       <img
-        src={logoDarkUrl}
+        src={logoDarkUrl || "/assets/learnify-logo-dark.png"}
         alt="Learnify AI"
-        className={cn(height, "w-auto object-contain hidden dark:block drop-shadow-sm")}
+        className={cn(height, "w-auto object-contain learnify-dark-logo hidden dark:block drop-shadow-sm")}
         draggable={false}
+        onError={(e) => {
+          const el = e.currentTarget;
+          if (!el.src.includes("/assets/learnify-logo-dark.png")) {
+            el.src = "/assets/learnify-logo-dark.png";
+          }
+        }}
       />
       {/* Light mode logo */}
       <img
-        src={logoLightUrl}
+        src={logoLightUrl || "/assets/learnify-logo-light.png"}
         alt="Learnify AI"
-        className={cn(height, "w-auto object-contain block dark:hidden drop-shadow-sm")}
+        className={cn(height, "w-auto object-contain learnify-light-logo block dark:hidden drop-shadow-sm")}
         draggable={false}
+        onError={(e) => {
+          const el = e.currentTarget;
+          if (!el.src.includes("/assets/learnify-logo-light.png")) {
+            el.src = "/assets/learnify-logo-light.png";
+          }
+        }}
       />
     </span>
   );

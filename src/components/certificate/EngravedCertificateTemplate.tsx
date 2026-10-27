@@ -239,8 +239,8 @@ export const EngravedCertificateTemplate = React.forwardRef<
 
   const stampVariant = useMemo(() => {
     if (activeTheme === "emerald") return "emerald";
-    if (activeTheme === "platinum") return "platinum";
-    if (activeTheme === "sapphire") return "platinum";
+    if (activeTheme === "platinum") return "gold";
+    if (activeTheme === "sapphire") return "gold";
     if (activeTheme === "learnify") return "purple";
     return "gold";
   }, [activeTheme]);
@@ -901,9 +901,15 @@ export const EngravedCertificateTemplate = React.forwardRef<
                 }}
               >
                 <img
-                  src={logoMarkUrl}
+                  src={logoMarkUrl || "/assets/learnify-mark.png"}
                   alt="Learnify AI"
                   className="h-full w-full object-contain drop-shadow-sm"
+                  onError={(e) => {
+                    const el = e.currentTarget;
+                    if (!el.src.includes("/assets/learnify-mark.png")) {
+                      el.src = "/assets/learnify-mark.png";
+                    }
+                  }}
                 />
               </div>
 
@@ -1053,8 +1059,8 @@ export const EngravedCertificateTemplate = React.forwardRef<
               {sealType === "indian_rupee" ? (
                 <IndianRupeeSecurityStamp
                   variant={stampVariant}
-                  size={58}
-                  className="transform transition-transform duration-300 hover:scale-105"
+                  size={76}
+                  className="transform transition-transform duration-300 hover:scale-105 drop-shadow-xl"
                 />
               ) : sealType === "gold_foil" ? (
                 <div

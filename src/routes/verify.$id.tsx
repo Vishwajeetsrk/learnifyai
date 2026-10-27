@@ -420,7 +420,7 @@ function CertificateVerificationPage() {
         {/* Back link */}
         <Link
           to="/certificates"
-          className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors print:hidden"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
           Back to Certificates
@@ -428,7 +428,7 @@ function CertificateVerificationPage() {
 
         {/* ── VERIFIED BANNER ── */}
         <div
-          className="rounded-2xl border overflow-hidden"
+          className="rounded-2xl border overflow-hidden print:hidden"
           style={{
             background: "linear-gradient(135deg, #0f1b3d 0%, #1e3a8a 55%, #4f46e5 100%)",
             borderColor: "rgba(255,255,255,0.1)",
@@ -440,9 +440,15 @@ function CertificateVerificationPage() {
               {/* Learnify logo */}
               <div className="h-10 w-10 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 shadow-inner flex items-center justify-center flex-shrink-0">
                 <img
-                  src={logoMarkUrl}
+                  src={logoMarkUrl || "/assets/learnify-mark.png"}
                   alt="Learnify AI"
                   className="h-7 w-7 object-contain drop-shadow"
+                  onError={(e) => {
+                    const el = e.currentTarget;
+                    if (!el.src.includes("/assets/learnify-mark.png")) {
+                      el.src = "/assets/learnify-mark.png";
+                    }
+                  }}
                 />
               </div>
               <div>
@@ -478,10 +484,10 @@ function CertificateVerificationPage() {
         </div>
 
         {/* ── MAIN CONTENT GRID ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 print:block print:w-full">
 
           {/* Certificate visual — LEFT 2/3 */}
-          <div className="lg:col-span-2 space-y-4">
+          <div className="lg:col-span-2 space-y-4 print:w-full print:m-0 print:p-0">
             {/* Reveal animation wrapper */}
             <div
               className="rounded-2xl overflow-hidden border border-border/40 shadow-xl"
@@ -530,7 +536,7 @@ function CertificateVerificationPage() {
             </div>
 
             {/* Download / share actions (mobile-friendly row) */}
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 print:hidden">
               <Button
                 size="sm"
                 variant="outline"
@@ -590,7 +596,7 @@ function CertificateVerificationPage() {
           </div>
 
           {/* Right column — metadata + QR + badges */}
-          <div className="space-y-4">
+          <div className="space-y-4 print:hidden">
 
             {/* Verification status card */}
             <div className="rounded-2xl border border-border/40 bg-card p-4 space-y-3">
@@ -709,19 +715,17 @@ function CertificateVerificationPage() {
           html, body {
             margin: 0 !important;
             padding: 0 !important;
-            background: transparent !important;
+            background: #ffffff !important;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
+            overflow: visible !important;
           }
-          header, footer, nav, aside, .no-print, [role="banner"], [role="navigation"] {
+          header, footer, nav, aside, [role="banner"], [role="navigation"], .no-print, .print\\:hidden {
             display: none !important;
           }
-          body * {
-            visibility: hidden !important;
-          }
-          #certificate-print-stage,
-          #certificate-print-stage * {
-            visibility: visible !important;
+          body, #root, [data-router-wrapper], main, div {
+            transform: none !important;
+            box-shadow: none !important;
           }
           #certificate-print-stage {
             position: fixed !important;
@@ -731,12 +735,17 @@ function CertificateVerificationPage() {
             height: 100vh !important;
             max-width: none !important;
             max-height: none !important;
+            aspect-ratio: auto !important;
             margin: 0 !important;
+            padding: 8mm 12mm !important;
             border: none !important;
             border-radius: 0 !important;
             box-shadow: none !important;
             page-break-inside: avoid !important;
             page-break-after: avoid !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            z-index: 9999999 !important;
           }
         }
       `}</style>
