@@ -10,12 +10,14 @@ import {
   User,
   ExternalLink,
   Download,
+  Printer,
 } from "lucide-react";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { downloadInvoicePdf } from "@/lib/invoice-pdf";
+import { ReceiptSlip } from "@/components/ui/receipt-pricing";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/verify/invoice/$id")({
@@ -196,6 +198,72 @@ function VerifyInvoicePage() {
               </div>
             </div>
 
+            {/* Thermal Receipt Visual Preview */}
+            <div className="flex justify-center py-2 overflow-hidden">
+              <ReceiptSlip
+                plan={{
+                  id: q.data.invoice_number || q.data.id,
+                  name: "TAX INVOICE",
+                  tagline: `Bill To: ${((q.data.profiles as any)?.full_name || (q.data.profiles as any)?.email || "Customer").slice(0, 24)}`,
+                  monthly: Number(q.data.total_inr || 0),
+                  items: [
+                    { label: "PLAN / SAC", value: "998431" },
+                    { label: "CGST (9%)", value: `₹${(Number(q.data.total_inr || 0) * 0.09 / 1.18).toFixed(0)}` },
+                    { label: "SGST (9%)", value: `₹${(Number(q.data.total_inr || 0) * 0.09 / 1.18).toFixed(0)}` },
+                    { label: "STATUS", value: (q.data.status || "PAID").toUpperCase() },
+                    { label: "PAYMENT", value: "ONLINE" },
+                  ],
+                  cta: "Download PDF Copy",
+                  featured: true,
+                }}
+                period="monthly"
+                phase="idle"
+                delay={0}
+                index={0}
+                money={new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 })}
+                monthsFree={0}
+                merchant="LEARNIFY EDTECH PVT LTD"
+                merchantNote="GSTIN 29XXXXX1234X1Z5 · SAC 998431"
+                orderPrefix="INV"
+                stamp="OFFICIALLY VERIFIED"
+                showStamp={true}
+                showBarcode={true}
+                printMs={460}
+                tearMs={200}
+                toothWidth={12}
+                toothDepth={6}
+                grain={0.06}
+                onSelect={async () => {
+                  try {
+                    const inv = {
+                      invoice_number: q.data.invoice_number,
+                      created_at: q.data.created_at,
+                      due_date: q.data.due_date,
+                      status: q.data.status,
+                      amount_inr: Number(q.data.amount_inr || q.data.total_inr || 0),
+                      tax_inr: Number(q.data.tax_inr || 0),
+                      total_inr: Number(q.data.total_inr || 0),
+                      cashfree_order_id: q.data.cashfree_order_id,
+                      payment_method: q.data.payment_method,
+                    };
+                    await downloadInvoicePdf(
+                      inv,
+                      (q.data.profiles as any)?.email || "Customer",
+                      {
+                        company_name: "Learnify AI",
+                        legal_name: "Learnify EdTech Pvt. Ltd.",
+                        gstin: "29XXXXX1234X1Z5",
+                        prefix: "INV",
+                      }
+                    );
+                    toast.success("GST Tax Invoice downloaded successfully!");
+                  } catch (e: any) {
+                    toast.error(e?.message || "Failed to generate invoice PDF");
+                  }
+                }}
+              />
+            </div>
+
             {/* Check list of guarantees */}
             <div className="bg-muted/40 rounded-2xl p-4 border text-[11px] text-muted-foreground space-y-2">
               <p className="font-semibold text-foreground mb-1">Security & Authenticity Shield:</p>
@@ -216,6 +284,14 @@ function VerifyInvoicePage() {
             <div className="flex flex-wrap gap-3 pt-2">
               <Button asChild className="flex-1 min-w-[140px]">
                 <Link to="/dashboard">Go to Dashboard</Link>
+              </Button>
+              <Button
+                variant="outline"
+                type="button"
+                onClick={() => window.print()}
+                className="gap-1.5 cursor-pointer"
+              >
+                <Printer className="h-4 w-4" /> Print Receipt
               </Button>
               <Button
                 variant="outline"

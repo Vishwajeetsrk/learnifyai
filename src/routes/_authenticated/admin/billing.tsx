@@ -41,6 +41,7 @@ import {
   CalendarPlus,
   CheckCircle,
   Sparkles,
+  Printer,
 } from "lucide-react";
 import { PlatformTreasuryBento } from "@/components/ui/platform-treasury-bento";
 import {
@@ -103,6 +104,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import { downloadInvoicePdf } from "@/lib/invoice-pdf";
+import { ReceiptSlip } from "@/components/ui/receipt-pricing";
 
 export const Route = createFileRoute("/_authenticated/admin/billing")({
   head: () => ({ meta: [{ title: "Billing OS — Learnify AI" }] }),
@@ -174,6 +176,7 @@ function BillingOSPage() {
   const [invoicePage, setInvoicePage] = useState(1);
   const [invoiceStatus, setInvoiceStatus] = useState("");
   const [invoiceSearch, setInvoiceSearch] = useState("");
+  const [previewInvoice, setPreviewInvoice] = useState<any>(null);
 
   const invoices = useQuery({
     queryKey: ["billing-invoices", invoicePage, invoiceStatus, invoiceSearch],
@@ -951,15 +954,26 @@ function BillingOSPage() {
                           {inv.created_at ? format(new Date(inv.created_at), "MMM d, yyyy") : "—"}
                         </TableCell>
                         <TableCell className="text-right">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8"
-                            title="Download"
-                            onClick={() => handleDownloadInvoice(inv)}
-                          >
-                            <Download className="h-3.5 w-3.5" />
-                          </Button>
+                          <div className="flex items-center justify-end gap-1">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-primary hover:bg-primary/10"
+                              title="View Thermal Receipt & Print"
+                              onClick={() => setPreviewInvoice(inv)}
+                            >
+                              <Eye className="h-3.5 w-3.5" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              title="Download PDF"
+                              onClick={() => handleDownloadInvoice(inv)}
+                            >
+                              <Download className="h-3.5 w-3.5" />
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -967,6 +981,80 @@ function BillingOSPage() {
                 </Table>
               )}
             </div>
+
+            {/* Thermal Receipt Preview & Print Modal */}
+            <Dialog open={!!previewInvoice} onOpenChange={(open) => !open && setPreviewInvoice(null)}>
+              <DialogContent className="max-w-md p-6 flex flex-col items-center max-h-[90vh] overflow-y-auto">
+                <DialogHeader className="text-center w-full">
+                  <DialogTitle className="text-lg font-bold">Thermal Tax Invoice Receipt</DialogTitle>
+                  <DialogDescription className="text-xs">
+                    Official ledger receipt with 18% GST (CGST 9% + SGST 9%) and serrated edges
+                  </DialogDescription>
+                </DialogHeader>
+
+                {previewInvoice && (
+                  <div className="my-2 w-full flex justify-center">
+                    <ReceiptSlip
+                      plan={{
+                        id: previewInvoice.invoice_number || previewInvoice.id,
+                        name: "TAX INVOICE",
+                        tagline: `Bill To: ${(previewInvoice.user?.full_name || previewInvoice.user?.email || "Customer").slice(0, 24)}`,
+                        monthly: Number(previewInvoice.total_inr || 0),
+                        items: [
+                          { label: "PLAN / SAC", value: "998431" },
+                          { label: "CGST (9%)", value: `₹${(Number(previewInvoice.total_inr || 0) * 0.09 / 1.18).toFixed(0)}` },
+                          { label: "SGST (9%)", value: `₹${(Number(previewInvoice.total_inr || 0) * 0.09 / 1.18).toFixed(0)}` },
+                          { label: "STATUS", value: (previewInvoice.status || "PAID").toUpperCase() },
+                          { label: "GATEWAY", value: "RAZORPAY" },
+                        ],
+                        cta: "Download PDF Invoice",
+                        featured: true,
+                      }}
+                      period="monthly"
+                      phase="idle"
+                      delay={0}
+                      index={0}
+                      money={new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 })}
+                      monthsFree={0}
+                      merchant="LEARNIFY EDTECH PVT LTD"
+                      merchantNote="GSTIN 29XXXXX1234X1Z5 · SAC 998431"
+                      orderPrefix="INV"
+                      stamp="GST COMPLIANT"
+                      showStamp={true}
+                      showBarcode={true}
+                      printMs={460}
+                      tearMs={200}
+                      toothWidth={12}
+                      toothDepth={6}
+                      grain={0.06}
+                      onSelect={() => handleDownloadInvoice(previewInvoice)}
+                    />
+                  </div>
+                )}
+
+                <DialogFooter className="w-full flex flex-row items-center justify-between gap-2 pt-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="flex-1 gap-1.5"
+                    onClick={() => window.print()}
+                  >
+                    <Printer className="h-4 w-4" />
+                    <span>Print Receipt</span>
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    className="flex-1 gap-1.5"
+                    onClick={() => previewInvoice && handleDownloadInvoice(previewInvoice)}
+                  >
+                    <Download className="h-4 w-4" />
+                    <span>Download PDF</span>
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
 
             <div className="flex items-center justify-between text-sm text-muted-foreground">
               <span>{invoices.data?.total || 0} total invoices</span>
