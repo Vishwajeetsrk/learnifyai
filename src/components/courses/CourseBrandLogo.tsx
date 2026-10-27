@@ -56,6 +56,18 @@ import {
   Html5,
   Css3,
 } from "@dev.icons/react";
+import {
+  HugeiconsIcon,
+  ChatGptIcon,
+  ClaudeIcon,
+  MicrosoftPowerpointIcon,
+  PowerPointIcon,
+  ChatGptBadgeLogo,
+  ClaudeBadgeLogo,
+  TheSvgOpenaiChatgpt,
+  TheSvgClaudeIcon,
+  TheSvgMicrosoftPowerpoint,
+} from "@/components/icons/BrandIcons";
 
 // Canonical React Icon components exported for direct use across the app
 export const ReactIcon = _React;
@@ -75,6 +87,20 @@ export const AwsIcon = Aws;
 export const AzureIcon = MicrosoftAzure;
 export const GoogleCloudIcon = GoogleCloud;
 export const FigmaIcon = Figma;
+
+// Export Hugeicons and brand SVG primitives
+export {
+  HugeiconsIcon,
+  ChatGptIcon,
+  ClaudeIcon,
+  MicrosoftPowerpointIcon,
+  PowerPointIcon,
+  ChatGptBadgeLogo,
+  ClaudeBadgeLogo,
+  TheSvgOpenaiChatgpt,
+  TheSvgClaudeIcon,
+  TheSvgMicrosoftPowerpoint,
+};
 
 export type KnownBrand =
   | "microsoft-excel"
@@ -490,31 +516,7 @@ export function CourseBrandLogo({
   }
 
   if (norm.includes("powerpoint") || norm === "microsoft-powerpoint") {
-    return (
-      <svg
-        width={size}
-        height={size}
-        viewBox="0 0 32 32"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        className={cn("shrink-0", className)}
-        role="img"
-        aria-label="Microsoft PowerPoint Logo"
-      >
-        <rect x="2" y="4" width="28" height="24" rx="3" fill="#C43E1C" />
-        <rect x="14" y="8" width="13" height="16" rx="1.5" fill="#D83B01" />
-        <circle cx="20.5" cy="16" r="5" fill="#F8A88A" />
-        <path d="M20.5 16V11A5 5 0 0 1 25.5 16H20.5Z" fill="#FFFFFF" />
-        <rect x="4" y="7" width="14" height="18" rx="2" fill="#982C12" />
-        <path
-          d="M8.5 12H12C13.5 12 14.5 13 14.5 14.5C14.5 16 13.5 17 12 17H8.5V20M8.5 12V20"
-          stroke="#FFFFFF"
-          strokeWidth="2.2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    );
+    return <MicrosoftPowerpointIcon size={size} className={className} />;
   }
 
   if (norm.includes("power-bi") || norm.includes("powerbi") || norm === "microsoft-power-bi") {
@@ -979,51 +981,34 @@ export function CourseBrandLogo({
     );
   }
 
-  // ChatGPT (https://uxwing.com/chatgpt-icon/)
+  // ChatGPT (Official Hugeicons & OpenAI brand mark)
   if (norm.includes("chatgpt") || norm === "openai" || norm === "gpt-4" || norm === "gpt") {
-    return (
-      <svg
-        width={size}
-        height={size}
-        viewBox="0 0 512 512"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        className={cn("shrink-0", className)}
-        role="img"
-        aria-label="ChatGPT Logo"
-      >
-        <rect width="512" height="512" rx="112" fill="#10A37F" />
-        <path
-          d="M410.6 220.8c-3.5-28.7-21-53.7-47-67.6-4.4-17.2-13.8-32.6-27.3-44.6-22-19.6-51.7-28.6-80.9-24.5-16.6-22.1-42-35.4-69.6-36.1-29.1-.7-56.6 12.6-73.8 35.6-25.2-6.8-52.4-1.7-73.4 13.8-21.7 16-35.1 41.1-36.1 68-21.9 12.3-36 35-37.5 60.4-1.6 27 10.9 52.9 33.2 69-3.5 28.7 21 53.7 47 67.6 4.4 17.2 13.8 32.6 27.3 44.6 22 19.6 51.7 28.6 80.9 24.5 16.6 22.1 42 35.4 69.6 36.1 29.1.7 56.6-12.6 73.8-35.6 25.2 6.8 52.4 1.7 73.4-13.8 21.7-16 35.1-41.1 36.1-68 21.9-12.3 36-35 37.5-60.4 1.5-27-11-52.9-33.3-69zm-153.2 216c-13.2 0-26-3.8-37.2-11l1.5-2.6 62.7-36.2c3.2-1.8 5.1-5.3 5.1-9v-88.3l26.4 15.2c.3.2.4.5.4.8v72.5c0 32.3-26.3 58.6-58.9 58.6zm-143.4-64.8c-6.6-11.5-10.1-24.6-10.1-37.9 0-3.3.2-6.5.7-9.7l2.6 1.5 62.7 36.2c3.2 1.8 7.2 1.8 10.3 0l76.5-44.2v30.5c0 .3-.2.7-.4.8l-62.8 36.3c-28 16.1-63.5 6.6-79.5-23.5zm-33.1-157c6.6-11.5 16.5-20.9 28.3-27.1l-1.5 2.6v72.4c0 3.7 2 7.1 5.1 9l76.5 44.2-26.4 15.2c-.3.2-.7.2-1 0l-62.8-36.3c-28-16.2-37.5-51.8-18.2-80zm237.9-34.9l-62.7 36.2c-3.2 1.8-5.1 5.3-5.1 9v88.3l-26.4-15.2c-.3-.2-.4-.5-.4-.8v-72.5c0-32.3 26.3-58.6 58.9-58.6 13.2 0 26 3.8 37.2 11l-1.5 2.6zm63.9 106.9l-2.6-1.5-62.7-36.2c-3.2-1.8-7.2-1.8-10.3 0l-76.5 44.2v-30.5c0-.3.2-.7.4-.8l62.8-36.3c28-16.1 63.5-6.6 79.5 23.5 6.6 11.5 10.1 24.6 10.1 37.9 0 3.3-.2 6.5-.7 9.7zm-27.2 81.3l-76.5-44.2 26.4-15.2c.3-.2.7-.2 1 0l62.8 36.3c28 16.2 37.5 51.8 18.2 80-6.6 11.5-16.5 20.9-28.3 27.1l1.5-2.6v-72.4c0-3.7-2-7.1-5.1-9zm-101.9-25.1l36.5-21.1 36.5 21.1v42.1l-36.5 21.1-36.5-21.1v-42.1z"
-          fill="#FFF"
+    if (variant === "monochrome") {
+      return (
+        <HugeiconsIcon
+          icon={ChatGptIcon}
+          size={typeof size === "number" ? size : parseInt(String(size), 10) || 24}
+          color="currentColor"
+          className={cn("shrink-0", className)}
         />
-      </svg>
-    );
+      );
+    }
+    return <ChatGptBadgeLogo size={size} className={className} />;
   }
 
-  // Claude AI (https://uxwing.com/claude-ai-icon/)
+  // Claude AI (Official Hugeicons & Anthropic brand mark)
   if (norm.includes("claude") || norm.includes("anthropic")) {
-    return (
-      <svg
-        width={size}
-        height={size}
-        viewBox="0 0 512 512"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        className={cn("shrink-0", className)}
-        role="img"
-        aria-label="Claude AI Logo"
-      >
-        <rect width="512" height="512" rx="112" fill="#D97706" />
-        <path
-          d="M256 80l28 116 116 28-116 28-28 116-28-116-116-28 116-28 28-116z"
-          fill="#FFF"
+    if (variant === "monochrome") {
+      return (
+        <HugeiconsIcon
+          icon={ClaudeIcon}
+          size={typeof size === "number" ? size : parseInt(String(size), 10) || 24}
+          color="currentColor"
+          className={cn("shrink-0", className)}
         />
-        <circle cx="256" cy="224" r="16" fill="#D97706" />
-        <circle cx="340" cy="140" r="14" fill="#FFF" fillOpacity="0.8" />
-        <circle cx="172" cy="308" r="14" fill="#FFF" fillOpacity="0.8" />
-      </svg>
-    );
+      );
+    }
+    return <ClaudeBadgeLogo size={size} className={className} />;
   }
 
   // AI & LLMs (Unified Artificial Intelligence mark)

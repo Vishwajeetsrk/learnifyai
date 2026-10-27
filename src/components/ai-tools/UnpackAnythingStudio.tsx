@@ -42,6 +42,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { HugeiconsIcon, ChatGptIcon, ClaudeIcon } from "@/components/icons/BrandIcons";
 import { ScrimbaWorkspace, PracticeChallenge } from "@/components/courses/ScrimbaWorkspace";
 import { ScrimbaLearningHub } from "./ScrimbaLearningHub";
 import {
@@ -658,7 +659,7 @@ export function UnpackAnythingStudio() {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <div className="h-9 w-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 flex items-center justify-center">
-                  <Bot className="h-5 w-5" />
+                  <HugeiconsIcon icon={ChatGptIcon} size={20} />
                 </div>
                 <Badge variant="outline" className="border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-[10px]">
                   ChatGPT Plugin
@@ -735,8 +736,8 @@ export function UnpackAnythingStudio() {
           <div className="rounded-2xl border border-border/80 bg-card p-5 space-y-4 hover:border-purple-500/40 transition-all flex flex-col justify-between shadow-sm">
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <div className="h-9 w-9 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-500 flex items-center justify-center">
-                  <Terminal className="h-5 w-5" />
+                <div className="h-9 w-9 rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-500 flex items-center justify-center">
+                  <HugeiconsIcon icon={ClaudeIcon} size={20} />
                 </div>
                 <Badge variant="outline" className="border-purple-500/30 text-purple-600 dark:text-purple-400 text-[10px]">
                   Claude + MCP

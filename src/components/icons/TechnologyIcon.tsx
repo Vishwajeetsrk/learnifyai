@@ -1,5 +1,11 @@
 import React from "react";
 import { Code2 } from "lucide-react";
+import {
+  MicrosoftPowerpointIcon,
+  HugeiconsIcon,
+  ChatGptIcon,
+  ClaudeIcon,
+} from "./BrandIcons";
 
 export interface TechnologyIconProps extends React.SVGProps<SVGSVGElement> {
   name: string;
@@ -353,6 +359,46 @@ export function TechnologyIcon({
         <path d="m3.3 7 8.7 5 8.7-5" />
         <path d="M12 22V12" />
       </svg>
+    );
+  }
+
+  // PowerPoint
+  if (norm.includes("powerpoint") || norm === "ppt") {
+    return (
+      <MicrosoftPowerpointIcon
+        size={s}
+        className={className}
+        aria-label="Microsoft PowerPoint"
+        {...props}
+      />
+    );
+  }
+
+  // ChatGPT
+  if (norm.includes("chatgpt") || norm === "openai" || norm === "gpt") {
+    return (
+      <div className={className} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
+        <HugeiconsIcon
+          icon={ChatGptIcon}
+          size={typeof size === "number" ? size : parseInt(String(size), 10) || 16}
+          color={showColor ? "#10A37F" : "currentColor"}
+          strokeWidth={1.5}
+        />
+      </div>
+    );
+  }
+
+  // Claude AI
+  if (norm.includes("claude") || norm.includes("anthropic")) {
+    return (
+      <div className={className} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
+        <HugeiconsIcon
+          icon={ClaudeIcon}
+          size={typeof size === "number" ? size : parseInt(String(size), 10) || 16}
+          color={showColor ? "#D97757" : "currentColor"}
+          strokeWidth={1.5}
+        />
+      </div>
     );
   }
 

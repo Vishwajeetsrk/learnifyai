@@ -678,6 +678,13 @@ MIT License. See [LICENSE](LICENSE) for details.
 - ✅ **Color Contrast & Theme Visibility**: Integrated full `.theme-light` styling in generated portfolios, fixed invisible headings, added mobile navigation overflow handling, and replaced fake macOS traffic dots with clean IDE window controls.
 - ✅ **Direct File & Folder Operations**: Fully operational IDE virtual tree with file creation, deletion, copy, cut, paste, path renaming, multi-file ZIP archive downloading, and live Monaco editor integration.
 
+### v5.8.5 (October 2026) — Hugeicons & Official Fluent Brand Icons Integration
+
+- ✅ **Hugeicons React & TheSVG Integration**: Integrated `@hugeicons/react`, `@hugeicons/core-free-icons`, and `@thesvg/react` (from glincker/thesvg). Built a unified `src/components/icons/BrandIcons.tsx` module re-exporting `<HugeiconsIcon icon={...} />`, `ChatGptIcon`, `ClaudeIcon`, and vector SVG primitives.
+- ✅ **Official Microsoft PowerPoint Fluent Vector**: Replaced low-fidelity fallback PowerPoint icons across course cards, covers, cheat sheets, and docks with the exact official Fluent vector SVG featuring 10 rich radial & linear gradient stops (`#aa1d2d`, `#ff66fb`, `#ffa05c`, etc.) and unique scoped gradient IDs (`ppt-*`).
+- ✅ **ChatGPT & Claude Hugeicons Everywhere**: `CourseBrandLogo`, `SkillBadge`, `TechnologyIcon`, `CheatSheetGenerator`, and `UnpackAnythingStudio` now render the official `ChatGptIcon` and `ClaudeIcon` via `<HugeiconsIcon />` and authentic emerald (`#10A37F`) / terracotta (`#D97757`) brand pills.
+- ✅ **TypeScript & Build Clean**: `tsc --noEmit --skipLibCheck` exit 0 cleanly with zero errors.
+
 ### v5.8.3 (October 2026) — MP4 Transcripts, Transcript-Aware AI & Faster Gateway
 
 

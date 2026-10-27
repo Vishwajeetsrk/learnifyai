@@ -28,6 +28,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import {
+  MicrosoftPowerpointIcon,
+  ChatGptBadgeLogo,
+  ClaudeBadgeLogo,
+} from "@/components/icons/BrandIcons";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -301,14 +306,24 @@ const BRAND_LOGOS: Record<string, ReactNode> = {
     </svg>
   ),
   chatgpt: (
-    <svg viewBox="0 0 32 32" className="w-full h-full" aria-label="ChatGPT">
-      <circle cx="16" cy="16" r="13" fill="#10A37F" />
-      <path
-        d="M23 12.5c0-2.5-2-4.5-4.5-4.5-1.2 0-2.3.4-3.1 1.1A4.5 4.5 0 009 13a4.5 4.5 0 001.5 8.5H21a3 3 0 000-6h-1.5A3 3 0 0023 12.5z"
-        fill="white"
-        opacity="0.9"
-      />
-    </svg>
+    <div className="w-full h-full flex items-center justify-center">
+      <ChatGptBadgeLogo size={32} className="w-full h-full rounded-md" />
+    </div>
+  ),
+  claude: (
+    <div className="w-full h-full flex items-center justify-center">
+      <ClaudeBadgeLogo size={32} className="w-full h-full rounded-md" />
+    </div>
+  ),
+  powerpoint: (
+    <div className="w-full h-full flex items-center justify-center">
+      <MicrosoftPowerpointIcon className="w-full h-full" />
+    </div>
+  ),
+  ppt: (
+    <div className="w-full h-full flex items-center justify-center">
+      <MicrosoftPowerpointIcon className="w-full h-full" />
+    </div>
   ),
   excel: (
     <svg viewBox="0 0 32 32" className="w-full h-full" aria-label="Excel">

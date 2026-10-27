@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge";
+import { CourseBrandLogo } from "@/components/courses/CourseBrandLogo";
 import {
   Terminal,
   Code,
@@ -14,7 +15,7 @@ import {
 
 export const SKILL_LOGOS: Record<
   string,
-  { devicon?: string; simpleIcons?: string; lucide?: React.ElementType }
+  { devicon?: string; simpleIcons?: string; lucide?: React.ElementType; brand?: string }
 > = {
   // Programming Languages
   Python: { devicon: "python/python-original.svg" },
@@ -106,9 +107,9 @@ export const SKILL_LOGOS: Record<
   Pandas: { devicon: "pandas/pandas-original.svg" },
   TensorFlow: { devicon: "tensorflow/tensorflow-original.svg" },
   PyTorch: { devicon: "pytorch/pytorch-original.svg" },
-  OpenAI: { simpleIcons: "openai" },
-  Claude: { simpleIcons: "anthropic" },
-  Anthropic: { simpleIcons: "anthropic" },
+  OpenAI: { brand: "chatgpt" },
+  Claude: { brand: "claude" },
+  Anthropic: { brand: "claude" },
   HuggingFace: { simpleIcons: "huggingface" },
   LangChain: { simpleIcons: "langchain" },
 
@@ -134,11 +135,11 @@ export const SKILL_LOGOS: Record<
   Excel: { simpleIcons: "microsoftexcel" },
   "MS Word": { simpleIcons: "microsoftword" },
   Word: { simpleIcons: "microsoftword" },
-  "MS PowerPoint": { simpleIcons: "microsoftpowerpoint" },
-  PowerPoint: { simpleIcons: "microsoftpowerpoint" },
+  "MS PowerPoint": { brand: "microsoft-powerpoint" },
+  PowerPoint: { brand: "microsoft-powerpoint" },
   Salesforce: { simpleIcons: "salesforce" },
   "Power BI": { simpleIcons: "powerbi" },
-  ChatGPT: { simpleIcons: "openai" },
+  ChatGPT: { brand: "chatgpt" },
   Gemini: { simpleIcons: "google" },
   Perplexity: { simpleIcons: "perplexity" },
   Slack: { simpleIcons: "slack" },
@@ -205,7 +206,13 @@ export function SkillBadge({
       variant={variant}
       className={`flex items-center gap-1.5 py-1 px-2.5 rounded-lg shadow-xs border transition-all hover:scale-105 ${className}`}
     >
-      {iconInfo?.devicon && (
+      {iconInfo?.brand && (
+        <CourseBrandLogo
+          brand={iconInfo.brand}
+          size={size === "lg" ? 20 : size === "md" ? 16 : 14}
+        />
+      )}
+      {!iconInfo?.brand && iconInfo?.devicon && (
         <img
           src={`https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/${iconInfo.devicon}`}
           alt={`${skill} logo`}
@@ -215,7 +222,7 @@ export function SkillBadge({
           }}
         />
       )}
-      {iconInfo?.simpleIcons && !iconInfo.devicon && (
+      {!iconInfo?.brand && iconInfo?.simpleIcons && !iconInfo.devicon && (
         <img
           src={`https://cdn.simpleicons.org/${iconInfo.simpleIcons}`}
           alt={`${skill} logo`}
@@ -225,7 +232,9 @@ export function SkillBadge({
           }}
         />
       )}
-      {iconInfo?.lucide && <iconInfo.lucide className={`${sizeClass} shrink-0 text-primary`} />}
+      {!iconInfo?.brand && iconInfo?.lucide && (
+        <iconInfo.lucide className={`${sizeClass} shrink-0 text-primary`} />
+      )}
       <span className="font-semibold text-[11px] tracking-tight">{skill}</span>
     </Badge>
   );
