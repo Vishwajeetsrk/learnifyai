@@ -47,6 +47,8 @@ import {
   Search,
   X,
   Tag,
+  Receipt,
+  Layers,
 } from "lucide-react";
 import { toast } from "sonner";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -67,6 +69,7 @@ import { TestimonialsMarquee } from "@/components/ui/testimonials-with-marquee";
 import { getRealHumanAvatar } from "@/lib/real-avatars";
 import { CANONICAL_BENCHMARKS } from "@/lib/canonical-config";
 import { getPlatformStats } from "@/lib/stats.functions";
+import ReceiptPricing, { type ReceiptPlan } from "@/components/ui/receipt-pricing";
 
 export const Route = createFileRoute("/pricing")({
   validateSearch: (s: Record<string, unknown>): { subscribe?: string; coupon?: string } => ({
@@ -521,6 +524,7 @@ function PricingPage() {
   });
   const learnerCount = platformStats?.learners ?? CANONICAL_BENCHMARKS.learners;
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
+  const [pricingPresentation, setPricingPresentation] = useState<"cards" | "receipt">("cards");
   const [faqSearch, setFaqSearch] = useState("");
   const [faqCategory, setFaqCategory] = useState<string | null>(null);
   const [couponCode, setCouponCode] = useState("");
@@ -625,6 +629,43 @@ function PricingPage() {
     gcTime: 300_000,
     placeholderData: DEFAULT_TIERS,
   });
+
+  const receiptPlans: ReceiptPlan[] = useMemo(() => {
+    return (tiers || DEFAULT_TIERS)
+      .filter(
+        (t) =>
+          t.price_inr > 0 &&
+          !t.is_custom_pricing &&
+          t.price_label.toLowerCase() !== "custom" &&
+          t.name.toLowerCase() !== "enterprise"
+      )
+      .map((t) => {
+        const annualPrice = t.yearly_price || Math.round(t.price_inr * 10);
+        return {
+          id: t.id,
+          name: t.name,
+          tagline: t.description || `${t.name} Membership`,
+          monthly: t.price_inr,
+          yearly: annualPrice,
+          featured: t.highlighted,
+          badge: t.badge || undefined,
+          cta: t.cta_label || `Choose ${t.name}`,
+          items: [
+            { label: "AI Credits", value: `${(t.ai_credits_monthly || 0).toLocaleString()} / Mo` },
+            { label: "Courses", value: t.max_courses === -1 ? "All Access" : `${t.max_courses} Courses` },
+            { label: "Certificates", value: "Verifiable PDF" },
+            { label: "GST (18%)", value: "SAC 998431" },
+            ...(t.features || []).slice(0, 3).map((f) => {
+              const parts = f.split(" ");
+              return {
+                label: parts.slice(0, 2).join(" "),
+                value: parts.slice(2, 5).join(" ") || "Included",
+              };
+            }),
+          ],
+        };
+      });
+  }, [tiers]);
 
   const calculatedSavingsPct = useMemo(() => {
     const paidList = (tiers || DEFAULT_TIERS).filter((t) => t.price_inr > 0);
@@ -1109,41 +1150,130 @@ function PricingPage() {
                 />
               </div>
 
-              {/* 4 Core Self-Serve Plans Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 items-stretch w-full">
-                {tiers
-                  .filter(
-                    (t) =>
-                      t.name.toLowerCase() !== "enterprise" &&
-                      !t.is_custom_pricing &&
-                      t.price_label.toLowerCase() !== "custom",
-                  )
-                  .map((t, idx) => {
-                    const isCurrent = activePlanId === t.id;
-                    const isFree = t.price_inr <= 0 && !t.interval;
-                    const hasPrice = t.price_inr > 0;
-                    const accentColor = t.color || "#7c3aed";
-                    const isPopular = t.highlighted;
+              {/* View Switcher: Modern Grid Cards vs Thermal Receipt Ledger */}
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
+                <div className="inline-flex items-center gap-1.5 p-1 rounded-2xl bg-muted/50 border border-border/70 shadow-xs">
+                  <button
+                    type="button"
+                    onClick={() => setPricingPresentation("cards")}
+                    className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-2 cursor-pointer ${
+                      pricingPresentation === "cards"
+                        ? "bg-background text-foreground shadow-sm border border-border/40 font-bold"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <Layers className="h-3.5 w-3.5 text-primary" />
+                    <span>Modern Cards View</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPricingPresentation("receipt")}
+                    className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-2 cursor-pointer ${
+                      pricingPresentation === "receipt"
+                        ? "bg-background text-foreground shadow-sm border border-border/40 font-bold"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <Receipt className="h-3.5 w-3.5 text-indigo-500" />
+                    <span>Thermal Receipt Ledger</span>
+                    <Badge variant="outline" className="text-[10px] py-0 px-1.5 border-indigo-500/30 text-indigo-500 font-mono">
+                      18% GST · SAC 998431
+                    </Badge>
+                  </button>
+                </div>
 
-                    return (
-                      <PricingCard
-                        key={t.id}
-                        plan={t}
-                        idx={idx}
-                        isCurrent={isCurrent}
-                        isFree={isFree}
-                        hasPrice={hasPrice}
-                        accentColor={accentColor}
-                        isPopular={isPopular}
-                        billingCycle={billingCycle}
-                        loadingPlan={loadingPlan}
-                        legalAccepted={legalAccepted}
-                        onSubscribe={handleSubscribe}
-                        onCancel={handleCancel}
-                      />
-                    );
-                  })}
+                <p className="text-xs text-muted-foreground text-center sm:text-right font-medium">
+                  {pricingPresentation === "receipt"
+                    ? "Thermal printed ledger with itemized 18% GST (CGST 9% + SGST 9%) & order barcode."
+                    : "Official tax invoices & GST credits provided with instant digital receipt."}
+                </p>
               </div>
+
+              {pricingPresentation === "receipt" ? (
+                <div className="space-y-6">
+                  <div className="bg-card border rounded-2xl p-4 sm:p-8 shadow-sm">
+                    <ReceiptPricing
+                      plans={receiptPlans}
+                      currency="INR"
+                      locale="en-IN"
+                      monthsFree={2}
+                      merchant="LEARNIFY EDTECH PVT LTD"
+                      merchantNote="SAC 998431 · 18% GST INCLUDED · TAX INVOICE"
+                      orderPrefix="PLAN"
+                      stampLabel="{months} MONTHS FREE"
+                      showStamp={true}
+                      showBarcode={true}
+                      period={billingCycle}
+                      onPeriodChange={(p) => setBillingCycle(p)}
+                      onSelectPlan={(plan, period) => {
+                        const matched = (tiers || DEFAULT_TIERS).find((t) => t.id === plan.id);
+                        if (matched) {
+                          setBillingCycle(period);
+                          handleSubscribe(matched.id);
+                        }
+                      }}
+                    />
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {/* 4 Core Self-Serve Plans Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 items-stretch w-full">
+                    {tiers
+                      .filter(
+                        (t) =>
+                          t.name.toLowerCase() !== "enterprise" &&
+                          !t.is_custom_pricing &&
+                          t.price_label.toLowerCase() !== "custom",
+                      )
+                      .map((t, idx) => {
+                        const isCurrent = activePlanId === t.id;
+                        const isFree = t.price_inr <= 0 && !t.interval;
+                        const hasPrice = t.price_inr > 0;
+                        const accentColor = t.color || "#7c3aed";
+                        const isPopular = t.highlighted;
+
+                        return (
+                          <PricingCard
+                            key={t.id}
+                            plan={t}
+                            idx={idx}
+                            isCurrent={isCurrent}
+                            isFree={isFree}
+                            hasPrice={hasPrice}
+                            accentColor={accentColor}
+                            isPopular={isPopular}
+                            billingCycle={billingCycle}
+                            loadingPlan={loadingPlan}
+                            legalAccepted={legalAccepted}
+                            onSubscribe={handleSubscribe}
+                            onCancel={handleCancel}
+                          />
+                        );
+                      })}
+                  </div>
+
+                  {/* Thermal Receipt Callout Banner */}
+                  <div className="mt-8 p-4 sm:p-5 rounded-2xl border border-dashed border-primary/30 bg-primary/5 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+                    <div className="space-y-1">
+                      <p className="text-xs sm:text-sm font-semibold text-foreground flex items-center justify-center sm:justify-start gap-2">
+                        <Receipt className="h-4 w-4 text-primary" /> Need an itemized thermal receipt breakdown for corporate reimbursement?
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Inspect our serrated thermal paper receipts with 18% GST (CGST 9% + SGST 9%) breakdown and official SAC 998431 compliance.
+                      </p>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setPricingPresentation("receipt")}
+                      className="text-xs font-semibold border-primary/30 text-primary hover:bg-primary/10 shrink-0 gap-1.5"
+                    >
+                      <Receipt className="h-3.5 w-3.5" /> View Thermal Receipts
+                    </Button>
+                  </div>
+                </>
+              )}
 
               {/* Enterprise Full-Width Institutional Card */}
               {(() => {

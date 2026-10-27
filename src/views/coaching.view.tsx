@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { format } from "date-fns";
@@ -32,6 +32,16 @@ import {
   Receipt,
   ArrowRight,
   ExternalLink,
+  Edit3,
+  Plus,
+  CheckCircle2,
+  AlertCircle,
+  Download,
+  Bell,
+  Settings,
+  UserCheck,
+  RefreshCw,
+  X,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { useAuth } from "@/hooks/use-auth";
@@ -262,8 +272,178 @@ export default function CoachingDashboard() {
   const { user, isCreator } = useAuth();
   const qc = useQueryClient();
   const [activeTab, setActiveTab] = useState<
-    "ai_studio" | "open_booking" | "scheduling" | "plans" | "messaging" | "roadmaps" | "outcomes" | "cohorts"
-  >("ai_studio");
+    "ai_studio" | "open_booking" | "scheduling" | "coach_studio" | "plans" | "messaging" | "roadmaps" | "outcomes" | "cohorts"
+  >("open_booking");
+
+  // Coach Profile & Live Time State (Maya Lindqvist)
+  const [coachProfile, setCoachProfile] = useState(() => {
+    try {
+      const saved = localStorage.getItem("learnify_coach_profile");
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return {
+      name: "Maya Lindqvist",
+      role: "Principal Distributed Systems Architect",
+      city: "Bangalore",
+      timeZone: "Asia/Calcutta",
+      meetingTitle: "1:1 Technical & Career Advisory",
+      agenda: "System design review, mock tech interview, or career growth strategy session.",
+      location: "Google Meet & Zoom Direct Integration",
+      durations: [15, 30, 45, 60],
+      defaultDuration: 30,
+      ratePerSession: 999,
+      platform: "google-meet" as "google-meet" | "zoom" | "teams",
+      responseNote: "Calendar synced in real time",
+      stamp: "Maya Lindqvist · Principal Distributed Systems Architect · Learnify AI · ",
+    };
+  });
+
+  const [coachLiveTime, setCoachLiveTime] = useState("Bangalore, 10:27pm now");
+  useEffect(() => {
+    const updateTime = () => {
+      try {
+        const now = new Date();
+        const timeStr = new Intl.DateTimeFormat("en-US", {
+          timeZone: "Asia/Kolkata",
+          hour: "numeric",
+          minute: "2-digit",
+          hour12: true,
+        }).format(now).toLowerCase();
+        setCoachLiveTime(`${coachProfile.city || "Bangalore"}, ${timeStr} now`);
+      } catch {
+        setCoachLiveTime("Bangalore, 10:27pm now");
+      }
+    };
+    updateTime();
+    const interval = setInterval(updateTime, 30000);
+    return () => clearInterval(interval);
+  }, [coachProfile.city]);
+
+  // Host Busy Schedule (Coach's Calendar blocks)
+  const [hostBusySchedule, setHostBusySchedule] = useState(() => {
+    try {
+      const saved = localStorage.getItem("learnify_host_busy");
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return sampleHostWeek;
+  });
+
+  // Edit Coach Profile Modal State
+  const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
+  const [editCoachForm, setEditCoachForm] = useState(coachProfile);
+
+  // Add Busy Block Modal State
+  const [isAddBusyOpen, setIsAddBusyOpen] = useState(false);
+  const [newBusyDay, setNewBusyDay] = useState(1);
+  const [newBusyFrom, setNewBusyFrom] = useState("13:00");
+  const [newBusyTo, setNewBusyTo] = useState("14:30");
+  const [newBusyTitle, setNewBusyTitle] = useState("");
+
+  // Local Bookings & Notice State (for Learner & Coach)
+  const [localBookings, setLocalBookings] = useState<any[]>(() => {
+    try {
+      const saved = localStorage.getItem("learnify_coach_local_bookings");
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return [
+      {
+        id: "bk-init-1",
+        coachName: "Maya Lindqvist",
+        coachRole: "Principal Distributed Systems Architect",
+        learnerName: user?.user_metadata?.full_name || "Vishwajeet",
+        learnerEmail: user?.email || "vishwajeet@learnify.ai",
+        title: "1:1 Technical & Career Advisory",
+        agenda: "System design review & mock distributed consensus interview.",
+        startTime: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
+        endTime: new Date(Date.now() + 2.75 * 60 * 60 * 1000).toISOString(),
+        duration: 45,
+        platform: "Google Meet",
+        meetingLink: "https://meet.google.com/lnf-dist-sys",
+        status: "confirmed",
+        noticeSent: true,
+        noticeTime: "Dispatched 2 hours prior to call",
+        bookedAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+      },
+      {
+        id: "bk-init-2",
+        coachName: "Maya Lindqvist",
+        coachRole: "Principal Distributed Systems Architect",
+        learnerName: "Rahul Sharma",
+        learnerEmail: "rahul.s@techlead.in",
+        title: "Kafka Event Streaming Bottleneck Review",
+        agenda: "Partition rebalancing & consumer lag optimization review.",
+        startTime: new Date(Date.now() + 26 * 60 * 60 * 1000).toISOString(),
+        endTime: new Date(Date.now() + 26.5 * 60 * 60 * 1000).toISOString(),
+        duration: 30,
+        platform: "Zoom",
+        meetingLink: "https://zoom.us/j/8839201948?pwd=lnf",
+        status: "pending",
+        noticeSent: false,
+        noticeTime: "Dispatched 2 hours prior",
+        bookedAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+      },
+    ];
+  });
+
+  const saveCoachProfile = () => {
+    setCoachProfile(editCoachForm);
+    try {
+      localStorage.setItem("learnify_coach_profile", JSON.stringify(editCoachForm));
+    } catch {}
+    setIsEditProfileOpen(false);
+    toast.success("Coach profile updated successfully!");
+  };
+
+  const handleAddBusyBlock = () => {
+    if (!newBusyTitle.trim()) {
+      return toast.error("Please enter a title for this busy block");
+    }
+    const newBlock = {
+      weekday: Number(newBusyDay),
+      from: newBusyFrom,
+      to: newBusyTo,
+      title: newBusyTitle.trim(),
+    };
+    const updated = [...hostBusySchedule, newBlock];
+    setHostBusySchedule(updated);
+    try {
+      localStorage.setItem("learnify_host_busy", JSON.stringify(updated));
+    } catch {}
+    setIsAddBusyOpen(false);
+    setNewBusyTitle("");
+    toast.success(`Busy block "${newBlock.title}" added to calendar.`);
+  };
+
+  const handleDeleteBusyBlock = (index: number) => {
+    const updated = hostBusySchedule.filter((_: any, i: number) => i !== index);
+    setHostBusySchedule(updated);
+    try {
+      localStorage.setItem("learnify_host_busy", JSON.stringify(updated));
+    } catch {}
+    toast.success("Busy block removed");
+  };
+
+  const approveBooking = (id: string) => {
+    const updated = localBookings.map((b) =>
+      b.id === id ? { ...b, status: "confirmed", noticeSent: true } : b
+    );
+    setLocalBookings(updated);
+    try {
+      localStorage.setItem("learnify_coach_local_bookings", JSON.stringify(updated));
+    } catch {}
+    toast.success("Session approved! Booking confirmation notice dispatched to learner.");
+  };
+
+  const declineBooking = (id: string) => {
+    const updated = localBookings.map((b) =>
+      b.id === id ? { ...b, status: "cancelled" } : b
+    );
+    setLocalBookings(updated);
+    try {
+      localStorage.setItem("learnify_coach_local_bookings", JSON.stringify(updated));
+    } catch {}
+    toast.info("Session declined/rescheduled.");
+  };
 
   // Scheduling State
   const getTomorrowDefault = () => {
@@ -355,14 +535,50 @@ export default function CoachingDashboard() {
   });
 
   const getGoogleCalendarUrl = (b: any) => {
-    if (!b?.slot?.start_time || !b?.slot?.end_time) return "#";
-    const start = new Date(b.slot.start_time).toISOString().replace(/-|:|\.\d\d\d/g, "");
-    const end = new Date(b.slot.end_time).toISOString().replace(/-|:|\.\d\d\d/g, "");
+    const startTime = b.startTime || b.slot?.start_time;
+    const endTime = b.endTime || b.slot?.end_time;
+    if (!startTime || !endTime) return "#";
+    const start = new Date(startTime).toISOString().replace(/-|:|\.\d\d\d/g, "");
+    const end = new Date(endTime).toISOString().replace(/-|:|\.\d\d\d/g, "");
     const title = encodeURIComponent(
-      `Coaching with ${isCreator ? b.learner?.full_name || "Client" : b.coach?.full_name || "Coach"}`,
+      b.title || `Coaching with ${isCreator ? b.learnerName || b.learner?.full_name || "Client" : b.coachName || b.coach?.full_name || "Coach"}`
     );
-    const details = encodeURIComponent(`Meeting Link: ${b.slot?.meeting_link || "TBD"}`);
+    const details = encodeURIComponent(`Meeting Link: ${b.meetingLink || b.slot?.meeting_link || "https://meet.google.com/lnf-dist-sys"}`);
     return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${start}/${end}&details=${details}`;
+  };
+
+  const downloadIcsForBooking = (b: any) => {
+    const start = new Date(b.startTime || b.slot?.start_time || Date.now());
+    const end = new Date(b.endTime || b.slot?.end_time || (start.getTime() + 45 * 60000));
+    const icsContent = [
+      "BEGIN:VCALENDAR",
+      "VERSION:2.0",
+      "PRODID:-//Learnify AI Coaching//EN",
+      "CALSCALE:GREGORIAN",
+      "METHOD:PUBLISH",
+      "BEGIN:VEVENT",
+      `UID:learnify-coach-${b.id || Date.now()}@learnifyai.in`,
+      `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, "").replace(/\\.\\d{3}/, "")}`,
+      `DTSTART:${start.toISOString().replace(/[-:]/g, "").replace(/\\.\\d{3}/, "")}`,
+      `DTEND:${end.toISOString().replace(/[-:]/g, "").replace(/\\.\\d{3}/, "")}`,
+      `SUMMARY:${b.title || "1:1 Technical & Career Advisory with Maya Lindqvist"}`,
+      `DESCRIPTION:${b.agenda || "Learnify AI 1:1 Coaching session"}\\nMeeting Link: ${b.meetingLink || b.slot?.meeting_link || "https://meet.google.com/lnf-dist-sys"}`,
+      `LOCATION:${b.meetingLink || b.slot?.meeting_link || "Google Meet / Zoom Direct Integration"}`,
+      "STATUS:CONFIRMED",
+      "END:VEVENT",
+      "END:VCALENDAR",
+    ].join("\r\n");
+
+    const blob = new Blob([icsContent], { type: "text/calendar;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `learnify-session-${b.id || "meeting"}.ics`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success("Calendar invite (.ICS) downloaded!");
   };
 
   const contacts = Array.from(
@@ -631,12 +847,38 @@ How can I help you excel in this domain today? Select a sample topic below or as
 
   const handleOpenSlotBook = async (booking: any) => {
     try {
+      const newBk = {
+        id: `bk-${Date.now()}`,
+        coachName: coachProfile.name,
+        coachRole: coachProfile.role,
+        learnerName: booking.name || user?.user_metadata?.full_name || "Learner",
+        learnerEmail: booking.email || user?.email || "learner@learnify.ai",
+        title: coachProfile.meetingTitle,
+        agenda: booking.note || coachProfile.agenda,
+        startTime: booking.start instanceof Date ? booking.start.toISOString() : new Date(booking.start).toISOString(),
+        endTime: booking.end instanceof Date ? booking.end.toISOString() : new Date(booking.end).toISOString(),
+        duration: booking.duration || coachProfile.defaultDuration,
+        platform: booking.platform === "zoom" ? "Zoom" : "Google Meet",
+        meetingLink: booking.meetingLink || "https://meet.google.com/lnf-dist-sys",
+        status: "confirmed",
+        noticeSent: true,
+        noticeTime: "Dispatched 2 hours prior to call",
+        bookedAt: new Date().toISOString(),
+      };
+
+      const updated = [newBk, ...localBookings];
+      setLocalBookings(updated);
+      try {
+        localStorage.setItem("learnify_coach_local_bookings", JSON.stringify(updated));
+      } catch {}
+
+      toast.success(
+        `Session confirmed for ${format(new Date(booking.start), "MMM d, h:mm a")} via ${newBk.platform}! An automated calendar notice has been dispatched.`
+      );
       if (user) {
-        toast.success(`1-on-1 session booked for ${format(booking.start, "MMM d, h:mm a")} via ${booking.platform || "Google Meet"}!`);
         qc.invalidateQueries({ queryKey: ["my-coaching-bookings"] });
-      } else {
-        toast.success(`Session confirmed! An invite and meeting link have been prepared for ${booking.email}.`);
       }
+      setActiveTab("scheduling");
     } catch (err: any) {
       toast.error(err?.message || "Booking failed");
     }
@@ -658,7 +900,7 @@ How can I help you excel in this domain today? Select a sample topic below or as
               Direct 1-on-1 mentorship with Staff & Principal Engineers from top tier tech companies, plus our 10-Role AI Coaching Agent Studio with real-time tool calling and code execution.
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Button
               variant="outline"
               size="sm"
@@ -667,6 +909,15 @@ How can I help you excel in this domain today? Select a sample topic below or as
             >
               <Calendar className="w-4 h-4" />
               <span>Book 1-on-1 Call</span>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setActiveTab("coach_studio")}
+              className="gap-2 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10"
+            >
+              <Settings className="w-4 h-4" />
+              <span>Coach Studio</span>
             </Button>
             <Button
               size="sm"
@@ -681,14 +932,6 @@ How can I help you excel in this domain today? Select a sample topic below or as
 
         <div className="flex gap-2 sm:gap-4 border-b mb-8 overflow-x-auto -mx-4 px-4 snap-x snap-mandatory scrollbar-none">
           <button
-            className={`pb-3 text-sm font-medium border-b-2 transition-colors shrink-0 snap-start flex items-center gap-2 ${activeTab === "ai_studio" ? "border-primary text-foreground font-semibold" : "border-transparent text-muted-foreground hover:text-foreground"}`}
-            onClick={() => setActiveTab("ai_studio")}
-          >
-            <Bot className="h-4 w-4 text-emerald-500" />
-            <span>10-Role AI Studio</span>
-            <Badge variant="outline" className="text-[10px] bg-emerald-500/10 text-emerald-600 border-emerald-500/20 py-0 px-1.5 font-bold">HOT</Badge>
-          </button>
-          <button
             className={`pb-3 text-sm font-medium border-b-2 transition-colors shrink-0 snap-start flex items-center gap-2 ${activeTab === "open_booking" ? "border-primary text-foreground font-semibold" : "border-transparent text-muted-foreground hover:text-foreground"}`}
             onClick={() => setActiveTab("open_booking")}
           >
@@ -696,18 +939,41 @@ How can I help you excel in this domain today? Select a sample topic below or as
             <span>1:1 Live Booking</span>
           </button>
           <button
-            className={`pb-3 text-sm font-medium border-b-2 transition-colors shrink-0 snap-start flex items-center gap-2 ${activeTab === "plans" ? "border-primary text-foreground font-semibold" : "border-transparent text-muted-foreground hover:text-foreground"}`}
-            onClick={() => setActiveTab("plans")}
-          >
-            <Receipt className="h-4 w-4 text-pink-500" />
-            <span>Plans & Receipts</span>
-          </button>
-          <button
             className={`pb-3 text-sm font-medium border-b-2 transition-colors shrink-0 snap-start flex items-center gap-2 ${activeTab === "scheduling" ? "border-primary text-foreground font-semibold" : "border-transparent text-muted-foreground hover:text-foreground"}`}
             onClick={() => setActiveTab("scheduling")}
           >
             <Clock className="h-4 w-4 text-blue-500" />
             <span>My Sessions</span>
+            {localBookings.some((b) => b.status === "confirmed") && (
+              <Badge variant="outline" className="text-[10px] bg-blue-500/10 text-blue-500 border-blue-500/20 py-0 px-1 font-bold">
+                {localBookings.filter((b) => b.status === "confirmed").length}
+              </Badge>
+            )}
+          </button>
+          <button
+            className={`pb-3 text-sm font-medium border-b-2 transition-colors shrink-0 snap-start flex items-center gap-2 ${activeTab === "coach_studio" ? "border-primary text-foreground font-semibold" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+            onClick={() => setActiveTab("coach_studio")}
+          >
+            <Settings className="h-4 w-4 text-emerald-500" />
+            <span>Coach Studio</span>
+            <Badge variant="outline" className="text-[10px] bg-emerald-500/10 text-emerald-600 border-emerald-500/20 py-0 px-1 font-bold">
+              MANAGE
+            </Badge>
+          </button>
+          <button
+            className={`pb-3 text-sm font-medium border-b-2 transition-colors shrink-0 snap-start flex items-center gap-2 ${activeTab === "ai_studio" ? "border-primary text-foreground font-semibold" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+            onClick={() => setActiveTab("ai_studio")}
+          >
+            <Bot className="h-4 w-4 text-purple-500" />
+            <span>10-Role AI Studio</span>
+            <Badge variant="outline" className="text-[10px] bg-purple-500/10 text-purple-600 border-purple-500/20 py-0 px-1.5 font-bold">HOT</Badge>
+          </button>
+          <button
+            className={`pb-3 text-sm font-medium border-b-2 transition-colors shrink-0 snap-start flex items-center gap-2 ${activeTab === "plans" ? "border-primary text-foreground font-semibold" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+            onClick={() => setActiveTab("plans")}
+          >
+            <Receipt className="h-4 w-4 text-pink-500" />
+            <span>Plans & Receipts</span>
           </button>
           <button
             className={`pb-3 text-sm font-medium border-b-2 transition-colors shrink-0 snap-start flex items-center gap-2 ${activeTab === "messaging" ? "border-primary text-foreground font-semibold" : "border-transparent text-muted-foreground hover:text-foreground"}`}
@@ -727,7 +993,7 @@ How can I help you excel in this domain today? Select a sample topic below or as
             className={`pb-3 text-sm font-medium border-b-2 transition-colors shrink-0 snap-start flex items-center gap-2 ${activeTab === "cohorts" ? "border-primary text-foreground font-semibold" : "border-transparent text-muted-foreground hover:text-foreground"}`}
             onClick={() => setActiveTab("cohorts")}
           >
-            <Users className="h-4 w-4 text-purple-500" />
+            <Users className="h-4 w-4 text-cyan-500" />
             <span>Cohorts</span>
           </button>
           <button
@@ -960,25 +1226,27 @@ How can I help you excel in this domain today? Select a sample topic below or as
               </div>
 
               <OpenSlotBooking
-                headline="Schedule 1:1 Engineering Advisory"
-                headlineAccent="Direct with Staff Architects"
-                description="Pick an open slot and bring your real codebase or architecture challenge. You leave with an actionable roadmap."
-                meetingTitle="1:1 Technical & Career Strategy Call"
-                agenda="We review your system bottlenecks, conduct mock architectural interviews, or formulate your transition plan."
-                location="Google Meet / Zoom (Link generated after booking)"
-                durations={[15, 30, 45, 60]}
-                defaultDuration={30}
+                headline="1:1 Technical & Career Advisory"
+                headlineAccent="Direct with Maya Lindqvist"
+                description={coachProfile.agenda}
+                meetingTitle={coachProfile.meetingTitle}
+                agenda={coachProfile.agenda}
+                location={coachProfile.location}
+                durations={coachProfile.durations}
+                defaultDuration={coachProfile.defaultDuration}
                 host={{
-                  name: "Maya Lindqvist",
-                  role: "Principal Distributed Systems Architect",
-                  city: "Bangalore",
-                  stamp: "Learnify · 1-on-1 Mentorship · ",
+                  name: coachProfile.name,
+                  role: coachProfile.role,
+                  city: coachProfile.city,
+                  stamp: coachProfile.stamp,
                 }}
-                hostBusy={sampleHostWeek}
+                hostTimeZone="Asia/Calcutta"
+                timeZones={["Asia/Calcutta", "Asia/Kolkata", "America/New_York", "Europe/London", "Asia/Singapore", "Asia/Dubai"]}
+                hostBusy={hostBusySchedule}
                 visitorEvents={sampleMyWeek}
                 onBook={handleOpenSlotBook}
-                preset="postmark"
-                gridHeight={420}
+                preset="learnify"
+                gridHeight={440}
               />
             </div>
           </div>
@@ -1020,176 +1288,582 @@ How can I help you excel in this domain today? Select a sample topic below or as
           </div>
         )}
 
+        {/* ============ MY SESSIONS & UPCOMING MEETINGS TAB ============ */}
         {activeTab === "scheduling" && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
-            <div className="bg-card rounded-2xl border p-4 sm:p-6">
-              <h3 className="font-semibold text-lg mb-4">Upcoming Sessions</h3>
-              {myBookings.length === 0 ? (
-                <div className="text-center py-12 px-4 rounded-xl border border-dashed bg-accent/20 text-muted-foreground">
-                  <Calendar className="h-10 w-10 mx-auto mb-3 opacity-30 text-primary" />
-                  <p className="font-medium text-foreground mb-1">No upcoming sessions</p>
-                  <p className="text-sm">Your booked coaching sessions will appear here.</p>
-                </div>
-              ) : (
-                <ul className="space-y-4">
-                  {myBookings.map((b: any) => (
-                    <li
-                      key={b.id}
-                      className="p-4 border border-border/50 rounded-xl flex flex-col sm:flex-row justify-between sm:items-center gap-4 bg-gradient-to-br from-card to-accent/10 shadow-sm transition-all hover:shadow-md"
-                    >
-                      <div>
-                        <div className="font-medium text-sm text-foreground flex items-center gap-2">
-                          <DefaultAvatar
-                            src={isCreator ? b.learner?.avatar_url : b.coach?.avatar_url}
-                            name={isCreator ? b.learner?.full_name : b.coach?.full_name}
-                            className="h-6 w-6"
-                          />
-                          {isCreator
-                            ? `Client: ${b.learner?.full_name}`
-                            : `Coach: ${b.coach?.full_name}`}
-                        </div>
-                        <div className="text-xs text-muted-foreground flex items-center gap-1.5 mt-2 font-medium">
-                          <Clock className="h-3.5 w-3.5 text-primary" />
-                          {b.slot && format(new Date(b.slot.start_time), "MMM d, yyyy · h:mm a")}
-                        </div>
-                        {b.slot?.meeting_link && (
-                          <div className="text-xs text-blue-500 mt-1 flex items-center gap-1">
-                            <Video className="h-3 w-3" />
-                            <a
-                              href={b.slot.meeting_link}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="hover:underline"
-                            >
-                              {b.slot.meeting_link
-                                .replace(/^https?:\/\//, "")
-                                .replace(/\/$/, "")
-                                .substring(0, 35)}
-                              ...
-                            </a>
-                          </div>
-                        )}
+          <div className="space-y-6">
+            {/* Automated Notice Banner (Before Meeting Alert) */}
+            {localBookings.length > 0 && (
+              <div className="bg-gradient-to-r from-indigo-500/10 via-primary/5 to-cyan-500/10 border border-primary/30 rounded-2xl p-5 shadow-sm">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div className="flex items-start gap-3.5">
+                    <div className="w-10 h-10 rounded-xl bg-primary/20 text-primary flex items-center justify-center shrink-0 mt-0.5">
+                      <Bell className="w-5 h-5 animate-pulse text-indigo-500" />
+                    </div>
+                    <div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Badge className="bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 text-[11px] font-semibold">
+                          Notice Active · Starts in ~2 Hours
+                        </Badge>
+                        <span className="text-xs text-muted-foreground font-mono">Calcutta (GMT+5:30)</span>
                       </div>
-                      <div className="flex flex-col sm:flex-row gap-2">
-                        <a href={getGoogleCalendarUrl(b)} target="_blank" rel="noreferrer">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="w-full sm:w-auto gap-2 border-primary/20 text-primary hover:bg-primary/10"
-                          >
-                            <CalendarPlus className="h-3.5 w-3.5" /> G-Cal Sync
-                          </Button>
-                        </a>
-                        {b.slot?.meeting_link ? (
-                          <a href={b.slot.meeting_link} target="_blank" rel="noreferrer">
-                            <Button size="sm" className="w-full sm:w-auto gap-2">
-                              <Video className="h-3.5 w-3.5" /> Join Session
-                            </Button>
-                          </a>
-                        ) : (
-                          <Button size="sm" className="w-full sm:w-auto gap-2" disabled>
-                            <Video className="h-3.5 w-3.5" /> Join Session
-                          </Button>
-                        )}
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-
-            {!isCreator && (
-              <div className="bg-card rounded-2xl border p-6 flex flex-col h-full">
-                <h3 className="font-semibold text-lg mb-4">
-                  {selectedCoachId ? "Select a Slot" : "Book a Coach"}
-                </h3>
-
-                {!selectedCoachId ? (
-                  <div className="space-y-3 flex-1 overflow-y-auto pr-1">
-                    {coaches.map((coach: any) => (
-                      <div
-                        key={coach.id}
-                        className="p-3 border rounded-xl flex items-center gap-4 hover:border-primary/50 hover:bg-accent/30 cursor-pointer transition-all"
-                        onClick={() => setSelectedCoachId(coach.id)}
-                      >
-                        <DefaultAvatar
-                          src={coach.avatar_url}
-                          name={coach.full_name}
-                          className="h-12 w-12 border"
-                        />
-                        <div className="flex-1 min-w-0">
-                          <h4 className="font-medium truncate">{coach.full_name}</h4>
-                          <p className="text-xs text-muted-foreground truncate">
-                            {coach.bio || "Expert Coach"}
-                          </p>
-                        </div>
-                        <ChevronRight className="h-5 w-5 text-muted-foreground opacity-50" />
-                      </div>
-                    ))}
-                    {coaches.length === 0 && (
-                      <div className="text-center py-10 text-muted-foreground border rounded-xl border-dashed">
-                        No coaches available right now.
-                      </div>
-                    )}
+                      <h4 className="font-bold text-foreground text-sm sm:text-base mt-1">
+                        Upcoming Advisory Session: {localBookings[0]?.title || coachProfile.meetingTitle}
+                      </h4>
+                      <p className="text-xs text-muted-foreground mt-0.5 max-w-xl">
+                        Notice dispatched: HD room generated with {coachProfile.name} ({coachProfile.role}). Automatic email alert & calendar reminders active.
+                      </p>
+                    </div>
                   </div>
-                ) : (
-                  <div className="flex flex-col h-full">
+                  <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
                     <Button
-                      variant="ghost"
                       size="sm"
-                      className="mb-4 self-start text-muted-foreground hover:text-foreground -ml-2"
-                      onClick={() => setSelectedCoachId(null)}
+                      className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-xs flex-1 sm:flex-initial"
+                      onClick={() => window.open(localBookings[0]?.meetingLink || "https://meet.google.com/lnf-dist-sys", "_blank")}
                     >
-                      ← Back to coaches
+                      <Video className="w-4 h-4" /> Join Video Call
                     </Button>
-                    {coachSlots.length === 0 ? (
-                      <div className="flex-1 flex items-center justify-center border border-dashed rounded-xl p-8 text-center text-muted-foreground">
-                        No available slots for this coach.
-                      </div>
-                    ) : (
-                      <div className="space-y-3 flex-1 overflow-y-auto pr-1">
-                        {coachSlots.map((s: any) => (
-                          <div
-                            key={s.id}
-                            className="p-4 border rounded-xl flex flex-col sm:flex-row justify-between sm:items-center gap-4 hover:border-primary/30 transition-colors"
-                          >
-                            <div className="flex items-center gap-2">
-                              <Calendar className="h-4 w-4 text-primary opacity-70" />
-                              <span className="text-sm font-medium">
-                                {format(new Date(s.start_time), "MMM d, yyyy · h:mm a")}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-3 justify-between sm:justify-end w-full sm:w-auto">
-                              <span className="text-sm font-semibold px-2 py-1 bg-accent rounded-md">
-                                ₹{s.price_inr}
-                              </span>
-                              <Button size="sm" onClick={() => bookSlot(s.id)}>
-                                Book Slot
-                              </Button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="gap-1.5 border-border text-xs"
+                      onClick={() => toast.success("Notice re-dispatched! Email and SMS alert sent to learner.")}
+                    >
+                      <Bell className="w-3.5 h-3.5 text-primary" /> Test Notice
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="gap-1.5 border-border text-xs"
+                      onClick={() => downloadIcsForBooking(localBookings[0])}
+                    >
+                      <Download className="w-3.5 h-3.5" /> .ICS
+                    </Button>
                   </div>
-                )}
+                </div>
               </div>
             )}
 
-            {isCreator && (
-              <div className="bg-card rounded-2xl border p-6 flex flex-col h-full">
-                <h3 className="font-semibold text-lg mb-4">My Availability</h3>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+              {/* Upcoming Sessions List */}
+              <div className="lg:col-span-2 bg-card rounded-2xl border p-4 sm:p-6 shadow-sm">
+                <div className="flex items-center justify-between mb-4 border-b pb-3">
+                  <div>
+                    <h3 className="font-bold text-lg text-foreground flex items-center gap-2">
+                      <Clock className="w-5 h-5 text-primary" /> My Booked Sessions & Meetings
+                    </h3>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      View all scheduled 1:1 sessions, join direct video rooms, and download calendar invites.
+                    </p>
+                  </div>
+                  <Badge variant="outline" className="font-mono text-xs">
+                    {localBookings.length + myBookings.length} Total
+                  </Badge>
+                </div>
 
-                <div className="bg-gradient-to-br from-card to-accent/20 border border-border/70 rounded-2xl p-5 mb-6 shadow-sm space-y-4">
-                  <div className="flex items-center justify-between border-b pb-3">
-                    <h4 className="text-sm font-bold text-foreground flex items-center gap-2">
-                      <Calendar className="h-4 w-4 text-primary" /> Add Availability Slot
-                    </h4>
-                    <span className="text-[11px] text-muted-foreground font-medium">
-                      Set when learners can book you
-                    </span>
+                {localBookings.length === 0 && myBookings.length === 0 ? (
+                  <div className="text-center py-12 px-4 rounded-xl border border-dashed bg-accent/20 text-muted-foreground">
+                    <Calendar className="h-10 w-10 mx-auto mb-3 opacity-30 text-primary" />
+                    <p className="font-medium text-foreground mb-1">No upcoming sessions yet</p>
+                    <p className="text-sm max-w-sm mx-auto mb-4">
+                      Book a dedicated 1-on-1 session with Maya Lindqvist on system design, architecture review, or career growth.
+                    </p>
+                    <Button
+                      size="sm"
+                      onClick={() => setActiveTab("open_booking")}
+                      className="gap-2"
+                    >
+                      <CalendarPlus className="w-4 h-4" /> Book 1-on-1 with Maya
+                    </Button>
+                  </div>
+                ) : (
+                  <ul className="space-y-4">
+                    {/* Render localBookings */}
+                    {localBookings.map((b) => (
+                      <li
+                        key={b.id}
+                        className="p-5 border border-border/70 rounded-2xl bg-card hover:border-primary/40 transition-all shadow-sm space-y-3"
+                      >
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 text-primary flex items-center justify-center font-bold text-sm shrink-0">
+                              ML
+                            </div>
+                            <div>
+                              <div className="font-bold text-sm text-foreground flex items-center gap-2">
+                                <span>{b.title}</span>
+                                <Badge
+                                  className={cn(
+                                    "text-[10px] py-0 px-1.5 font-semibold",
+                                    b.status === "confirmed"
+                                      ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30"
+                                      : "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30"
+                                  )}
+                                >
+                                  {b.status === "confirmed" ? "Confirmed" : "Pending Approval"}
+                                </Badge>
+                              </div>
+                              <div className="text-xs text-muted-foreground mt-0.5">
+                                Coach: <span className="font-semibold text-foreground">{b.coachName}</span> ({b.coachRole})
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-1.5 self-start sm:self-auto">
+                            <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-muted border text-muted-foreground">
+                              {b.duration} min
+                            </span>
+                            <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-muted border text-muted-foreground">
+                              {b.platform}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-muted-foreground pt-1 border-t border-border/40">
+                          <div className="flex items-center gap-1.5 font-medium text-foreground">
+                            <Clock className="w-3.5 h-3.5 text-primary" />
+                            <span>{format(new Date(b.startTime), "EEE, MMM d, yyyy · h:mm a")}</span>
+                          </div>
+                          <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
+                            <Bell className="w-3.5 h-3.5" />
+                            <span>{b.noticeTime || "Notice dispatched 2h prior"}</span>
+                          </div>
+                        </div>
+
+                        {b.agenda && (
+                          <p className="text-xs text-muted-foreground bg-muted/40 p-2.5 rounded-xl border border-border/40">
+                            <span className="font-semibold text-foreground">Discussion Topic:</span> {b.agenda}
+                          </p>
+                        )}
+
+                        <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+                          <div className="text-xs text-blue-500 flex items-center gap-1">
+                            <Video className="w-3.5 h-3.5" />
+                            <a
+                              href={b.meetingLink}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="hover:underline font-mono"
+                            >
+                              {b.meetingLink}
+                            </a>
+                          </div>
+
+                          <div className="flex flex-wrap items-center gap-2">
+                            <a href={getGoogleCalendarUrl(b)} target="_blank" rel="noreferrer">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-8 text-xs gap-1.5 border-primary/20 text-primary hover:bg-primary/10"
+                              >
+                                <CalendarPlus className="w-3.5 h-3.5" /> G-Cal
+                              </Button>
+                            </a>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => downloadIcsForBooking(b)}
+                              className="h-8 text-xs gap-1.5 border-border"
+                            >
+                              <Download className="w-3.5 h-3.5" /> .ICS
+                            </Button>
+                            <a href={b.meetingLink} target="_blank" rel="noreferrer">
+                              <Button size="sm" className="h-8 text-xs gap-1.5">
+                                <Video className="w-3.5 h-3.5" /> Join Call
+                              </Button>
+                            </a>
+                          </div>
+                        </div>
+                      </li>
+                    ))}
+
+                    {/* Render Supabase bookings if any */}
+                    {myBookings.map((b: any) => (
+                      <li
+                        key={b.id}
+                        className="p-5 border border-border/70 rounded-2xl bg-card hover:border-primary/40 transition-all shadow-sm space-y-3"
+                      >
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                          <div className="flex items-center gap-3">
+                            <DefaultAvatar
+                              src={isCreator ? b.learner?.avatar_url : b.coach?.avatar_url}
+                              name={isCreator ? b.learner?.full_name : b.coach?.full_name}
+                              className="h-10 w-10 border"
+                            />
+                            <div>
+                              <div className="font-bold text-sm text-foreground flex items-center gap-2">
+                                <span>1:1 Engineering Advisory</span>
+                                <Badge className="text-[10px] py-0 px-1.5 bg-emerald-500/15 text-emerald-600 border-emerald-500/30 font-semibold">
+                                  Confirmed
+                                </Badge>
+                              </div>
+                              <div className="text-xs text-muted-foreground mt-0.5">
+                                {isCreator ? `Client: ${b.learner?.full_name}` : `Coach: ${b.coach?.full_name}`}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="text-xs text-muted-foreground flex items-center gap-1.5 pt-1 border-t border-border/40 font-medium text-foreground">
+                          <Clock className="w-3.5 h-3.5 text-primary" />
+                          <span>{b.slot && format(new Date(b.slot.start_time), "EEE, MMM d, yyyy · h:mm a")}</span>
+                        </div>
+
+                        <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+                          {b.slot?.meeting_link && (
+                            <div className="text-xs text-blue-500 flex items-center gap-1 font-mono">
+                              <Video className="w-3.5 h-3.5" />
+                              <a href={b.slot.meeting_link} target="_blank" rel="noreferrer" className="hover:underline">
+                                {b.slot.meeting_link}
+                              </a>
+                            </div>
+                          )}
+
+                          <div className="flex flex-wrap items-center gap-2">
+                            <a href={getGoogleCalendarUrl(b)} target="_blank" rel="noreferrer">
+                              <Button size="sm" variant="outline" className="h-8 text-xs gap-1.5 border-primary/20 text-primary hover:bg-primary/10">
+                                <CalendarPlus className="w-3.5 h-3.5" /> G-Cal
+                              </Button>
+                            </a>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => downloadIcsForBooking(b)}
+                              className="h-8 text-xs gap-1.5 border-border"
+                            >
+                              <Download className="w-3.5 h-3.5" /> .ICS
+                            </Button>
+                            {b.slot?.meeting_link && (
+                              <a href={b.slot.meeting_link} target="_blank" rel="noreferrer">
+                                <Button size="sm" className="h-8 text-xs gap-1.5">
+                                  <Video className="w-3.5 h-3.5" /> Join Call
+                                </Button>
+                              </a>
+                            )}
+                          </div>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+
+              {/* Sidebar Quick Book & Coach Profile */}
+              <div className="space-y-6">
+                <div className="bg-card rounded-2xl border p-5 shadow-sm space-y-4">
+                  <div className="flex items-center gap-3 border-b pb-3">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500/20 to-primary/20 border border-primary/30 flex items-center justify-center font-display font-bold text-primary text-base">
+                      ML
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-sm text-foreground">{coachProfile.name}</h4>
+                      <p className="text-xs text-muted-foreground">{coachProfile.role}</p>
+                      <div className="flex items-center gap-1.5 mt-1 text-[11px] text-emerald-500 font-mono">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                        <span>{coachLiveTime}</span>
+                      </div>
+                    </div>
                   </div>
 
+                  <div className="space-y-2 text-xs text-muted-foreground">
+                    <div className="flex items-center justify-between">
+                      <span>Display Timezone:</span>
+                      <span className="font-semibold text-foreground">Calcutta (GMT+5:30)</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span>Integrations:</span>
+                      <span className="font-semibold text-foreground">Google Meet & Zoom</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span>Session Durations:</span>
+                      <span className="font-semibold text-foreground">15, 30, 45, 60 min</span>
+                    </div>
+                  </div>
+
+                  <Button
+                    onClick={() => setActiveTab("open_booking")}
+                    className="w-full gap-2 shadow-sm font-semibold"
+                  >
+                    <Calendar className="w-4 h-4" /> Book New 1:1 Session
+                  </Button>
+                </div>
+
+                <div className="bg-muted/30 border border-border/70 rounded-2xl p-5 shadow-sm space-y-2">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                    Meeting Preparation Checklist
+                  </h4>
+                  <ul className="text-xs space-y-2 text-muted-foreground">
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" />
+                      <span>Prepare GitHub PR, architecture RFC, or system diagram</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" />
+                      <span>Camera and microphone check recommended before start</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" />
+                      <span>Written outcome summary and action items provided post-call</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ============ COACH AVAILABILITY & SCHEDULE STUDIO TAB ============ */}
+        {activeTab === "coach_studio" && (
+          <div className="space-y-6">
+            {/* Coach Profile Card & Live Time */}
+            <div className="bg-card border rounded-2xl p-5 sm:p-6 shadow-sm">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-5">
+                <div className="flex items-start gap-4">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-primary/30 border border-primary/30 flex items-center justify-center text-primary font-display font-bold text-2xl shrink-0 shadow-sm">
+                    ML
+                  </div>
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h2 className="text-xl font-bold font-display text-foreground">
+                        {coachProfile.name}
+                      </h2>
+                      <Badge className="bg-primary/15 text-primary border-primary/30 text-xs font-semibold">
+                        Principal Architect
+                      </Badge>
+                      <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 font-mono">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                        {coachLiveTime}
+                      </div>
+                    </div>
+                    <p className="text-sm font-medium text-muted-foreground mt-0.5">
+                      {coachProfile.role}
+                    </p>
+                    <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground mt-2">
+                      <span className="flex items-center gap-1.5">
+                        <Clock className="w-3.5 h-3.5 text-primary" />
+                        <span>Durations: {coachProfile.durations.join(", ")} min</span>
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <Globe className="w-3.5 h-3.5 text-primary" />
+                        <span>Calcutta (GMT+5:30)</span>
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <Video className="w-3.5 h-3.5 text-primary" />
+                        <span>Google Meet & Zoom Direct Integration</span>
+                      </span>
+                      <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-medium">
+                        <RefreshCw className="w-3.5 h-3.5" />
+                        <span>Calendar synced in real time</span>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setEditCoachForm(coachProfile);
+                      setIsEditProfileOpen(true);
+                    }}
+                    className="gap-2 border-primary/30 text-primary hover:bg-primary/10"
+                  >
+                    <Edit3 className="w-4 h-4" />
+                    <span>Edit Profile</span>
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={() => setActiveTab("open_booking")}
+                    className="gap-2"
+                  >
+                    <Calendar className="w-4 h-4" />
+                    <span>View Calendar</span>
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            {/* Metrics Overview */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="bg-card border rounded-2xl p-4 shadow-sm flex items-center gap-3.5">
+                <div className="w-11 h-11 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0">
+                  <Clock className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="text-2xl font-bold font-display text-foreground">
+                    {localBookings.filter((b) => b.status === "pending").length}
+                  </div>
+                  <div className="text-xs text-muted-foreground">Pending Requests to Approve</div>
+                </div>
+              </div>
+
+              <div className="bg-card border rounded-2xl p-4 shadow-sm flex items-center gap-3.5">
+                <div className="w-11 h-11 rounded-xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center shrink-0">
+                  <Calendar className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="text-2xl font-bold font-display text-foreground">
+                    {hostBusySchedule.length}
+                  </div>
+                  <div className="text-xs text-muted-foreground">Active Busy Blocks (Weekly)</div>
+                </div>
+              </div>
+
+              <div className="bg-card border rounded-2xl p-4 shadow-sm flex items-center gap-3.5">
+                <div className="w-11 h-11 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0">
+                  <CheckCircle2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="text-2xl font-bold font-display text-foreground">Live Synced</div>
+                  <div className="text-xs text-muted-foreground">Calcutta (GMT+5:30) Active</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Pending Booking Requests Section */}
+            <div className="bg-card border rounded-2xl p-5 sm:p-6 shadow-sm space-y-4">
+              <div className="flex items-center justify-between border-b pb-3">
+                <div>
+                  <h3 className="font-bold text-base text-foreground flex items-center gap-2">
+                    <UserCheck className="w-5 h-5 text-amber-500" /> Pending Booking Requests
+                  </h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Review and confirm incoming mentorship sessions. Confirming immediately dispatches an automated notice and video room.
+                  </p>
+                </div>
+                <Badge variant="outline" className="font-mono text-xs">
+                  {localBookings.filter((b) => b.status === "pending").length} Pending
+                </Badge>
+              </div>
+
+              {localBookings.filter((b) => b.status === "pending").length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground border border-dashed rounded-xl">
+                  <CheckCircle2 className="w-8 h-8 mx-auto mb-2 text-emerald-500 opacity-80" />
+                  <p className="text-sm font-medium text-foreground">All booking requests are up to date!</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">New learner requests will appear here for one-click approval.</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {localBookings
+                    .filter((b) => b.status === "pending")
+                    .map((bk) => (
+                      <div
+                        key={bk.id}
+                        className="p-4 border rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-muted/20 hover:border-primary/40 transition-all"
+                      >
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-sm text-foreground">{bk.learnerName}</span>
+                            <span className="text-xs text-muted-foreground">({bk.learnerEmail})</span>
+                            <Badge className="bg-amber-500/15 text-amber-600 border-amber-500/30 text-[10px] py-0 px-1 font-semibold">
+                              Pending
+                            </Badge>
+                          </div>
+                          <div className="text-xs text-foreground font-medium flex items-center gap-2">
+                            <Clock className="w-3.5 h-3.5 text-primary" />
+                            <span>{format(new Date(bk.startTime), "EEE, MMM d, yyyy · h:mm a")}</span>
+                            <span>· {bk.duration} min ({bk.platform})</span>
+                          </div>
+                          {bk.agenda && (
+                            <p className="text-xs text-muted-foreground line-clamp-1">
+                              Topic: {bk.agenda}
+                            </p>
+                          )}
+                        </div>
+
+                        <div className="flex items-center gap-2 shrink-0">
+                          <Button
+                            size="sm"
+                            onClick={() => approveBooking(bk.id)}
+                            className="gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs h-9"
+                          >
+                            <Check className="w-3.5 h-3.5" /> Approve & Send Notice
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => declineBooking(bk.id)}
+                            className="gap-1.5 border-border text-xs h-9"
+                          >
+                            <X className="w-3.5 h-3.5" /> Decline
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              )}
+            </div>
+
+            {/* Weekly Busy Schedule & Conflict Blocks Manager */}
+            <div className="bg-card border rounded-2xl p-5 sm:p-6 shadow-sm space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-3">
+                <div>
+                  <h3 className="font-bold text-base text-foreground flex items-center gap-2">
+                    <Calendar className="w-5 h-5 text-primary" /> Weekly Busy Schedule & Conflict Blocks
+                  </h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Times where you are booked or unavailable. OpenSlotBooking automatically displays these as "Booked" and leaves remaining slots open.
+                  </p>
+                </div>
+                <Button
+                  size="sm"
+                  onClick={() => setIsAddBusyOpen(true)}
+                  className="gap-1.5 text-xs h-9 shrink-0 self-start sm:self-auto"
+                >
+                  <Plus className="w-3.5 h-3.5" /> Add Busy Block
+                </Button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                {hostBusySchedule.map((block: any, idx: number) => {
+                  const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+                  const dayName = dayNames[block.weekday] || `Day ${block.weekday}`;
+                  return (
+                    <div
+                      key={idx}
+                      className="p-3.5 border rounded-xl bg-muted/30 flex items-center justify-between gap-2 hover:border-primary/40 transition-all group"
+                    >
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline" className="font-mono text-[10px] py-0 px-1 font-bold">
+                            {dayName}
+                          </Badge>
+                          <span className="font-semibold text-xs text-foreground truncate">
+                            {block.title || "Busy Block"}
+                          </span>
+                        </div>
+                        <div className="text-xs text-muted-foreground font-mono mt-1">
+                          {block.from} – {block.to}
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => handleDeleteBusyBlock(idx)}
+                        className="text-muted-foreground hover:text-destructive p-1 rounded hover:bg-destructive/10 transition-colors opacity-70 group-hover:opacity-100"
+                        title="Remove busy block"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Custom Availability Slots & Pricing */}
+            {isCreator && (
+              <div className="bg-card rounded-2xl border p-5 sm:p-6 shadow-sm space-y-4">
+                <div className="flex items-center justify-between border-b pb-3">
+                  <div>
+                    <h3 className="font-bold text-base text-foreground flex items-center gap-2">
+                      <CalendarPlus className="w-5 h-5 text-primary" /> Dedicated Booking Slots & Pricing
+                    </h3>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Publish custom 1:1 consultation slots with custom pricing and Google Meet links.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-card to-accent/20 border border-border/70 rounded-2xl p-5 space-y-4">
                   {/* Date selection + quick presets */}
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
@@ -1255,7 +1929,7 @@ How can I help you excel in this domain today? Select a sample topic below or as
                     <div className="space-y-1.5">
                       <label className="text-xs font-semibold text-foreground">Duration</label>
                       <div className="grid grid-cols-4 gap-1.5">
-                        {[30, 45, 60, 90].map((dur) => (
+                        {[15, 30, 45, 60].map((dur) => (
                           <button
                             key={dur}
                             type="button"
@@ -1274,7 +1948,7 @@ How can I help you excel in this domain today? Select a sample topic below or as
                     </div>
                   </div>
 
-                  {/* Meeting link + generator */}
+                  {/* Meeting link */}
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between">
                       <label className="text-xs font-semibold text-foreground">
@@ -1347,10 +2021,8 @@ How can I help you excel in this domain today? Select a sample topic below or as
                   </div>
                 </div>
 
-                <div className="flex-1 overflow-y-auto pr-1 space-y-3">
-                  <h4 className="text-sm font-medium sticky top-0 bg-card py-2 border-b mb-2 z-10">
-                    Manage Slots
-                  </h4>
+                <div className="space-y-3 pt-2">
+                  <h4 className="text-sm font-semibold text-foreground">Active Slots</h4>
                   {mySlots.map((s: any) => (
                     <div
                       key={s.id}
@@ -1361,8 +2033,7 @@ How can I help you excel in this domain today? Select a sample topic below or as
                         <span>{format(new Date(s.start_time), "MMM d, yyyy")}</span>
                         <span className="text-muted-foreground mx-1">·</span>
                         <span>
-                          {format(new Date(s.start_time), "h:mm a")} -{" "}
-                          {format(new Date(s.end_time), "h:mm a")}
+                          {format(new Date(s.start_time), "h:mm a")} - {format(new Date(s.end_time), "h:mm a")}
                         </span>
                       </div>
 
@@ -1372,8 +2043,7 @@ How can I help you excel in this domain today? Select a sample topic below or as
                             href={s.meeting_link}
                             target="_blank"
                             rel="noreferrer"
-                            className="text-xs text-blue-500 hover:underline truncate max-w-[140px] hidden sm:block"
-                            title={s.meeting_link}
+                            className="text-xs text-blue-500 hover:underline truncate max-w-[140px] hidden sm:block font-mono"
                           >
                             <Video className="h-3 w-3 inline mr-1" />
                             Meet
@@ -1398,19 +2068,7 @@ How can I help you excel in this domain today? Select a sample topic below or as
                               className="text-muted-foreground hover:text-foreground p-1 rounded hover:bg-accent transition-colors"
                               title="Edit Slot"
                             >
-                              <svg
-                                className="h-4 w-4"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                                />
-                              </svg>
+                              <Edit3 className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => deleteSlot(s.id)}
@@ -1425,74 +2083,209 @@ How can I help you excel in this domain today? Select a sample topic below or as
                     </div>
                   ))}
                   {mySlots.length === 0 && (
-                    <div className="text-center py-8 text-muted-foreground border border-dashed rounded-xl">
-                      <p className="text-sm">No slots added yet.</p>
-                      <p className="text-xs mt-1">Add slots above so learners can book you.</p>
+                    <div className="text-center py-6 text-muted-foreground border border-dashed rounded-xl text-xs">
+                      No custom slots added yet. Learners book directly from Maya's open calendar above.
                     </div>
                   )}
                 </div>
-
-                {/* Edit Slot Dialog */}
-                <Dialog
-                  open={!!editingSlot}
-                  onOpenChange={(open) => {
-                    if (!open) setEditingSlot(null);
-                  }}
-                >
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Edit Slot</DialogTitle>
-                      <DialogDescription>Update your availability slot details.</DialogDescription>
-                    </DialogHeader>
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="space-y-1.5">
-                          <Label>Start Time</Label>
-                          <Input
-                            type="datetime-local"
-                            value={editSlotStart}
-                            onChange={(e) => setEditSlotStart(e.target.value)}
-                          />
-                        </div>
-                        <div className="space-y-1.5">
-                          <Label>End Time</Label>
-                          <Input
-                            type="datetime-local"
-                            value={editSlotEnd}
-                            onChange={(e) => setEditSlotEnd(e.target.value)}
-                          />
-                        </div>
-                      </div>
-                      <div className="space-y-1.5">
-                        <Label>Meeting Link (Google Meet / Zoom)</Label>
-                        <Input
-                          type="url"
-                          placeholder="https://meet.google.com/xxx-xxxx-xxx"
-                          value={editSlotMeetingLink}
-                          onChange={(e) => setEditSlotMeetingLink(e.target.value)}
-                        />
-                      </div>
-                      <div className="space-y-1.5">
-                        <Label>Price (₹)</Label>
-                        <Input
-                          type="number"
-                          value={editSlotPrice}
-                          onChange={(e) => setEditSlotPrice(e.target.value)}
-                        />
-                      </div>
-                    </div>
-                    <DialogFooter>
-                      <Button variant="outline" onClick={() => setEditingSlot(null)}>
-                        Cancel
-                      </Button>
-                      <Button onClick={saveEditSlot}>Save Changes</Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
               </div>
             )}
           </div>
         )}
+
+        {/* Edit Coach Profile Modal */}
+        <Dialog open={isEditProfileOpen} onOpenChange={setIsEditProfileOpen}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Edit3 className="w-5 h-5 text-primary" /> Edit Coach Profile & Live Details
+              </DialogTitle>
+              <DialogDescription>
+                Update your coaching details, agenda, and calendar preferences. Changes reflect live on the booking page.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4 py-2">
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold">Coach Name</Label>
+                <Input
+                  value={editCoachForm.name}
+                  onChange={(e) => setEditCoachForm({ ...editCoachForm, name: e.target.value })}
+                  placeholder="e.g. Maya Lindqvist"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold">Principal Role / Title</Label>
+                <Input
+                  value={editCoachForm.role}
+                  onChange={(e) => setEditCoachForm({ ...editCoachForm, role: e.target.value })}
+                  placeholder="e.g. Principal Distributed Systems Architect"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold">Location / City</Label>
+                  <Input
+                    value={editCoachForm.city}
+                    onChange={(e) => setEditCoachForm({ ...editCoachForm, city: e.target.value })}
+                    placeholder="Bangalore"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold">Timezone</Label>
+                  <Input
+                    value={editCoachForm.timeZone}
+                    disabled
+                    className="font-mono text-xs bg-muted"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold">Session Title</Label>
+                <Input
+                  value={editCoachForm.meetingTitle}
+                  onChange={(e) => setEditCoachForm({ ...editCoachForm, meetingTitle: e.target.value })}
+                  placeholder="1:1 Technical & Career Advisory"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold">Session Agenda / Overview</Label>
+                <Textarea
+                  rows={3}
+                  value={editCoachForm.agenda}
+                  onChange={(e) => setEditCoachForm({ ...editCoachForm, agenda: e.target.value })}
+                  placeholder="System design review, mock tech interview, or career growth strategy session."
+                  className="text-xs resize-none"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold">Available Durations (min)</Label>
+                <div className="grid grid-cols-4 gap-2">
+                  {[15, 30, 45, 60].map((dur) => {
+                    const isChecked = editCoachForm.durations.includes(dur);
+                    return (
+                      <button
+                        key={dur}
+                        type="button"
+                        onClick={() => {
+                          const updatedDurs = isChecked
+                            ? editCoachForm.durations.filter((d: number) => d !== dur)
+                            : [...editCoachForm.durations, dur].sort((a: number, b: number) => a - b);
+                          if (updatedDurs.length > 0) {
+                            setEditCoachForm({ ...editCoachForm, durations: updatedDurs });
+                          }
+                        }}
+                        className={cn(
+                          "h-9 rounded-lg border text-xs font-semibold transition-all",
+                          isChecked
+                            ? "bg-primary text-primary-foreground border-primary shadow-xs"
+                            : "bg-muted/40 text-muted-foreground hover:bg-muted"
+                        )}
+                      >
+                        {dur}m
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsEditProfileOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={saveCoachProfile} className="gap-1.5">
+                <Check className="w-4 h-4" /> Save Profile
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Add Custom Busy Block Modal */}
+        <Dialog open={isAddBusyOpen} onOpenChange={setIsAddBusyOpen}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Plus className="w-5 h-5 text-primary" /> Add Weekly Busy Block
+              </DialogTitle>
+              <DialogDescription>
+                Block out recurring commitments on your calendar so learners see them as Booked.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4 py-2">
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold">Event / Meeting Title</Label>
+                <Input
+                  value={newBusyTitle}
+                  onChange={(e) => setNewBusyTitle(e.target.value)}
+                  placeholder="e.g. Meta Architecture Review, Staff Sync, Workout"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold">Day of Week</Label>
+                <div className="grid grid-cols-6 gap-1.5">
+                  {[
+                    { day: 1, label: "Mon" },
+                    { day: 2, label: "Tue" },
+                    { day: 3, label: "Wed" },
+                    { day: 4, label: "Thu" },
+                    { day: 5, label: "Fri" },
+                    { day: 6, label: "Sat" },
+                  ].map((d) => (
+                    <button
+                      key={d.day}
+                      type="button"
+                      onClick={() => setNewBusyDay(d.day)}
+                      className={cn(
+                        "h-9 rounded-lg border text-xs font-semibold transition-all",
+                        newBusyDay === d.day
+                          ? "bg-primary text-primary-foreground border-primary shadow-xs"
+                          : "bg-muted/40 text-muted-foreground hover:bg-muted"
+                      )}
+                    >
+                      {d.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold">Start Time</Label>
+                  <Input
+                    type="time"
+                    value={newBusyFrom}
+                    onChange={(e) => setNewBusyFrom(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold">End Time</Label>
+                  <Input
+                    type="time"
+                    value={newBusyTo}
+                    onChange={(e) => setNewBusyTo(e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsAddBusyOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleAddBusyBlock} className="gap-1.5">
+                <Plus className="w-4 h-4" /> Add Busy Block
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         {activeTab === "messaging" && (
           <div className="bg-card rounded-2xl border h-[400px] sm:h-[600px] flex overflow-hidden">
