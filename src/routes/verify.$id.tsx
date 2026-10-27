@@ -55,6 +55,7 @@ import {
   type CertificateSealType,
 } from "@/components/certificate/EngravedCertificateTemplate";
 import { BadgeRow } from "@/components/ui/AwardBadge";
+import logoMarkUrl from "@/assets/learnify-mark.png?url";
 
 export const Route = createFileRoute("/verify/$id")({
   head: () => ({
@@ -437,12 +438,11 @@ function CertificateVerificationPage() {
           <div className="px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               {/* Learnify logo */}
-              <div className="h-10 w-10 rounded-xl bg-white/10 backdrop-blur-sm flex items-center justify-center flex-shrink-0">
+              <div className="h-10 w-10 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 shadow-inner flex items-center justify-center flex-shrink-0">
                 <img
-                  src="/assets/learnify-logo.png"
+                  src={logoMarkUrl}
                   alt="Learnify AI"
-                  className="h-7 w-7 object-contain"
-                  onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                  className="h-7 w-7 object-contain drop-shadow"
                 />
               </div>
               <div>
@@ -514,18 +514,14 @@ function CertificateVerificationPage() {
                     ? "emerald"
                     : "parchment"
                 }
-                initialSealType={
-                  codeUpper.includes("CERT-PL") || codeUpper.includes("CERT-ML")
-                    ? "crypto_attested"
-                    : "gold_foil"
-                }
+                initialSealType="indian_rupee"
                 initialRecipientName={cert.recipient_name}
                 initialCourseTitle={cert.course_title}
                 initialIssueDate={issueDate}
                 initialCredentialId={cert.code}
                 initialSignatoryName={design.signatory_name || "Vishwajeet"}
                 initialSignatoryTitle={design.signatory_title || "Founder & CEO, Learnify AI"}
-                logoUrl="/assets/learnify-logo.png"
+                logoUrl={logoMarkUrl}
                 qrDataUrl={qrDataUrl}
                 onDownloadPdf={handleDownloadPdf}
                 onDownloadImage={handleDownloadImage}
@@ -706,7 +702,42 @@ function CertificateVerificationPage() {
           100% { opacity: 0;   background-position: 200% 0; }
         }
         @media print {
-          .no-print { display: none !important; }
+          @page {
+            size: A4 landscape;
+            margin: 0;
+          }
+          html, body {
+            margin: 0 !important;
+            padding: 0 !important;
+            background: transparent !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+          header, footer, nav, aside, .no-print, [role="banner"], [role="navigation"] {
+            display: none !important;
+          }
+          body * {
+            visibility: hidden !important;
+          }
+          #certificate-print-stage,
+          #certificate-print-stage * {
+            visibility: visible !important;
+          }
+          #certificate-print-stage {
+            position: fixed !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            max-width: none !important;
+            max-height: none !important;
+            margin: 0 !important;
+            border: none !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            page-break-inside: avoid !important;
+            page-break-after: avoid !important;
+          }
         }
       `}</style>
     </AppShell>

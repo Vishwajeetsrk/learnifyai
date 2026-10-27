@@ -27,6 +27,10 @@ const LOCAL_COVERS: Record<string, string> = {
   "chatgpt-claude-ai-productivity": "/course-covers/chatgpt-claude-ai.jpg",
   "java-fundamentals": "/course-covers/java-fundamentals.jpg",
   "designing-user-interfaces-and-experiences": "/course-covers/designing-user-interfaces-and-experiences.jpg",
+  "python-for-everyone": "/course-covers/python-for-everyone.jpg",
+  "python-for-beginners": "/course-covers/python-for-everyone.jpg",
+  "javascript-zero-to-pro": "/course-covers/javascript-zero-to-pro.jpg",
+  "javascript-essentials": "/course-covers/javascript-zero-to-pro.jpg",
 
   // Vector brand illustration covers
   "excel-sheets-mastery": "/course-covers/excel-sheets-mastery.svg",
@@ -34,12 +38,8 @@ const LOCAL_COVERS: Record<string, string> = {
   "figma-ui-bootcamp": "/course-covers/figma-ui-bootcamp.svg",
   "google-workspace-pro": "/course-covers/google-workspace-pro.svg",
   "html-css-essentials": "/course-covers/html-css-essentials.svg",
-  "javascript-zero-to-pro": "/course-covers/javascript-zero-to-pro.svg",
-  "javascript-essentials": "/course-covers/javascript-zero-to-pro.svg",
   "power-bi-visuals": "/course-covers/power-bi-visuals.svg",
   "power-bi-and-data-analytics": "/course-covers/power-bi-visuals.svg",
-  "python-for-everyone": "/course-covers/python-for-everyone.svg",
-  "python-for-beginners": "/course-covers/python-for-everyone.svg",
   "vs-code-git-essentials": "/course-covers/vs-code-git-essentials.svg",
   "vs-code-and-git-mastery": "/course-covers/vs-code-git-essentials.svg",
   "word-powerpoint-pro": "/course-covers/word-powerpoint-pro.svg",

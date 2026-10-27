@@ -2,7 +2,7 @@
 
 <img src="src/assets/learnify-logo.png" alt="Learnify AI Logo" width="180" style="margin-bottom: 12px; filter: drop-shadow(0 4px 12px rgba(99, 102, 241, 0.25));" />
 
-# Learnify AI 6.2.0
+# Learnify AI 6.3.0
 
 **The AI-Native Learning & Career Operating System**
 
@@ -23,6 +23,12 @@
 ## 🎯 What is Learnify AI?
 
 Learnify AI is a **full-stack, AI-powered learning and career growth platform** that integrates intelligent tutoring, 11-in-1 career studio tools, autonomous AI agents, gamification, and creator economy tools into one seamless experience.
+
+### 🌟 What's New in Learnify AI 6.3.0
+* 🇮🇳 **Indian Rupee Security Stamp & Banknote Lathe Engine**: Implemented an uncopyable banknote-grade security medallion with 32 scalloped starburst teeth, circular micro-lettering (`★ LEARNIFY AI • VERIFIED RUPEE SPECIMEN ★`), 16-spoke lathe wheel, and ₹ sovereign knotwork, integrated as the official default seal on public certificate verifications.
+* 🖨️ **Exact A4 Landscape Print Isolation**: Added print-isolation CSS styles targeting `#certificate-print-stage`, eliminating headers, footers, toolbars, and verification sidebars when printing or exporting to PDF.
+* 🗃️ **Tactile Card-Index FAQ Drawer UI & Skills**: Created `faq-drawer.tsx` and the `.agents/skills/faq-drawer/SKILL.md` skill. Features staggered tabs, aluminium/graphite metal drawer finishing, label holder, cup pull, embedded font data URIs, and native `::details-content` spring interpolation across `/faq` and `/pricing`.
+* 🖼️ **Theme-Aware Logo Rendering & HD Course Artworks**: Enabled dark/light brand logos with zero hydration flicker, translucent glass badge containers for certificates, and registered 16:9 high-definition generated covers for Python and JavaScript.
 
 ### 🌟 What's New in Learnify AI 6.2.0
 * 🍎 **macOS Big Sur & Ventura Interactive Desktop**: Added a 55KB zero-dependency macOS replica with 105 authentic Apple Big Sur icons, parallax Dock magnification physics, multi-window z-index management, and 5 interactive course modules with quizzes and sandbox code.

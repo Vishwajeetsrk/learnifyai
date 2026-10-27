@@ -53,6 +53,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { FaqDrawer } from "@/components/ui/faq-drawer";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useServerFn } from "@tanstack/react-start";
@@ -1553,99 +1554,65 @@ function PricingPage() {
           </div>
         </div>
 
-        {/* ========== FAQ ========== */}
-        <section id="faq-section" className="container mx-auto px-6 py-16 md:py-20 max-w-3xl">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl md:text-4xl font-bold tracking-tight">
-              Frequently Asked Questions
-            </h2>
-          </div>
-
-          {/* Search */}
-          <div className="relative mb-6">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Search questions..."
-              value={faqSearch}
-              onChange={(e) => setFaqSearch(e.target.value)}
-              className="w-full h-11 pl-10 pr-4 rounded-xl border bg-card text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all"
-            />
-          </div>
-
-          {/* Category filters */}
-          <div className="flex flex-wrap gap-2 mb-6">
-            <button
-              onClick={() => setFaqCategory(null)}
-              className={`text-xs font-semibold px-3 py-1.5 rounded-full border transition-all ${!faqCategory
-                  ? "bg-primary text-primary-foreground border-primary"
-                  : "bg-card text-muted-foreground border-border hover:border-primary/30 hover:text-foreground"
-                }`}
-            >
-              All
-            </button>
-            {cmsFaqCategories.map((cat: string) => (
-              <button
-                key={cat}
-                onClick={() => setFaqCategory(faqCategory === cat ? null : cat)}
-                className={`text-xs font-semibold px-3 py-1.5 rounded-full border transition-all ${faqCategory === cat
-                    ? "bg-primary text-primary-foreground border-primary"
-                    : "bg-card text-muted-foreground border-border hover:border-primary/30 hover:text-foreground"
-                  }`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-
-          {/* FAQ items */}
-          <div className="space-y-3">
-            {cmsFaqItems.filter(
-              (item: any) =>
-                (!faqCategory || item.category === faqCategory) &&
-                (!faqSearch ||
-                  (item.q || "").toLowerCase().includes(faqSearch.toLowerCase()) ||
-                  (item.a || "").toLowerCase().includes(faqSearch.toLowerCase())),
-            ).length === 0 ? (
-              <p className="text-center text-muted-foreground py-8 text-sm">
-                No matching questions found.
-              </p>
-            ) : (
-              cmsFaqItems
-                .filter(
-                  (item: any) =>
-                    (!faqCategory || item.category === faqCategory) &&
-                    (!faqSearch ||
-                      (item.q || "").toLowerCase().includes(faqSearch.toLowerCase()) ||
-                      (item.a || "").toLowerCase().includes(faqSearch.toLowerCase())),
-                )
-                .map((item: any, i: number) => {
-                  const realIdx = cmsFaqItems.indexOf(item);
-                  return (
-                    <div key={realIdx} className="border rounded-xl overflow-hidden bg-card">
-                      <button
-                        onClick={() => setOpenFaq(openFaq === realIdx ? null : realIdx)}
-                        className="w-full flex items-center justify-between p-5 text-left font-medium hover:bg-muted/30 transition-colors"
-                      >
-                        <span>{item.q}</span>
-                        <div
-                          className={`shrink-0 ml-4 transition-transform duration-200 ${openFaq === realIdx ? "rotate-180" : ""}`}
-                        >
-                          <ChevronDown className="h-5 w-5 text-muted-foreground" />
-                        </div>
-                      </button>
-                      <div
-                        className={`overflow-hidden transition-all duration-300 ease-in-out ${openFaq === realIdx ? "max-h-40 opacity-100" : "max-h-0 opacity-0"}`}
-                      >
-                        <p className="px-5 pb-5 text-sm text-muted-foreground leading-relaxed">
-                          {item.a}
-                        </p>
-                      </div>
-                    </div>
-                  );
-                })
-            )}
-          </div>
+        {/* ========== FAQ (Tactile Card-Index Drawer) ========== */}
+        <section id="faq-section" className="w-full py-12 md:py-16">
+          <FaqDrawer
+            label="Pricing & Billing"
+            title="Questions before you sign."
+            lead="Everything you need to know about plans, ₹99 single courses, 18% GST tax invoices, and creator revenue."
+            drawer="Learnify · Pricing"
+            count={7}
+            open="1"
+            single={true}
+            finish="auto"
+            cards={[
+              {
+                id: "course-pricing",
+                tab: "Courses",
+                q: "How does the ₹99 course pricing work?",
+                a: "Individual courses and website templates can be purchased ala-carte for just ₹99 with lifetime access, free future updates, and a verifiable digital certificate of technical mastery.",
+              },
+              {
+                id: "career-pro-perks",
+                tab: "Career Pro",
+                q: "What is included with Career Pro?",
+                a: "Career Pro provides all-access entry to 50+ production website templates with full source-code ZIP export, AI interview simulations, interactive Scrimba workshops, and high-DPI verified credentials.",
+              },
+              {
+                id: "payment-methods",
+                tab: "UPI & Cards",
+                q: "What payment methods are supported in India?",
+                a: "We support instant UPI (Google Pay, PhonePe, Paytm, BHIM), all major Credit/Debit Cards (Visa, Mastercard, RuPay), and NetBanking from 50+ Indian banks via Cashfree and Razorpay.",
+              },
+              {
+                id: "gst-invoices",
+                tab: "GST Invoices",
+                q: "Do you issue official GST tax invoices?",
+                a: "Yes. All transactions include 18% GST (CGST 9% + SGST 9% or IGST 18%) with complete HSN/SAC codes (998431). You can input your business GSTIN during checkout for input tax credit.",
+              },
+              {
+                id: "cancellation",
+                tab: "Cancellation",
+                q: "Can I cancel my subscription at any time?",
+                a: "Yes, you can cancel your subscription with one click from your billing dashboard. You will continue to have full Pro access until the end of your current billing cycle with zero renewal charges.",
+              },
+              {
+                id: "refund-guarantee",
+                tab: "Guarantee",
+                q: "What is the 7-day money-back guarantee?",
+                a: "If you are unsatisfied with Career Pro for any reason, request a refund within 7 days. If you have exported fewer than 2 source ZIPs, you receive a 100% full refund with an official GST credit note.",
+              },
+              {
+                id: "creator-earnings",
+                tab: "Creators",
+                q: "How do creator payouts and commissions work?",
+                a: "Educators and UI designers earn 80% on all course and template sales. Payouts are transferred automatically to your verified Indian bank account or UPI VPA every week.",
+              },
+            ]}
+            askNote="Have a custom enterprise training requirement or bulk team query?"
+            askLabel="Contact Billing"
+            askHref="mailto:billing@learnifyai.in"
+          />
         </section>
 
         {/* ========== FINAL CTA ========== */}

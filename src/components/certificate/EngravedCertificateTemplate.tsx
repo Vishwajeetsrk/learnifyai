@@ -27,9 +27,13 @@ import {
   Zap,
 } from "lucide-react";
 import { toast } from "sonner";
-import confetti from "canvas-confetti";
 import { cn } from "@/lib/utils";
 import { downloadElementAsPdf, downloadElementAsImage } from "@/lib/certificate-pdf";
+import logoMarkUrl from "@/assets/learnify-mark.png?url";
+import logoLightUrl from "@/assets/learnify-logo-light.png?url";
+import logoDarkUrl from "@/assets/learnify-logo-dark.png?url";
+import { IndianRupeeSecurityStamp } from "@/components/certificate/IndianRupeeSecurityStamp";
+import confetti from "canvas-confetti";
 
 export type CertificateThemeKey =
   | "parchment"
@@ -40,6 +44,7 @@ export type CertificateThemeKey =
   | "platinum";
 
 export type CertificateSealType =
+  | "indian_rupee"
   | "gold_foil"
   | "crypto_attested"
   | "crimson_ribbon"
@@ -166,7 +171,7 @@ export const EngravedCertificateTemplate = React.forwardRef<
     initialSecondSignatoryName = "Dr. Michael Chen",
     initialSecondSignatoryTitle = "Academic Dean, Learnify Council",
     initialTheme = "parchment",
-    initialSealType = "gold_foil",
+    initialSealType = "indian_rupee",
     initialBorderType = "banknote",
     logoUrl = "/assets/learnify-logo.png",
     qrDataUrl,
@@ -231,6 +236,14 @@ export const EngravedCertificateTemplate = React.forwardRef<
   const [isEditing, setIsEditing] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+
+  const stampVariant = useMemo(() => {
+    if (activeTheme === "emerald") return "emerald";
+    if (activeTheme === "platinum") return "platinum";
+    if (activeTheme === "sapphire") return "platinum";
+    if (activeTheme === "learnify") return "purple";
+    return "gold";
+  }, [activeTheme]);
 
   // Sync state if props change externally
   useEffect(() => {
@@ -508,7 +521,7 @@ export const EngravedCertificateTemplate = React.forwardRef<
       {/* ═══════════════════════════════════════════════════════════════════════
           INTERACTIVE CONTROLS BAR & CUSTOMIZATION DOCK
           ═══════════════════════════════════════════════════════════════════════ */}
-      <div className="w-full max-w-4xl p-3 sm:p-4 rounded-2xl border border-border/70 bg-card/90 backdrop-blur-md shadow-lg flex flex-wrap items-center justify-between gap-3">
+      <div className="w-full max-w-4xl p-3 sm:p-4 rounded-2xl border border-border/70 bg-card/90 backdrop-blur-md shadow-lg flex flex-wrap items-center justify-between gap-3 print:hidden">
         {/* Left Badge & Status */}
         <div className="flex items-center gap-2.5">
           <Badge
@@ -720,6 +733,7 @@ export const EngravedCertificateTemplate = React.forwardRef<
             <Label className="text-xs font-semibold">Embossed Medallion / Seal</Label>
             <div className="grid grid-cols-2 gap-1.5">
               {[
+                ["indian_rupee", "Rupee Security Stamp"],
                 ["gold_foil", "Gold Foil Seal"],
                 ["crypto_attested", "Crypto Shield"],
                 ["crimson_ribbon", "Honor Ribbon"],
@@ -839,7 +853,7 @@ export const EngravedCertificateTemplate = React.forwardRef<
           background: currentTheme.bgGradient,
           color: currentTheme.inkColor,
         }}
-        className="relative w-full max-w-4xl aspect-[1.414/1] min-h-[500px] sm:min-h-[620px] rounded-3xl overflow-hidden shadow-2xl border border-black/10 select-none flex flex-col justify-between p-7 sm:p-11 md:p-14"
+        className="relative w-full max-w-4xl aspect-[1.414/1] min-h-[380px] sm:min-h-[500px] md:min-h-[620px] rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl border border-black/10 select-none flex flex-col justify-between p-4 sm:p-8 md:p-12 print:p-8"
       >
         {/* Layer 0: High-DPI Native Mathematical Guilloche Canvas */}
         <canvas
@@ -875,33 +889,33 @@ export const EngravedCertificateTemplate = React.forwardRef<
           {/* HEADER: Institution Identity & Authenticity Stamp */}
           <div className="flex items-start justify-between gap-4">
             {/* Learnify Emblem & Title (Always Visible Logo) */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2.5 sm:gap-3.5">
               <div
-                className="h-12 w-12 sm:h-14 sm:w-14 rounded-2xl p-2 shadow-md flex items-center justify-center border backdrop-blur-md bg-white/95 shrink-0"
-                style={{ borderColor: currentTheme.borderColor }}
+                className="h-11 w-11 sm:h-14 sm:w-14 rounded-2xl p-1.5 sm:p-2 shadow-lg flex items-center justify-center border backdrop-blur-md shrink-0"
+                style={{
+                  borderColor: currentTheme.borderColor,
+                  backgroundColor:
+                    activeTheme === "parchment" || activeTheme === "platinum"
+                      ? "rgba(255, 255, 255, 0.85)"
+                      : "rgba(15, 23, 42, 0.65)",
+                }}
               >
                 <img
-                  src={logoUrl || "/Logo Learnify AI.png"}
+                  src={logoMarkUrl}
                   alt="Learnify AI"
-                  className="h-full w-full object-contain"
-                  onError={(e) => {
-                    const target = e.currentTarget as HTMLImageElement;
-                    if (!target.src.includes("logo.png")) {
-                      target.src = "/logo.png";
-                    }
-                  }}
+                  className="h-full w-full object-contain drop-shadow-sm"
                 />
               </div>
 
               <div>
                 <div
-                  className="font-display tracking-[0.25em] text-xs sm:text-sm font-bold uppercase"
+                  className="font-display tracking-[0.22em] text-xs sm:text-base font-extrabold uppercase flex items-center gap-1.5"
                   style={{ color: currentTheme.inkColor }}
                 >
-                  Learnify AI
+                  <span>Learnify AI</span>
                 </div>
                 <div
-                  className="text-[10px] sm:text-[11px] tracking-[0.2em] uppercase font-mono font-medium"
+                  className="text-[9px] sm:text-[11px] tracking-[0.18em] uppercase font-mono font-medium"
                   style={{ color: currentTheme.inkColorMuted }}
                 >
                   Autonomous Learning OS &bull; Verifiable Registry
@@ -1034,11 +1048,17 @@ export const EngravedCertificateTemplate = React.forwardRef<
               </div>
             </div>
 
-            {/* Center Embossed Medallion / Official Seal */}
-            <div className="flex flex-col items-center">
-              {sealType === "gold_foil" && (
+            {/* Center Embossed Medallion / Official Rupee Security Stamp */}
+            <div className="flex flex-col items-center justify-center shrink-0">
+              {sealType === "indian_rupee" ? (
+                <IndianRupeeSecurityStamp
+                  variant={stampVariant}
+                  size={58}
+                  className="transform transition-transform duration-300 hover:scale-105"
+                />
+              ) : sealType === "gold_foil" ? (
                 <div
-                  className="h-16 w-16 sm:h-20 sm:w-20 rounded-full border-2 flex items-center justify-center shadow-lg relative p-1"
+                  className="h-14 w-14 sm:h-16 sm:w-16 rounded-full border-2 flex items-center justify-center shadow-lg relative p-1"
                   style={{
                     borderColor: currentTheme.accentGold,
                     background:
@@ -1058,11 +1078,9 @@ export const EngravedCertificateTemplate = React.forwardRef<
                     </span>
                   </div>
                 </div>
-              )}
-
-              {sealType === "crypto_attested" && (
+              ) : sealType === "crypto_attested" ? (
                 <div
-                  className="h-16 w-16 sm:h-20 sm:w-20 rounded-2xl border-2 flex flex-col items-center justify-center shadow-lg p-1 backdrop-blur-md"
+                  className="h-14 w-14 sm:h-16 sm:w-16 rounded-2xl border-2 flex flex-col items-center justify-center shadow-lg p-1 backdrop-blur-md"
                   style={{
                     borderColor: currentTheme.accentGold,
                     background: "rgba(56, 189, 248, 0.1)",
@@ -1076,20 +1094,16 @@ export const EngravedCertificateTemplate = React.forwardRef<
                     ON-CHAIN
                   </span>
                 </div>
-              )}
-
-              {sealType === "crimson_ribbon" && (
+              ) : sealType === "crimson_ribbon" ? (
                 <div className="relative flex flex-col items-center">
-                  <div className="h-14 w-14 sm:h-16 sm:w-16 rounded-full bg-rose-700 text-white flex items-center justify-center shadow-md border-2 border-amber-300">
-                    <Award className="h-7 w-7 text-amber-200" />
+                  <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-full bg-rose-700 text-white flex items-center justify-center shadow-md border-2 border-amber-300">
+                    <Award className="h-6 w-6 text-amber-200" />
                   </div>
-                  <div className="w-6 h-4 bg-rose-800 -mt-1 rounded-b-xs shadow-xs" />
+                  <div className="w-5 h-3.5 bg-rose-800 -mt-1 rounded-b-xs shadow-xs" />
                 </div>
-              )}
-
-              {sealType === "star_excellence" && (
+              ) : (
                 <div
-                  className="h-16 w-16 sm:h-20 sm:w-20 rounded-full border-2 border-double flex flex-col items-center justify-center shadow-lg p-1"
+                  className="h-14 w-14 sm:h-16 sm:w-16 rounded-full border-2 border-double flex flex-col items-center justify-center shadow-lg p-1"
                   style={{
                     borderColor: currentTheme.accentGold,
                     background: "rgba(245, 158, 11, 0.12)",
@@ -1106,10 +1120,10 @@ export const EngravedCertificateTemplate = React.forwardRef<
               )}
 
               <span
-                className="text-[8px] font-mono tracking-widest uppercase mt-1"
+                className="text-[7.5px] sm:text-[8.5px] font-mono tracking-widest uppercase mt-0.5 font-bold"
                 style={{ color: currentTheme.inkColorMuted }}
               >
-                Guilloche Security
+                ★ Verifiable Stamp ★
               </span>
             </div>
 

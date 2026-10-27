@@ -1,4 +1,6 @@
 import logoMarkUrl from "@/assets/learnify-mark.png?url";
+import logoLightUrl from "@/assets/learnify-logo-light.png?url";
+import logoDarkUrl from "@/assets/learnify-logo-dark.png?url";
 import { cn } from "@/lib/utils";
 
 interface LogoProps {
@@ -10,11 +12,12 @@ interface LogoProps {
 
 /**
  * Official Learnify AI Brand Logo.
- * Displays the high-resolution vibrant brand emblem paired with crisp,
- * pixel-perfect vector typography tailored for both dark and light modes.
- * Zero distortion, zero wash-out, and no blurry raster sub-taglines.
+ * Displays the authentic brand logo:
+ * - In Light mode: learnify-logo-light.png
+ * - In Dark mode: learnify-logo-dark.png
+ * Uses CSS dark: variants for seamless, zero-hydration-flicker switching.
  */
-export function Logo({ className, height = "h-9", markOnly = false, textClassName }: LogoProps) {
+export function Logo({ className, height = "h-9", markOnly = false }: LogoProps) {
   if (markOnly) {
     return (
       <span className={cn("inline-flex items-center justify-center select-none transition-transform hover:scale-105 shrink-0", className)}>
@@ -29,19 +32,21 @@ export function Logo({ className, height = "h-9", markOnly = false, textClassNam
   }
 
   return (
-    <span className={cn("inline-flex items-center gap-2.5 select-none transition-transform hover:scale-[1.02] shrink-0", className)}>
+    <span className={cn("inline-flex items-center select-none transition-transform hover:scale-[1.02] shrink-0", className)}>
+      {/* Dark mode logo */}
       <img
-        src={logoMarkUrl}
+        src={logoDarkUrl}
         alt="Learnify AI"
-        className={cn(height, "w-auto object-contain drop-shadow-sm shrink-0")}
+        className={cn(height, "w-auto object-contain hidden dark:block drop-shadow-sm")}
         draggable={false}
       />
-      <span className={cn("font-display font-black text-xl tracking-tight text-foreground flex items-baseline drop-shadow-sm", textClassName)}>
-        <span>Learnify</span>
-        <span className="text-sky-400 font-extrabold ml-0.5">AI</span>
-      </span>
+      {/* Light mode logo */}
+      <img
+        src={logoLightUrl}
+        alt="Learnify AI"
+        className={cn(height, "w-auto object-contain block dark:hidden drop-shadow-sm")}
+        draggable={false}
+      />
     </span>
   );
 }
-
-
