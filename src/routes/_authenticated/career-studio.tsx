@@ -186,53 +186,23 @@ function CareerStudioHub() {
     });
   }, [activeTab]);
 
-  const switchTab = (tabId: string) => {
-    setActiveTab(tabId);
-    navigate({
-      to: "/career-studio" as any,
-      search: { tab: tabId } as any,
-      replace: true,
-    });
-    setMenuOpen(false);
-  };
+  const switchTab = useCallback(
+    (tabId: string) => {
+      setActiveTab(tabId);
+      navigate({
+        to: "/career-studio" as any,
+        search: { tab: tabId } as any,
+        replace: true,
+        resetScroll: false,
+      });
+      setMenuOpen(false);
+    },
+    [navigate],
+  );
 
   const activeTabInfo = TABS.find((t) => t.id === activeTab) || TABS[0];
   const ActiveIcon = activeTabInfo.icon;
-
-  const renderModuleContent = (tabId: string) => {
-    switch (tabId) {
-      case "resume":
-        return <ResumeBuilderPage embedded />;
-      case "ats":
-        return <AtsCheckerPage embedded />;
-      case "interview":
-        return <InterviewPage embedded />;
-      case "roadmap":
-        return <CareerRoadmapPage embedded />;
-      case "portfolio":
-        return <PortfolioBuilderPage embedded />;
-      case "linkedin":
-        return <LinkedInOptimizerView />;
-      case "analytics":
-        return <CareerAnalyticsView />;
-      case "internships":
-        return <InternshipTrackerView />;
-      case "skillgap":
-        return <SkillGapView />;
-      case "ikigai":
-        return <CareerFinderView />;
-      case "job-board":
-        return <JobBoardView />;
-      case "github-audit":
-        return <GitHubAuditorView defaultUsername={user?.user_metadata?.user_name || user?.user_metadata?.preferred_username || ""} />;
-      case "guides":
-        return <GuidesDocsView />;
-      case "agents":
-        return <AgentHub />;
-      default:
-        return null;
-    }
-  };
+  const username = user?.user_metadata?.user_name || user?.user_metadata?.preferred_username || "";
 
   return (
     <AppShell>
@@ -268,7 +238,7 @@ function CareerStudioHub() {
                 >
                   <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
-                <span className="hidden sm:inline">All Tools</span>
+                <span className="hidden sm:inline">All Tools (14)</span>
               </button>
             </DialogTrigger>
             <DialogContent className="w-[94%] max-w-md rounded-2xl p-5 bg-card/95 backdrop-blur-xl border border-border/80 shadow-2xl">
@@ -313,29 +283,115 @@ function CareerStudioHub() {
         </div>
       </div>
 
-      {/* ── Content (Keep-Alive Preserved Tab Workspace) ── */}
-      <div className="min-h-[calc(100dvh-8rem)] pb-10">
+      {/* ── Sticky Fast-Scroll Tool Pills Bar ── */}
+      <div className="sticky top-16 z-30 bg-background/95 backdrop-blur-md border-b border-border/60 py-2 px-3 sm:px-6">
+        <div className="max-w-7xl mx-auto flex items-center gap-2 overflow-x-auto scrollbar-none no-scrollbar py-0.5">
+          {TABS.map((t) => {
+            const isActive = activeTab === t.id;
+            const Icon = t.icon;
+            return (
+              <button
+                key={t.id}
+                type="button"
+                onClick={() => switchTab(t.id)}
+                className={cn(
+                  "shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer border select-none",
+                  isActive
+                    ? "bg-primary text-primary-foreground border-primary shadow-xs"
+                    : "bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground border-border/60"
+                )}
+              >
+                <Icon className={cn("w-3.5 h-3.5 shrink-0", isActive ? "text-primary-foreground" : "text-muted-foreground")} />
+                <span className="whitespace-nowrap">{t.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* ── Content (Keep-Alive Preserved Tab Workspace with Memoized Isolation) ── */}
+      <div className="min-h-[calc(100dvh-8rem)] pb-10 max-w-7xl mx-auto px-2 sm:px-4 lg:px-6">
         {TABS.map((t) => {
           if (!visitedTabs.has(t.id)) return null;
-          const isCurrent = activeTab === t.id;
           return (
-            <div
+            <TabPanel
               key={t.id}
-              className={cn("w-full", isCurrent ? "block" : "hidden")}
-              aria-hidden={!isCurrent}
-            >
-              <React.Suspense
-                fallback={<CareerStudioModuleSkeleton />}
-              >
-                {renderModuleContent(t.id)}
-              </React.Suspense>
-            </div>
+              tabId={t.id}
+              isActive={activeTab === t.id}
+              username={username}
+            />
           );
         })}
       </div>
     </AppShell>
   );
 }
+
+function renderSpecificModule(tabId: string, username: string) {
+  switch (tabId) {
+    case "resume":
+      return <ResumeBuilderPage embedded />;
+    case "ats":
+      return <AtsCheckerPage embedded />;
+    case "interview":
+      return <InterviewPage embedded />;
+    case "roadmap":
+      return <CareerRoadmapPage embedded />;
+    case "portfolio":
+      return <PortfolioBuilderPage embedded />;
+    case "linkedin":
+      return <LinkedInOptimizerView />;
+    case "analytics":
+      return <CareerAnalyticsView />;
+    case "internships":
+      return <InternshipTrackerView />;
+    case "skillgap":
+      return <SkillGapView />;
+    case "ikigai":
+      return <CareerFinderView />;
+    case "job-board":
+      return <JobBoardView />;
+    case "github-audit":
+      return <GitHubAuditorView defaultUsername={username} />;
+    case "guides":
+      return <GuidesDocsView />;
+    case "agents":
+      return <AgentHub />;
+    default:
+      return null;
+  }
+}
+
+const TabPanel = React.memo(
+  function TabPanel({
+    tabId,
+    isActive,
+    username,
+  }: {
+    tabId: string;
+    isActive: boolean;
+    username: string;
+  }) {
+    return (
+      <div
+        className={cn(
+          "w-full min-w-0 max-w-full overflow-x-auto pt-2 sm:pt-4",
+          isActive ? "block" : "hidden"
+        )}
+        aria-hidden={!isActive}
+      >
+        <React.Suspense fallback={<CareerStudioModuleSkeleton />}>
+          {renderSpecificModule(tabId, username)}
+        </React.Suspense>
+      </div>
+    );
+  },
+  (prev, next) => {
+    // If inactive both before and after, completely skip re-rendering!
+    if (!prev.isActive && !next.isActive) return true;
+    return prev.isActive === next.isActive && prev.tabId === next.tabId && prev.username === next.username;
+  }
+);
 
 function ScoreRing({
   score,

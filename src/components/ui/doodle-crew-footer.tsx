@@ -313,7 +313,7 @@ export const DEFAULT_COLUMNS: FooterColumn[] = [
       { label: "Community Hub", href: "/community" },
       { label: "Verified Coaches", href: "/coaches" },
       { label: "Creator Program", href: "/creators" },
-      { label: "Showcase & Projects", href: "/showcase" },
+      { label: "Projects", href: "/projects" },
     ],
   },
   {

@@ -50,7 +50,7 @@ export const Route = createFileRoute("/projects")({
   loader: () => projectsData as Project[],
   head: () => ({
     meta: [
-      { title: "Design Projects Showcase — Learnify AI" },
+      { title: "Projects — Learnify AI" },
       {
         name: "description",
         content: `Explore ${projectsData.length} interactive website design templates, micro-sites, and UX prototypes built with next-generation aesthetics.`,

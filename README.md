@@ -2,7 +2,7 @@
 
 <img src="src/assets/learnify-logo.png" alt="Learnify AI Logo" width="180" style="margin-bottom: 12px; filter: drop-shadow(0 4px 12px rgba(99, 102, 241, 0.25));" />
 
-# Learnify AI 6.3.0
+# Learnify AI 6.4.0
 
 **The AI-Native Learning & Career Operating System**
 
@@ -15,7 +15,7 @@
 [![GitHub](https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Vishwajeetsrk/learnifyai)
 [![License](https://img.shields.io/badge/License-MIT-6366f1?style=for-the-badge)](LICENSE)
 
-[🚀 Live Official Site (learnifyai.in)](https://www.learnifyai.in/) · [🌐 Vercel Backup Site](https://learnifyaitool.vercel.app/) · [🐛 Report Issue](https://github.com/Vishwajeetsrk/learnifyai/issues)
+[🚀 Live Official Site (learnifyai.in)](https://www.learnifyai.in/) · [🌐 Vercel Backup Site](https://learnifyaitool.vercel.app/) · [🐛 Report Issue](https://github.com/Vishwajeet/learnifyai/issues)
 </div>
 
 ---
@@ -23,6 +23,12 @@
 ## 🎯 What is Learnify AI?
 
 Learnify AI is a **full-stack, AI-powered learning and career growth platform** that integrates intelligent tutoring, 11-in-1 career studio tools, autonomous AI agents, gamification, and creator economy tools into one seamless experience.
+
+### 🌟 What's New in Learnify AI 6.4.0
+* 🧭 **Floating Navbar Menu & Projects Navigation**: Integrated Aceternity UI spring physics (`layoutId="active"`) into desktop navigation with live thumbnail previews for featured sandboxes, cleanly renamed "Showcase & Projects" to **"Projects"**, and organized a fluid explore dropdown.
+* 💼 **Career Studio High-Performance & Touch Responsiveness**: Overhauled `/_authenticated/career-studio` container architecture with `overflow-x-auto` horizontal touch-scroll and instant `useCallback`/`resetScroll: false` tab switching across all 14 AI tools, eliminating mobile viewport clipping and lag.
+* 🧾 **GST Invoice Ledger & Total Count Bug Fix**: Fixed the "0 total invoices" counter bug in `getInvoicesList` and the billing ledger, ensuring 100% accurate count across queries, full 18% GST (CGST 9% + SGST 9%, SAC 998431) breakdown, dual Tax Invoice & Thermal Receipt modals, and inline invoice content editing.
+* 🏎️ **Porsche Carrera Cup 3D & Axion Studio Presets**: Validated and linked Nick Ho Porsche Carrera Cup showcase with 180-frame 3D interactive helmet canvas and WebGL fluid depth maps; verified Axion Studio productized agency with London live clock and stacked shaders.
 
 ### 🌟 What's New in Learnify AI 6.3.0
 * 🇮🇳 **Indian Rupee Security Stamp & Banknote Lathe Engine**: Implemented an uncopyable banknote-grade security medallion with 32 scalloped starburst teeth, circular micro-lettering (`★ LEARNIFY AI • VERIFIED RUPEE SPECIMEN ★`), 16-spoke lathe wheel, and ₹ sovereign knotwork, integrated as the official default seal on public certificate verifications.

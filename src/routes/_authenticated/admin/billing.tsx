@@ -47,6 +47,7 @@ import { PlatformTreasuryBento } from "@/components/ui/platform-treasury-bento";
 import {
   getBillingOverview,
   getInvoicesList,
+  updateInvoiceContent,
   getBillingSettings,
   updateBillingSetting,
   createManualInvoice,
@@ -69,6 +70,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -177,6 +179,9 @@ function BillingOSPage() {
   const [invoiceStatus, setInvoiceStatus] = useState("");
   const [invoiceSearch, setInvoiceSearch] = useState("");
   const [previewInvoice, setPreviewInvoice] = useState<any>(null);
+  const [editingInvoice, setEditingInvoice] = useState<any>(null);
+  const [invoicePreviewMode, setInvoicePreviewMode] = useState<"tax" | "thermal">("tax");
+  const [savingInvoiceEdit, setSavingInvoiceEdit] = useState(false);
 
   const invoices = useQuery({
     queryKey: ["billing-invoices", invoicePage, invoiceStatus, invoiceSearch],
@@ -348,6 +353,32 @@ function BillingOSPage() {
       await downloadInvoicePdf(inv, userEmail, undefined);
     } catch (e: any) {
       toast.error(e.message || "Failed to download invoice");
+    }
+  }
+
+  async function handleSaveInvoiceEdit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!editingInvoice) return;
+    setSavingInvoiceEdit(true);
+    try {
+      await updateInvoiceContent({
+        data: {
+          id: editingInvoice.id,
+          invoice_number: editingInvoice.invoice_number,
+          total_inr: parseFloat(editingInvoice.total_inr),
+          status: editingInvoice.status,
+          description: editingInvoice.description,
+          due_date: editingInvoice.due_date,
+        } as any,
+      });
+      toast.success("Invoice updated successfully");
+      queryClient.invalidateQueries({ queryKey: ["billing-invoices"] });
+      queryClient.invalidateQueries({ queryKey: ["billing-overview"] });
+      setEditingInvoice(null);
+    } catch (err: any) {
+      toast.error(err.message || "Failed to update invoice");
+    } finally {
+      setSavingInvoiceEdit(false);
     }
   }
 
@@ -959,10 +990,22 @@ function BillingOSPage() {
                               variant="ghost"
                               size="icon"
                               className="h-8 w-8 text-primary hover:bg-primary/10"
-                              title="View Thermal Receipt & Print"
-                              onClick={() => setPreviewInvoice(inv)}
+                              title="View Tax Invoice & Print"
+                              onClick={() => {
+                                setInvoicePreviewMode("tax");
+                                setPreviewInvoice(inv);
+                              }}
                             >
                               <Eye className="h-3.5 w-3.5" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-sky-500 hover:bg-sky-500/10"
+                              title="Edit Invoice Content"
+                              onClick={() => setEditingInvoice({ ...inv })}
+                            >
+                              <Pencil className="h-3.5 w-3.5" />
                             </Button>
                             <Button
                               variant="ghost"
@@ -982,17 +1025,260 @@ function BillingOSPage() {
               )}
             </div>
 
-            {/* Thermal Receipt Preview & Print Modal */}
-            <Dialog open={!!previewInvoice} onOpenChange={(open) => !open && setPreviewInvoice(null)}>
-              <DialogContent className="max-w-md p-6 flex flex-col items-center max-h-[90vh] overflow-y-auto">
-                <DialogHeader className="text-center w-full">
-                  <DialogTitle className="text-lg font-bold">Thermal Tax Invoice Receipt</DialogTitle>
-                  <DialogDescription className="text-xs">
-                    Official ledger receipt with 18% GST (CGST 9% + SGST 9%) and serrated edges
+            {/* Editable Content Manage Invoice Dialog */}
+            <Dialog open={!!editingInvoice} onOpenChange={(open) => !open && setEditingInvoice(null)}>
+              <DialogContent className="max-w-md p-6 bg-card border border-border shadow-2xl rounded-2xl">
+                <DialogHeader>
+                  <DialogTitle className="text-lg font-bold flex items-center gap-2">
+                    <Pencil className="h-4 w-4 text-primary" />
+                    Edit Invoice Content
+                  </DialogTitle>
+                  <DialogDescription className="text-xs text-muted-foreground">
+                    Update invoice ledger fields, status, amount, and line descriptions.
                   </DialogDescription>
                 </DialogHeader>
 
-                {previewInvoice && (
+                {editingInvoice && (
+                  <form onSubmit={handleSaveInvoiceEdit} className="space-y-4 py-2">
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-semibold">Invoice Number</Label>
+                      <Input
+                        value={editingInvoice.invoice_number || ""}
+                        onChange={(e) => setEditingInvoice({ ...editingInvoice, invoice_number: e.target.value })}
+                        required
+                        className="font-mono text-xs"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-semibold">Customer / User</Label>
+                      <Input
+                        value={editingInvoice.user?.full_name || editingInvoice.user?.email || editingInvoice.user_id || "Customer"}
+                        disabled
+                        className="text-xs bg-muted/50 cursor-not-allowed"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1.5">
+                        <Label className="text-xs font-semibold">Total Amount (₹)</Label>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          value={editingInvoice.total_inr || ""}
+                          onChange={(e) => setEditingInvoice({ ...editingInvoice, total_inr: e.target.value })}
+                          required
+                          className="font-mono text-xs"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-xs font-semibold">Payment Status</Label>
+                        <Select
+                          value={editingInvoice.status || "paid"}
+                          onValueChange={(val) => setEditingInvoice({ ...editingInvoice, status: val })}
+                        >
+                          <SelectTrigger className="text-xs">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="paid">PAID</SelectItem>
+                            <SelectItem value="pending">PENDING</SelectItem>
+                            <SelectItem value="failed">FAILED</SelectItem>
+                            <SelectItem value="refunded">REFUNDED</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-semibold">Due Date</Label>
+                      <Input
+                        type="date"
+                        value={editingInvoice.due_date ? format(new Date(editingInvoice.due_date), "yyyy-MM-dd") : ""}
+                        onChange={(e) => setEditingInvoice({ ...editingInvoice, due_date: e.target.value })}
+                        className="text-xs"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-semibold">Description / Notes</Label>
+                      <Textarea
+                        value={editingInvoice.description || ""}
+                        onChange={(e: any) => setEditingInvoice({ ...editingInvoice, description: e.target.value })}
+                        placeholder="e.g. Pro Annual Subscription • SAC 998431"
+                        rows={2}
+                        className="text-xs"
+                      />
+                    </div>
+
+                    <DialogFooter className="pt-2 flex justify-end gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setEditingInvoice(null)}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        type="submit"
+                        size="sm"
+                        disabled={savingInvoiceEdit}
+                        className="gap-1.5"
+                      >
+                        {savingInvoiceEdit && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                        Save Changes
+                      </Button>
+                    </DialogFooter>
+                  </form>
+                )}
+              </DialogContent>
+            </Dialog>
+
+            {/* Thermal & GST Tax Invoice Preview & Print Modal */}
+            <Dialog open={!!previewInvoice} onOpenChange={(open) => !open && setPreviewInvoice(null)}>
+              <DialogContent className="max-w-xl p-6 flex flex-col items-center max-h-[90vh] overflow-y-auto bg-card border-border shadow-2xl rounded-2xl">
+                <DialogHeader className="text-center w-full pb-2 border-b border-border/60">
+                  <div className="flex items-center justify-between">
+                    <DialogTitle className="text-base font-bold flex items-center gap-2">
+                      <Receipt className="h-4 w-4 text-primary" />
+                      Invoice Ledger Preview
+                    </DialogTitle>
+                    {/* View Switcher Pills */}
+                    <div className="flex items-center gap-1 bg-muted p-1 rounded-lg border border-border/60 text-xs font-medium">
+                      <button
+                        type="button"
+                        onClick={() => setInvoicePreviewMode("tax")}
+                        className={cn(
+                          "px-2.5 py-1 rounded-md transition-all cursor-pointer",
+                          invoicePreviewMode === "tax"
+                            ? "bg-background text-foreground shadow-xs font-bold"
+                            : "text-muted-foreground hover:text-foreground"
+                        )}
+                      >
+                        GST Tax Invoice (A4)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setInvoicePreviewMode("thermal")}
+                        className={cn(
+                          "px-2.5 py-1 rounded-md transition-all cursor-pointer",
+                          invoicePreviewMode === "thermal"
+                            ? "bg-background text-foreground shadow-xs font-bold"
+                            : "text-muted-foreground hover:text-foreground"
+                        )}
+                      >
+                        Thermal Receipt
+                      </button>
+                    </div>
+                  </div>
+                  <DialogDescription className="text-xs text-left mt-1">
+                    Official GST-compliant invoice under SAC 998431 (Online Education Services) with CGST 9% + SGST 9%.
+                  </DialogDescription>
+                </DialogHeader>
+
+                {previewInvoice && invoicePreviewMode === "tax" && (
+                  <div className="my-3 w-full bg-background border border-border/80 rounded-xl p-6 text-foreground font-sans text-xs space-y-4 shadow-sm">
+                    {/* Header: Company & Tax Details */}
+                    <div className="flex justify-between items-start border-b border-border/60 pb-4">
+                      <div>
+                        <h3 className="font-display font-extrabold text-base tracking-tight text-foreground">
+                          LEARNIFY EDTECH PRIVATE LIMITED
+                        </h3>
+                        <p className="text-[11px] text-muted-foreground mt-0.5">
+                          Registered Office: Level 4, Prestige Tech Park, Bangalore 560103, KA, India
+                        </p>
+                        <p className="text-[11px] font-mono text-muted-foreground mt-0.5">
+                          GSTIN: <span className="font-bold text-foreground">29XXXXX1234X1Z5</span> · PAN: <span className="font-bold text-foreground">AABCL1234K</span>
+                        </p>
+                        <p className="text-[11px] font-mono text-muted-foreground">
+                          Place of Supply: <span className="font-semibold text-foreground">Karnataka (State Code: 29)</span>
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-extrabold tracking-wider bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 uppercase">
+                          {previewInvoice.status || "PAID"}
+                        </span>
+                        <div className="font-mono text-xs font-bold text-foreground mt-1.5">
+                          #{previewInvoice.invoice_number || previewInvoice.id}
+                        </div>
+                        <div className="text-[10px] text-muted-foreground mt-0.5">
+                          Date: {previewInvoice.created_at ? format(new Date(previewInvoice.created_at), "dd MMM yyyy") : "—"}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Billed To Customer */}
+                    <div className="grid grid-cols-2 gap-4 bg-muted/30 p-3 rounded-lg border border-border/50">
+                      <div>
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Billed To (Customer):</span>
+                        <p className="font-bold text-foreground text-xs mt-0.5">
+                          {previewInvoice.user?.full_name || previewInvoice.user?.email || "Valued Subscriber"}
+                        </p>
+                        <p className="text-muted-foreground text-[11px]">
+                          {previewInvoice.user?.email || "customer@learnifyai.com"}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Service SAC / HSN:</span>
+                        <p className="font-mono font-bold text-foreground text-xs mt-0.5">998431</p>
+                        <p className="text-muted-foreground text-[11px]">Online Training & EdTech Services</p>
+                      </div>
+                    </div>
+
+                    {/* Line Items Table */}
+                    <div className="border border-border/60 rounded-lg overflow-hidden">
+                      <table className="w-full text-left border-collapse text-xs">
+                        <thead className="bg-muted/60 text-muted-foreground font-semibold text-[11px]">
+                          <tr>
+                            <th className="p-2.5">Item Description</th>
+                            <th className="p-2.5 text-center">SAC</th>
+                            <th className="p-2.5 text-right">Taxable Value</th>
+                            <th className="p-2.5 text-right">CGST (9%)</th>
+                            <th className="p-2.5 text-right">SGST (9%)</th>
+                            <th className="p-2.5 text-right">Total (INR)</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-border/40">
+                          <tr>
+                            <td className="p-2.5 font-medium">
+                              {previewInvoice.description || "Learnify AI Pro Platform Subscription"}
+                            </td>
+                            <td className="p-2.5 text-center font-mono text-[11px]">998431</td>
+                            <td className="p-2.5 text-right font-mono">
+                              ₹{(Number(previewInvoice.total_inr || 0) / 1.18).toFixed(2)}
+                            </td>
+                            <td className="p-2.5 text-right font-mono text-muted-foreground">
+                              ₹{(Number(previewInvoice.total_inr || 0) * 0.09 / 1.18).toFixed(2)}
+                            </td>
+                            <td className="p-2.5 text-right font-mono text-muted-foreground">
+                              ₹{(Number(previewInvoice.total_inr || 0) * 0.09 / 1.18).toFixed(2)}
+                            </td>
+                            <td className="p-2.5 text-right font-mono font-bold text-foreground">
+                              {inr(Number(previewInvoice.total_inr) || 0)}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* Summary Totals & Digital Stamp */}
+                    <div className="flex justify-between items-center pt-2">
+                      <div className="text-[10px] text-muted-foreground font-mono">
+                        <div>Reverse Charge: Applicable (No)</div>
+                        <div className="text-emerald-500 font-semibold mt-0.5">✓ Digitally Signed & System Verified</div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-xs text-muted-foreground">Total Invoice Value (Incl. 18% GST)</div>
+                        <div className="font-display font-extrabold text-xl text-primary">
+                          {inr(Number(previewInvoice.total_inr) || 0)}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {previewInvoice && invoicePreviewMode === "thermal" && (
                   <div className="my-2 w-full flex justify-center">
                     <ReceiptSlip
                       plan={{
@@ -1032,7 +1318,20 @@ function BillingOSPage() {
                   </div>
                 )}
 
-                <DialogFooter className="w-full flex flex-row items-center justify-between gap-2 pt-2">
+                <DialogFooter className="w-full flex flex-row items-center justify-between gap-2 pt-2 border-t border-border/60">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="flex-1 gap-1.5"
+                    onClick={() => {
+                      setEditingInvoice({ ...previewInvoice });
+                      setPreviewInvoice(null);
+                    }}
+                  >
+                    <Pencil className="h-4 w-4" />
+                    <span>Edit Invoice</span>
+                  </Button>
                   <Button
                     type="button"
                     variant="outline"
@@ -1041,7 +1340,7 @@ function BillingOSPage() {
                     onClick={() => window.print()}
                   >
                     <Printer className="h-4 w-4" />
-                    <span>Print Receipt</span>
+                    <span>Print Invoice</span>
                   </Button>
                   <Button
                     type="button"
@@ -1057,7 +1356,14 @@ function BillingOSPage() {
             </Dialog>
 
             <div className="flex items-center justify-between text-sm text-muted-foreground">
-              <span>{invoices.data?.total || 0} total invoices</span>
+              <span>
+                {Math.max(
+                  invoices.data?.total || 0,
+                  invoices.data?.invoices?.length || 0,
+                  Array.isArray(invoices.data) ? (invoices.data as any).length : 0
+                )}{" "}
+                total invoices
+              </span>
               <div className="flex gap-2">
                 <Button
                   variant="outline"

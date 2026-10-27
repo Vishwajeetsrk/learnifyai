@@ -8,7 +8,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { usePublicMenu } from "@/hooks/use-wcms-public";
 import {
   Loader2,
-  Menu,
+  Menu as LucideMenu,
   ChevronDown,
   Compass,
   Sparkles,
@@ -19,6 +19,7 @@ import {
   BookOpen,
   Clock,
 } from "lucide-react";
+import { MenuItem, ProductItem, HoveredLink } from "@/components/ui/navbar-menu";
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
@@ -100,6 +101,7 @@ export function SiteHeader() {
   ];
 
   const [hoveredNav, setHoveredNav] = useState<string | null>(null);
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
 
   const navItems = (menuItems.length > 0 ? menuItems : fallbackNav).filter(
     (item: any) => {
@@ -172,115 +174,82 @@ export function SiteHeader() {
               </div>
             )}
 
-            {/* Rich Projects & Showcase Dropdown with 4 Best Live Previews */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button
-                  type="button"
-                  className="hover:text-foreground transition inline-flex items-center gap-1.5 font-medium focus:outline-none cursor-pointer text-muted-foreground hover:text-foreground group py-1"
-                >
-                  <Sparkles className="w-3.5 h-3.5 text-primary group-hover:scale-110 transition-transform" />
-                  <span>Showcase &amp; Projects</span>
-                  <ChevronDown className="w-3 h-3 opacity-60 group-hover:opacity-100 transition-opacity" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-[420px] sm:w-[480px] p-3 shadow-2xl border-border/80 bg-popover/98 backdrop-blur-xl rounded-2xl">
-                <div className="flex items-center justify-between px-2 pb-2 mb-2 border-b border-border/60">
-                  <div className="flex items-center gap-2">
-                    <span className="font-display font-bold text-xs uppercase tracking-wider text-foreground">Featured Live Projects</span>
-                    <span className="px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-primary/15 text-primary">49 Live</span>
+            {/* Rich Projects & More Dropdowns with navbar-menu spring morph animation */}
+            <div
+              className="flex items-center gap-4 text-sm font-medium"
+              onMouseLeave={() => setActiveDropdown(null)}
+            >
+              <MenuItem setActive={setActiveDropdown} active={activeDropdown} item="Projects">
+                <div className="w-[420px] sm:w-[480px] p-2">
+                  <div className="flex items-center justify-between px-2 pb-2 mb-2 border-b border-border/60">
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="w-3.5 h-3.5 text-primary" />
+                      <span className="font-display font-bold text-xs uppercase tracking-wider text-foreground">Featured Live Projects</span>
+                      <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-primary/15 text-primary">49 Live</span>
+                    </div>
+                    <Link to="/projects" className="text-[11px] font-semibold text-primary hover:underline flex items-center gap-1">
+                      All Projects <ArrowRight className="w-3 h-3" />
+                    </Link>
                   </div>
-                  <Link to="/projects" className="text-[11px] font-semibold text-primary hover:underline flex items-center gap-1">
-                    All Projects <ArrowRight className="w-3 h-3" />
-                  </Link>
-                </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {FEATURED_PROJECT_PREVIEWS.map((p) => (
-                    <DropdownMenuItem asChild key={p.id}>
-                      <Link
-                        to={p.url}
-                        className="flex items-start gap-2.5 p-2 rounded-xl hover:bg-muted/70 transition-all cursor-pointer border border-transparent hover:border-border/60 group"
-                      >
-                        <div className="w-10 h-10 rounded-lg overflow-hidden bg-black/40 shrink-0 border border-border/60 relative">
-                          <img src={p.thumbnail} alt={p.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <div className="text-xs font-bold text-foreground truncate group-hover:text-primary transition-colors">
-                            {p.title}
-                          </div>
-                          <div className="text-[10px] text-muted-foreground truncate mt-0.5">
-                            {p.category}
-                          </div>
-                          <div className="flex items-center gap-1 text-[9px] font-semibold text-emerald-500 mt-1">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                            Live Sandbox
-                          </div>
-                        </div>
-                      </Link>
-                    </DropdownMenuItem>
-                  ))}
-                </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {FEATURED_PROJECT_PREVIEWS.map((p) => (
+                      <ProductItem
+                        key={p.id}
+                        title={p.title}
+                        description={p.category}
+                        href={p.url}
+                        src={p.thumbnail}
+                        badge="Live"
+                      />
+                    ))}
+                  </div>
 
-                <div className="mt-2.5 pt-2 border-t border-border/60 flex items-center justify-between px-2 text-[11px]">
-                  <Link to="/showcase" className="text-muted-foreground hover:text-foreground font-medium flex items-center gap-1 hover:text-primary transition-colors">
-                    <Layers className="w-3.5 h-3.5 text-sky-400" />
-                    Community Showcase
-                  </Link>
-                  <Link to="/projects" className="text-muted-foreground hover:text-foreground font-medium flex items-center gap-1 hover:text-primary transition-colors">
-                    <Laptop className="w-3.5 h-3.5 text-purple-400" />
-                    Interactive Templates
-                  </Link>
+                  <div className="mt-2.5 pt-2 border-t border-border/60 flex items-center justify-between px-2 text-[11px]">
+                    <Link to="/projects" className="text-muted-foreground hover:text-foreground font-medium flex items-center gap-1 hover:text-primary transition-colors">
+                      <Layers className="w-3.5 h-3.5 text-sky-400" />
+                      Community Showcase
+                    </Link>
+                    <Link to="/projects" className="text-muted-foreground hover:text-foreground font-medium flex items-center gap-1 hover:text-primary transition-colors">
+                      <Laptop className="w-3.5 h-3.5 text-purple-400" />
+                      Interactive Templates
+                    </Link>
+                  </div>
                 </div>
-              </DropdownMenuContent>
-            </DropdownMenu>
+              </MenuItem>
 
-            {/* Clean Dropdown for Secondary Links with Blog Highlight */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button
-                  type="button"
-                  className="hover:text-foreground transition inline-flex items-center gap-1 font-medium focus:outline-none cursor-pointer text-muted-foreground hover:text-foreground"
-                >
-                  <span>More</span>
-                  <ChevronDown className="w-3.5 h-3.5 opacity-60" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-72 p-2 shadow-xl border-border/80 bg-popover/98 backdrop-blur-md rounded-xl space-y-1">
-                <div className="grid grid-cols-2 gap-1 pb-2 border-b border-border/60">
-                  {secondaryNav.map((item) => (
-                    <DropdownMenuItem asChild key={item.label}>
-                      <Link
-                        to={item.url}
-                        className="w-full cursor-pointer py-1.5 px-2 text-xs font-medium rounded-md hover:bg-muted transition truncate"
-                      >
+              <MenuItem setActive={setActiveDropdown} active={activeDropdown} item="More">
+                <div className="w-72 p-2 space-y-2">
+                  <div className="grid grid-cols-2 gap-2 pb-2 border-b border-border/60">
+                    {secondaryNav.map((item) => (
+                      <HoveredLink key={item.label} href={item.url}>
                         {item.label}
-                      </Link>
-                    </DropdownMenuItem>
-                  ))}
-                </div>
-
-                {/* Trending Blog Preview Card */}
-                <div className="pt-2 px-1">
-                  <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5 flex items-center gap-1">
-                    <BookOpen className="w-3 h-3 text-sky-400" />
-                    Trending Guide
+                      </HoveredLink>
+                    ))}
                   </div>
-                  <Link
-                    to="/blog/$slug"
-                    params={{ slug: "ultimate-guide-free-courses-certificates-2026" }}
-                    className="block p-2 rounded-lg bg-muted/50 hover:bg-muted transition border border-border/50 group"
-                  >
-                    <div className="text-xs font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2">
-                      The Ultimate Guide to Free Courses &amp; Certificates in 2026
+
+                  {/* Trending Blog Preview Card */}
+                  <div className="pt-1 px-1">
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5 flex items-center gap-1">
+                      <BookOpen className="w-3 h-3 text-sky-400" />
+                      Trending Guide
                     </div>
-                    <div className="flex items-center gap-2 mt-1 text-[10px] text-muted-foreground font-mono">
-                      <Clock className="w-2.5 h-2.5" /> 12 min read · Harvard, Google &amp; OpenAI
-                    </div>
-                  </Link>
+                    <Link
+                      to="/blog/$slug"
+                      params={{ slug: "ultimate-guide-free-courses-certificates-2026" }}
+                      className="block p-2 rounded-lg bg-muted/50 hover:bg-muted transition border border-border/50 group"
+                    >
+                      <div className="text-xs font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2">
+                        The Ultimate Guide to Free Courses &amp; Certificates in 2026
+                      </div>
+                      <div className="flex items-center gap-2 mt-1 text-[10px] text-muted-foreground font-mono">
+                        <Clock className="w-2.5 h-2.5" /> 12 min read
+                      </div>
+                    </Link>
+                  </div>
                 </div>
-              </DropdownMenuContent>
-            </DropdownMenu>
+              </MenuItem>
+            </div>
           </nav>
         </div>
 
@@ -326,7 +295,7 @@ export function SiteHeader() {
                   className="h-9 w-9 text-foreground"
                   aria-label="Open Menu"
                 >
-                  <Menu className="h-5 w-5" />
+                  <LucideMenu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
               <SheetContent

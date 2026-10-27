@@ -131,7 +131,7 @@ export const getInvoicesList = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     let query = supabaseAdmin
       .from("invoices")
-      .select("*, user:profiles!user_id(full_name, email)")
+      .select("*, user:profiles!user_id(full_name, email)", { count: "exact" })
       .order("created_at", { ascending: false });
 
     if (data.status) query = query.eq("status", data.status);
@@ -146,7 +146,59 @@ export const getInvoicesList = createServerFn({ method: "GET" })
     query = query.range(from, to);
 
     const { data: invoices, count } = await query;
-    return { invoices: invoices || [], total: count || 0 };
+    const resolvedTotal =
+      count != null && count > 0
+        ? Math.max(count, invoices?.length || 0)
+        : (invoices?.length || 0);
+    return { invoices: invoices || [], total: resolvedTotal };
+  });
+
+export const updateInvoiceContent = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator(
+    (d: {
+      id: string;
+      invoice_number?: string;
+      total_inr?: number;
+      status?: string;
+      description?: string;
+      due_date?: string;
+      line_items?: any;
+    }) =>
+      z
+        .object({
+          id: z.string(),
+          invoice_number: z.string().optional(),
+          total_inr: z.number().optional(),
+          status: z.string().optional(),
+          description: z.string().optional(),
+          due_date: z.string().optional(),
+          line_items: z.any().optional(),
+        })
+        .parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    await checkAdmin(context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const updatePayload: Record<string, any> = {
+      updated_at: new Date().toISOString(),
+    };
+    if (data.invoice_number !== undefined) updatePayload.invoice_number = data.invoice_number;
+    if (data.total_inr !== undefined) {
+      updatePayload.total_inr = data.total_inr;
+      updatePayload.amount_inr = data.total_inr;
+    }
+    if (data.status !== undefined) updatePayload.status = data.status;
+    if (data.description !== undefined) updatePayload.description = data.description;
+    if (data.due_date !== undefined) updatePayload.due_date = data.due_date;
+    if (data.line_items !== undefined) updatePayload.line_items = data.line_items;
+
+    const { error } = await supabaseAdmin
+      .from("invoices")
+      .update(updatePayload as any)
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
   });
 
 export const getBillingSettings = createServerFn({ method: "GET" })

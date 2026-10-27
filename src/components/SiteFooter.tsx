@@ -52,7 +52,7 @@ const APPROVED_SECTIONS: WcmsFooterSection[] = [
       { label: "Course Creators Program", url: "/creators" },
       { label: "Student Verification", url: "/verify-student" },
       { label: "Digital Store & XP Market", url: "/store" },
-      { label: "Showcase & Projects", url: "/showcase" },
+      { label: "Projects", url: "/projects" },
     ],
   },
   {
