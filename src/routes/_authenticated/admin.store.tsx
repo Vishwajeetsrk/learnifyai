@@ -68,7 +68,7 @@ export const Route = createFileRoute("/_authenticated/admin/store")({
 
 const PER_PAGE = 25;
 
-export default function AdminStorePage() {
+function AdminStorePage() {
   const qc = useQueryClient();
   const [tab, setTab] = useState<"items" | "purchases">("items");
   const [page, setPage] = useState(1);

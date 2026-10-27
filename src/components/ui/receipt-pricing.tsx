@@ -484,7 +484,7 @@ export function ReceiptSlip({
           </p>
         </div>
 
-        {showStamp && isYearly && monthsFree > 0 ? (
+        {showStamp && isYearly && monthsFree > 0 && plan.monthly > 0 && due > 0 ? (
           <p
             className="border-emerald-600 text-emerald-600 dark:border-emerald-700 dark:text-emerald-700 mx-auto mt-4 w-fit border-2 px-3 py-1 text-[11px] font-black tracking-[0.2em] uppercase rounded-sm"
             style={{ transform: `rotate(${-3 + (index % 3) * 1.2}deg)` }}

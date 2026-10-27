@@ -372,6 +372,7 @@ export type OpenSlotBookingProps = {
   bookingUrl?: string
   bookingHref?: string
   durations?: number[]
+  durationPrices?: Record<number, number>
   defaultDuration?: number
   step?: number
   hostTimeZone?: string
@@ -893,6 +894,7 @@ export default function OpenSlotBooking({
   bookingUrl = "learnifyai.in/coach/vikram-aditya",
   bookingHref,
   durations = [15, 30, 45, 60],
+  durationPrices,
   defaultDuration = 30,
   step = 30,
   hostTimeZone = "Asia/Kolkata",
@@ -1567,7 +1569,7 @@ export default function OpenSlotBooking({
             <div className="osb-cardtop">
               <div className="osb-when" id={uid + "-when"}>
                 <small>
-                  {meetingTitle} · {duration} min
+                  {meetingTitle} · {duration} min{durationPrices?.[duration] ? ` · ₹${durationPrices[duration].toLocaleString("en-IN")}` : ""}
                 </small>
                 <strong>{fmt(picked.slot.start, { weekday: "short", day: "numeric", month: "short" })}</strong>
                 <em>
@@ -1685,7 +1687,7 @@ export default function OpenSlotBooking({
                 {L.back}
               </button>
               <button type="submit" className="osb-primary" disabled={phase === "sending"}>
-                {phase === "sending" ? L.sending : L.confirm}
+                {phase === "sending" ? L.sending : durationPrices?.[duration] ? `Pay & Confirm ₹${durationPrices[duration].toLocaleString("en-IN")}` : L.confirm}
                 {phase !== "sending" && Icon.arrow}
               </button>
             </div>
@@ -1700,6 +1702,13 @@ export default function OpenSlotBooking({
             <div className="osb-tbody">
               <Impression uid={uid} words={"Booked · " + fmt(picked.slot.start, { day: "numeric", month: "short" }) + " · "} />
               <h3 id={uid + "-when"}>{L.booked}</h3>
+              {durationPrices?.[duration] && (
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 mb-2">
+                  <span>₹{durationPrices[duration].toLocaleString("en-IN")} Paid</span>
+                  <span>·</span>
+                  <span>18% GST (SAC 998431)</span>
+                </div>
+              )}
               <p>
                 <b>
                   {fmt(picked.slot.start, { weekday: "long", day: "numeric", month: "long" })}, {timeLabel(picked.slot.start)} – {timeLabel(picked.slot.end)}
@@ -1823,7 +1832,7 @@ export default function OpenSlotBooking({
                     />
                     {durations.map((d) => (
                       <button key={d} type="button" aria-pressed={d === duration} disabled={picking} onClick={() => setDuration(d)}>
-                        {d} {L.minutes}
+                        {d} {L.minutes}{durationPrices?.[d] ? ` · ₹${durationPrices[d].toLocaleString("en-IN")}` : ""}
                       </button>
                     ))}
                   </div>

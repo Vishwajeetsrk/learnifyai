@@ -162,6 +162,7 @@ function SignupPage() {
               <Label htmlFor="name">Full name</Label>
               <Input
                 id="name"
+                autoComplete="name"
                 required
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
@@ -173,6 +174,7 @@ function SignupPage() {
               <Input
                 id="email"
                 type="email"
+                autoComplete="username email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -185,6 +187,7 @@ function SignupPage() {
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
+                  autoComplete="new-password"
                   required
                   minLength={8}
                   value={password}

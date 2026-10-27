@@ -20,7 +20,8 @@ import {
   Clock,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { initAutomaticLocale } from "@/lib/locale-detection";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetClose } from "@/components/ui/sheet";
 import {
@@ -88,16 +89,17 @@ export function SiteHeader() {
     { label: tr("nav.updates", "Updates"), url: "/updates" },
   ];
 
-  // Secondary items cleanly organized inside the "More" dropdown
+  // Secondary items cleanly organized inside the "More" dropdown (distinct routes only)
   const secondaryNav = [
     { label: tr("nav.features", "Features"), url: "/features" },
-    { label: tr("nav.aiTools", "AI Tools"), url: "/features#ai-tools" },
     { label: tr("nav.projects", "Projects"), url: "/projects" },
     { label: tr("nav.creators", "Creators"), url: "/creators" },
     { label: tr("nav.coaches", "Coaches"), url: "/coaches" },
     { label: tr("nav.blog", "Blog"), url: "/blog" },
     ...(isSupportVisible ? [{ label: tr("nav.supportUs", "Support Us"), url: "/support-us" }] : []),
   ];
+
+  const [hoveredNav, setHoveredNav] = useState<string | null>(null);
 
   const navItems = (menuItems.length > 0 ? menuItems : fallbackNav).filter(
     (item: any) => {
@@ -137,22 +139,37 @@ export function SiteHeader() {
             <Logo height="h-9" />
           </Link>
 
-          <nav className="hidden md:flex items-center gap-5 lg:gap-7 text-sm font-medium text-muted-foreground">
+          <nav className="hidden md:flex items-center gap-3 lg:gap-4 text-sm font-medium text-muted-foreground">
             {menuLoading && menuItems.length === 0 ? (
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
             ) : (
-              navItems.map((item: any) => {
-                return (
-                  <Link
-                    key={item.id || item.label}
-                    to={item.url || "/"}
-                    preload="intent"
-                    className="hover:text-foreground transition inline-flex items-center gap-1 font-medium"
-                  >
-                    <span>{item.label}</span>
-                  </Link>
-                );
-              })
+              <div
+                className="flex items-center gap-1 p-1 rounded-full bg-muted/40 border border-border/50 backdrop-blur-md"
+                onMouseLeave={() => setHoveredNav(null)}
+              >
+                {navItems.map((item: any) => {
+                  const key = item.id || item.label;
+                  const isHovered = hoveredNav === key;
+                  return (
+                    <Link
+                      key={key}
+                      to={item.url || "/"}
+                      preload="intent"
+                      onMouseEnter={() => setHoveredNav(key)}
+                      className="relative px-3.5 py-1.5 rounded-full text-xs lg:text-sm font-medium transition-colors text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5 z-10"
+                    >
+                      {isHovered && (
+                        <motion.div
+                          layoutId="navbar-pill"
+                          transition={{ type: "spring", bounce: 0.2, duration: 0.35 }}
+                          className="absolute inset-0 rounded-full bg-background/90 dark:bg-white/10 shadow-xs border border-border/70 -z-10"
+                        />
+                      )}
+                      <span>{item.label}</span>
+                    </Link>
+                  );
+                })}
+              </div>
             )}
 
             {/* Rich Projects & Showcase Dropdown with 4 Best Live Previews */}

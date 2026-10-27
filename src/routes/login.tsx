@@ -139,6 +139,7 @@ function LoginPage() {
               <Input
                 id="email"
                 type="email"
+                autoComplete="username email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -156,6 +157,7 @@ function LoginPage() {
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
+                  autoComplete="current-password"
                   required
                   minLength={6}
                   value={password}

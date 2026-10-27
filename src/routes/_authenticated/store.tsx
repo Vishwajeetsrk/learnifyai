@@ -73,7 +73,7 @@ export function getDiscountPercent(): number {
   return 0;
 }
 
-export default function StorePage() {
+function StorePage() {
   const { user, isAdmin } = useAuth();
   const qc = useQueryClient();
   const deductFn = useServerFn(deductXP);
