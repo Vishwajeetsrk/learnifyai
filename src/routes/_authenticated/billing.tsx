@@ -65,8 +65,7 @@ import {
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { BillingSkeleton } from "@/components/Skeletons";
-import { FinanceBento, FinanceBentoData } from "@/components/ui/finance-bento";
-import { sampleFinanceData } from "@/components/ui/finance-bento.demo";
+import { LearningInvestmentBento } from "@/components/ui/learning-investment-bento";
 
 export const Route = createFileRoute("/_authenticated/billing")({
   head: () => ({ meta: [{ title: "Billing & Subscriptions — Learnify AI" }] }),
@@ -307,21 +306,13 @@ function BillingPage() {
     },
   });
 
-  const bentoData: FinanceBentoData = useMemo(() => {
-    const paymentRows = (payments.data || []).slice(0, 3).map((p: any) => ({
-      name: p.description?.replace("Learnify AI - ", "") || "Subscription",
-      date: p.created_at ? format(new Date(p.created_at), "MMM d") : "Nov 1",
-      amount: Number(p.amount_inr || p.amount || 499),
-    }));
-
-    return {
-      ...sampleFinanceData,
-      payments: paymentRows.length > 0 ? paymentRows : sampleFinanceData.payments,
-      goals: [
-        { name: "Full-Stack AI Path", progress: 0.72, target: 12000 },
-        { name: "Cloud Architect Cert", progress: 0.48, target: 8500 },
-      ],
-    };
+  const totalInvested = useMemo(() => {
+    return (
+      (payments.data || []).reduce(
+        (sum: number, p: any) => sum + Number(p.amount_inr || p.amount || 0),
+        0
+      ) || 499
+    );
   }, [payments.data]);
 
   const handleRefundSubmit = async () => {
@@ -580,7 +571,7 @@ function BillingPage() {
               <Wallet className="h-4 w-4" /> Credits
             </TabsTrigger>
             <TabsTrigger value="bento" className="gap-2">
-              <TrendingUp className="h-4 w-4" /> Financial Bento
+              <TrendingUp className="h-4 w-4" /> Learning Analytics
             </TabsTrigger>
           </TabsList>
 
@@ -985,34 +976,17 @@ function BillingPage() {
             </div>
           </TabsContent>
 
-          {/* ──────── Financial Bento Tab ──────── */}
+          {/* ──────── Learning Analytics Bento Tab ──────── */}
           <TabsContent value="bento" className="space-y-4">
-            <div className="rounded-3xl border border-white/10 bg-black p-3 sm:p-5 overflow-hidden shadow-2xl">
-              <div className="p-3 sm:p-4 border-b border-white/10 flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-                    <Sparkles className="h-4 w-4 text-[#E8FF1F]" />
-                    Personal Financial Bento
-                  </h3>
-                  <p className="text-xs text-white/60">
-                    Pro interactive dashboard visualizing your balances, learning milestones, and multi-asset split.
-                  </p>
-                </div>
-                <Badge variant="outline" className="border-[#E8FF1F]/30 text-[#E8FF1F] bg-[#E8FF1F]/10 text-xs">
-                  Realtime SVG Analytics
-                </Badge>
-              </div>
-              <div className="pt-2 w-full overflow-hidden">
-                <FinanceBento
-                  data={bentoData}
-                  title="My Wealth & Expenses"
-                  subtitle={format(new Date(), "'Updated' dd MMM, HH:mm")}
-                  avatar={user?.user_metadata?.avatar_url || "/assets/vishwajeet-profile.png"}
-                  avatarAlt={user?.user_metadata?.full_name || "Profile"}
-                  credit={false}
-                />
-              </div>
-            </div>
+            <LearningInvestmentBento
+              totalInvested={totalInvested}
+              currentPlan={plan?.name || (isActive ? "Career Pro" : "Free Explorer")}
+              creditsRemaining={credits.data?.credits_remaining ?? 850}
+              creditsUsed={credits.data?.credits_used ?? 150}
+              paymentCount={payments.data?.length ?? 1}
+              userName={user?.user_metadata?.full_name || "Learner"}
+              avatarUrl={user?.user_metadata?.avatar_url || "/assets/vishwajeet-profile.png"}
+            />
           </TabsContent>
         </Tabs>
       </div>

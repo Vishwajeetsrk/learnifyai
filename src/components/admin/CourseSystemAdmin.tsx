@@ -69,6 +69,8 @@ import {
   Sparkles,
   Layers,
   CheckCircle2,
+  Upload,
+  Image as ImageIcon,
 } from "lucide-react";
 
 type CourseRow = any;
@@ -934,6 +936,8 @@ function CourseEditor({
     enabled: true,
   });
 
+  const [uploadingCover, setUploadingCover] = useState(false);
+
   const durationInfo = useMemo(() => {
     return formatCourseDuration(Number(form.duration_minutes) || 0);
   }, [form.duration_minutes]);
@@ -1104,13 +1108,77 @@ function CourseEditor({
                 />
               </div>
 
-              <div>
-                <label className="text-sm font-medium">Cover Image URL</label>
-                <Input
-                  value={form.cover_url}
-                  onChange={(e) => updateField("cover_url", e.target.value)}
-                  placeholder="https://images.unsplash.com/..."
-                />
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium">Cover Image / Thumbnail</label>
+                <div className="flex gap-2">
+                  <Input
+                    value={form.cover_url}
+                    onChange={(e) => updateField("cover_url", e.target.value)}
+                    placeholder="https://images.unsplash.com/... or upload"
+                    className="flex-1 font-mono text-xs"
+                  />
+                  <label className="inline-flex items-center gap-1.5 rounded-md border bg-secondary px-3 text-sm font-medium hover:bg-secondary/80 cursor-pointer transition select-none">
+                    {uploadingCover ? (
+                      <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                    ) : (
+                      <Upload className="h-4 w-4" />
+                    )}
+                    {uploadingCover ? "Uploading..." : "Upload"}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      disabled={uploadingCover}
+                      className="hidden"
+                      onChange={async (e) => {
+                        const f = e.target.files?.[0];
+                        e.target.value = "";
+                        if (!f) return;
+                        if (f.size > 10 * 1024 * 1024) return toast.error("Image too large (max 10MB)");
+                        setUploadingCover(true);
+                        try {
+                          const ext = f.name.split(".").pop() || "jpg";
+                          const cleanName = f.name.replace(/\.[^/.]+$/, "").replace(/[^a-zA-Z0-9_-]/g, "_");
+                          const path = `course_covers/${courseId || "admin"}/${Date.now()}_${cleanName}.${ext}`;
+                          const { error: uploadError } = await supabase.storage.from("media").upload(path, f, {
+                            upsert: true,
+                            contentType: f.type,
+                          });
+                          if (uploadError) throw uploadError;
+                          const { data: pubData } = supabase.storage.from("media").getPublicUrl(path);
+                          if (pubData?.publicUrl) {
+                            updateField("cover_url", pubData.publicUrl);
+                            toast.success("Cover image uploaded to cloud storage!");
+                          }
+                        } catch (err: any) {
+                          toast.error(err?.message ?? "Upload failed");
+                        } finally {
+                          setUploadingCover(false);
+                        }
+                      }}
+                    />
+                  </label>
+                </div>
+                {form.cover_url && (
+                  <div className="mt-2 rounded-xl border bg-muted/30 overflow-hidden relative group max-h-48">
+                    <img
+                      src={form.cover_url}
+                      alt="Cover Preview"
+                      className="w-full h-40 object-cover"
+                      onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).src =
+                          "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='200' viewBox='0 0 400 200'><rect fill='%2318181b' width='400' height='200'/><text fill='%2371717a' x='50%25' y='50%25' text-anchor='middle'>Image preview unavailable</text></svg>";
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => updateField("cover_url", "")}
+                      className="absolute top-2 right-2 p-1.5 rounded-lg bg-black/75 text-white hover:bg-destructive opacity-0 group-hover:opacity-100 transition"
+                      title="Clear image"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                )}
               </div>
             </TabsContent>
 

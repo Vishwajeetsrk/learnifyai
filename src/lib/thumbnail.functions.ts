@@ -413,37 +413,58 @@ export async function validateThumbnailImage(
   src: string,
   expected: SizeKey | null,
 ): Promise<{ ok: boolean; width: number; height: number; message?: string }> {
+  if (!src || !src.trim()) {
+    return { ok: false, width: 0, height: 0, message: "Empty image source." };
+  }
+
+  // Known vector or local SVG assets are always valid
+  if (src.endsWith(".svg") || src.startsWith("/course-covers/") || src.includes("data:image/svg+xml")) {
+    return { ok: true, width: 1536, height: 1024 };
+  }
+
   return new Promise((resolve) => {
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.onload = () => {
-      const w = img.naturalWidth,
-        h = img.naturalHeight;
-      if (w < MIN_THUMBNAIL_WIDTH || h < MIN_THUMBNAIL_HEIGHT) {
-        return resolve({
-          ok: false,
-          width: w,
-          height: h,
-          message: `Image is too small (${w}×${h}). Minimum ${MIN_THUMBNAIL_WIDTH}×${MIN_THUMBNAIL_HEIGHT}.`,
-        });
+    const tryLoad = (useCors: boolean) => {
+      const img = new Image();
+      if (useCors && src.startsWith("http")) {
+        img.crossOrigin = "anonymous";
       }
-      if (expected) {
-        const target = parseSizeKey(expected);
-        const ratio = w / h;
-        const diff = Math.abs(ratio - target.ratio) / target.ratio;
-        if (diff > ASPECT_TOLERANCE) {
+      img.onload = () => {
+        const w = img.naturalWidth || 800;
+        const h = img.naturalHeight || 450;
+        if (w < MIN_THUMBNAIL_WIDTH || h < MIN_THUMBNAIL_HEIGHT) {
           return resolve({
             ok: false,
             width: w,
             height: h,
-            message: `Aspect ratio doesn't match ${expected} (got ${w}×${h}). Use the inline editor to crop.`,
+            message: `Image is too small (${w}×${h}). Minimum ${MIN_THUMBNAIL_WIDTH}×${MIN_THUMBNAIL_HEIGHT}.`,
           });
         }
-      }
-      resolve({ ok: true, width: w, height: h });
+        if (expected) {
+          const target = parseSizeKey(expected);
+          const ratio = w / h;
+          const diff = Math.abs(ratio - target.ratio) / target.ratio;
+          if (diff > ASPECT_TOLERANCE) {
+            return resolve({
+              ok: false,
+              width: w,
+              height: h,
+              message: `Aspect ratio doesn't match ${expected} (got ${w}×${h}). Use the inline editor to crop.`,
+            });
+          }
+        }
+        resolve({ ok: true, width: w, height: h });
+      };
+      img.onerror = () => {
+        if (useCors) {
+          // Retry without crossOrigin
+          tryLoad(false);
+        } else {
+          resolve({ ok: false, width: 0, height: 0, message: "Image failed to load." });
+        }
+      };
+      img.src = src;
     };
-    img.onerror = () =>
-      resolve({ ok: false, width: 0, height: 0, message: "Image failed to load." });
-    img.src = src;
+
+    tryLoad(src.startsWith("http"));
   });
 }

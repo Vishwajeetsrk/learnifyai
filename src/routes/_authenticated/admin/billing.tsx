@@ -42,8 +42,7 @@ import {
   CheckCircle,
   Sparkles,
 } from "lucide-react";
-import { FinanceBento, FinanceBentoData } from "@/components/ui/finance-bento";
-import { sampleFinanceData } from "@/components/ui/finance-bento.demo";
+import { PlatformTreasuryBento } from "@/components/ui/platform-treasury-bento";
 import {
   getBillingOverview,
   getInvoicesList,
@@ -514,20 +513,24 @@ function BillingOSPage() {
   }
 
   const overviewData = overview.data;
-  const adminBentoData: FinanceBentoData = useMemo(() => {
-    const rawRev = Number(overviewData?.total_revenue || 248000);
-    const mrr = Number(overviewData?.mrr || 68500);
+  const treasuryData = useMemo(() => {
+    const rawRev = Number(overviewData?.total_revenue || 5840000);
+    const mrr = Number(overviewData?.mrr || 485000);
+    const arr = Number(overviewData?.arr || mrr * 12);
     return {
-      ...sampleFinanceData,
-      goals: [
-        { name: "Annual ARR Goal (₹10L)", progress: Math.min(1, rawRev / 1000000 || 0.58), target: 1000000 },
-        { name: "Monthly Target (₹1L)", progress: Math.min(1, mrr / 100000 || 0.76), target: 100000 },
-      ],
-      crypto: [
-        { name: "Cashfree Subscriptions", symbol: "CFS", share: 0.58, change: "+8.4%", ohlc: [[80, 84, 79, 83], [83, 86, 82, 85], [85, 88, 84, 87], [87, 90, 86, 89], [89, 92, 88, 91], [91, 94, 90, 93], [93, 96, 92, 95]] },
-        { name: "Razorpay Checkout", symbol: "RZP", share: 0.32, change: "+4.1%", ohlc: [[44, 46, 43, 45], [45, 47, 44, 46], [46, 48, 45, 47], [47, 49, 46, 48], [48, 51, 47, 50], [50, 52, 49, 51], [51, 53, 50, 52]] },
-        { name: "Wallet Escrow Pool", symbol: "WLT", share: 0.10, change: "+2.0%", ohlc: [[15, 16, 14, 15.5], [15.5, 17, 15, 16.2], [16.2, 17.5, 16, 17], [17, 18, 16.5, 17.6], [17.6, 18.5, 17.2, 18.1], [18.1, 19, 17.8, 18.6], [18.6, 19.5, 18.2, 19.1]] },
-      ],
+      totalRevenue: rawRev,
+      mrr,
+      arr,
+      activeSubscribers: Number(overviewData?.active_subscribers || 428),
+      freeCashRunwayMonths: 14.2,
+      gstAccrued: Math.round(rawRev * 0.18),
+      pendingPayoutsAmount: 84500,
+      pendingPayoutsCount: 6,
+      gateways: {
+        cashfreeShare: 0.62,
+        razorpayShare: 0.28,
+        escrowShare: 0.10,
+      },
     };
   }, [overviewData]);
 
@@ -712,33 +715,14 @@ function BillingOSPage() {
                   ))}
                 </div>
 
-                {/* Platform Treasury & Finance Bento */}
-                <div className="rounded-3xl border border-white/10 bg-black p-3 sm:p-5 overflow-hidden shadow-2xl">
-                  <div className="p-3 sm:p-4 border-b border-white/10 flex flex-wrap items-center justify-between gap-3">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <Sparkles className="h-4 w-4 text-[#E8FF1F]" />
-                        <h2 className="text-lg font-semibold text-white">Platform Treasury & Revenue Bento</h2>
-                      </div>
-                      <p className="text-xs text-white/60 mt-0.5">
-                        Executive liquidity stream, multi-gateway allocation (Cashfree, Razorpay, Escrow), and operational runway.
-                      </p>
-                    </div>
-                    <Badge variant="outline" className="border-[#E8FF1F]/30 text-[#E8FF1F] bg-[#E8FF1F]/10 text-xs">
-                      Admin Executive View
-                    </Badge>
-                  </div>
-                  <div className="pt-2 w-full overflow-hidden">
-                    <FinanceBento
-                      data={adminBentoData}
-                      title="Platform Treasury"
-                      subtitle={format(new Date(), "'Updated' dd MMM, HH:mm")}
-                      avatar="/assets/vishwajeet-profile.png"
-                      avatarAlt="Admin Vishwajeet"
-                      credit={false}
-                    />
-                  </div>
-                </div>
+                {/* Platform Treasury & Liquidity Matrix */}
+                <PlatformTreasuryBento
+                  data={treasuryData}
+                  title="Platform Treasury & Revenue Matrix"
+                  subtitle="Executive liquidity stream, multi-gateway allocation (Cashfree, Razorpay, Escrow), and operational runway."
+                  adminName="Vishwajeet"
+                  avatarUrl="/assets/vishwajeet-profile.png"
+                />
               </div>
             )}
           </TabsContent>

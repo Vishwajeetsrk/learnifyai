@@ -684,6 +684,7 @@ function CourseFormDialog({
   const [suggestingCategory, setSuggestingCategory] = useState(false);
   const [saving, setSaving] = useState(false);
   const [coverFailed, setCoverFailed] = useState(false);
+  const [uploadingCover, setUploadingCover] = useState(false);
   const [aiThumbOpen, setAiThumbOpen] = useState(false);
   const [editorOpen, setEditorOpen] = useState(false);
   const [history, setHistory] = useState<string[]>([]);
@@ -730,7 +731,18 @@ function CourseFormDialog({
   useEffect(() => {
     if (typeof window === "undefined") return;
     try {
-      setHistory(JSON.parse(localStorage.getItem(historyKey) || "[]"));
+      const raw = JSON.parse(localStorage.getItem(historyKey) || "[]");
+      if (Array.isArray(raw)) {
+        setHistory(
+          raw.filter(
+            (u) =>
+              typeof u === "string" &&
+              u.length > 4 &&
+              u !== "C" &&
+              (u.startsWith("http") || u.startsWith("/") || u.startsWith("data:image/")),
+          ),
+        );
+      }
     } catch {
       setHistory([]);
     }
@@ -762,9 +774,10 @@ function CourseFormDialog({
   }, [course, userId, open]);
 
   function pushHistory(url: string) {
-    if (!url) return;
+    if (!url || typeof url !== "string" || url.length < 5 || url === "C") return;
+    if (!url.startsWith("http") && !url.startsWith("/") && !url.startsWith("data:image/")) return;
     setHistory((prev) => {
-      const next = [url, ...prev.filter((u) => u !== url)].slice(0, 8);
+      const next = [url, ...prev.filter((u) => u !== url && u !== "C")].slice(0, 8);
       try {
         localStorage.setItem(historyKey, JSON.stringify(next));
       } catch {
@@ -1049,24 +1062,65 @@ function CourseFormDialog({
                     setCoverFailed(false);
                   }}
                   placeholder="Paste image URL, upload, or generate with AI"
-                  className="min-w-[180px] flex-1"
+                  className="min-w-[180px] flex-1 font-mono text-xs"
                 />
-                <label className="inline-flex items-center gap-1.5 rounded-md border bg-secondary px-3 text-sm font-medium hover:bg-secondary/80 cursor-pointer">
-                  <Upload className="h-4 w-4" /> Upload
+                <label className={cn(
+                  "inline-flex items-center gap-1.5 rounded-md border bg-secondary px-3 text-sm font-medium hover:bg-secondary/80 cursor-pointer transition select-none",
+                  uploadingCover && "opacity-60 pointer-events-none"
+                )}>
+                  {uploadingCover ? (
+                    <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                  ) : (
+                    <Upload className="h-4 w-4" />
+                  )}
+                  {uploadingCover ? "Uploading..." : "Upload"}
                   <input
                     type="file"
                     accept="image/*"
+                    disabled={uploadingCover}
                     className="hidden"
                     onChange={async (e) => {
                       const f = e.target.files?.[0];
                       e.target.value = "";
                       if (!f) return;
-                      if (f.size > 8 * 1024 * 1024) return toast.error("Image too large (max 8MB)");
+                      if (f.size > 10 * 1024 * 1024) return toast.error("Image too large (max 10MB)");
+                      setUploadingCover(true);
+                      setCoverFailed(false);
                       try {
-                        const dataUrl = await resizeImageToDataUrl(f, 1536, 0.85);
-                        await applyCoverFromSource(dataUrl, { expected: "1536x1024" });
+                        let uploadedUrl: string | null = null;
+                        // 1. Upload to Supabase Storage 'media' bucket for permanent CDN public URL
+                        try {
+                          const ext = f.name.split(".").pop() || "jpg";
+                          const cleanName = f.name.replace(/\.[^/.]+$/, "").replace(/[^a-zA-Z0-9_-]/g, "_");
+                          const path = `course_covers/${course?.id || "draft"}/${Date.now()}_${cleanName}.${ext}`;
+                          const { error: uploadError } = await supabase.storage.from("media").upload(path, f, {
+                            upsert: true,
+                            contentType: f.type,
+                          });
+                          if (!uploadError) {
+                            const { data: pubData } = supabase.storage.from("media").getPublicUrl(path);
+                            if (pubData?.publicUrl) {
+                              uploadedUrl = pubData.publicUrl;
+                            }
+                          }
+                        } catch (storageErr) {
+                          console.warn("Storage upload error, trying local resize fallback:", storageErr);
+                        }
+
+                        // 2. If storage upload succeeded, use it; otherwise fallback to local resize
+                        if (uploadedUrl) {
+                          await applyCoverFromSource(uploadedUrl, { skipValidate: true });
+                          toast.success("Cover image uploaded and synced to cloud storage!");
+                        } else {
+                          // Fallback to local resized dataUrl
+                          const dataUrl = await resizeImageToDataUrl(f, 1536, 0.85);
+                          await applyCoverFromSource(dataUrl, { skipValidate: true });
+                          toast.success("Cover image loaded locally.");
+                        }
                       } catch (err: any) {
-                        toast.error(err?.message ?? "Could not read image");
+                        toast.error(err?.message ?? "Could not process image");
+                      } finally {
+                        setUploadingCover(false);
                       }
                     }}
                   />
@@ -1090,7 +1144,7 @@ function CourseFormDialog({
                       (draft.title || draft.category || "learning").trim().toLowerCase().replace(/\s+/g, "-"),
                     );
                     await applyCoverFromSource(`https://picsum.photos/seed/${seed}/1536/1024`, {
-                      expected: "1536x1024",
+                      skipValidate: true,
                     });
                   }}
                 >
@@ -1098,51 +1152,100 @@ function CourseFormDialog({
                 </Button>
               </div>
 
-              {draft.coverUrl && !coverFailed ? (
-                <div className="mt-2 overflow-hidden rounded-md border bg-muted relative group">
+              {/* Cover Preview Container */}
+              {uploadingCover ? (
+                <div className="mt-2 h-44 rounded-xl border border-dashed border-primary/40 bg-primary/5 flex flex-col items-center justify-center gap-2">
+                  <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                  <p className="text-xs text-muted-foreground font-medium">Uploading cover image to cloud storage...</p>
+                </div>
+              ) : draft.coverUrl ? (
+                <div className="mt-2 overflow-hidden rounded-xl border bg-muted/40 relative group">
                   <img
                     src={draft.coverUrl}
                     alt="Cover preview"
-                    className="w-full max-h-48 object-cover"
+                    className="w-full max-h-56 object-cover"
                     loading="lazy"
                     decoding="async"
                     onLoad={() => setCoverFailed(false)}
                     onError={() => setCoverFailed(true)}
                   />
-                  <Button
-                    type="button"
-                    size="icon"
-                    variant="destructive"
-                    className="absolute top-2 right-2 h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
-                    onClick={() => {
-                      updateField("coverUrl", "");
-                      setCoverFailed(false);
-                    }}
-                    title="Remove image"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                  {!coverFailed && (
+                    <div className="absolute top-2 left-2 px-2.5 py-1 rounded-full bg-black/80 backdrop-blur-md text-[10px] font-semibold text-emerald-400 flex items-center gap-1.5 border border-emerald-500/30 shadow-md">
+                      <CheckCircle2 className="h-3 w-3" /> Active Cover
+                    </div>
+                  )}
+                  {coverFailed ? (
+                    <div className="absolute inset-0 bg-background/95 p-4 flex flex-col items-center justify-center text-center gap-2">
+                      <AlertTriangle className="h-6 w-6 text-destructive" />
+                      <p className="text-xs font-semibold text-destructive">Image preview failed to load</p>
+                      <p className="text-[10px] text-muted-foreground max-w-md truncate font-mono">{draft.coverUrl}</p>
+                      <div className="flex gap-2 mt-1">
+                        <Button type="button" size="sm" variant="outline" onClick={() => setCoverFailed(false)}>
+                          Retry preview
+                        </Button>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => {
+                            updateField("coverUrl", "");
+                            setCoverFailed(false);
+                          }}
+                        >
+                          Clear
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="absolute top-2 right-2 flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                      {draft.coverUrl.startsWith("http") && (
+                        <a
+                          href={draft.coverUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="h-8 w-8 rounded-lg bg-black/80 backdrop-blur-md text-white hover:bg-black flex items-center justify-center transition border border-white/10"
+                          title="Open image in new tab"
+                        >
+                          <ExternalLink className="h-3.5 w-3.5" />
+                        </a>
+                      )}
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="destructive"
+                        className="h-8 w-8 rounded-lg shadow-md"
+                        onClick={() => {
+                          updateField("coverUrl", "");
+                          setCoverFailed(false);
+                        }}
+                        title="Remove image"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
                 </div>
-              ) : coverFailed ? (
-                <p className="text-[11px] text-destructive flex items-center gap-1">
-                  <AlertTriangle className="h-3 w-3" /> Cover image is not loading. Replace the URL
-                  before publishing.
-                </p>
               ) : (
-                <p className="text-[11px] text-muted-foreground">
-                  Tip: 1536×1024 (or 1200×630) works best on cards and social shares.
-                </p>
+                <div className="mt-2 rounded-xl border border-dashed border-border/80 p-4 flex items-center justify-between gap-3 text-xs text-muted-foreground bg-muted/20">
+                  <div className="flex items-center gap-2">
+                    <ImageIcon className="h-4 w-4 text-muted-foreground/70" />
+                    <span>No cover image selected. 1536×1024 or 1200×630 recommended.</span>
+                  </div>
+                </div>
               )}
 
-              {history.length > 0 && (
+              {/* Version History */}
+              {history.filter((u) => typeof u === "string" && u.length > 5 && u !== "C" && (u.startsWith("http") || u.startsWith("/") || u.startsWith("data:image/"))).length > 0 && (
                 <div className="mt-2 rounded-lg border bg-muted/30 p-2">
                   <div className="flex items-center justify-between mb-1.5">
                     <div className="text-[11px] font-medium flex items-center gap-1.5">
-                      <History className="h-3 w-3" /> Version history ({history.length})
+                      <History className="h-3 w-3" /> Version history (
+                      {history.filter((u) => typeof u === "string" && u.length > 5 && u !== "C" && (u.startsWith("http") || u.startsWith("/") || u.startsWith("data:image/"))).length}
+                      )
                     </div>
                     <button
                       type="button"
-                      className="text-[10px] text-muted-foreground hover:text-destructive"
+                      className="text-[10px] text-muted-foreground hover:text-destructive cursor-pointer"
                       onClick={() => {
                         try {
                           localStorage.removeItem(historyKey);
@@ -1154,31 +1257,36 @@ function CourseFormDialog({
                     </button>
                   </div>
                   <div className="flex gap-1.5 overflow-x-auto pb-1">
-                    {history.map((u, i) => (
-                      <div key={i} className="relative shrink-0 group">
-                        <img
-                          src={u}
-                          alt={`v${i + 1}`}
-                          className="h-14 w-24 object-cover rounded-md border"
-                          loading="lazy"
-                          decoding="async"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setCoverFailed(false);
-                            updateField("coverUrl", u);
-                            toast.success(`Reverted to v${i + 1}`);
-                          }}
-                          className="absolute inset-0 grid place-items-center bg-black/60 text-white text-[10px] opacity-0 group-hover:opacity-100 rounded-md transition"
-                          title="Revert to this version"
-                        >
-                          <span className="flex items-center gap-1">
-                            <RotateCcw className="h-3 w-3" /> Revert
-                          </span>
-                        </button>
-                      </div>
-                    ))}
+                    {history
+                      .filter((u) => typeof u === "string" && u.length > 5 && u !== "C" && (u.startsWith("http") || u.startsWith("/") || u.startsWith("data:image/")))
+                      .map((u, i) => (
+                        <div key={i} className="relative shrink-0 group">
+                          <img
+                            src={u}
+                            alt={`v${i + 1}`}
+                            className="h-14 w-24 object-cover rounded-md border"
+                            loading="lazy"
+                            decoding="async"
+                            onError={(e) => {
+                              (e.currentTarget.parentElement as HTMLElement)?.remove();
+                            }}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setCoverFailed(false);
+                              updateField("coverUrl", u);
+                              toast.success(`Reverted to v${i + 1}`);
+                            }}
+                            className="absolute inset-0 grid place-items-center bg-black/60 text-white text-[10px] opacity-0 group-hover:opacity-100 rounded-md transition cursor-pointer"
+                            title="Revert to this version"
+                          >
+                            <span className="flex items-center gap-1">
+                              <RotateCcw className="h-3 w-3" /> Revert
+                            </span>
+                          </button>
+                        </div>
+                      ))}
                   </div>
                 </div>
               )}

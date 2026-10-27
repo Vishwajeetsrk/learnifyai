@@ -219,11 +219,11 @@ export function CourseCardVisual({
   const brands = getCourseBrands(course.slug, course.title);
   const cleanCover = course.cover_url ? getCleanBannerUrl(course.cover_url) : null;
 
-  // Local generated covers take priority — slug-based lookup
+  // Local curated covers (slug-based fallback if DB cover is missing)
   const localCover = course.slug ? LOCAL_COVERS[course.slug] ?? null : null;
 
-  // Effective cover: prefer local generated cover, then fall back to DB cover_url
-  const effectiveCover = localCover ?? cleanCover;
+  // Effective cover: prioritize database cover_url (user uploaded/assigned), fall back to curated local cover
+  const effectiveCover = cleanCover || localCover;
 
   // Render actual image if we have a valid raster or SVG file reference
   const hasValidCustomCover = Boolean(effectiveCover);

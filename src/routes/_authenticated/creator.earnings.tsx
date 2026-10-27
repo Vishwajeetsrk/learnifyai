@@ -39,8 +39,7 @@ import {
 } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
-import { FinanceBento, FinanceBentoData } from "@/components/ui/finance-bento";
-import { sampleFinanceData } from "@/components/ui/finance-bento.demo";
+import { CreatorRevenueBento } from "@/components/ui/creator-revenue-bento";
 import { processCashfreePayout } from "@/lib/payment.functions";
 
 export const Route = createFileRoute("/_authenticated/creator/earnings")({
@@ -240,27 +239,7 @@ function CreatorEarningsPage() {
     setBankError(null);
   };
 
-  const creatorBentoData: FinanceBentoData = useMemo(() => {
-    const paymentRows = creatorCredits.slice(0, 3).map((tx) => ({
-      name: tx.description?.replace("Creator earning: ", "") || "Course Sale",
-      date: format(new Date(tx.created_at), "MMM d"),
-      amount: Number(tx.amount_inr),
-    }));
 
-    return {
-      ...sampleFinanceData,
-      payments: paymentRows.length > 0 ? paymentRows : sampleFinanceData.payments,
-      goals: [
-        { name: "Milestone Target ₹100K", progress: Math.min(1, gross / 100000 || 0.45), target: 100000 },
-        { name: "Monthly Goal ₹25K", progress: Math.min(1, month / 25000 || 0.62), target: 25000 },
-      ],
-      crypto: [
-        { name: "Course Sales", symbol: "CRS", share: 0.65, change: "+5.2%", ohlc: [[70, 72, 69, 71], [71, 74, 70, 73], [73, 75, 71, 74], [74, 76, 72, 75], [75, 78, 74, 77], [77, 79, 75, 78], [78, 81, 77, 80]] },
-        { name: "1-on-1 Mentorship", symbol: "MNT", share: 0.25, change: "+3.1%", ohlc: [[28, 30, 27, 29], [29, 31, 28, 30], [30, 32, 29, 31], [31, 33, 30, 32], [32, 34, 31, 33], [33, 35, 32, 34], [34, 36, 33, 35]] },
-        { name: "Digital Assets", symbol: "AST", share: 0.10, change: "+1.8%", ohlc: [[12, 13, 11, 12.5], [12.5, 14, 12, 13], [13, 14.5, 12.5, 13.8], [13.8, 15, 13, 14.2], [14.2, 15.5, 13.5, 14.8], [14.8, 16, 14, 15.2], [15.2, 16.5, 14.5, 15.8]] },
-      ],
-    };
-  }, [creatorCredits, gross, month]);
 
   return (
     <AppShell>
@@ -297,32 +276,17 @@ function CreatorEarningsPage() {
           <Metric icon={Wallet} label="Paid out" value={inr(paidOut)} />
         </div>
 
-        {/* Creator Revenue & Asset Bento */}
-        <div className="mt-8 rounded-3xl border border-white/10 bg-black p-3 sm:p-5 overflow-hidden shadow-2xl">
-          <div className="p-3 sm:p-4 border-b border-white/10 flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <div className="flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-[#E8FF1F]" />
-                <h2 className="text-lg font-semibold text-white">Creator Revenue & Asset Bento</h2>
-              </div>
-              <p className="text-xs text-white/60 mt-0.5">
-                Multi-channel breakdown of course sales, mentorship hours, and digital resource payouts.
-              </p>
-            </div>
-            <Badge variant="outline" className="border-[#E8FF1F]/30 text-[#E8FF1F] bg-[#E8FF1F]/10 text-xs">
-              Live Interactive Bento
-            </Badge>
-          </div>
-          <div className="pt-2 w-full overflow-hidden">
-            <FinanceBento
-              data={creatorBentoData}
-              title="Creator Earnings"
-              subtitle={format(new Date(), "'Updated' dd MMM, HH:mm")}
-              avatar={user?.user_metadata?.avatar_url || "/assets/vishwajeet-profile.png"}
-              avatarAlt={user?.user_metadata?.full_name || "Creator"}
-              credit={false}
-            />
-          </div>
+        {/* Creator Revenue & Royalties Matrix */}
+        <div className="mt-8">
+          <CreatorRevenueBento
+            gross={gross}
+            month={month}
+            available={available}
+            paidOut={paidOut}
+            creatorCredits={creatorCredits}
+            creatorName={user?.user_metadata?.full_name || "Creator"}
+            avatarUrl={user?.user_metadata?.avatar_url || "/assets/vishwajeet-profile.png"}
+          />
         </div>
 
         <Card className="mt-6 p-5 space-y-3">
