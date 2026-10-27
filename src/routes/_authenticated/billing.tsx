@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
 import { downloadInvoicePdf } from "@/lib/invoice-pdf";
+import { ReceiptSlip } from "@/components/ui/receipt-pricing";
 import {
   CreditCard,
   Receipt,
@@ -993,105 +994,75 @@ function BillingPage() {
 
       {/* ──────── Invoice Detail Dialog ──────── */}
       <Dialog open={!!viewInvoice} onOpenChange={(v) => !v && setViewInvoice(null)}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 font-mono text-base">
-              {viewInvoice?.invoice_number}
+        <DialogContent className="max-w-md p-6 flex flex-col items-center max-h-[90vh] overflow-y-auto">
+          <DialogHeader className="text-center w-full">
+            <DialogTitle className="text-lg font-bold flex items-center justify-center gap-2">
+              <Receipt className="h-5 w-5 text-primary" /> Tax Invoice Receipt
             </DialogTitle>
-            <DialogDescription>
-              {viewInvoice?.created_at && format(new Date(viewInvoice.created_at), "MMMM d, yyyy")}
-              {viewInvoice?.status === "paid" && viewInvoice?.paid_at && (
-                <> · Paid {format(new Date(viewInvoice.paid_at), "MMM d, yyyy")}</>
-              )}
+            <DialogDescription className="text-xs">
+              Official ledger receipt with 18% GST (CGST 9% + SGST 9%) and serrated edges
             </DialogDescription>
           </DialogHeader>
           {viewInvoice && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <span className="text-muted-foreground">Status</span>
-                  <Badge className={cn("ml-2 text-xs", INVOICE_STATUS_COLORS[viewInvoice.status])}>
-                    {viewInvoice.status}
-                  </Badge>
-                </div>
-                <div>
-                  <span className="text-muted-foreground">Amount</span>
-                  <span className="ml-2 font-bold">{inr(viewInvoice.total_inr)}</span>
-                </div>
-                <div>
-                  <span className="text-muted-foreground">Subtotal</span>
-                  <span className="ml-2">{inr(viewInvoice.amount_inr)}</span>
-                </div>
-                <div>
-                  <span className="text-muted-foreground">Tax (GST)</span>
-                  <span className="ml-2">{inr(viewInvoice.tax_inr)}</span>
-                </div>
-                {viewInvoice.due_date && (
-                  <div>
-                    <span className="text-muted-foreground">Due Date</span>
-                    <span className="ml-2">
-                      {format(new Date(viewInvoice.due_date), "MMM d, yyyy")}
-                    </span>
-                  </div>
-                )}
-                {viewInvoice.payment_method && (
-                  <div>
-                    <span className="text-muted-foreground">Payment</span>
-                    <span className="ml-2 capitalize">{viewInvoice.payment_method}</span>
-                  </div>
-                )}
-                {viewInvoice.gstin && (
-                  <div className="col-span-2">
-                    <span className="text-muted-foreground">GSTIN</span>
-                    <span className="ml-2 font-mono text-xs">{viewInvoice.gstin}</span>
-                  </div>
-                )}
-              </div>
-              {viewInvoice.line_items &&
-                Array.isArray(viewInvoice.line_items) &&
-                viewInvoice.line_items.length > 0 && (
-                  <div className="border-t pt-3">
-                    <p className="text-xs font-medium text-muted-foreground mb-2">Line Items</p>
-                    <div className="space-y-1">
-                      {viewInvoice.line_items.map((item: any, i: number) => (
-                        <div key={i} className="flex justify-between text-sm">
-                          <span>{item.description || "Item"}</span>
-                          <span>{inr(item.amount || viewInvoice.amount_inr)}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              {viewInvoice.notes && (
-                <div className="border-t pt-3 text-sm">
-                  <span className="text-muted-foreground">Notes:</span>
-                  <p className="mt-1">{viewInvoice.notes}</p>
-                </div>
-              )}
-              <div className="flex items-center gap-2 pt-2">
-                {viewInvoice.status === "paid" && (
-                  <Button
-                    size="sm"
-                    className="flex-1"
-                    onClick={() => {
-                      downloadInvoice(viewInvoice);
-                      setViewInvoice(null);
-                    }}
-                  >
-                    <Download className="h-4 w-4 mr-1" /> Download PDF
-                  </Button>
-                )}
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="flex-1"
-                  onClick={() => setViewInvoice(null)}
-                >
-                  Close
-                </Button>
-              </div>
+            <div className="my-2 w-full flex justify-center">
+              <ReceiptSlip
+                plan={{
+                  id: viewInvoice.invoice_number || viewInvoice.id,
+                  name: "TAX INVOICE",
+                  tagline: `Bill To: ${(user?.email || "Customer").slice(0, 24)}`,
+                  monthly: Number(viewInvoice.total_inr || viewInvoice.amount_inr || 0),
+                  items: [
+                    { label: "PLAN / SAC", value: "998431" },
+                    { label: "CGST (9%)", value: `₹${(Number(viewInvoice.total_inr || viewInvoice.amount_inr || 0) * 0.09 / 1.18).toFixed(0)}` },
+                    { label: "SGST (9%)", value: `₹${(Number(viewInvoice.total_inr || viewInvoice.amount_inr || 0) * 0.09 / 1.18).toFixed(0)}` },
+                    { label: "STATUS", value: (viewInvoice.status || "PAID").toUpperCase() },
+                    { label: "PAYMENT", value: (viewInvoice.payment_method || "ONLINE").toUpperCase() },
+                  ],
+                  cta: "Download PDF Invoice",
+                  featured: true,
+                }}
+                period="monthly"
+                phase="idle"
+                delay={0}
+                index={0}
+                money={new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 })}
+                monthsFree={0}
+                merchant="LEARNIFY EDTECH PVT LTD"
+                merchantNote="GSTIN 29XXXXX1234X1Z5 · SAC 998431"
+                orderPrefix="INV"
+                stamp="OFFICIALLY VERIFIED"
+                showStamp={true}
+                showBarcode={true}
+                printMs={460}
+                tearMs={200}
+                toothWidth={12}
+                toothDepth={6}
+                grain={0.06}
+                onSelect={() => downloadInvoice(viewInvoice)}
+              />
             </div>
           )}
+          <DialogFooter className="w-full flex flex-row items-center justify-between gap-2 pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="flex-1 gap-1.5"
+              onClick={() => window.print()}
+            >
+              <Printer className="h-4 w-4" />
+              <span>Print Receipt</span>
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              className="flex-1 gap-1.5"
+              onClick={() => viewInvoice && downloadInvoice(viewInvoice)}
+            >
+              <Download className="h-4 w-4" />
+              <span>Download PDF</span>
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 

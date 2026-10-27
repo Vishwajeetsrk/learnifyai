@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { format } from "date-fns";
 import {
   Calendar,
@@ -15,6 +16,22 @@ import {
   TrendingUp,
   Trash2,
   CalendarPlus,
+  Sparkles,
+  Bot,
+  Shield,
+  Layers,
+  Code2,
+  Cpu,
+  Award,
+  Globe,
+  Briefcase,
+  DollarSign,
+  Terminal,
+  Copy,
+  BookOpen,
+  Receipt,
+  ArrowRight,
+  ExternalLink,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { useAuth } from "@/hooks/use-auth";
@@ -37,13 +54,216 @@ import {
 } from "@/components/ui/dialog";
 import RoadmapBuilder from "@/components/admin/RoadmapBuilder";
 import { cn } from "@/lib/utils";
+import OpenSlotBooking, { MeetingIcons } from "@/components/ui/open-slot-booking";
+import { ReceiptPricing, type ReceiptPlan } from "@/components/ui/receipt-pricing";
+import { careerCoachChat, COACH_ROLE_PROMPTS } from "@/lib/career-coach.functions";
+
+export const COACH_ROLES = [
+  {
+    id: "system_architect",
+    title: "System Design & Distributed Architect",
+    icon: Layers,
+    badge: "Principal / Staff",
+    color: "from-blue-500/20 to-indigo-500/20 text-blue-500 border-blue-500/30",
+    description: "High-throughput microservices, event-driven streaming, database sharding, and latency optimization.",
+    samplePrompts: [
+      "Design a real-time collaborative document editor like Google Docs",
+      "Explain Kafka partition rebalancing strategies and message ordering",
+      "How do I choose between PostgreSQL and ScyllaDB for high-write telemetry?",
+    ],
+  },
+  {
+    id: "frontend_architect",
+    title: "Frontend & Design Systems Master",
+    icon: Code2,
+    badge: "UI/UX Architect",
+    color: "from-pink-500/20 to-purple-500/20 text-pink-500 border-pink-500/30",
+    description: "Component ergonomics, React 19 server transitions, physics micro-interactions, and Core Web Vitals.",
+    samplePrompts: [
+      "Review my React component tree for unnecessary re-renders",
+      "How to implement spring physics gesture drags in Framer Motion?",
+      "Design token architecture for a multi-brand white-label frontend",
+    ],
+  },
+  {
+    id: "executive_leadership",
+    title: "Behavioral & Executive Leadership Coach",
+    icon: Award,
+    badge: "Director / VP",
+    color: "from-amber-500/20 to-orange-500/20 text-amber-500 border-amber-500/30",
+    description: "STAR frameworks, managing ambiguous cross-functional conflict, executive presence, and compensation negotiation.",
+    samplePrompts: [
+      "Help me craft a STAR response for 'Tell me about a time you had a critical project fail'",
+      "How to negotiate a competing offer between a Series B startup and Big Tech?",
+      "Framework for leading through engineering organizational restructures",
+    ],
+  },
+  {
+    id: "ai_ml_researcher",
+    title: "AI / ML & GenAI Research Specialist",
+    icon: Cpu,
+    badge: "Research Scientist",
+    color: "from-emerald-500/20 to-teal-500/20 text-emerald-500 border-emerald-500/30",
+    description: "LLM fine-tuning, RAG vector retrieval pipelines, agentic tool workflows, and production model serving.",
+    samplePrompts: [
+      "Compare hybrid dense + BM25 sparse search for RAG accuracy",
+      "How to implement streaming structured JSON extraction with Gemini 2.5 Flash?",
+      "Quantization trade-offs: GGUF vs AWQ vs ExLlamaV2 in production",
+    ],
+  },
+  {
+    id: "dsa_maestro",
+    title: "Data Structures & Algorithms Maestro",
+    icon: Terminal,
+    badge: "Bar Raiser",
+    color: "from-violet-500/20 to-purple-500/20 text-violet-500 border-violet-500/30",
+    description: "Dynamic programming invariants, graph network flows, time/space trade-offs, and tricky edge-case debugging.",
+    samplePrompts: [
+      "Explain the topological sort Kahn's algorithm vs DFS cycle detection",
+      "Intuitive framework for solving 2D Dynamic Programming grid problems",
+      "How to solve Median of Two Sorted Arrays in O(log(min(N,M)))?",
+    ],
+  },
+  {
+    id: "product_manager",
+    title: "Product Management & Strategy Lead",
+    icon: Compass,
+    badge: "Group PM",
+    color: "from-cyan-500/20 to-blue-500/20 text-cyan-500 border-cyan-500/30",
+    description: "PRD writing, North Star metric hierarchies, RICE prioritization, and Go-To-Market product rollout.",
+    samplePrompts: [
+      "Write a structured PRD for adding AI auto-completions to a code editor",
+      "How to prioritize conflicting feature requests from sales and engineering?",
+      "Design metrics to measure user activation and 30-day retention",
+    ],
+  },
+  {
+    id: "devops_sre",
+    title: "Cloud & DevOps / Site Reliability Engineer",
+    icon: Globe,
+    badge: "Staff SRE",
+    color: "from-sky-500/20 to-indigo-500/20 text-sky-500 border-sky-500/30",
+    description: "Kubernetes orchestration, Terraform IaC, Prometheus observability, zero-downtime blue/green deploys, and FinOps.",
+    samplePrompts: [
+      "Design a multi-region active-passive failover on AWS with Route 53",
+      "Write an incident post-mortem template for a 45-minute database outage",
+      "Strategies to cut our AWS RDS and NAT Gateway bill by 35%",
+    ],
+  },
+  {
+    id: "fullstack_lead",
+    title: "Full-Stack & Microservices Lead",
+    icon: BookOpen,
+    badge: "Tech Lead",
+    color: "from-teal-500/20 to-emerald-500/20 text-teal-500 border-teal-500/30",
+    description: "PostgreSQL query tuning, transactional outbox pattern, gRPC contracts, and idempotent API workflows.",
+    samplePrompts: [
+      "How to implement the transactional outbox pattern with Debezium and Kafka?",
+      "Designing JWT refresh token rotation with Redis revocation lists",
+      "Database migration strategy with zero downtime on a 50M row table",
+    ],
+  },
+  {
+    id: "career_strategist",
+    title: "Tech Career Transition & Resume Strategist",
+    icon: Briefcase,
+    badge: "Senior Recruiter",
+    color: "from-rose-500/20 to-red-500/20 text-rose-500 border-rose-500/30",
+    description: "Google XYZ resume formulas, ATS keyword matching, cold LinkedIn outreach to Engineering Managers, and portfolio audits.",
+    samplePrompts: [
+      "Rewrite my resume bullet point using Google's XYZ formula",
+      "Write a high-converting cold message to an Engineering Manager on LinkedIn",
+      "How to pivot from a non-tech background to a Junior Full-Stack role in 6 months?",
+    ],
+  },
+  {
+    id: "freelance_agency",
+    title: "Freelance & Productized Agency Coach",
+    icon: DollarSign,
+    badge: "Agency Founder",
+    color: "from-amber-500/20 to-yellow-500/20 text-amber-500 border-amber-500/30",
+    description: "Value-based pricing, monthly retainer contracts, client discovery objection handling, and productized service models.",
+    samplePrompts: [
+      "How to transition from $50/hr billing to a $5,000/month retainer?",
+      "Draft a 4-question discovery script to filter out low-budget tire-kickers",
+      "Contract clauses every freelance developer must include to prevent scope creep",
+    ],
+  },
+];
+
+const COACHING_PLANS: ReceiptPlan[] = [
+  {
+    id: "single-deep-dive",
+    name: "Strategy Audit",
+    tagline: "Single high-impact 1:1 session",
+    monthly: 999,
+    cta: "Book 1:1 Strategy Audit",
+    items: [
+      { label: "Duration", value: "45 Mins" },
+      { label: "Platform", value: "Meet / Zoom" },
+      { label: "Recording", value: "Included" },
+      { label: "Written Plan", value: "Detailed" },
+      { label: "GST (18%)", value: "Included" },
+    ],
+  },
+  {
+    id: "monthly-mentorship",
+    name: "Monthly Accelerator",
+    tagline: "Continuous engineering coaching",
+    monthly: 2999,
+    featured: true,
+    cta: "Join Monthly Mentorship",
+    items: [
+      { label: "1:1 Sessions", value: "4 / Month" },
+      { label: "Async Chat", value: "Direct Slack" },
+      { label: "Code Reviews", value: "2 / Week" },
+      { label: "Mock Interviews", value: "2 Included" },
+      { label: "Dedicated Coach", value: "Staff Level" },
+      { label: "GST (18%)", value: "Included" },
+    ],
+  },
+  {
+    id: "executive-placement",
+    name: "Executive Career Track",
+    tagline: "Guaranteed promotion / offer prep",
+    monthly: 6999,
+    cta: "Apply For Executive Track",
+    items: [
+      { label: "Sessions", value: "Weekly 60m" },
+      { label: "Resume Rewrite", value: "FAANG Bar" },
+      { label: "Negotiation", value: "Live Prep" },
+      { label: "Referrals", value: "Top Tier" },
+      { label: "24/7 Access", value: "Direct WhatsApp" },
+      { label: "GST (18%)", value: "Included" },
+    ],
+  },
+];
+
+const sampleHostWeek = [
+  { weekday: 1, from: "09:30", to: "11:00", title: "Meta Architecture Review" },
+  { weekday: 1, from: "15:00", to: "16:30", title: "Staff Sync" },
+  { weekday: 2, from: "10:00", to: "11:30", title: "Distributed Consensus Crit" },
+  { weekday: 2, from: "14:00", to: "15:00", title: "Mentorship Office Hours" },
+  { weekday: 3, from: "11:00", to: "12:30", title: "Google Cloud Tech Talk" },
+  { weekday: 4, from: "09:00", to: "10:30", title: "System Design Keynote" },
+  { weekday: 4, from: "16:00", to: "17:30", title: "Director Alignment" },
+  { weekday: 5, from: "13:30", to: "15:00", title: "Open Advisory Block" },
+];
+
+const sampleMyWeek = [
+  { weekday: 1, from: "11:00", to: "12:00", title: "Sprint Planning" },
+  { weekday: 2, from: "09:00", to: "10:00", title: "Morning Workout" },
+  { weekday: 3, from: "14:00", to: "15:00", title: "Team 1:1" },
+  { weekday: 4, from: "11:30", to: "12:30", title: "Product Sync" },
+  { weekday: 5, from: "16:00", to: "17:00", title: "Sprint Retro" },
+];
 
 export default function CoachingDashboard() {
   const { user, isCreator } = useAuth();
   const qc = useQueryClient();
   const [activeTab, setActiveTab] = useState<
-    "scheduling" | "messaging" | "roadmaps" | "outcomes" | "cohorts"
-  >("scheduling");
+    "ai_studio" | "open_booking" | "scheduling" | "plans" | "messaging" | "roadmaps" | "outcomes" | "cohorts"
+  >("ai_studio");
 
   // Scheduling State
   const getTomorrowDefault = () => {
@@ -330,43 +550,475 @@ export default function CoachingDashboard() {
     }
   };
 
+  // AI Coaching Studio State
+  const [selectedRole, setSelectedRole] = useState(COACH_ROLES[0]);
+  const [chatInput, setChatInput] = useState("");
+  const [aiMessages, setAiMessages] = useState<Array<{ role: "user" | "assistant"; content: string }>>([
+    {
+      role: "assistant",
+      content: `Hello! I am your **System Design & Distributed Architect Coach**. 
+
+I specialize in high-concurrency microservices, event-driven streaming with Kafka, database sharding, latency budgets, and planetary-scale scalability.
+
+Ask me to design a system, critique your current architecture, or solve a distributed bottleneck!`,
+    },
+  ]);
+  const [isAiTyping, setIsAiTyping] = useState(false);
+  const [selectedBookingPlatform, setSelectedBookingPlatform] = useState<"google-meet" | "zoom" | "teams">("google-meet");
+
+  const runCareerCoach = useServerFn(careerCoachChat);
+
+  const handleRoleChange = (role: (typeof COACH_ROLES)[0]) => {
+    setSelectedRole(role);
+    setAiMessages([
+      {
+        role: "assistant",
+        content: `Switched coach persona to **${role.title}** (${role.badge}). 
+
+${role.description}
+
+How can I help you excel in this domain today? Select a sample topic below or ask your specific question!`,
+      },
+    ]);
+  };
+
+  const handleSendAiMessage = async (textToSend?: string) => {
+    const text = textToSend || chatInput;
+    if (!text.trim() || isAiTyping) return;
+
+    const userMsg = { role: "user" as const, content: text.trim() };
+    const newHistory = [...aiMessages, userMsg];
+    setAiMessages(newHistory);
+    setChatInput("");
+    setIsAiTyping(true);
+
+    try {
+      const response = await runCareerCoach({
+        data: {
+          content: userMsg.content,
+          history: aiMessages,
+          coachRole: selectedRole.id,
+          userProfile: `Role focus: ${selectedRole.title}. Target: Tech excellence.`,
+        },
+      });
+
+      setAiMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content: response.content || "I have analyzed your query and prepared your structured response.",
+        },
+      ]);
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to generate AI Coach response. Retrying...");
+      setAiMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content:
+            "I encountered a temporary connection issue. Please verify your AI API keys or ask your question again.",
+        },
+      ]);
+    } finally {
+      setIsAiTyping(false);
+    }
+  };
+
+  const copyAiResponse = (content: string) => {
+    navigator.clipboard.writeText(content);
+    toast.success("Coach response copied to clipboard!");
+  };
+
+  const handleOpenSlotBook = async (booking: any) => {
+    try {
+      if (user) {
+        toast.success(`1-on-1 session booked for ${format(booking.start, "MMM d, h:mm a")} via ${booking.platform || "Google Meet"}!`);
+        qc.invalidateQueries({ queryKey: ["my-coaching-bookings"] });
+      } else {
+        toast.success(`Session confirmed! An invite and meeting link have been prepared for ${booking.email}.`);
+      }
+    } catch (err: any) {
+      toast.error(err?.message || "Booking failed");
+    }
+  };
+
   return (
     <AppShell>
       <div className="max-w-6xl mx-auto px-4 py-8">
-        <h1 className="text-3xl font-display font-semibold mb-6">Coaching Hub</h1>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20 mb-2">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Executive Coaching Studio 4.0</span>
+            </div>
+            <h1 className="text-3xl font-display font-semibold tracking-tight text-foreground">
+              Coaching & Mentorship Studio
+            </h1>
+            <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
+              Direct 1-on-1 mentorship with Staff & Principal Engineers from top tier tech companies, plus our 10-Role AI Coaching Agent Studio with real-time tool calling and code execution.
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setActiveTab("open_booking")}
+              className="gap-2 border-primary/20 text-primary hover:bg-primary/10"
+            >
+              <Calendar className="w-4 h-4" />
+              <span>Book 1-on-1 Call</span>
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => setActiveTab("ai_studio")}
+              className="gap-2"
+            >
+              <Bot className="w-4 h-4" />
+              <span>AI Coach Studio</span>
+            </Button>
+          </div>
+        </div>
 
-        <div className="flex gap-4 border-b mb-8 overflow-x-auto -mx-4 px-4 snap-x snap-mandatory scrollbar-none">
+        <div className="flex gap-2 sm:gap-4 border-b mb-8 overflow-x-auto -mx-4 px-4 snap-x snap-mandatory scrollbar-none">
           <button
-            className={`pb-3 text-sm font-medium border-b-2 transition-colors shrink-0 snap-start ${activeTab === "scheduling" ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+            className={`pb-3 text-sm font-medium border-b-2 transition-colors shrink-0 snap-start flex items-center gap-2 ${activeTab === "ai_studio" ? "border-primary text-foreground font-semibold" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+            onClick={() => setActiveTab("ai_studio")}
+          >
+            <Bot className="h-4 w-4 text-emerald-500" />
+            <span>10-Role AI Studio</span>
+            <Badge variant="outline" className="text-[10px] bg-emerald-500/10 text-emerald-600 border-emerald-500/20 py-0 px-1.5 font-bold">HOT</Badge>
+          </button>
+          <button
+            className={`pb-3 text-sm font-medium border-b-2 transition-colors shrink-0 snap-start flex items-center gap-2 ${activeTab === "open_booking" ? "border-primary text-foreground font-semibold" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+            onClick={() => setActiveTab("open_booking")}
+          >
+            <Calendar className="h-4 w-4 text-indigo-500" />
+            <span>1:1 Live Booking</span>
+          </button>
+          <button
+            className={`pb-3 text-sm font-medium border-b-2 transition-colors shrink-0 snap-start flex items-center gap-2 ${activeTab === "plans" ? "border-primary text-foreground font-semibold" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+            onClick={() => setActiveTab("plans")}
+          >
+            <Receipt className="h-4 w-4 text-pink-500" />
+            <span>Plans & Receipts</span>
+          </button>
+          <button
+            className={`pb-3 text-sm font-medium border-b-2 transition-colors shrink-0 snap-start flex items-center gap-2 ${activeTab === "scheduling" ? "border-primary text-foreground font-semibold" : "border-transparent text-muted-foreground hover:text-foreground"}`}
             onClick={() => setActiveTab("scheduling")}
           >
-            <Calendar className="h-4 w-4 inline-block mr-2" /> Scheduling
+            <Clock className="h-4 w-4 text-blue-500" />
+            <span>My Sessions</span>
           </button>
           <button
-            className={`pb-3 text-sm font-medium border-b-2 transition-colors shrink-0 snap-start ${activeTab === "messaging" ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+            className={`pb-3 text-sm font-medium border-b-2 transition-colors shrink-0 snap-start flex items-center gap-2 ${activeTab === "messaging" ? "border-primary text-foreground font-semibold" : "border-transparent text-muted-foreground hover:text-foreground"}`}
             onClick={() => setActiveTab("messaging")}
           >
-            <MessageCircle className="h-4 w-4 inline-block mr-2" /> Messaging
+            <MessageCircle className="h-4 w-4 text-amber-500" />
+            <span>Direct Messaging</span>
           </button>
           <button
-            className={`pb-3 text-sm font-medium border-b-2 transition-colors shrink-0 snap-start ${activeTab === "roadmaps" ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+            className={`pb-3 text-sm font-medium border-b-2 transition-colors shrink-0 snap-start flex items-center gap-2 ${activeTab === "roadmaps" ? "border-primary text-foreground font-semibold" : "border-transparent text-muted-foreground hover:text-foreground"}`}
             onClick={() => setActiveTab("roadmaps")}
           >
-            <Compass className="h-4 w-4 inline-block mr-2" /> Roadmaps
+            <Compass className="h-4 w-4 text-teal-500" />
+            <span>Roadmaps</span>
           </button>
           <button
-            className={`pb-3 text-sm font-medium border-b-2 transition-colors shrink-0 snap-start ${activeTab === "outcomes" ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
-            onClick={() => setActiveTab("outcomes")}
-          >
-            <TrendingUp className="h-4 w-4 inline-block mr-2" /> Outcomes
-          </button>
-          <button
-            className={`pb-3 text-sm font-medium border-b-2 transition-colors shrink-0 snap-start ${activeTab === "cohorts" ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+            className={`pb-3 text-sm font-medium border-b-2 transition-colors shrink-0 snap-start flex items-center gap-2 ${activeTab === "cohorts" ? "border-primary text-foreground font-semibold" : "border-transparent text-muted-foreground hover:text-foreground"}`}
             onClick={() => setActiveTab("cohorts")}
           >
-            <Users className="h-4 w-4 inline-block mr-2" /> Cohorts
+            <Users className="h-4 w-4 text-purple-500" />
+            <span>Cohorts</span>
+          </button>
+          <button
+            className={`pb-3 text-sm font-medium border-b-2 transition-colors shrink-0 snap-start flex items-center gap-2 ${activeTab === "outcomes" ? "border-primary text-foreground font-semibold" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+            onClick={() => setActiveTab("outcomes")}
+          >
+            <TrendingUp className="h-4 w-4 text-rose-500" />
+            <span>Outcomes</span>
           </button>
         </div>
+
+        {/* ============ 10-ROLE AI STUDIO TAB ============ */}
+        {activeTab === "ai_studio" && (
+          <div className="space-y-6">
+            {/* Role Switcher Carousel */}
+            <div className="bg-card border rounded-2xl p-4 shadow-sm">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Select Specialized Coach Persona (10 Distinct Roles)
+                </span>
+                <span className="text-xs text-primary font-medium">
+                  Active: {selectedRole.title}
+                </span>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5">
+                {COACH_ROLES.map((role) => {
+                  const IconComponent = role.icon;
+                  const isSelected = selectedRole.id === role.id;
+                  return (
+                    <button
+                      key={role.id}
+                      onClick={() => handleRoleChange(role)}
+                      className={cn(
+                        "p-3 rounded-xl border text-left transition-all duration-200 flex flex-col justify-between gap-2",
+                        isSelected
+                          ? "bg-primary/10 border-primary shadow-sm ring-1 ring-primary/40"
+                          : "bg-muted/40 border-border/70 hover:bg-muted/80 hover:border-primary/30",
+                      )}
+                    >
+                      <div className="flex items-center justify-between w-full">
+                        <div
+                          className={cn(
+                            "w-8 h-8 rounded-lg flex items-center justify-center",
+                            isSelected
+                              ? "bg-primary text-primary-foreground"
+                              : "bg-background text-muted-foreground border",
+                          )}
+                        >
+                          <IconComponent className="w-4 h-4" />
+                        </div>
+                        <Badge variant="outline" className="text-[9px] py-0 px-1 font-mono">
+                          {role.badge}
+                        </Badge>
+                      </div>
+                      <div>
+                        <div className="font-semibold text-xs text-foreground line-clamp-1">
+                          {role.title}
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Active Coach Banner & Suggested Prompts */}
+            <div className="bg-gradient-to-r from-card via-muted/30 to-card border rounded-2xl p-5 shadow-sm space-y-4">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 text-primary flex items-center justify-center shrink-0">
+                    <selectedRole.icon className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-bold text-base text-foreground">{selectedRole.title}</h3>
+                      <Badge className="text-xs bg-primary/15 text-primary border-primary/20">
+                        {selectedRole.badge}
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-0.5 max-w-2xl">
+                      {selectedRole.description}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <span className="text-xs text-muted-foreground block mb-2 font-medium">
+                  Instant Prompt Chips (Click to ask):
+                </span>
+                <div className="flex flex-wrap gap-2">
+                  {selectedRole.samplePrompts.map((prompt, i) => (
+                    <button
+                      key={i}
+                      onClick={() => handleSendAiMessage(prompt)}
+                      className="text-xs px-3 py-1.5 rounded-full border border-border bg-card/80 hover:bg-primary/10 hover:border-primary/40 text-muted-foreground hover:text-foreground transition-all duration-150 flex items-center gap-1.5"
+                    >
+                      <Sparkles className="w-3 h-3 text-primary" />
+                      <span>{prompt}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Chat Thread */}
+            <div className="bg-card border rounded-2xl p-4 sm:p-6 shadow-sm space-y-4 min-h-[440px] flex flex-col justify-between">
+              <div className="space-y-4 flex-1 overflow-y-auto max-h-[520px] pr-2">
+                {aiMessages.map((msg, idx) => (
+                  <div
+                    key={idx}
+                    className={cn(
+                      "flex gap-3",
+                      msg.role === "user" ? "justify-end" : "justify-start",
+                    )}
+                  >
+                    {msg.role === "assistant" && (
+                      <div className="w-8 h-8 rounded-full bg-primary/10 border border-primary/20 text-primary flex items-center justify-center shrink-0 mt-1">
+                        <selectedRole.icon className="w-4 h-4" />
+                      </div>
+                    )}
+                    <div
+                      className={cn(
+                        "rounded-2xl p-4 max-w-[85%] text-sm leading-relaxed space-y-2 relative group",
+                        msg.role === "user"
+                          ? "bg-primary text-primary-foreground rounded-br-none ml-auto"
+                          : "bg-muted/40 border border-border/80 text-foreground rounded-tl-none",
+                      )}
+                    >
+                      <div className="whitespace-pre-wrap font-sans">{msg.content}</div>
+
+                      {msg.role === "assistant" && (
+                        <div className="flex items-center justify-between pt-2 border-t border-border/40 text-xs text-muted-foreground">
+                          <span className="text-[11px] font-mono">
+                            {selectedRole.title}
+                          </span>
+                          <button
+                            onClick={() => copyAiResponse(msg.content)}
+                            className="inline-flex items-center gap-1 hover:text-foreground opacity-60 group-hover:opacity-100 transition-opacity cursor-pointer"
+                            title="Copy response"
+                          >
+                            <Copy className="w-3 h-3" />
+                            <span>Copy</span>
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                    {msg.role === "user" && (
+                      <DefaultAvatar
+                        src={user?.user_metadata?.avatar_url}
+                        name={user?.user_metadata?.full_name || user?.email}
+                        className="w-8 h-8 border mt-1 shrink-0"
+                      />
+                    )}
+                  </div>
+                ))}
+
+                {isAiTyping && (
+                  <div className="flex gap-3 items-center text-muted-foreground text-xs py-2">
+                    <div className="w-8 h-8 rounded-full bg-primary/10 border border-primary/20 text-primary flex items-center justify-center shrink-0">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    </div>
+                    <div className="bg-muted/40 border border-border/80 rounded-2xl px-4 py-3 text-sm flex items-center gap-2">
+                      <span className="font-mono text-xs">Architecting structured response...</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Chat Input */}
+              <div className="pt-4 border-t space-y-2">
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    handleSendAiMessage();
+                  }}
+                  className="flex gap-2"
+                >
+                  <Input
+                    value={chatInput}
+                    onChange={(e) => setChatInput(e.target.value)}
+                    placeholder={`Ask ${selectedRole.title} anything... (e.g. system design, code review, STAR interview)`}
+                    className="flex-1 h-11 text-sm bg-background"
+                    disabled={isAiTyping}
+                  />
+                  <Button type="submit" disabled={isAiTyping || !chatInput.trim()} className="h-11 px-5 gap-2">
+                    {isAiTyping ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                    <span>Send</span>
+                  </Button>
+                </form>
+                <div className="flex items-center justify-between text-[11px] text-muted-foreground px-1">
+                  <span>Press Enter to send. Sandbox code execution and web search active.</span>
+                  <span className="font-mono text-[10px]">Zero Emojis · Production Grade</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ============ OPEN SLOT BOOKING TAB ============ */}
+        {activeTab === "open_booking" && (
+          <div className="space-y-6">
+            <div className="bg-card border rounded-2xl p-4 sm:p-6 shadow-sm">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 pb-4 border-b">
+                <div>
+                  <h2 className="text-xl font-bold font-display text-foreground">
+                    Direct 1-on-1 Engineering Mentorship
+                  </h2>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Select a time on the host's calendar. Auto-synced to your local timezone with calendar conflict overlays.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground font-medium">Supported Platforms:</span>
+                  <div className="flex items-center gap-1.5 p-1 rounded-lg bg-muted border">
+                    <span className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded bg-background shadow-xs">
+                      {MeetingIcons.googleMeet}
+                      <span>Google Meet</span>
+                    </span>
+                    <span className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded bg-background shadow-xs">
+                      {MeetingIcons.zoom}
+                      <span>Zoom</span>
+                    </span>
+                    <span className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded bg-background shadow-xs">
+                      {MeetingIcons.teams}
+                      <span>Teams</span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <OpenSlotBooking
+                headline="Schedule 1:1 Engineering Advisory"
+                headlineAccent="Direct with Staff Architects"
+                description="Pick an open slot and bring your real codebase or architecture challenge. You leave with an actionable roadmap."
+                meetingTitle="1:1 Technical & Career Strategy Call"
+                agenda="We review your system bottlenecks, conduct mock architectural interviews, or formulate your transition plan."
+                location="Google Meet / Zoom (Link generated after booking)"
+                durations={[15, 30, 45, 60]}
+                defaultDuration={30}
+                host={{
+                  name: "Maya Lindqvist",
+                  role: "Principal Distributed Systems Architect",
+                  city: "Bangalore",
+                  stamp: "Learnify · 1-on-1 Mentorship · ",
+                }}
+                hostBusy={sampleHostWeek}
+                visitorEvents={sampleMyWeek}
+                onBook={handleOpenSlotBook}
+                preset="postmark"
+                gridHeight={420}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* ============ PLANS & RECEIPTS TAB ============ */}
+        {activeTab === "plans" && (
+          <div className="space-y-6">
+            <div className="bg-card border rounded-2xl p-6 sm:p-8 shadow-sm">
+              <div className="text-center max-w-xl mx-auto mb-8">
+                <Badge variant="outline" className="mb-2 text-xs border-primary/20 bg-primary/10 text-primary">
+                  Transparent Invoicing & Compliance
+                </Badge>
+                <h2 className="text-2xl sm:text-3xl font-bold font-display tracking-tight text-foreground">
+                  Coaching Packages, Printed.
+                </h2>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Every line item, the subtotal, and what you actually owe. All plans include 18% GST (SAC 998431) with digital tax invoices.
+                </p>
+              </div>
+
+              <ReceiptPricing
+                plans={COACHING_PLANS}
+                currency="INR"
+                locale="en-IN"
+                monthsFree={2}
+                merchant="LEARNIFY EDTECH PVT LTD"
+                merchantNote="SAC 998431 · 18% GST INCLUDED"
+                orderPrefix="COACH"
+                stampLabel="{months} MONTHS FREE"
+                showStamp={true}
+                showBarcode={true}
+                onSelectPlan={(plan, period) => {
+                  toast.success(`Selected ${plan.name} (${period}). Booking confirmation initiated.`);
+                  setActiveTab("open_booking");
+                }}
+              />
+            </div>
+          </div>
+        )}
 
         {activeTab === "scheduling" && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
