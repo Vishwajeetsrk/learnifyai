@@ -514,22 +514,23 @@ function BillingOSPage() {
 
   const overviewData = overview.data;
   const treasuryData = useMemo(() => {
-    const rawRev = Number(overviewData?.total_revenue || 5840000);
-    const mrr = Number(overviewData?.mrr || 485000);
-    const arr = Number(overviewData?.arr || mrr * 12);
+    const rawRev = Number(overviewData?.total_revenue ?? 2381);
+    const mrr = Number(overviewData?.mrr ?? 499);
+    const arr = Number(overviewData?.arr ?? (mrr * 12));
     return {
       totalRevenue: rawRev,
       mrr,
       arr,
-      activeSubscribers: Number(overviewData?.active_subscribers || 428),
+      activeSubscribers: Number(overviewData?.active_subscribers ?? 12),
       freeCashRunwayMonths: 14.2,
       gstAccrued: Math.round(rawRev * 0.18),
       pendingPayoutsAmount: 84500,
       pendingPayoutsCount: 6,
       gateways: {
-        cashfreeShare: 0.62,
-        razorpayShare: 0.28,
-        escrowShare: 0.10,
+        subscriptionsShare: 0.62,
+        checkoutShare: 0.28,
+        routeShare: 0.10,
+        razorpayShare: 1.0,
       },
     };
   }, [overviewData]);
@@ -719,7 +720,7 @@ function BillingOSPage() {
                 <PlatformTreasuryBento
                   data={treasuryData}
                   title="Platform Treasury & Revenue Matrix"
-                  subtitle="Executive liquidity stream, multi-gateway allocation (Cashfree, Razorpay, Escrow), and operational runway."
+                  subtitle="Executive liquidity stream, 100% Razorpay native allocation (Subscriptions, Checkout, Route Payouts), and operational runway."
                   adminName="Vishwajeet"
                   avatarUrl="/assets/vishwajeet-profile.png"
                 />

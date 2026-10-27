@@ -1,18 +1,40 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en" class="dark scroll-smooth">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Productized Agency Template — Aceternity UI | Learnify AI</title>
+  <title>Productized Agency — Built with Aceternity UI & Next.js | Learnify AI</title>
+  <meta name="description" content="Senior design & full-stack development agency template built with Aceternity UI, Tailwind CSS, and Next.js 15.">
+
+  <!-- Tailwind CSS & Lucide/FontAwesome -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       darkMode: 'class',
       theme: {
         extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'sans-serif'],
+            display: ['"Space Grotesk"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace']
+          },
           colors: {
-            primary: '#6366f1',
-            accent: '#06b6d4'
+            brand: {
+              50: '#f0f9ff',
+              400: '#38bdf8',
+              500: '#0ea5e9',
+              600: '#0284c7',
+            }
+          },
+          animation: {
+            'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'shimmer': 'shimmer 2.5s linear infinite',
+          },
+          keyframes: {
+            shimmer: {
+              '0%': { backgroundPosition: '-200% 0' },
+              '100%': { backgroundPosition: '200% 0' }
+            }
           }
         }
       }
@@ -21,325 +43,672 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
   <style>
     body {
       font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
-      background: #030712;
-      color: #f3f4f6;
     }
-    .font-mono { font-family: 'JetBrains Mono', monospace; }
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 9999px; }
+    .font-display {
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Aceternity Lamp Beam styling */
+    .lamp-glow {
+      background: conic-gradient(from 180deg at 50% 50%, #06b6d4 0deg, #3b82f6 90deg, #6366f1 180deg, #06b6d4 360deg);
+      filter: blur(80px);
+      opacity: 0.28;
+    }
+
+    /* Subtle grid pattern */
+    .bg-grid-pattern {
+      background-size: 40px 40px;
+      background-image: linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+                        linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    }
+    .dark .bg-grid-pattern {
+      background-image: linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+                        linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    }
+    html:not(.dark) .bg-grid-pattern {
+      background-image: linear-gradient(to right, rgba(0, 0, 0, 0.04) 1px, transparent 1px),
+                        linear-gradient(to bottom, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.6); }
+    ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.25); }
   </style>
 </head>
-<body class="h-screen w-screen flex flex-col bg-slate-950 text-slate-100 antialiased select-none">
+<body class="bg-slate-950 text-slate-100 min-h-screen antialiased selection:bg-cyan-500/20 selection:text-cyan-300 transition-colors duration-200">
 
-  <!-- ==================== TOP NAVIGATION BAR ==================== -->
-  <header class="h-14 border-b border-slate-800 bg-slate-900/95 backdrop-blur-md px-4 flex items-center justify-between z-30 shrink-0">
-    <div class="flex items-center gap-3">
-      <div class="h-8 w-8 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-cyan-500/20">
-        <i class="fa-solid fa-shapes text-sm"></i>
-      </div>
-      <div>
-        <h1 class="text-xs sm:text-sm font-bold text-white flex items-center gap-2">
-          Productized Agency
-          <span class="text-[10px] font-mono font-medium px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">Aceternity UI</span>
-        </h1>
-      </div>
-    </div>
-
-    <!-- Active Mode Tabs: Preview | Code | Mode | Shop -->
-    <div class="flex items-center gap-1 bg-slate-950/80 p-1 rounded-xl border border-slate-800">
-      <!-- Preview Tab -->
-      <button id="tab-preview-btn" onclick="switchTab('preview')" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all text-white bg-indigo-600 shadow-sm cursor-pointer">
-        <i class="fa-solid fa-eye text-xs"></i>
-        <span>Preview</span>
-      </button>
-
-      <!-- Code Tab -->
-      <button id="tab-code-btn" onclick="switchTab('code')" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all text-slate-400 hover:text-white cursor-pointer">
-        <i class="fa-solid fa-code text-xs"></i>
-        <span>Code</span>
-      </button>
-
-      <!-- Mode (Dark / Light) -->
-      <button id="tab-mode-btn" onclick="toggleThemeMode()" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all text-slate-400 hover:text-white cursor-pointer" title="Toggle Dark/Light Mode">
-        <i id="theme-mode-icon" class="fa-solid fa-moon text-xs text-amber-400"></i>
-        <span id="theme-mode-text">Dark</span>
-      </button>
-
-      <!-- Shop Tab -->
-      <button id="tab-shop-btn" onclick="switchTab('shop')" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all text-emerald-400 hover:text-emerald-300 bg-emerald-500/10 border border-emerald-500/30 cursor-pointer">
-        <i class="fa-solid fa-bag-shopping text-xs"></i>
-        <span>Shop <span class="bg-emerald-500 text-slate-950 font-bold px-1.5 py-0.2 rounded-full text-[10px]">₹99</span></span>
-      </button>
-    </div>
-
-    <!-- Actions: Viewport + Pop Top (Full Preview) -->
-    <div class="flex items-center gap-2">
-      <!-- Viewport Controls (only active on Preview) -->
-      <div id="viewport-controls" class="hidden sm:flex items-center gap-1 bg-slate-950/80 p-0.5 rounded-lg border border-slate-800">
-        <button onclick="setViewport('desktop')" id="vp-desktop" class="vp-btn p-1.5 rounded text-white bg-slate-800" title="Desktop View">
-          <i class="fa-solid fa-desktop text-xs"></i>
-        </button>
-        <button onclick="setViewport('tablet')" id="vp-tablet" class="vp-btn p-1.5 rounded text-slate-400 hover:text-white" title="Tablet View">
-          <i class="fa-solid fa-tablet-screen-button text-xs"></i>
-        </button>
-        <button onclick="setViewport('mobile')" id="vp-mobile" class="vp-btn p-1.5 rounded text-slate-400 hover:text-white" title="Mobile View">
-          <i class="fa-solid fa-mobile-screen-button text-xs"></i>
-        </button>
-      </div>
-
-      <!-- Pop Top / Full Preview Button -->
-      <a href="https://productized-agency-template-acetern.vercel.app/" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium flex items-center gap-1.5 transition-all border border-slate-700" title="Pop Top (Full Preview in New Tab)">
-        <i class="fa-solid fa-arrow-up-right-from-square text-[11px]"></i>
-        <span class="hidden md:inline">Full Preview</span>
+  <!-- ==================== STICKY NAVIGATION BAR ==================== -->
+  <header class="sticky top-0 z-50 w-full border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-xl transition-all">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      
+      <!-- Logo -->
+      <a href="#" class="flex items-center gap-3 group">
+        <div class="h-9 w-9 rounded-xl bg-gradient-to-tr from-cyan-500 via-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-cyan-500/20 group-hover:scale-105 transition-transform duration-200">
+          <i class="fa-solid fa-shapes text-sm"></i>
+        </div>
+        <div class="flex flex-col">
+          <span class="text-sm font-bold tracking-tight text-white font-display flex items-center gap-1.5">
+            NEXUS <span class="text-cyan-400">STUDIO</span>
+          </span>
+          <span class="text-[10px] text-slate-400 font-mono">Aceternity UI Template</span>
+        </div>
       </a>
+
+      <!-- Desktop Nav Links -->
+      <nav class="hidden md:flex items-center gap-7 text-xs font-medium text-slate-300">
+        <a href="#services" class="hover:text-cyan-400 transition-colors">Deliverables</a>
+        <a href="#bento" class="hover:text-cyan-400 transition-colors">Bento Grid</a>
+        <a href="#process" class="hover:text-cyan-400 transition-colors">How It Works</a>
+        <a href="#pricing" class="hover:text-cyan-400 transition-colors">Pricing</a>
+        <a href="#faq" class="hover:text-cyan-400 transition-colors">FAQ</a>
+      </nav>
+
+      <!-- Right CTAs: Code Modal + Theme Toggle + Buy/Contact -->
+      <div class="flex items-center gap-2.5">
+        <!-- View Source Code Modal Trigger -->
+        <button onclick="openCodeModal()" class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900/90 text-xs font-mono text-slate-300 hover:text-white hover:border-slate-700 transition" title="Inspect Next.js Component">
+          <i class="fa-solid fa-code text-cyan-400"></i>
+          <span>View Code</span>
+        </button>
+
+        <!-- Dark / Light Mode Toggle -->
+        <button onclick="toggleTheme()" class="h-8 w-8 rounded-lg border border-slate-800 bg-slate-900/80 flex items-center justify-center text-slate-300 hover:text-white transition" title="Toggle Theme">
+          <i id="theme-icon" class="fa-solid fa-moon text-amber-400 text-xs"></i>
+        </button>
+
+        <!-- Primary CTA: Razorpay ₹99 -->
+        <a href="#pricing" class="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-slate-950 font-bold text-xs shadow-md shadow-cyan-500/25 transition-all transform active:scale-95 flex items-center gap-1.5">
+          <span>Get Template</span>
+          <span class="px-1.5 py-0.5 rounded bg-slate-950 text-cyan-300 text-[10px] font-mono">₹99</span>
+        </a>
+      </div>
     </div>
   </header>
 
-  <!-- ==================== MAIN CONTENT WRAPPER ==================== -->
-  <main class="flex-1 relative overflow-hidden flex items-center justify-center p-2 sm:p-4 bg-slate-950">
-
-    <!-- 1. PREVIEW TAB CONTAINER -->
-    <div id="pane-preview" class="tab-pane w-full h-full flex items-center justify-center">
-      <div id="preview-wrapper" class="h-full w-full rounded-2xl border border-slate-800 shadow-2xl bg-black overflow-hidden flex flex-col transition-all duration-300">
-        <!-- Mock Browser Top Bar -->
-        <div class="h-7 bg-slate-900 border-b border-slate-800 px-3 flex items-center gap-2 shrink-0">
-          <div class="flex gap-1.5">
-            <div class="w-2.5 h-2.5 rounded-full bg-rose-500/80"></div>
-            <div class="w-2.5 h-2.5 rounded-full bg-amber-500/80"></div>
-            <div class="w-2.5 h-2.5 rounded-full bg-emerald-500/80"></div>
-          </div>
-          <div class="flex-1 max-w-sm mx-auto bg-slate-950/80 rounded px-2.5 py-0.5 text-center text-[10px] font-mono text-slate-400 border border-slate-800/80 truncate">
-            https://productized-agency.aceternity.com
-          </div>
-        </div>
-        <!-- Live Template Iframe -->
-        <iframe
-          id="template-iframe"
-          src="https://productized-agency-template-acetern.vercel.app/"
-          class="w-full flex-1 border-0 bg-slate-950"
-          title="Productized Agency Template"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-        ></iframe>
-      </div>
+  <!-- ==================== 1. HERO SECTION WITH ACETERNITY LAMP ==================== -->
+  <section class="relative min-h-[82vh] flex flex-col items-center justify-center text-center px-4 pt-16 pb-24 overflow-hidden bg-grid-pattern">
+    
+    <!-- Lamp Container Glow Effect -->
+    <div class="absolute -top-32 inset-x-0 h-96 flex items-center justify-center pointer-events-none select-none z-0">
+      <div class="w-[600px] h-[300px] rounded-full lamp-glow"></div>
+      <!-- Conic Light Beams -->
+      <div class="absolute top-0 w-full max-w-4xl h-72 bg-gradient-to-b from-cyan-500/20 via-indigo-500/5 to-transparent blur-3xl"></div>
+      <div class="absolute top-16 w-80 h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_50px_8px_rgba(6,182,212,0.8)]"></div>
     </div>
 
-    <!-- 2. CODE TAB CONTAINER -->
-    <div id="pane-code" class="tab-pane w-full h-full hidden flex-col max-w-6xl mx-auto rounded-2xl border border-slate-800 bg-slate-900/90 shadow-2xl overflow-hidden">
-      <div class="h-10 bg-slate-900 border-b border-slate-800 px-4 flex items-center justify-between shrink-0">
-        <div class="flex items-center gap-2 text-xs font-mono text-slate-300">
-          <i class="fa-solid fa-file-code text-indigo-400"></i>
-          <span>src/components/ProductizedAgency.tsx</span>
+    <!-- Content Container -->
+    <div class="relative z-10 max-w-4xl mx-auto flex flex-col items-center">
+      
+      <!-- Top Pill Badge -->
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-cyan-500/30 bg-cyan-950/40 backdrop-blur-md text-xs font-medium text-cyan-300 mb-6 shadow-inner shadow-cyan-500/10">
+        <span class="flex h-2 w-2 rounded-full bg-cyan-400 animate-ping"></span>
+        <span>Senior-Level Productized Design &amp; Development</span>
+      </div>
+
+      <!-- Main Headline -->
+      <h1 class="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white font-display leading-[1.1] mb-6">
+        Scale Your Product
+        <br />
+        <span class="bg-gradient-to-r from-cyan-400 via-sky-300 to-indigo-400 bg-clip-text text-transparent">
+          Faster Than Ever
+        </span>
+      </h1>
+
+      <!-- Description -->
+      <p class="text-base sm:text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed mb-8">
+        Skip expensive agencies and slow recruiting cycles. Access full-stack Next.js 15, Figma design systems, and autonomous AI pipelines at flat monthly subscriptions.
+      </p>
+
+      <!-- Action Buttons -->
+      <div class="flex flex-wrap items-center justify-center gap-4 mb-14">
+        <a href="#pricing" class="px-7 py-3.5 rounded-2xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold text-sm shadow-xl shadow-cyan-500/20 transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center gap-2">
+          <span>View Pricing Plans (From ₹99)</span>
+          <i class="fa-solid fa-arrow-right text-xs"></i>
+        </a>
+        <a href="#bento" class="px-6 py-3.5 rounded-2xl border border-slate-800 bg-slate-900/80 hover:bg-slate-800/80 text-slate-200 font-semibold text-sm transition-all flex items-center gap-2">
+          <i class="fa-solid fa-layer-group text-slate-400"></i>
+          <span>Explore Bento Grid</span>
+        </a>
+      </div>
+
+      <!-- Live KPI Badges -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full max-w-3xl pt-6 border-t border-slate-800/80">
+        <div class="p-3 rounded-xl bg-slate-900/50 border border-slate-800/80">
+          <div class="text-xl sm:text-2xl font-bold font-display text-white">48h</div>
+          <div class="text-[11px] text-slate-400 font-medium">Average Sprint Delivery</div>
         </div>
-        <button onclick="copySnippetCode()" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-200 flex items-center gap-1.5 transition">
-          <i id="copy-icon" class="fa-solid fa-copy text-xs"></i>
-          <span id="copy-text">Copy Code</span>
+        <div class="p-3 rounded-xl bg-slate-900/50 border border-slate-800/80">
+          <div class="text-xl sm:text-2xl font-bold font-display text-cyan-400">140+</div>
+          <div class="text-[11px] text-slate-400 font-medium">Shipped Applications</div>
+        </div>
+        <div class="p-3 rounded-xl bg-slate-900/50 border border-slate-800/80">
+          <div class="text-xl sm:text-2xl font-bold font-display text-emerald-400">100%</div>
+          <div class="text-[11px] text-slate-400 font-medium">Code Ownership</div>
+        </div>
+        <div class="p-3 rounded-xl bg-slate-900/50 border border-slate-800/80">
+          <div class="text-xl sm:text-2xl font-bold font-display text-amber-400">4.9/5</div>
+          <div class="text-[11px] text-slate-400 font-medium">Founder Satisfaction</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==================== 2. ACETERNITY BENTO GRID SECTION ==================== -->
+  <section id="bento" class="py-20 px-4 sm:px-6 max-w-7xl mx-auto relative">
+    <div class="text-center max-w-2xl mx-auto mb-14">
+      <div class="inline-flex items-center gap-2 text-xs font-mono font-medium text-cyan-400 uppercase tracking-widest mb-3">
+        <i class="fa-solid fa-cubes text-xs"></i>
+        <span>Aceternity Bento Grid</span>
+      </div>
+      <h2 class="text-3xl sm:text-4xl font-bold font-display text-white tracking-tight">
+        Engineered For High-Growth Startups
+      </h2>
+      <p class="text-sm text-slate-400 mt-3">
+        Everything you need to launch, scale, and iterate without technical debt.
+      </p>
+    </div>
+
+    <!-- Bento Grid Container -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+      
+      <!-- Bento 1: Large 2-Span Design Systems -->
+      <div class="md:col-span-2 rounded-3xl border border-slate-800 bg-slate-900/50 p-6 sm:p-8 backdrop-blur-xl relative overflow-hidden group hover:border-cyan-500/40 transition-all duration-300">
+        <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="relative z-10 flex flex-col justify-between h-full">
+          <div>
+            <div class="h-10 w-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 flex items-center justify-center mb-5 text-sm">
+              <i class="fa-solid fa-palette"></i>
+            </div>
+            <h3 class="text-xl font-bold font-display text-white mb-2">
+              Production-Ready Design Systems &amp; Tokens
+            </h3>
+            <p class="text-sm text-slate-400 max-w-md leading-relaxed">
+              Complete Figma components mapped 1:1 to Tailwind CSS v4, Radix primitives, and Shadcn UI. Dark mode first with WCAG AAA accessibility.
+            </p>
+          </div>
+
+          <!-- Interactive UI Components Preview -->
+          <div class="mt-8 p-4 rounded-2xl bg-slate-950/80 border border-slate-800 flex flex-wrap items-center gap-3">
+            <button class="px-3.5 py-1.5 rounded-lg bg-cyan-500 text-slate-950 font-bold text-xs shadow-md shadow-cyan-500/20">
+              Primary Button
+            </button>
+            <button class="px-3.5 py-1.5 rounded-lg border border-slate-700 bg-slate-900 text-slate-200 font-medium text-xs">
+              Secondary Button
+            </button>
+            <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs font-mono text-emerald-400">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span>100% Token Sync</span>
+            </div>
+            <div class="text-[11px] font-mono text-slate-400 ml-auto hidden sm:block">
+              Figma ⇄ Code: Direct Sync
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bento 2: Full-Stack Next.js 15 & React 19 -->
+      <div class="rounded-3xl border border-slate-800 bg-slate-900/50 p-6 sm:p-8 backdrop-blur-xl relative overflow-hidden group hover:border-indigo-500/40 transition-all duration-300">
+        <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="h-10 w-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center mb-5 text-sm">
+          <i class="fa-solid fa-code"></i>
+        </div>
+        <h3 class="text-xl font-bold font-display text-white mb-2">
+          Next.js 15 &amp; React 19
+        </h3>
+        <p class="text-sm text-slate-400 leading-relaxed mb-6">
+          Edge middleware, Server Actions, TanStack router, and Supabase RLS security built by default.
+        </p>
+
+        <!-- Mock Terminal -->
+        <div class="p-3 rounded-xl bg-slate-950 border border-slate-800/80 font-mono text-[11px] text-slate-300">
+          <div class="flex items-center gap-1.5 text-slate-500 pb-2 border-b border-slate-800/60 mb-2">
+            <span class="w-2 h-2 rounded-full bg-rose-500/80"></span>
+            <span class="w-2 h-2 rounded-full bg-amber-500/80"></span>
+            <span class="w-2 h-2 rounded-full bg-emerald-500/80"></span>
+            <span class="text-[10px] text-slate-400 ml-1">server-fn.ts</span>
+          </div>
+          <div class="text-cyan-400">pnpm exec tsc --noEmit</div>
+          <div class="text-emerald-400 mt-1">✓ 0 errors, build verified</div>
+        </div>
+      </div>
+
+      <!-- Bento 3: AI Agents & Automated Pipelines -->
+      <div class="rounded-3xl border border-slate-800 bg-slate-900/50 p-6 sm:p-8 backdrop-blur-xl relative overflow-hidden group hover:border-purple-500/40 transition-all duration-300">
+        <div class="h-10 w-10 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center mb-5 text-sm">
+          <i class="fa-solid fa-brain"></i>
+        </div>
+        <h3 class="text-xl font-bold font-display text-white mb-2">
+          Autonomous AI Integrations
+        </h3>
+        <p class="text-sm text-slate-400 leading-relaxed mb-5">
+          Gemini 2.0, OpenAI, and LangChain agents with custom tool calling, structured outputs, and streaming UI.
+        </p>
+        <div class="flex items-center gap-2 text-xs font-mono text-purple-300 bg-purple-500/10 border border-purple-500/20 p-2.5 rounded-xl">
+          <i class="fa-solid fa-microchip"></i>
+          <span>Multi-Modal Prompt Engineering</span>
+        </div>
+      </div>
+
+      <!-- Bento 4: Large 2-Span 48h Sprint & Conversion -->
+      <div class="md:col-span-2 rounded-3xl border border-slate-800 bg-slate-900/50 p-6 sm:p-8 backdrop-blur-xl relative overflow-hidden group hover:border-emerald-500/40 transition-all duration-300">
+        <div class="relative z-10 flex flex-col justify-between h-full">
+          <div>
+            <div class="h-10 w-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center mb-5 text-sm">
+              <i class="fa-solid fa-bolt"></i>
+            </div>
+            <h3 class="text-xl font-bold font-display text-white mb-2">
+              Rapid 48-Hour Sprint Turnaround
+            </h3>
+            <p class="text-sm text-slate-400 max-w-lg leading-relaxed">
+              Submit requests one by one to your dedicated board. We review, code, and deploy directly to your repository in 2 business days.
+            </p>
+          </div>
+
+          <!-- Interactive Sprint Timeline -->
+          <div class="mt-6 grid grid-cols-3 gap-3">
+            <div class="p-3 rounded-xl bg-slate-950/80 border border-slate-800">
+              <span class="text-[10px] font-mono text-cyan-400">Step 1</span>
+              <div class="text-xs font-bold text-white mt-0.5">Task Submitted</div>
+              <p class="text-[10px] text-slate-400 mt-1">Linear / Trello board sync</p>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-950/80 border border-slate-800">
+              <span class="text-[10px] font-mono text-amber-400">Step 2</span>
+              <div class="text-xs font-bold text-white mt-0.5">Sprint In Progress</div>
+              <p class="text-[10px] text-slate-400 mt-1">Figma + Next.js build</p>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-950/80 border border-slate-800">
+              <span class="text-[10px] font-mono text-emerald-400">Step 3</span>
+              <div class="text-xs font-bold text-white mt-0.5">Shipped in 48h</div>
+              <p class="text-[10px] text-slate-400 mt-1">Tested &amp; deployed live</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==================== 3. HOW IT WORKS (3 STEPS) ==================== -->
+  <section id="process" class="py-20 px-4 sm:px-6 max-w-7xl mx-auto border-t border-slate-800/80">
+    <div class="text-center max-w-xl mx-auto mb-16">
+      <div class="text-xs font-mono font-medium text-cyan-400 uppercase tracking-widest mb-2">Simple Process</div>
+      <h2 class="text-3xl font-bold font-display text-white">How The Agency Model Works</h2>
+      <p class="text-sm text-slate-400 mt-2">Zero hiring friction, zero administrative overhead.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="p-6 rounded-2xl border border-slate-800 bg-slate-900/40 relative">
+        <div class="text-4xl font-extrabold font-display text-slate-800 mb-4">01</div>
+        <h3 class="text-base font-bold text-white mb-2">Subscribe to a Flat Plan</h3>
+        <p class="text-xs text-slate-400 leading-relaxed">
+          Select our Starter code package for ₹99 or our monthly dedicated sprint plan. No long-term lock-in.
+        </p>
+      </div>
+
+      <div class="p-6 rounded-2xl border border-slate-800 bg-slate-900/40 relative">
+        <div class="text-4xl font-extrabold font-display text-slate-800 mb-4">02</div>
+        <h3 class="text-base font-bold text-white mb-2">Submit Unlimited Tasks</h3>
+        <p class="text-xs text-slate-400 leading-relaxed">
+          Add features, landing pages, redesigns, or bug fixes directly to your shared project management board.
+        </p>
+      </div>
+
+      <div class="p-6 rounded-2xl border border-slate-800 bg-slate-900/40 relative">
+        <div class="text-4xl font-extrabold font-display text-slate-800 mb-4">03</div>
+        <h3 class="text-base font-bold text-white mb-2">Receive &amp; Revise Until Perfect</h3>
+        <p class="text-xs text-slate-400 leading-relaxed">
+          We push updates every 48 hours. Unlimited revisions included until you are completely thrilled with the result.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 4. PRICING SECTION ==================== -->
+  <section id="pricing" class="py-20 px-4 sm:px-6 max-w-7xl mx-auto border-t border-slate-800/80">
+    <div class="text-center max-w-2xl mx-auto mb-14">
+      <div class="inline-flex items-center gap-2 text-xs font-mono font-medium text-cyan-400 uppercase tracking-widest mb-3">
+        <i class="fa-solid fa-tag text-xs"></i>
+        <span>Transparent Pricing</span>
+      </div>
+      <h2 class="text-3xl sm:text-4xl font-bold font-display text-white tracking-tight">
+        Simple, Transparent Investments
+      </h2>
+      <p class="text-sm text-slate-400 mt-2">
+        Choose template ownership or dedicated monthly engineering.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+      
+      <!-- Tier 1: Template Starter (₹99) -->
+      <div class="rounded-3xl border border-slate-800 bg-slate-900/40 p-7 flex flex-col justify-between hover:border-slate-700 transition">
+        <div>
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-mono uppercase tracking-wider text-slate-400">Template License</span>
+            <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">Instant Download</span>
+          </div>
+          <h3 class="text-xl font-bold text-white mt-3 font-display">Starter Template</h3>
+          <p class="text-xs text-slate-400 mt-1">Full source code for Next.js 15 &amp; Aceternity UI.</p>
+
+          <div class="mt-6 flex items-baseline gap-2">
+            <span class="text-4xl font-extrabold text-white font-display">₹99</span>
+            <span class="text-xs text-slate-400">/ one-time</span>
+          </div>
+
+          <ul class="mt-6 space-y-3 text-xs text-slate-300">
+            <li class="flex items-center gap-2">
+              <i class="fa-solid fa-check text-cyan-400 text-xs"></i>
+              <span>Next.js 15 + React 19 Project Source</span>
+            </li>
+            <li class="flex items-center gap-2">
+              <i class="fa-solid fa-check text-cyan-400 text-xs"></i>
+              <span>Aceternity Lamp &amp; BentoGrid Components</span>
+            </li>
+            <li class="flex items-center gap-2">
+              <i class="fa-solid fa-check text-cyan-400 text-xs"></i>
+              <span>Tailwind CSS v4 Configuration</span>
+            </li>
+            <li class="flex items-center gap-2">
+              <i class="fa-solid fa-check text-cyan-400 text-xs"></i>
+              <span>Commercial Use License</span>
+            </li>
+          </ul>
+        </div>
+
+        <button onclick="triggerCheckout('starter')" class="mt-8 w-full py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs transition border border-slate-700 cursor-pointer">
+          Buy Template (₹99)
         </button>
       </div>
+
+      <!-- Tier 2: Dedicated Growth (₹1,999/mo) — Highlighted -->
+      <div class="rounded-3xl border-2 border-cyan-500 bg-slate-900/80 p-7 flex flex-col justify-between relative shadow-2xl shadow-cyan-500/10 transform lg:-translate-y-2">
+        <div class="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-gradient-to-r from-cyan-500 to-indigo-600 text-slate-950 font-bold text-[10px] uppercase tracking-wider shadow-md">
+          Most Popular Plan
+        </div>
+        <div>
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-mono uppercase tracking-wider text-cyan-300">Dedicated Sprint</span>
+            <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">Pause Anytime</span>
+          </div>
+          <h3 class="text-xl font-bold text-white mt-3 font-display">Growth Sprint</h3>
+          <p class="text-xs text-slate-300 mt-1">One request at a time. Ideal for seed startups.</p>
+
+          <div class="mt-6 flex items-baseline gap-2">
+            <span class="text-4xl font-extrabold text-white font-display">₹1,999</span>
+            <span class="text-xs text-slate-400">/ month</span>
+          </div>
+
+          <ul class="mt-6 space-y-3 text-xs text-slate-200">
+            <li class="flex items-center gap-2">
+              <i class="fa-solid fa-check text-cyan-400 text-xs"></i>
+              <span>One active request at a time</span>
+            </li>
+            <li class="flex items-center gap-2">
+              <i class="fa-solid fa-check text-cyan-400 text-xs"></i>
+              <span>Average 48h turnaround</span>
+            </li>
+            <li class="flex items-center gap-2">
+              <i class="fa-solid fa-check text-cyan-400 text-xs"></i>
+              <span>Unlimited revisions</span>
+            </li>
+            <li class="flex items-center gap-2">
+              <i class="fa-solid fa-check text-cyan-400 text-xs"></i>
+              <span>Full Figma + Next.js repository pull requests</span>
+            </li>
+            <li class="flex items-center gap-2">
+              <i class="fa-solid fa-check text-cyan-400 text-xs"></i>
+              <span>Pause or cancel anytime</span>
+            </li>
+          </ul>
+        </div>
+
+        <button onclick="triggerCheckout('growth')" class="mt-8 w-full py-3.5 rounded-xl bg-gradient-to-r from-cyan-400 to-indigo-500 hover:from-cyan-300 hover:to-indigo-400 text-slate-950 font-extrabold text-xs shadow-lg shadow-cyan-500/25 transition cursor-pointer">
+          Subscribe to Growth (₹1,999/mo)
+        </button>
+      </div>
+
+      <!-- Tier 3: Scale Pro (₹4,999/mo) -->
+      <div class="rounded-3xl border border-slate-800 bg-slate-900/40 p-7 flex flex-col justify-between hover:border-slate-700 transition">
+        <div>
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-mono uppercase tracking-wider text-slate-400">Scale Velocity</span>
+            <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-purple-500/10 text-purple-400 border border-purple-500/20">High Priority</span>
+          </div>
+          <h3 class="text-xl font-bold text-white mt-3 font-display">Scale Pro</h3>
+          <p class="text-xs text-slate-400 mt-1">Two requests at a time with dedicated Slack channel.</p>
+
+          <div class="mt-6 flex items-baseline gap-2">
+            <span class="text-4xl font-extrabold text-white font-display">₹4,999</span>
+            <span class="text-xs text-slate-400">/ month</span>
+          </div>
+
+          <ul class="mt-6 space-y-3 text-xs text-slate-300">
+            <li class="flex items-center gap-2">
+              <i class="fa-solid fa-check text-purple-400 text-xs"></i>
+              <span>Two active requests simultaneously</span>
+            </li>
+            <li class="flex items-center gap-2">
+              <i class="fa-solid fa-check text-purple-400 text-xs"></i>
+              <span>Priority Slack channel sync</span>
+            </li>
+            <li class="flex items-center gap-2">
+              <i class="fa-solid fa-check text-purple-400 text-xs"></i>
+              <span>Autonomous AI agent pipelines</span>
+            </li>
+            <li class="flex items-center gap-2">
+              <i class="fa-solid fa-check text-purple-400 text-xs"></i>
+              <span>Dedicated senior technical lead</span>
+            </li>
+          </ul>
+        </div>
+
+        <button onclick="triggerCheckout('scale')" class="mt-8 w-full py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs transition border border-slate-700 cursor-pointer">
+          Subscribe to Scale (₹4,999/mo)
+        </button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==================== 5. FAQ ACCORDION ==================== -->
+  <section id="faq" class="py-20 px-4 sm:px-6 max-w-4xl mx-auto border-t border-slate-800/80">
+    <div class="text-center mb-12">
+      <div class="text-xs font-mono font-medium text-cyan-400 uppercase tracking-widest mb-2">FAQ</div>
+      <h2 class="text-3xl font-bold font-display text-white">Frequently Asked Questions</h2>
+    </div>
+
+    <div class="space-y-3">
+      <!-- FAQ 1 -->
+      <details class="group border border-slate-800 rounded-2xl bg-slate-900/40 p-4 transition open:bg-slate-900/70">
+        <summary class="flex justify-between items-center font-semibold text-sm text-white cursor-pointer list-none">
+          <span>Why wouldn't I just hire a full-time senior engineer or designer?</span>
+          <i class="fa-solid fa-chevron-down text-xs text-slate-400 group-open:rotate-180 transition-transform"></i>
+        </summary>
+        <p class="text-xs text-slate-400 mt-3 leading-relaxed">
+          A senior designer or full-stack engineer in India costs upwards of ₹18L-₹30L/year plus benefits, equity, and recruitment fees. With our productized model, you pay a flat predictable subscription, get instant senior output, and can pause anytime during slow months.
+        </p>
+      </details>
+
+      <!-- FAQ 2 -->
+      <details class="group border border-slate-800 rounded-2xl bg-slate-900/40 p-4 transition open:bg-slate-900/70">
+        <summary class="flex justify-between items-center font-semibold text-sm text-white cursor-pointer list-none">
+          <span>How fast will my requests be delivered?</span>
+          <i class="fa-solid fa-chevron-down text-xs text-slate-400 group-open:rotate-180 transition-transform"></i>
+        </summary>
+        <p class="text-xs text-slate-400 mt-3 leading-relaxed">
+          On average, most design screens, landing page sections, and Next.js components are completed within 48 hours or less. More complex architectural tasks (full database migrations, multi-step checkout flows) are broken into transparent milestones.
+        </p>
+      </details>
+
+      <!-- FAQ 3 -->
+      <details class="group border border-slate-800 rounded-2xl bg-slate-900/40 p-4 transition open:bg-slate-900/70">
+        <summary class="flex justify-between items-center font-semibold text-sm text-white cursor-pointer list-none">
+          <span>How does the pause feature work?</span>
+          <i class="fa-solid fa-chevron-down text-xs text-slate-400 group-open:rotate-180 transition-transform"></i>
+        </summary>
+        <p class="text-xs text-slate-400 mt-3 leading-relaxed">
+          Billing cycles run for 31 days. If you only need 14 days of work and pause your subscription, you retain a 17-day credit that you can unpause whenever you need additional engineering sprints in the future.
+        </p>
+      </details>
+
+      <!-- FAQ 4 -->
+      <details class="group border border-slate-800 rounded-2xl bg-slate-900/40 p-4 transition open:bg-slate-900/70">
+        <summary class="flex justify-between items-center font-semibold text-sm text-white cursor-pointer list-none">
+          <span>What stack do you use for development?</span>
+          <i class="fa-solid fa-chevron-down text-xs text-slate-400 group-open:rotate-180 transition-transform"></i>
+        </summary>
+        <p class="text-xs text-slate-400 mt-3 leading-relaxed">
+          We specialize in Next.js 15, React 19, TypeScript, Tailwind CSS v4, Aceternity UI, Supabase, Postgres, and Razorpay payment integrations.
+        </p>
+      </details>
+    </div>
+  </section>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer class="border-t border-slate-800/80 bg-slate-950 py-10 px-4 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
+        <span>All Systems Operational</span>
+      </div>
+      <div>
+        Built with <span class="text-cyan-400 font-medium">Aceternity UI</span> &amp; <span class="text-indigo-400 font-medium">Next.js 15</span> on <span class="text-white font-semibold">Learnify AI</span>
+      </div>
+      <div>
+        &copy; 2026 Nexus Studio. 100% Razorpay Integrated.
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==================== CODE INSPECTION MODAL ==================== -->
+  <div id="code-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="w-full max-w-4xl max-h-[85vh] rounded-2xl border border-slate-800 bg-slate-900 shadow-2xl flex flex-col overflow-hidden">
+      <!-- Modal Header -->
+      <div class="h-12 border-b border-slate-800 px-4 flex items-center justify-between bg-slate-950">
+        <div class="flex items-center gap-2 text-xs font-mono text-slate-300">
+          <i class="fa-solid fa-file-code text-cyan-400"></i>
+          <span>src/components/ProductizedAgency.tsx</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="copyModalCode()" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs font-mono text-slate-200 transition flex items-center gap-1.5">
+            <i id="modal-copy-icon" class="fa-solid fa-copy"></i>
+            <span id="modal-copy-text">Copy Code</span>
+          </button>
+          <button onclick="closeCodeModal()" class="h-7 w-7 rounded hover:bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center transition">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      </div>
+      <!-- Modal Code Body -->
       <div class="flex-1 overflow-auto p-4 bg-slate-950 font-mono text-xs text-slate-300 leading-relaxed">
-        <pre><code id="source-code-block">// Productized Agency Template — Built with Next.js 15, Tailwind CSS & Aceternity UI
-import React from 'react';
+        <pre><code id="snippet-code">// Productized Agency Template — Built with Next.js 15, Tailwind CSS & Aceternity UI
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { LampContainer } from '@/components/ui/lamp';
 import { BentoGrid, BentoGridItem } from '@/components/ui/bento-grid';
-import { BackgroundBeams } from '@/components/ui/background-beams';
 
 export default function ProductizedAgency() {
+  const [activePlan, setActivePlan] = useState<'standard' | 'growth'>('growth');
+
   return (
-    &lt;main className="min-h-screen bg-slate-950 text-white overflow-hidden relative"&gt;
+    <main className="min-h-screen bg-slate-950 text-white overflow-hidden relative">
       {/* 1. HERO SECTION WITH ACETERNITY LAMP */}
-      &lt;LampContainer&gt;
-        &lt;motion.h1
+      <LampContainer>
+        <motion.h1
           initial={{ opacity: 0.5, y: 100 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.8, ease: "easeInOut" }}
-          className="bg-gradient-to-br from-slate-100 to-slate-500 py-4 bg-clip-text text-center text-4xl font-medium tracking-tight text-transparent md:text-7xl"
-        &gt;
+          className="bg-gradient-to-br from-slate-100 to-slate-500 py-4 bg-clip-text text-center text-4xl font-medium tracking-tight text-transparent md:text-7xl font-display"
+        >
           Scale Your Product &lt;br /&gt; Faster Than Ever
-        &lt;/motion.h1&gt;
-        &lt;p className="text-slate-400 text-center max-w-lg mx-auto text-sm md:text-base mt-4"&gt;
+        </motion.h1>
+        <p className="text-slate-400 text-center max-w-lg mx-auto text-sm md:text-base mt-4">
           A modern productized design &amp; development agency for high-growth tech startups.
-        &lt;/p&gt;
-        &lt;div className="mt-8 flex justify-center gap-4"&gt;
-          &lt;a href="#pricing" className="px-6 py-3 rounded-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-sm shadow-lg shadow-cyan-500/20"&gt;
-            View Packages (₹99)
-          &lt;/a&gt;
-        &lt;/div&gt;
-      &lt;/LampContainer&gt;
+        </p>
+      </LampContainer>
 
       {/* 2. BENTO SERVICES GRID */}
-      &lt;section className="max-w-7xl mx-auto px-6 py-20"&gt;
-        &lt;BentoGrid&gt;
-          &lt;BentoGridItem
+      <section className="max-w-7xl mx-auto px-6 py-20">
+        <BentoGrid className="max-w-4xl mx-auto">
+          <BentoGridItem
             title="Design Systems"
-            description="Production-ready Figma and Tailwind design systems built for infinite scale."
-            header={&lt;div className="h-full min-h-[6rem] rounded-xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-white/10" /&gt;}
-            className="md:col-span-2"
-          /&gt;
-          &lt;BentoGridItem
+            description="Production-grade component libraries mapped 1:1 to Tailwind CSS."
+            header={&lt;div className="h-24 bg-gradient-to-br from-cyan-500/20 to-indigo-500/20 rounded-xl" /&gt;}
+          />
+          <BentoGridItem
             title="Next.js 15 Full-Stack"
-            description="Sub-second latency React Server Components with Supabase &amp; Tailwind."
-            header={&lt;div className="h-full min-h-[6rem] rounded-xl bg-gradient-to-br from-cyan-500/20 to-blue-500/20 border border-white/10" /&gt;}
-          /&gt;
-        &lt;/BentoGrid&gt;
-      &lt;/section&gt;
-
-      {/* 3. BACKGROUND BEAMS */}
-      &lt;BackgroundBeams /&gt;
-    &lt;/main&gt;
+            description="Edge runtime, Server Actions, and Supabase RLS security."
+            header={&lt;div className="h-24 bg-gradient-to-br from-indigo-500/20 to-purple-500/20 rounded-xl" /&gt;}
+          />
+        </BentoGrid>
+      </section>
+    </main>
   );
 }</code></pre>
       </div>
     </div>
+  </div>
 
-    <!-- 3. SHOP TAB CONTAINER (PRICING & BUY ₹99) -->
-    <div id="pane-shop" class="tab-pane w-full h-full hidden flex items-center justify-center p-4">
-      <div class="max-w-lg w-full bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
-        <div class="absolute -top-24 -right-24 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
-        <div class="absolute -bottom-24 -left-24 w-48 h-48 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
-
-        <div class="flex items-center justify-between pb-4 border-b border-slate-800">
-          <div>
-            <span class="text-[10px] font-mono uppercase tracking-widest text-emerald-400 font-bold bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-full">
-              Full Template Package
-            </span>
-            <h2 class="text-xl font-bold text-white mt-2">Productized Agency License</h2>
-          </div>
-          <div class="text-right">
-            <span class="text-3xl font-extrabold text-white">₹99</span>
-            <span class="text-xs text-slate-400 block line-through">₹4,999</span>
-          </div>
-        </div>
-
-        <ul class="py-6 space-y-3 text-xs sm:text-sm text-slate-300">
-          <li class="flex items-center gap-2.5">
-            <i class="fa-solid fa-circle-check text-emerald-400 text-sm"></i>
-            <span>Complete <strong>Next.js 15 &amp; React 19</strong> Source Code</span>
-          </li>
-          <li class="flex items-center gap-2.5">
-            <i class="fa-solid fa-circle-check text-emerald-400 text-sm"></i>
-            <span>Aceternity UI Components (Lamp, Bento Grid, Sparkles, Beams)</span>
-          </li>
-          <li class="flex items-center gap-2.5">
-            <i class="fa-solid fa-circle-check text-emerald-400 text-sm"></i>
-            <span><strong>Commercial License</strong> for unlimited client websites</span>
-          </li>
-          <li class="flex items-center gap-2.5">
-            <i class="fa-solid fa-circle-check text-emerald-400 text-sm"></i>
-            <span>Dark &amp; Light mode responsive styles</span>
-          </li>
-          <li class="flex items-center gap-2.5">
-            <i class="fa-solid fa-circle-check text-emerald-400 text-sm"></i>
-            <span>Instant <strong>.ZIP Archive</strong> Download upon unlock</span>
-          </li>
-        </ul>
-
-        <div class="space-y-3 pt-2">
-          <button onclick="handlePurchase()" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-bold text-sm shadow-lg shadow-emerald-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer">
-            <i class="fa-solid fa-bag-shopping"></i>
-            <span>Unlock Template for ₹99</span>
-          </button>
-          <p class="text-[11px] text-center text-slate-500">
-            Secure checkout via Cashfree / UPI / Cards • GST Invoice Included
-          </p>
-        </div>
-      </div>
-    </div>
-  </main>
-
+  <!-- Interactive JavaScript logic -->
   <script>
-    let currentMode = 'dark';
-
-    function switchTab(tabId) {
-      document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
-      document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.remove('bg-indigo-600', 'text-white', 'shadow-sm');
-        btn.classList.add('text-slate-400');
-      });
-
-      if (tabId === 'preview') {
-        document.getElementById('pane-preview').classList.remove('hidden');
-        document.getElementById('tab-preview-btn').classList.add('bg-indigo-600', 'text-white', 'shadow-sm');
-        document.getElementById('viewport-controls').classList.remove('hidden');
-      } else if (tabId === 'code') {
-        document.getElementById('pane-code').classList.remove('hidden');
-        document.getElementById('pane-code').classList.add('flex');
-        document.getElementById('tab-code-btn').classList.add('bg-indigo-600', 'text-white', 'shadow-sm');
-        document.getElementById('viewport-controls').classList.add('hidden');
-      } else if (tabId === 'shop') {
-        document.getElementById('pane-shop').classList.remove('hidden');
-        document.getElementById('pane-shop').classList.add('flex');
-        document.getElementById('tab-shop-btn').classList.add('bg-indigo-600', 'text-white', 'shadow-sm');
-        document.getElementById('viewport-controls').classList.add('hidden');
-      }
-    }
-
-    function toggleThemeMode() {
-      currentMode = currentMode === 'dark' ? 'light' : 'dark';
-      const icon = document.getElementById('theme-mode-icon');
-      const text = document.getElementById('theme-mode-text');
-      
-      if (currentMode === 'light') {
-        document.documentElement.classList.remove('dark');
-        icon.className = 'fa-solid fa-sun text-xs text-amber-500';
-        text.innerText = 'Light';
+    function toggleTheme() {
+      const html = document.documentElement;
+      const isDark = html.classList.toggle('dark');
+      const icon = document.getElementById('theme-icon');
+      if (isDark) {
+        icon.className = 'fa-solid fa-moon text-amber-400 text-xs';
       } else {
-        document.documentElement.classList.add('dark');
-        icon.className = 'fa-solid fa-moon text-xs text-amber-400';
-        text.innerText = 'Dark';
-      }
-
-      // Relay theme mode to template iframe
-      const iframe = document.getElementById('template-iframe');
-      if (iframe && iframe.contentWindow) {
-        iframe.contentWindow.postMessage({ type: 'SET_THEME_MODE', mode: currentMode }, '*');
+        icon.className = 'fa-solid fa-sun text-amber-500 text-xs';
       }
     }
 
-    function setViewport(size) {
-      const wrapper = document.getElementById('preview-wrapper');
-      document.querySelectorAll('.vp-btn').forEach(b => {
-        b.classList.remove('bg-slate-800', 'text-white');
-        b.classList.add('text-slate-400');
-      });
-
-      if (size === 'mobile') {
-        wrapper.style.width = '375px';
-        document.getElementById('vp-mobile').classList.add('bg-slate-800', 'text-white');
-      } else if (size === 'tablet') {
-        wrapper.style.width = '768px';
-        document.getElementById('vp-tablet').classList.add('bg-slate-800', 'text-white');
-      } else {
-        wrapper.style.width = '100%';
-        document.getElementById('vp-desktop').classList.add('bg-slate-800', 'text-white');
-      }
+    function openCodeModal() {
+      document.getElementById('code-modal').classList.remove('hidden');
     }
 
-    function copySnippetCode() {
-      const code = document.getElementById('source-code-block').innerText;
+    function closeCodeModal() {
+      document.getElementById('code-modal').classList.add('hidden');
+    }
+
+    function copyModalCode() {
+      const code = document.getElementById('snippet-code').innerText;
       navigator.clipboard.writeText(code).then(() => {
-        document.getElementById('copy-text').innerText = 'Copied!';
-        document.getElementById('copy-icon').className = 'fa-solid fa-check text-emerald-400';
+        const text = document.getElementById('modal-copy-text');
+        const icon = document.getElementById('modal-copy-icon');
+        text.innerText = 'Copied!';
+        icon.className = 'fa-solid fa-check text-emerald-400';
         setTimeout(() => {
-          document.getElementById('copy-text').innerText = 'Copy Code';
-          document.getElementById('copy-icon').className = 'fa-solid fa-copy text-xs';
+          text.innerText = 'Copy Code';
+          icon.className = 'fa-solid fa-copy';
         }, 2000);
       });
     }
 
-    function handlePurchase() {
-      if (window.parent && window.parent !== window) {
-        window.parent.postMessage({ type: 'BUY_TEMPLATE', projectId: 'productized-agency', price: 99 }, '*');
-      } else {
-        window.location.href = '/pricing';
-      }
+    function triggerCheckout(tier) {
+      const plans = {
+        starter: { name: 'Starter Template', amount: '₹99' },
+        growth: { name: 'Growth Sprint', amount: '₹1,999/mo' },
+        scale: { name: 'Scale Pro', amount: '₹4,999/mo' }
+      };
+      const plan = plans[tier] || plans.starter;
+      alert(`Razorpay Gateway Checkout: Proceeding to checkout for ${plan.name} (${plan.amount}). Secured by Razorpay.`);
     }
+
+    // Close modal on Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeCodeModal();
+    });
   </script>
 </body>
 </html>

@@ -39,6 +39,10 @@ export interface PlatformTreasuryData {
   pendingPayoutsAmount?: number;
   pendingPayoutsCount?: number;
   gateways?: {
+    subscriptionsShare?: number;
+    checkoutShare?: number;
+    routeShare?: number;
+    // Backward compatibility
     cashfreeShare?: number;
     razorpayShare?: number;
     escrowShare?: number;
@@ -62,8 +66,8 @@ const EXCHANGE_RATES: Record<Currency, { rate: number; symbol: string; prefix: s
 
 export function PlatformTreasuryBento({
   data,
-  title = "Platform Treasury & Liquidity Matrix",
-  subtitle = "Executive multi-gateway settlement, 18% GST tax vault, creator escrow reserves & runway velocity",
+  title = "Platform Treasury & Revenue Matrix",
+  subtitle = "Executive liquidity stream, 100% Razorpay native allocation (Subscriptions, Checkout, Route Payouts), and operational runway.",
   adminName = "Vishwajeet",
   avatarUrl = "/assets/vishwajeet-profile.png",
   className = "",
@@ -73,9 +77,9 @@ export function PlatformTreasuryBento({
   const [hoveredPoint, setHoveredPoint] = useState<{
     date: string;
     total: number;
-    cashfree: number;
-    razorpay: number;
-    escrow: number;
+    subscriptions: number;
+    checkout: number;
+    route: number;
     x: number;
     y: number;
   } | null>(null);
@@ -103,68 +107,69 @@ export function PlatformTreasuryBento({
     }).format(converted);
   };
 
-  // Base platform financial anchors
-  const baseRevenue = data?.totalRevenue || 5840000;
-  const baseMrr = data?.mrr || 485000;
-  const baseArr = data?.arr || baseMrr * 12;
+  // Base platform financial anchors — dynamically derived from live database
+  const baseRevenue = data?.totalRevenue ?? 2381;
+  const baseMrr = data?.mrr ?? 499;
+  const baseArr = data?.arr ?? (baseMrr * 12);
   const baseFreeCash = 1850000;
   const runwayMonths = data?.freeCashRunwayMonths || 14.2;
-  const gstCollected = data?.gstAccrued || Math.round(baseRevenue * 0.18);
-  const pendingPayouts = data?.pendingPayoutsAmount || 84500;
-  const pendingPayoutsCount = data?.pendingPayoutsCount || 6;
+  const gstCollected = data?.gstAccrued ?? Math.round(baseRevenue * 0.18);
+  const pendingPayouts = data?.pendingPayoutsAmount ?? 84500;
+  const pendingPayoutsCount = data?.pendingPayoutsCount ?? 6;
 
-  // Multi-gateway allocations
-  const cfsShare = data?.gateways?.cashfreeShare ?? 0.62;
-  const rzpShare = data?.gateways?.razorpayShare ?? 0.28;
-  const wltShare = data?.gateways?.escrowShare ?? 0.10;
+  // 100% Razorpay native allocation mix
+  const subShare = data?.gateways?.subscriptionsShare ?? data?.gateways?.cashfreeShare ?? 0.62;
+  const chkShare = data?.gateways?.checkoutShare ?? data?.gateways?.razorpayShare ?? 0.28;
+  const rtShare = data?.gateways?.routeShare ?? data?.gateways?.escrowShare ?? 0.10;
 
-  const cfsAmount = Math.round(baseRevenue * cfsShare);
-  const rzpAmount = Math.round(baseRevenue * rzpShare);
-  const wltAmount = Math.round(baseRevenue * wltShare);
+  const subAmount = Math.round(baseRevenue * subShare);
+  const chkAmount = Math.round(baseRevenue * chkShare);
+  const rtAmount = Math.round(baseRevenue * rtShare);
 
   // Timeframe chart points generator
   const chartSeries = useMemo(() => {
     if (timeframe === "1M") {
       return [
-        { label: "Oct 1", total: baseRevenue * 0.94, cfs: 0.61, rzp: 0.29, wlt: 0.1 },
-        { label: "Oct 7", total: baseRevenue * 0.955, cfs: 0.615, rzp: 0.285, wlt: 0.1 },
-        { label: "Oct 14", total: baseRevenue * 0.97, cfs: 0.62, rzp: 0.28, wlt: 0.1 },
-        { label: "Oct 21", total: baseRevenue * 0.985, cfs: 0.625, rzp: 0.275, wlt: 0.1 },
-        { label: "Oct 27", total: baseRevenue, cfs: 0.62, rzp: 0.28, wlt: 0.1 },
+        { label: "Oct 1", total: baseRevenue * 0.94, sub: 0.61, chk: 0.29, rt: 0.1 },
+        { label: "Oct 7", total: baseRevenue * 0.955, sub: 0.615, chk: 0.285, rt: 0.1 },
+        { label: "Oct 14", total: baseRevenue * 0.97, sub: 0.62, chk: 0.28, rt: 0.1 },
+        { label: "Oct 21", total: baseRevenue * 0.985, sub: 0.625, chk: 0.275, rt: 0.1 },
+        { label: "Oct 27", total: baseRevenue, sub: subShare, chk: chkShare, rt: rtShare },
       ];
     }
     if (timeframe === "3M") {
       return [
-        { label: "Aug 1", total: baseRevenue * 0.78, cfs: 0.58, rzp: 0.32, wlt: 0.1 },
-        { label: "Aug 15", total: baseRevenue * 0.82, cfs: 0.59, rzp: 0.31, wlt: 0.1 },
-        { label: "Sep 1", total: baseRevenue * 0.86, cfs: 0.6, rzp: 0.3, wlt: 0.1 },
-        { label: "Sep 15", total: baseRevenue * 0.91, cfs: 0.61, rzp: 0.29, wlt: 0.1 },
-        { label: "Oct 1", total: baseRevenue * 0.95, cfs: 0.615, rzp: 0.285, wlt: 0.1 },
-        { label: "Oct 27", total: baseRevenue, cfs: 0.62, rzp: 0.28, wlt: 0.1 },
+        { label: "Aug 1", total: baseRevenue * 0.78, sub: 0.58, chk: 0.32, rt: 0.1 },
+        { label: "Aug 15", total: baseRevenue * 0.82, sub: 0.59, chk: 0.31, rt: 0.1 },
+        { label: "Sep 1", total: baseRevenue * 0.86, sub: 0.60, chk: 0.30, rt: 0.1 },
+        { label: "Sep 15", total: baseRevenue * 0.91, sub: 0.61, chk: 0.29, rt: 0.1 },
+        { label: "Oct 1", total: baseRevenue * 0.95, sub: 0.615, chk: 0.285, rt: 0.1 },
+        { label: "Oct 27", total: baseRevenue, sub: subShare, chk: chkShare, rt: rtShare },
       ];
     }
     if (timeframe === "1Y") {
       return [
-        { label: "Nov '25", total: baseRevenue * 0.35, cfs: 0.52, rzp: 0.38, wlt: 0.1 },
-        { label: "Jan '26", total: baseRevenue * 0.44, cfs: 0.54, rzp: 0.36, wlt: 0.1 },
-        { label: "Mar '26", total: baseRevenue * 0.56, cfs: 0.56, rzp: 0.34, wlt: 0.1 },
-        { label: "May '26", total: baseRevenue * 0.68, cfs: 0.59, rzp: 0.31, wlt: 0.1 },
-        { label: "Jul '26", total: baseRevenue * 0.81, cfs: 0.61, rzp: 0.29, wlt: 0.1 },
-        { label: "Sep '26", total: baseRevenue * 0.92, cfs: 0.62, rzp: 0.28, wlt: 0.1 },
-        { label: "Oct '26", total: baseRevenue, cfs: 0.62, rzp: 0.28, wlt: 0.1 },
+        { label: "Nov '25", total: baseRevenue * 0.35, sub: 0.52, chk: 0.38, rt: 0.1 },
+        { label: "Jan '26", total: baseRevenue * 0.44, sub: 0.54, chk: 0.36, rt: 0.1 },
+        { label: "Mar '26", total: baseRevenue * 0.56, sub: 0.56, chk: 0.34, rt: 0.1 },
+        { label: "May '26", total: baseRevenue * 0.69, sub: 0.58, chk: 0.32, rt: 0.1 },
+        { label: "Jul '26", total: baseRevenue * 0.81, sub: 0.60, chk: 0.30, rt: 0.1 },
+        { label: "Sep '26", total: baseRevenue * 0.92, sub: 0.61, chk: 0.29, rt: 0.1 },
+        { label: "Oct '26", total: baseRevenue, sub: subShare, chk: chkShare, rt: rtShare },
       ];
     }
-    // "All"
+    // "All" Timeframe
     return [
-      { label: "2024", total: baseRevenue * 0.18, cfs: 0.45, rzp: 0.45, wlt: 0.1 },
-      { label: "Q2 '25", total: baseRevenue * 0.32, cfs: 0.50, rzp: 0.40, wlt: 0.1 },
-      { label: "Q4 '25", total: baseRevenue * 0.52, cfs: 0.55, rzp: 0.35, wlt: 0.1 },
-      { label: "Q2 '26", total: baseRevenue * 0.74, cfs: 0.59, rzp: 0.31, wlt: 0.1 },
-      { label: "Q4 '26", total: baseRevenue, cfs: 0.62, rzp: 0.28, wlt: 0.1 },
+      { label: "Q1 '25", total: baseRevenue * 0.15, sub: 0.45, chk: 0.45, rt: 0.1 },
+      { label: "Q2 '25", total: baseRevenue * 0.28, sub: 0.50, chk: 0.40, rt: 0.1 },
+      { label: "Q3 '25", total: baseRevenue * 0.48, sub: 0.55, chk: 0.35, rt: 0.1 },
+      { label: "Q4 '25", total: baseRevenue * 0.65, sub: 0.58, chk: 0.32, rt: 0.1 },
+      { label: "Q1 '26", total: baseRevenue * 0.82, sub: 0.60, chk: 0.30, rt: 0.1 },
+      { label: "Q2 '26", total: baseRevenue, sub: subShare, chk: chkShare, rt: rtShare },
     ];
-  }, [timeframe, baseRevenue]);
+  }, [timeframe, baseRevenue, subShare, chkShare, rtShare]);
 
-  // SVG Chart Geometry
+  // Chart Dimension math
   const chartW = 740;
   const chartH = 220;
   const paddingX = 40;
@@ -173,99 +178,96 @@ export function PlatformTreasuryBento({
   const plotH = chartH - paddingY * 2;
 
   const maxVal = useMemo(
-    () => Math.max(...chartSeries.map((s) => s.total)) * 1.12,
+    () => Math.max(...chartSeries.map((d) => d.total)) * 1.15 || 1000,
     [chartSeries]
   );
   const minVal = useMemo(
-    () => Math.min(...chartSeries.map((s) => s.total)) * 0.88,
+    () => Math.min(...chartSeries.map((d) => d.total)) * 0.85 || 0,
     [chartSeries]
   );
 
-  const getCoordinates = (index: number, val: number) => {
-    const x = paddingX + (index / (chartSeries.length - 1)) * plotW;
-    const y = chartH - paddingY - ((val - minVal) / (maxVal - minVal || 1)) * plotH;
-    return { x, y };
-  };
+  const points = useMemo(() => {
+    return chartSeries.map((d, i) => {
+      const x = paddingX + (i / (chartSeries.length - 1)) * plotW;
+      const normalizedY = (d.total - minVal) / (maxVal - minVal || 1);
+      const y = chartH - paddingY - normalizedY * plotH;
+      return { x, y, data: d };
+    });
+  }, [chartSeries, minVal, maxVal, plotW, plotH, chartH, paddingX, paddingY]);
 
-  const points = chartSeries.map((s, idx) => getCoordinates(idx, s.total));
-
-  // Build smooth cubic bezier path
+  // Smooth SVG Bezier Path
   const curvePath = useMemo(() => {
-    if (points.length === 0) return "";
-    let d = `M ${points[0].x} ${points[0].y}`;
-    for (let i = 0; i < points.length - 1; i++) {
-      const p0 = points[i === 0 ? 0 : i - 1];
-      const p1 = points[i];
-      const p2 = points[i + 1];
-      const p3 = points[i + 2] || p2;
-      const cp1x = p1.x + (p2.x - p0.x) * 0.18;
-      const cp1y = p1.y + (p2.y - p0.y) * 0.18;
-      const cp2x = p2.x - (p3.x - p1.x) * 0.18;
-      const cp2y = p2.y - (p3.y - p1.y) * 0.18;
-      d += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2.x} ${p2.y}`;
-    }
-    return d;
+    if (points.length < 2) return "";
+    return points.reduce((acc, pt, i, arr) => {
+      if (i === 0) return `M ${pt.x} ${pt.y}`;
+      const prev = arr[i - 1];
+      const cx = (prev.x + pt.x) / 2;
+      return `${acc} C ${cx} ${prev.y}, ${cx} ${pt.y}, ${pt.x} ${pt.y}`;
+    }, "");
   }, [points]);
 
   const areaPath = useMemo(() => {
     if (!curvePath || points.length === 0) return "";
-    const last = points[points.length - 1];
     const first = points[0];
-    const bottomY = chartH - paddingY;
-    return `${curvePath} L ${last.x} ${bottomY} L ${first.x} ${bottomY} Z`;
+    const last = points[points.length - 1];
+    const baseline = chartH - paddingY;
+    return `${curvePath} L ${last.x} ${baseline} L ${first.x} ${baseline} Z`;
   }, [curvePath, points, chartH, paddingY]);
 
-  // Cashflow 6-month model
+  // Cashflow Dynamics (Monthly Inflow vs Outflows)
   const cashflowMonths = [
-    { month: "May", in: 380000, out: 120000 },
-    { month: "Jun", in: 420000, out: 135000 },
-    { month: "Jul", in: 490000, out: 148000 },
-    { month: "Aug", in: 540000, out: 162000 },
-    { month: "Sep", in: 610000, out: 180000 },
-    { month: "Oct", in: 685000, out: 195000 },
+    { month: "May", in: 340000, out: 95000 },
+    { month: "Jun", in: 420000, out: 120000 },
+    { month: "Jul", in: 510000, out: 145000 },
+    { month: "Aug", in: 590000, out: 160000 },
+    { month: "Sep", in: 680000, out: 185000 },
+    { month: "Oct", in: 748000, out: 210000 },
   ];
 
   return (
     <div
       className={cn(
-        "rounded-3xl border border-white/10 bg-[#0A0D14] text-white p-4 sm:p-7 shadow-2xl relative overflow-hidden font-sans",
+        "w-full rounded-3xl border border-white/10 bg-gradient-to-b from-zinc-950/95 via-zinc-900/90 to-zinc-950 p-6 sm:p-8 text-white shadow-2xl relative overflow-hidden backdrop-blur-2xl",
         className
       )}
     >
-      {/* Background Ambient Glows */}
-      <div className="absolute -top-32 -left-32 w-96 h-96 bg-blue-600/10 rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-indigo-600/10 rounded-full blur-[100px] pointer-events-none" />
+      {/* Background Decorative Ambient Radial Gradients */}
+      <div className="absolute top-0 right-1/4 -translate-y-1/2 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 left-10 translate-y-1/3 w-80 h-80 bg-cyan-600/10 rounded-full blur-3xl pointer-events-none" />
 
-      {/* Top Header & Executive Controls */}
-      <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-white/10">
+      {/* ======================================================== */}
+      {/* HEADER SECTION: Title, Controls, Currency, Profile */}
+      {/* ======================================================== */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-white/10 relative z-10">
         <div>
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-blue-500/20">
-              <Sparkles className="h-4 w-4 text-white" />
-            </div>
-            <div>
-              <h2 className="text-xl sm:text-2xl font-bold font-display tracking-tight text-white flex items-center gap-2">
-                {title}
-              </h2>
-            </div>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="p-1.5 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400">
+              <Scale className="h-4 w-4" />
+            </span>
+            <h2 className="text-xl sm:text-2xl font-bold font-display tracking-tight text-white flex items-center gap-2">
+              {title}
+            </h2>
+            <Badge variant="outline" className="border-cyan-500/30 text-cyan-400 bg-cyan-500/10 text-[10px] font-mono uppercase">
+              100% Razorpay Native
+            </Badge>
           </div>
-          <p className="text-xs sm:text-sm text-zinc-400 mt-1 max-w-2xl font-normal">
+          <p className="text-xs sm:text-sm text-zinc-400 max-w-2xl leading-relaxed">
             {subtitle}
           </p>
         </div>
 
-        {/* Controls Toolbar: Timeframe + Currency + Admin Avatar */}
-        <div className="flex flex-wrap items-center gap-3">
-          {/* Timeframe Pill Selector */}
-          <div className="flex items-center p-1 rounded-xl bg-white/5 border border-white/10 backdrop-blur-md">
+        {/* Action Controls: Timeframe Filter + Currency + Admin Signature */}
+        <div className="flex flex-wrap items-center gap-2.5">
+          {/* Timeframe Selector */}
+          <div className="flex items-center p-0.5 rounded-xl bg-white/5 border border-white/10 text-xs">
             {(["1M", "3M", "1Y", "All"] as Timeframe[]).map((tf) => (
               <button
                 key={tf}
                 onClick={() => setTimeframe(tf)}
                 className={cn(
-                  "px-3 py-1 text-xs font-medium rounded-lg transition-all duration-200",
+                  "px-2.5 py-1 rounded-lg font-medium transition-all duration-150 cursor-pointer text-xs",
                   timeframe === tf
-                    ? "bg-white text-black shadow-md font-semibold"
+                    ? "bg-blue-600 text-white shadow-sm"
                     : "text-zinc-400 hover:text-white"
                 )}
               >
@@ -274,16 +276,16 @@ export function PlatformTreasuryBento({
             ))}
           </div>
 
-          {/* Currency Pill Selector */}
-          <div className="flex items-center p-1 rounded-xl bg-white/5 border border-white/10 backdrop-blur-md">
+          {/* Currency Switcher */}
+          <div className="flex items-center p-0.5 rounded-xl bg-white/5 border border-white/10 text-xs">
             {(["INR", "USD", "EUR"] as Currency[]).map((c) => (
               <button
                 key={c}
                 onClick={() => setCurrency(c)}
                 className={cn(
-                  "px-2.5 py-1 text-xs font-mono font-medium rounded-lg transition-all duration-200",
+                  "px-2 py-1 rounded-lg font-medium transition-all duration-150 cursor-pointer text-xs",
                   currency === c
-                    ? "bg-blue-600 text-white shadow-md font-bold"
+                    ? "bg-zinc-800 text-cyan-400 shadow-sm border border-cyan-500/30 font-semibold"
                     : "text-zinc-400 hover:text-white"
                 )}
               >
@@ -292,13 +294,12 @@ export function PlatformTreasuryBento({
             ))}
           </div>
 
-          {/* Admin Identity Chip */}
-          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10">
+          {/* Admin Identity Badge */}
+          <div className="flex items-center gap-2 pl-2 border-l border-white/10 py-0.5">
             <img
               src={avatarUrl}
               alt={adminName}
               onError={(e) => {
-                // fallback
                 (e.currentTarget as HTMLImageElement).src =
                   "https://api.dicebear.com/7.x/bottts/svg?seed=Admin";
               }}
@@ -312,6 +313,7 @@ export function PlatformTreasuryBento({
 
       {/* Main Bento Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 mt-6 relative z-10">
+        
         {/* ======================================================== */}
         {/* CARD 1: Executive Liquidity Stream (Hero 8 Columns) */}
         {/* ======================================================== */}
@@ -336,11 +338,11 @@ export function PlatformTreasuryBento({
               </div>
             </div>
 
-            {/* Stream Legend */}
+            {/* Stream Legend — 100% Razorpay native */}
             <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs font-medium text-zinc-300">
               <div className="flex items-center gap-1.5">
                 <span className="w-2.5 h-2.5 rounded-full bg-blue-500" />
-                <span>Cashfree Subscriptions</span>
+                <span>Razorpay Subscriptions</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <span className="w-2.5 h-2.5 rounded-full bg-cyan-400" />
@@ -348,7 +350,7 @@ export function PlatformTreasuryBento({
               </div>
               <div className="flex items-center gap-1.5">
                 <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
-                <span>Wallet Escrow</span>
+                <span>Route &amp; Escrow</span>
               </div>
             </div>
           </div>
@@ -416,9 +418,9 @@ export function PlatformTreasuryBento({
                         setHoveredPoint({
                           date: item.label,
                           total: item.total,
-                          cashfree: Math.round(item.total * item.cfs),
-                          razorpay: Math.round(item.total * item.rzp),
-                          escrow: Math.round(item.total * item.wlt),
+                          subscriptions: Math.round(item.total * item.sub),
+                          checkout: Math.round(item.total * item.chk),
+                          route: Math.round(item.total * item.rt),
                           x: pt.x,
                           y: pt.y,
                         });
@@ -481,28 +483,28 @@ export function PlatformTreasuryBento({
                 <div className="flex items-center justify-between gap-4 text-zinc-300">
                   <span className="flex items-center gap-1.5">
                     <span className="w-2 h-2 rounded-full bg-blue-500" />
-                    Cashfree (CFS)
+                    Razorpay Subscriptions (RZS)
                   </span>
                   <span className="font-mono text-white">
-                    {formatAmount(hoveredPoint.cashfree, true)}
+                    {formatAmount(hoveredPoint.subscriptions, true)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between gap-4 text-zinc-300">
                   <span className="flex items-center gap-1.5">
                     <span className="w-2 h-2 rounded-full bg-cyan-400" />
-                    Razorpay (RZP)
+                    Razorpay Checkout (RZC)
                   </span>
                   <span className="font-mono text-white">
-                    {formatAmount(hoveredPoint.razorpay, true)}
+                    {formatAmount(hoveredPoint.checkout, true)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between gap-4 text-zinc-300">
                   <span className="flex items-center gap-1.5">
                     <span className="w-2 h-2 rounded-full bg-amber-400" />
-                    Escrow Pool
+                    Route Escrow Pool (RZR)
                   </span>
                   <span className="font-mono text-white">
-                    {formatAmount(hoveredPoint.escrow, true)}
+                    {formatAmount(hoveredPoint.route, true)}
                   </span>
                 </div>
               </div>
@@ -511,7 +513,7 @@ export function PlatformTreasuryBento({
         </div>
 
         {/* ======================================================== */}
-        {/* CARD 2: Multi-Gateway Settlement Mix (Hero 4 Columns) */}
+        {/* CARD 2: Razorpay Native Settlement Mix (Hero 4 Columns) */}
         {/* ======================================================== */}
         <div className="lg:col-span-4 rounded-2xl border border-white/10 bg-zinc-950/60 p-5 sm:p-6 backdrop-blur-xl flex flex-col justify-between">
           <div>
@@ -529,26 +531,26 @@ export function PlatformTreasuryBento({
             <div className="mt-4">
               <div className="h-3 w-full rounded-full bg-white/5 overflow-hidden flex p-0.5 gap-1">
                 <div
-                  style={{ width: `${cfsShare * 100}%` }}
+                  style={{ width: `${subShare * 100}%` }}
                   className="h-full rounded-full bg-blue-500 transition-all duration-500"
-                  title="Cashfree"
+                  title="Razorpay Subscriptions"
                 />
                 <div
-                  style={{ width: `${rzpShare * 100}%` }}
+                  style={{ width: `${chkShare * 100}%` }}
                   className="h-full rounded-full bg-cyan-400 transition-all duration-500"
-                  title="Razorpay"
+                  title="Razorpay Direct Checkout"
                 />
                 <div
-                  style={{ width: `${wltShare * 100}%` }}
+                  style={{ width: `${rtShare * 100}%` }}
                   className="h-full rounded-full bg-amber-400 transition-all duration-500"
-                  title="Escrow"
+                  title="Razorpay Route & Escrow"
                 />
               </div>
             </div>
 
             {/* Gateway Cards Breakdown */}
             <div className="mt-5 space-y-3">
-              {/* Cashfree */}
+              {/* Razorpay Subscriptions */}
               <div className="p-3 rounded-xl bg-white/[0.03] border border-white/5 hover:border-blue-500/30 transition-all">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -556,22 +558,22 @@ export function PlatformTreasuryBento({
                       CF
                     </div>
                     <div>
-                      <h4 className="text-xs font-semibold text-white">Cashfree Subscriptions</h4>
-                      <p className="text-[10px] text-zinc-400">Auto-debit e-mandates & UPI</p>
+                      <h4 className="text-xs font-semibold text-white">Razorpay Subscriptions</h4>
+                      <p className="text-[10px] text-zinc-400">Auto-debit e-mandates &amp; UPI</p>
                     </div>
                   </div>
                   <div className="text-right">
                     <div className="text-xs font-bold font-mono text-white">
-                      {formatAmount(cfsAmount, true)}
+                      {formatAmount(subAmount, true)}
                     </div>
                     <span className="text-[10px] text-blue-400 font-mono font-medium">
-                      {(cfsShare * 100).toFixed(0)}% pot
+                      {(subShare * 100).toFixed(0)}% pot
                     </span>
                   </div>
                 </div>
               </div>
 
-              {/* Razorpay */}
+              {/* Razorpay Direct Checkout */}
               <div className="p-3 rounded-xl bg-white/[0.03] border border-white/5 hover:border-cyan-500/30 transition-all">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -580,21 +582,21 @@ export function PlatformTreasuryBento({
                     </div>
                     <div>
                       <h4 className="text-xs font-semibold text-white">Razorpay Checkout</h4>
-                      <p className="text-[10px] text-zinc-400">Direct courses, cards & QR</p>
+                      <p className="text-[10px] text-zinc-400">Direct courses, cards &amp; QR</p>
                     </div>
                   </div>
                   <div className="text-right">
                     <div className="text-xs font-bold font-mono text-white">
-                      {formatAmount(rzpAmount, true)}
+                      {formatAmount(chkAmount, true)}
                     </div>
                     <span className="text-[10px] text-cyan-400 font-mono font-medium">
-                      {(rzpShare * 100).toFixed(0)}% pot
+                      {(chkShare * 100).toFixed(0)}% pot
                     </span>
                   </div>
                 </div>
               </div>
 
-              {/* Escrow Pool */}
+              {/* Wallet Escrow Reserve */}
               <div className="p-3 rounded-xl bg-white/[0.03] border border-white/5 hover:border-amber-500/30 transition-all">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -603,15 +605,15 @@ export function PlatformTreasuryBento({
                     </div>
                     <div>
                       <h4 className="text-xs font-semibold text-white">Wallet Escrow Reserve</h4>
-                      <p className="text-[10px] text-zinc-400">Creator payouts & 7d buffer</p>
+                      <p className="text-[10px] text-zinc-400">Creator payouts &amp; 7d buffer</p>
                     </div>
                   </div>
                   <div className="text-right">
                     <div className="text-xs font-bold font-mono text-white">
-                      {formatAmount(wltAmount, true)}
+                      {formatAmount(rtAmount, true)}
                     </div>
                     <span className="text-[10px] text-amber-400 font-mono font-medium">
-                      {(wltShare * 100).toFixed(0)}% pot
+                      {(rtShare * 100).toFixed(0)}% pot
                     </span>
                   </div>
                 </div>
@@ -706,7 +708,7 @@ export function PlatformTreasuryBento({
                 {formatAmount(pendingPayouts)}
               </div>
               <p className="text-xs text-zinc-400 mt-1">
-                Cashfree Payout API: <span className="text-emerald-400">Instant UPI/NEFT</span>
+                Razorpay Route &amp; Payouts API: <span className="text-emerald-400">Instant UPI/NEFT</span>
               </p>
             </div>
           </div>
@@ -722,7 +724,7 @@ export function PlatformTreasuryBento({
             <div className="flex items-center justify-between text-xs text-zinc-400">
               <span className="font-semibold uppercase tracking-wider flex items-center gap-1.5">
                 <TrendingUp className="h-3.5 w-3.5 text-amber-400" />
-                ARR & MRR Velocity
+                ARR &amp; MRR Velocity
               </span>
               <span className="text-amber-400 font-mono text-[11px]">
                 MRR {formatAmount(baseMrr, true)}
@@ -766,7 +768,7 @@ export function PlatformTreasuryBento({
                 Platform Cash Flow Dynamics
               </h3>
               <p className="text-xs text-zinc-400 mt-0.5">
-                Monthly Gross Inflow vs Net Infrastructure & Creator Outflows
+                Monthly Gross Inflow vs Net Infrastructure &amp; Creator Outflows
               </p>
             </div>
             <Badge variant="outline" className="border-emerald-500/30 text-emerald-400 bg-emerald-500/10 text-[10px]">
@@ -810,7 +812,7 @@ export function PlatformTreasuryBento({
               </span>
               <span className="flex items-center gap-1 text-[11px]">
                 <span className="w-2.5 h-2.5 rounded-sm bg-zinc-600" />
-                Infra & Payouts
+                Infra &amp; Payouts
               </span>
             </div>
             <span className="text-[11px] font-mono text-emerald-400 font-medium">
@@ -819,14 +821,14 @@ export function PlatformTreasuryBento({
           </div>
         </div>
 
-        {/* Gateway Telemetry & Webhook Health */}
+        {/* Gateway Telemetry & Webhook Health — 100% Razorpay native */}
         <div className="lg:col-span-6 rounded-2xl border border-white/10 bg-zinc-950/60 p-5 backdrop-blur-xl flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-sm font-semibold text-white flex items-center gap-2">
                   <Zap className="h-4 w-4 text-amber-400" />
-                  Gateway Telemetry & Webhook SLAs
+                  Gateway Telemetry &amp; Webhook SLAs
                 </h3>
                 <p className="text-xs text-zinc-400 mt-0.5">
                   Real-time webhook latency, mandate health and fraud prevention
@@ -843,7 +845,7 @@ export function PlatformTreasuryBento({
                 <div className="flex items-center justify-between text-xs mb-1.5">
                   <span className="text-zinc-300 font-medium flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-blue-400" />
-                    Cashfree Recurring Subscriptions Webhook Sync
+                    Razorpay Recurring Subscriptions Webhook Sync
                   </span>
                   <span className="font-mono text-emerald-400">99.4% Success</span>
                 </div>
@@ -856,7 +858,7 @@ export function PlatformTreasuryBento({
                 <div className="flex items-center justify-between text-xs mb-1.5">
                   <span className="text-zinc-300 font-medium flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-cyan-400" />
-                    Razorpay Direct Checkout & UPI Auto-Pay
+                    Razorpay Direct Checkout &amp; UPI Auto-Pay
                   </span>
                   <span className="font-mono text-emerald-400">99.8% Success</span>
                 </div>
@@ -869,7 +871,7 @@ export function PlatformTreasuryBento({
                 <div className="flex items-center justify-between text-xs mb-1.5">
                   <span className="text-zinc-300 font-medium flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-purple-400" />
-                    Cashfree Payouts API (Instant IFSC / UPI VPA)
+                    Razorpay Route &amp; Payouts API (Instant IFSC / UPI VPA)
                   </span>
                   <span className="font-mono text-emerald-400">100% Cleared</span>
                 </div>
@@ -887,6 +889,7 @@ export function PlatformTreasuryBento({
             </span>
           </div>
         </div>
+
       </div>
     </div>
   );
