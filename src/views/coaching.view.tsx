@@ -45,6 +45,10 @@ import {
   Printer,
   FileText,
   Calculator,
+  User,
+  Image as ImageIcon,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { useAuth } from "@/hooks/use-auth";
@@ -67,21 +71,13 @@ import {
 import RoadmapBuilder from "@/components/admin/RoadmapBuilder";
 import { cn } from "@/lib/utils";
 import OpenSlotBooking, { MeetingIcons } from "@/components/ui/open-slot-booking";
-import { careerCoachChat, COACH_ROLE_PROMPTS } from "@/lib/career-coach.functions";
-import {
-  GoogleWorkspaceProIcon,
-  GoogleMultiAppIcon,
-  MsWordIcon,
-  MsExcelIcon,
-  MsOfficeIcon,
-} from "@/components/BrandIcons";
+import { careerCoachChat } from "@/lib/career-coach.functions";
 
 export const COACH_ROLES = [
   {
     id: "system_architect",
     title: "System Design & Distributed Architect",
     icon: Layers,
-    brandIcon: GoogleWorkspaceProIcon,
     badge: "Principal / Staff",
     color: "from-blue-500/20 to-indigo-500/20 text-blue-500 border-blue-500/30",
     description: "High-throughput microservices, event-driven streaming, database sharding, and latency optimization.",
@@ -108,7 +104,6 @@ export const COACH_ROLES = [
     id: "executive_leadership",
     title: "Behavioral & Executive Leadership Coach",
     icon: Award,
-    brandIcon: MsOfficeIcon,
     badge: "Director / VP",
     color: "from-amber-500/20 to-orange-500/20 text-amber-500 border-amber-500/30",
     description: "STAR frameworks, managing ambiguous cross-functional conflict, executive presence, and compensation negotiation.",
@@ -122,7 +117,6 @@ export const COACH_ROLES = [
     id: "ai_ml_researcher",
     title: "AI / ML & GenAI Research Specialist",
     icon: Cpu,
-    brandIcon: GoogleMultiAppIcon,
     badge: "Research Scientist",
     color: "from-emerald-500/20 to-teal-500/20 text-emerald-500 border-emerald-500/30",
     description: "LLM fine-tuning, RAG vector retrieval pipelines, agentic tool workflows, and production model serving.",
@@ -149,7 +143,6 @@ export const COACH_ROLES = [
     id: "product_manager",
     title: "Product Management & Strategy Lead",
     icon: Compass,
-    brandIcon: MsWordIcon,
     badge: "Group PM",
     color: "from-cyan-500/20 to-blue-500/20 text-cyan-500 border-cyan-500/30",
     description: "PRD writing, North Star metric hierarchies, RICE prioritization, and Go-To-Market product rollout.",
@@ -163,7 +156,6 @@ export const COACH_ROLES = [
     id: "devops_sre",
     title: "Cloud & DevOps / Site Reliability Engineer",
     icon: Globe,
-    brandIcon: GoogleWorkspaceProIcon,
     badge: "Staff SRE",
     color: "from-sky-500/20 to-indigo-500/20 text-sky-500 border-sky-500/30",
     description: "Kubernetes orchestration, Terraform IaC, Prometheus observability, zero-downtime blue/green deploys, and FinOps.",
@@ -190,7 +182,6 @@ export const COACH_ROLES = [
     id: "career_strategist",
     title: "Tech Career Transition & Resume Strategist",
     icon: Briefcase,
-    brandIcon: MsWordIcon,
     badge: "Senior Recruiter",
     color: "from-rose-500/20 to-red-500/20 text-rose-500 border-rose-500/30",
     description: "Google XYZ resume formulas, ATS keyword matching, cold LinkedIn outreach to Engineering Managers, and portfolio audits.",
@@ -204,9 +195,8 @@ export const COACH_ROLES = [
     id: "freelance_agency",
     title: "Freelance & Productized Agency Coach",
     icon: DollarSign,
-    brandIcon: MsExcelIcon,
     badge: "Agency Founder",
-    color: "from-amber-500/20 to-yellow-500/20 text-amber-500 border-amber-500/30",
+    color: "from-emerald-500/20 to-green-500/20 text-emerald-500 border-emerald-500/30",
     description: "Value-based pricing, monthly retainer contracts, client discovery objection handling, and productized service models.",
     samplePrompts: [
       "How to transition from $50/hr billing to a $5,000/month retainer?",
@@ -239,40 +229,51 @@ export default function CoachingDashboard() {
   const { user, isCreator } = useAuth();
   const qc = useQueryClient();
 
-  // 5 Clean Tabs:
+  // 3 Primary Connected Experiences + 2 Secondary Tabs:
   const [activeTab, setActiveTab] = useState<
-    "live_booking_sessions" | "ai_studio_messenger" | "roadmaps" | "cohorts" | "outcomes"
-  >("live_booking_sessions");
+    "book_call" | "ai_studio" | "my_sessions" | "roadmaps" | "outcomes"
+  >("book_call");
 
-  // Sub-tab inside live_booking_sessions
-  const [bookingSubTab, setBookingSubTab] = useState<"calendar" | "my_sessions" | "availability">("calendar");
+  // Secondary toggle for managing host availability & recurring blocks inside book_call
+  const [showAvailabilityManager, setShowAvailabilityManager] = useState(false);
   const [selectedReceiptBooking, setSelectedReceiptBooking] = useState<any | null>(null);
 
-  // Coach Profile & Live Time State (Maya Lindqvist)
+  // Coach Profile & Live Time State (Vishwajeet)
   const [coachProfile, setCoachProfile] = useState(() => {
     try {
       const saved = localStorage.getItem("learnify_coach_profile");
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.name === "Maya Lindqvist" || !parsed.avatar) {
+          parsed.name = "Vishwajeet";
+          parsed.role = "Principal Distributed Systems Architect";
+          parsed.city = "Bangalore";
+          parsed.avatar = "/avatars/Vishwajeet.jpeg";
+          parsed.stamp = "Vishwajeet · Principal Distributed Systems Architect · Learnify AI · ";
+        }
+        return parsed;
+      }
     } catch {}
     return {
-      name: "Maya Lindqvist",
+      name: "Vishwajeet",
       role: "Principal Distributed Systems Architect",
       city: "Bangalore",
       timeZone: "Asia/Calcutta",
       meetingTitle: "1:1 Technical & Career Advisory",
       agenda: "System design review, mock tech interview, or career growth strategy session.",
       location: "Google Meet & Zoom Direct Integration",
+      avatar: "/avatars/Vishwajeet.jpeg",
       durations: [15, 30, 45, 60],
       durationPrices: { 15: 499, 30: 999, 45: 1499, 60: 1999 } as Record<number, number>,
       defaultDuration: 30,
       ratePerSession: 999,
       platform: "google-meet" as "google-meet" | "zoom" | "teams",
       responseNote: "Calendar synced in real time",
-      stamp: "Maya Lindqvist · Principal Distributed Systems Architect · Learnify AI · ",
+      stamp: "Vishwajeet · Principal Distributed Systems Architect · Learnify AI · ",
     };
   });
 
-  const [coachLiveTime, setCoachLiveTime] = useState("Bangalore, 11:16 pm now");
+  const [coachLiveTime, setCoachLiveTime] = useState("Bangalore, 11:30 pm now");
   useEffect(() => {
     const updateTime = () => {
       try {
@@ -285,7 +286,7 @@ export default function CoachingDashboard() {
         }).format(now).toLowerCase();
         setCoachLiveTime(`${coachProfile.city || "Bangalore"}, ${timeStr} now`);
       } catch {
-        setCoachLiveTime("Bangalore, 11:16 pm now");
+        setCoachLiveTime("Bangalore, 11:30 pm now");
       }
     };
     updateTime();
@@ -317,12 +318,22 @@ export default function CoachingDashboard() {
   const [localBookings, setLocalBookings] = useState<any[]>(() => {
     try {
       const saved = localStorage.getItem("learnify_coach_local_bookings");
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed.map((b) => ({
+            ...b,
+            coachName: b.coachName === "Maya Lindqvist" ? "Vishwajeet" : b.coachName || "Vishwajeet",
+            coachAvatar: b.coachAvatar || "/avatars/Vishwajeet.jpeg",
+          }));
+        }
+      }
     } catch {}
     return [
       {
         id: "bk-init-1",
-        coachName: "Maya Lindqvist",
+        coachName: "Vishwajeet",
+        coachAvatar: "/avatars/Vishwajeet.jpeg",
         coachRole: "Principal Distributed Systems Architect",
         learnerName: "Siddharth Verma",
         learnerEmail: "siddharth.v@techcorp.io",
@@ -342,7 +353,8 @@ export default function CoachingDashboard() {
       },
       {
         id: "bk-init-2",
-        coachName: "Maya Lindqvist",
+        coachName: "Vishwajeet",
+        coachAvatar: "/avatars/Vishwajeet.jpeg",
         coachRole: "Principal Distributed Systems Architect",
         learnerName: "Aarav Patel",
         learnerEmail: "aarav.p@scaleops.dev",
@@ -368,8 +380,19 @@ export default function CoachingDashboard() {
     try {
       localStorage.setItem("learnify_coach_profile", JSON.stringify(editCoachForm));
     } catch {}
+    // Also sync local bookings coachName if needed
+    const syncedBookings = localBookings.map((b) => ({
+      ...b,
+      coachName: editCoachForm.name,
+      coachRole: editCoachForm.role,
+      coachAvatar: editCoachForm.avatar || "/avatars/Vishwajeet.jpeg",
+    }));
+    setLocalBookings(syncedBookings);
+    try {
+      localStorage.setItem("learnify_coach_local_bookings", JSON.stringify(syncedBookings));
+    } catch {}
     setIsEditProfileOpen(false);
-    toast.success("Coach profile and session duration pricing updated successfully!");
+    toast.success("Coach profile and duration pricing updated live!");
   };
 
   const addBusyBlock = () => {
@@ -410,7 +433,7 @@ export default function CoachingDashboard() {
     try {
       localStorage.setItem("learnify_coach_local_bookings", JSON.stringify(updated));
     } catch {}
-    toast.success("Session approved! An automated notice and meeting room invite dispatched.");
+    toast.success("Session approved! An automated notice and room invite dispatched.");
   };
 
   const rejectBooking = (id: string) => {
@@ -499,6 +522,7 @@ export default function CoachingDashboard() {
       const newBk = {
         id: `bk-${Date.now()}`,
         coachName: coachProfile.name,
+        coachAvatar: coachProfile.avatar || "/avatars/Vishwajeet.jpeg",
         coachRole: coachProfile.role,
         learnerName: booking.name || user?.user_metadata?.full_name || "Learner",
         learnerEmail: booking.email || user?.email || "learner@learnify.ai",
@@ -524,12 +548,12 @@ export default function CoachingDashboard() {
       } catch {}
 
       toast.success(
-        `Session confirmed for ${format(new Date(booking.start), "MMM d, h:mm a")} (₹${price.toLocaleString("en-IN")}) via ${newBk.platform}! An automated calendar notice has been dispatched.`
+        `Session confirmed for ${format(new Date(booking.start), "MMM d, h:mm a")} (₹${price.toLocaleString("en-IN")}) via ${newBk.platform}! Calendar invite dispatched.`
       );
       if (user) {
         qc.invalidateQueries({ queryKey: ["my-coaching-bookings"] });
       }
-      setBookingSubTab("my_sessions");
+      setActiveTab("my_sessions");
     } catch (err: any) {
       toast.error(err?.message || "Booking failed");
     }
@@ -585,7 +609,7 @@ export default function CoachingDashboard() {
       `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "")}`,
       `DTSTART:${start.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "")}`,
       `DTEND:${end.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "")}`,
-      `SUMMARY:${b.title || "1:1 Technical & Career Advisory with Maya Lindqvist"}`,
+      `SUMMARY:${b.title || `1:1 Technical & Career Advisory with ${b.coachName || coachProfile.name}`}`,
       `DESCRIPTION:${b.agenda || "Learnify AI 1:1 Coaching session"}\\nMeeting Link: ${b.meetingLink || b.slot?.meeting_link || "https://meet.google.com/lnf-dist-sys"}`,
       `LOCATION:${b.meetingLink || b.slot?.meeting_link || "Google Meet / Zoom Direct Integration"}`,
       "STATUS:CONFIRMED",
@@ -653,83 +677,107 @@ export default function CoachingDashboard() {
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20 mb-2">
               <Sparkles className="w-3.5 h-3.5" />
-              <span>Executive Coaching Studio 4.0</span>
+              <span>Executive Coaching Studio 5.0</span>
             </div>
             <h1 className="text-3xl font-display font-semibold tracking-tight text-foreground">
               Coaching & Mentorship Studio
             </h1>
             <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
-              Direct 1-on-1 mentorship with Staff & Principal Engineers from top tier tech companies, plus our 10-Role AI Coaching Agent Studio with real-time tool calling and code execution.
+              Direct 1-on-1 mentorship with Staff & Principal Engineers, plus our 10-Role AI Coaching Agent Studio with real-time tool calling and code execution.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <Button
-              variant="outline"
+              variant={activeTab === "book_call" ? "default" : "outline"}
               size="sm"
-              onClick={() => {
-                setActiveTab("live_booking_sessions");
-                setBookingSubTab("calendar");
-              }}
-              className="gap-2 border-primary/20 text-primary hover:bg-primary/10"
+              onClick={() => setActiveTab("book_call")}
+              className="gap-2"
             >
               <Calendar className="w-4 h-4" />
-              <span>Book 1-on-1 Call</span>
+              <span>Book 1:1 Call</span>
             </Button>
             <Button
-              variant="outline"
+              variant={activeTab === "ai_studio" ? "default" : "outline"}
               size="sm"
-              onClick={() => {
-                setActiveTab("live_booking_sessions");
-                setBookingSubTab("availability");
-              }}
-              className="gap-2 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10"
-            >
-              <Settings className="w-4 h-4" />
-              <span>Coach Studio</span>
-            </Button>
-            <Button
-              size="sm"
-              onClick={() => setActiveTab("ai_studio_messenger")}
+              onClick={() => setActiveTab("ai_studio")}
               className="gap-2"
             >
               <Bot className="w-4 h-4" />
               <span>AI Coach Studio</span>
             </Button>
+            <Button
+              variant={activeTab === "my_sessions" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setActiveTab("my_sessions")}
+              className="gap-2"
+            >
+              <Clock className="w-4 h-4" />
+              <span>My Sessions</span>
+              {localBookings.length > 0 && (
+                <Badge variant="secondary" className="text-[10px] py-0 px-1 font-bold">
+                  {localBookings.length}
+                </Badge>
+              )}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setEditCoachForm(coachProfile);
+                setIsEditProfileOpen(true);
+              }}
+              className="gap-1.5 border-primary/30 text-primary hover:bg-primary/10"
+            >
+              <Edit3 className="w-4 h-4" />
+              <span className="hidden sm:inline">Edit Rates</span>
+            </Button>
           </div>
         </div>
 
-        {/* 5 Core Tabs Bar */}
+        {/* 5 Core Connected Tabs Bar */}
         <div className="flex gap-2 sm:gap-3 border-b mb-8 overflow-x-auto -mx-4 px-4 snap-x snap-mandatory scrollbar-none">
           <button
             className={`pb-3 text-sm font-medium border-b-2 transition-colors shrink-0 snap-start flex items-center gap-2 ${
-              activeTab === "live_booking_sessions"
+              activeTab === "book_call"
                 ? "border-primary text-foreground font-semibold"
                 : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
-            onClick={() => setActiveTab("live_booking_sessions")}
+            onClick={() => setActiveTab("book_call")}
           >
             <Calendar className="h-4 w-4 text-indigo-500" />
-            <span>1:1 Live Booking & Sessions</span>
-            {localBookings.some((b) => b.status === "confirmed") && (
-              <Badge variant="outline" className="text-[10px] bg-indigo-500/10 text-indigo-500 border-indigo-500/20 py-0 px-1 font-bold">
-                {localBookings.filter((b) => b.status === "confirmed").length}
-              </Badge>
-            )}
+            <span>1:1 Live Booking</span>
           </button>
 
           <button
             className={`pb-3 text-sm font-medium border-b-2 transition-colors shrink-0 snap-start flex items-center gap-2 ${
-              activeTab === "ai_studio_messenger"
+              activeTab === "ai_studio"
                 ? "border-primary text-foreground font-semibold"
                 : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
-            onClick={() => setActiveTab("ai_studio_messenger")}
+            onClick={() => setActiveTab("ai_studio")}
           >
             <Bot className="h-4 w-4 text-purple-500" />
             <span>10-Role AI Studio & Messenger</span>
             <Badge variant="outline" className="text-[10px] bg-purple-500/10 text-purple-600 border-purple-500/20 py-0 px-1.5 font-bold">
               HOT
             </Badge>
+          </button>
+
+          <button
+            className={`pb-3 text-sm font-medium border-b-2 transition-colors shrink-0 snap-start flex items-center gap-2 ${
+              activeTab === "my_sessions"
+                ? "border-primary text-foreground font-semibold"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            }`}
+            onClick={() => setActiveTab("my_sessions")}
+          >
+            <Clock className="h-4 w-4 text-emerald-500" />
+            <span>My Sessions & Receipts</span>
+            {localBookings.some((b) => b.status === "confirmed") && (
+              <Badge variant="outline" className="text-[10px] bg-emerald-500/10 text-emerald-600 border-emerald-500/20 py-0 px-1 font-bold">
+                {localBookings.filter((b) => b.status === "confirmed").length}
+              </Badge>
+            )}
           </button>
 
           <button
@@ -746,18 +794,6 @@ export default function CoachingDashboard() {
 
           <button
             className={`pb-3 text-sm font-medium border-b-2 transition-colors shrink-0 snap-start flex items-center gap-2 ${
-              activeTab === "cohorts"
-                ? "border-primary text-foreground font-semibold"
-                : "border-transparent text-muted-foreground hover:text-foreground"
-            }`}
-            onClick={() => setActiveTab("cohorts")}
-          >
-            <Users className="h-4 w-4 text-cyan-500" />
-            <span>Cohorts</span>
-          </button>
-
-          <button
-            className={`pb-3 text-sm font-medium border-b-2 transition-colors shrink-0 snap-start flex items-center gap-2 ${
               activeTab === "outcomes"
                 ? "border-primary text-foreground font-semibold"
                 : "border-transparent text-muted-foreground hover:text-foreground"
@@ -765,12 +801,12 @@ export default function CoachingDashboard() {
             onClick={() => setActiveTab("outcomes")}
           >
             <TrendingUp className="h-4 w-4 text-rose-500" />
-            <span>Outcomes</span>
+            <span>Outcomes & Cohorts</span>
           </button>
         </div>
 
-        {/* ============ TAB 1: 1:1 LIVE BOOKING & SESSIONS ============ */}
-        {activeTab === "live_booking_sessions" && (
+        {/* ============ EXPERIENCE 1: 1:1 LIVE CALENDAR BOOKING ============ */}
+        {activeTab === "book_call" && (
           <div className="space-y-6">
             {/* Notice Active Banner (Starts in ~2 Hours Alert) */}
             {localBookings.length > 0 && (
@@ -824,444 +860,235 @@ export default function CoachingDashboard() {
               </div>
             )}
 
-            {/* Sub-view switcher pills */}
-            <div className="flex flex-wrap items-center justify-between gap-3 p-1.5 rounded-xl bg-card border">
-              <div className="flex items-center gap-1.5">
-                <button
-                  onClick={() => setBookingSubTab("calendar")}
-                  className={cn(
-                    "px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-2",
-                    bookingSubTab === "calendar"
-                      ? "bg-primary text-primary-foreground shadow-xs"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                  )}
-                >
-                  <Calendar className="w-3.5 h-3.5" />
-                  <span>1:1 Live Calendar Booking</span>
-                </button>
-                <button
-                  onClick={() => setBookingSubTab("my_sessions")}
-                  className={cn(
-                    "px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-2",
-                    bookingSubTab === "my_sessions"
-                      ? "bg-primary text-primary-foreground shadow-xs"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                  )}
-                >
-                  <Clock className="w-3.5 h-3.5" />
-                  <span>My Sessions & Thermal Receipts</span>
-                  <Badge variant="outline" className="text-[10px] py-0 px-1 ml-0.5">
-                    {localBookings.length}
-                  </Badge>
-                </button>
-                <button
-                  onClick={() => setBookingSubTab("availability")}
-                  className={cn(
-                    "px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-2",
-                    bookingSubTab === "availability"
-                      ? "bg-primary text-primary-foreground shadow-xs"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                  )}
-                >
-                  <Settings className="w-3.5 h-3.5" />
-                  <span>Coach Studio & Availability Matrix</span>
-                </button>
+            {/* Coach Profile Card with Real Avatar & Duration Pricing Matrix */}
+            <div className="bg-card border rounded-2xl p-5 sm:p-6 shadow-sm space-y-4">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-5">
+                <div className="flex items-start sm:items-center gap-4">
+                  {/* Real Vishwajeet Profile Image */}
+                  <div className="relative w-16 h-16 rounded-2xl overflow-hidden border-2 border-primary/30 shadow-md shrink-0 bg-muted">
+                    <img
+                      src={coachProfile.avatar || "/avatars/Vishwajeet.jpeg"}
+                      alt={coachProfile.name}
+                      className="w-full h-full object-cover object-top"
+                      onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).src = "/avatars/Vishwajeet.jpeg";
+                      }}
+                    />
+                    <span className="absolute bottom-1 right-1 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-background animate-pulse" />
+                  </div>
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h2 className="text-xl font-bold font-display text-foreground">{coachProfile.name}</h2>
+                      <Badge className="bg-primary/10 text-primary border-primary/20 text-xs font-semibold">
+                        {coachProfile.role}
+                      </Badge>
+                      <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 font-mono">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                        {coachLiveTime}
+                      </div>
+                    </div>
+                    <p className="text-xs sm:text-sm text-muted-foreground mt-1 max-w-xl font-medium">
+                      {coachProfile.meetingTitle} · {coachProfile.agenda}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2 self-start md:self-auto">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="gap-1.5 text-xs h-9 border-primary/30 text-primary hover:bg-primary/10 font-semibold"
+                    onClick={() => {
+                      setEditCoachForm(coachProfile);
+                      setIsEditProfileOpen(true);
+                    }}
+                  >
+                    <Edit3 className="w-3.5 h-3.5" />
+                    <span>Edit Profile & Rates</span>
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={showAvailabilityManager ? "default" : "outline"}
+                    className="gap-1.5 text-xs h-9"
+                    onClick={() => setShowAvailabilityManager(!showAvailabilityManager)}
+                  >
+                    <Settings className="w-3.5 h-3.5" />
+                    <span>Availability Matrix</span>
+                    {showAvailabilityManager ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                  </Button>
+                </div>
               </div>
 
-              <div className="flex items-center gap-2 px-2">
-                <div className="inline-flex items-center gap-1.5 text-xs text-emerald-500 font-mono">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                  <span>{coachLiveTime}</span>
+              {/* Duration Pricing Matrix Chips (18% GST Included) */}
+              <div className="pt-3 border-t border-border/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
+                    <Receipt className="w-3.5 h-3.5 text-primary" /> Session Rates:
+                  </span>
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    {coachProfile.durations.map((dur: number) => (
+                      <span
+                        key={dur}
+                        className="px-2.5 py-1 rounded-lg bg-muted border text-xs font-mono font-semibold text-foreground flex items-center gap-1.5 shadow-2xs"
+                      >
+                        <span className="text-muted-foreground">{dur}m:</span>
+                        <span className="text-primary font-bold">
+                          ₹{coachProfile.durationPrices?.[dur]?.toLocaleString("en-IN") || 999}
+                        </span>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <div className="text-[11px] font-mono text-muted-foreground flex items-center gap-1.5">
+                  <Badge variant="outline" className="text-[10px] py-0 px-1 font-mono">
+                    SAC 998431
+                  </Badge>
+                  <span>18% Indian GST Included</span>
                 </div>
               </div>
             </div>
 
-            {/* SubTab 1: Live Calendar Booking */}
-            {bookingSubTab === "calendar" && (
-              <div className="space-y-6">
-                {/* Coach Banner with Duration Pricing Pill */}
-                <div className="bg-card border rounded-2xl p-4 sm:p-5 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  <div className="flex items-center gap-3.5">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500/20 to-primary/30 border border-primary/30 flex items-center justify-center text-primary font-display font-bold text-lg shrink-0 shadow-sm">
-                      ML
-                    </div>
+            {/* Optional Collapsible Availability & Recurring Busy Matrix */}
+            {showAvailabilityManager && (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-5 rounded-2xl border bg-muted/20 animate-in fade-in-50 duration-200">
+                {/* Pending Bookings */}
+                <div className="bg-card border rounded-xl p-4 shadow-sm space-y-3">
+                  <div className="flex items-center justify-between border-b pb-2.5">
                     <div>
-                      <div className="flex flex-wrap items-center gap-2">
-                        <h3 className="font-bold text-base text-foreground">{coachProfile.name}</h3>
-                        <Badge className="bg-primary/10 text-primary border-primary/20 text-[10px] font-semibold">
-                          {coachProfile.role}
-                        </Badge>
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-0.5">{coachProfile.agenda}</p>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-wrap items-center gap-2 self-start md:self-auto">
-                    <div className="flex items-center gap-1.5 p-1 rounded-lg bg-muted border text-xs font-medium">
-                      <span className="text-muted-foreground px-1 text-[11px]">Pricing:</span>
-                      {coachProfile.durations.map((dur: number) => (
-                        <span key={dur} className="px-2 py-0.5 rounded bg-background shadow-xs text-[11px] font-semibold text-foreground">
-                          {dur}m · ₹{coachProfile.durationPrices?.[dur]?.toLocaleString("en-IN") || 999}
-                        </span>
-                      ))}
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="gap-1.5 text-xs h-8 border-primary/30 text-primary hover:bg-primary/10"
-                      onClick={() => {
-                        setEditCoachForm(coachProfile);
-                        setIsEditProfileOpen(true);
-                      }}
-                    >
-                      <Edit3 className="w-3.5 h-3.5" />
-                      <span>Manage Pricing</span>
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Open Slot Booking Component with Duration Pricing */}
-                <div className="bg-card border rounded-2xl p-4 sm:p-6 shadow-sm">
-                  <OpenSlotBooking
-                    headline="1:1 Technical & Career Advisory"
-                    headlineAccent="Direct with Maya Lindqvist"
-                    description={coachProfile.agenda}
-                    meetingTitle={coachProfile.meetingTitle}
-                    agenda={coachProfile.agenda}
-                    location={coachProfile.location}
-                    durations={coachProfile.durations}
-                    durationPrices={coachProfile.durationPrices}
-                    defaultDuration={coachProfile.defaultDuration}
-                    host={{
-                      name: coachProfile.name,
-                      role: coachProfile.role,
-                      city: coachProfile.city,
-                      stamp: coachProfile.stamp,
-                    }}
-                    hostTimeZone="Asia/Calcutta"
-                    timeZones={["Asia/Calcutta", "Asia/Kolkata", "America/New_York", "Europe/London", "Asia/Singapore", "Asia/Dubai"]}
-                    hostBusy={hostBusySchedule}
-                    visitorEvents={sampleMyWeek}
-                    onBook={handleOpenSlotBook}
-                    preset="learnify"
-                    gridHeight={440}
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* SubTab 2: My Sessions & Thermal Receipts */}
-            {bookingSubTab === "my_sessions" && (
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2 space-y-4">
-                  <div className="flex items-center justify-between border-b pb-3">
-                    <div>
-                      <h3 className="font-bold text-lg text-foreground flex items-center gap-2">
-                        <Clock className="w-5 h-5 text-primary" /> My Scheduled 1:1 Sessions
-                      </h3>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        Manage your live Google Meet / Zoom sessions, download .ICS calendar files, and inspect GST thermal invoices.
-                      </p>
+                      <h4 className="font-bold text-sm text-foreground flex items-center gap-2">
+                        <UserCheck className="w-4 h-4 text-amber-500" /> Pending Booking Requests
+                      </h4>
+                      <p className="text-[11px] text-muted-foreground">Approve learner requests to trigger calendar notices.</p>
                     </div>
                     <Badge variant="outline" className="font-mono text-xs">
-                      {localBookings.length} Bookings
+                      {localBookings.filter((b) => b.status === "pending").length}
                     </Badge>
                   </div>
 
-                  <ul className="space-y-4">
-                    {localBookings.map((b) => (
-                      <li
-                        key={b.id}
-                        className="p-5 border border-border/70 rounded-2xl bg-card hover:border-primary/40 transition-all shadow-sm space-y-3"
-                      >
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 text-primary flex items-center justify-center font-bold text-sm shrink-0">
-                              ML
+                  {localBookings.filter((b) => b.status === "pending").length === 0 ? (
+                    <div className="text-center py-6 text-muted-foreground border border-dashed rounded-lg">
+                      <CheckCircle2 className="w-7 h-7 mx-auto mb-1.5 text-emerald-500 opacity-80" />
+                      <p className="text-xs font-medium text-foreground">All booking requests approved</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-2.5">
+                      {localBookings
+                        .filter((b) => b.status === "pending")
+                        .map((bk) => (
+                          <div key={bk.id} className="p-3 rounded-lg border bg-accent/20 space-y-1.5">
+                            <div className="flex items-center justify-between text-xs">
+                              <span className="font-bold text-foreground">{bk.learnerName}</span>
+                              <span className="font-mono font-bold text-primary">₹{bk.price}</span>
                             </div>
-                            <div>
-                              <div className="font-bold text-sm text-foreground flex items-center gap-2">
-                                <span>{b.title}</span>
-                                <Badge
-                                  className={cn(
-                                    "text-[10px] py-0 px-1.5 font-semibold",
-                                    b.status === "confirmed"
-                                      ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30"
-                                      : "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30"
-                                  )}
-                                >
-                                  {b.status === "confirmed" ? "Confirmed" : "Pending Approval"}
-                                </Badge>
-                              </div>
-                              <div className="text-xs text-muted-foreground mt-0.5">
-                                Coach: <span className="font-semibold text-foreground">{b.coachName}</span> ({b.coachRole})
-                              </div>
+                            <p className="text-[11px] text-muted-foreground">{bk.agenda}</p>
+                            <div className="flex items-center justify-end gap-2 pt-1">
+                              <Button size="sm" variant="outline" className="h-6 text-[11px] px-2" onClick={() => rejectBooking(bk.id)}>
+                                Decline
+                              </Button>
+                              <Button size="sm" className="h-6 text-[11px] px-2.5 bg-emerald-600 hover:bg-emerald-700" onClick={() => approveBooking(bk.id)}>
+                                Approve & Sync
+                              </Button>
                             </div>
                           </div>
-
-                          <div className="flex items-center gap-1.5 self-start sm:self-auto">
-                            <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-muted border text-muted-foreground">
-                              {b.duration} min
-                            </span>
-                            <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 font-bold">
-                              ₹{b.price?.toLocaleString("en-IN") || 999}
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-muted-foreground pt-1 border-t border-border/40">
-                          <div className="flex items-center gap-1.5 font-medium text-foreground">
-                            <Clock className="w-3.5 h-3.5 text-primary" />
-                            <span>{format(new Date(b.startTime), "EEE, MMM d, yyyy · h:mm a")}</span>
-                          </div>
-                          <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
-                            <Bell className="w-3.5 h-3.5" />
-                            <span>{b.noticeTime || "Notice dispatched 2h prior"}</span>
-                          </div>
-                        </div>
-
-                        {b.agenda && (
-                          <p className="text-xs text-muted-foreground bg-muted/40 p-2.5 rounded-xl border border-border/40">
-                            <span className="font-semibold text-foreground">Discussion Topic:</span> {b.agenda}
-                          </p>
-                        )}
-
-                        <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
-                          <div className="text-xs text-blue-500 flex items-center gap-1">
-                            <Video className="w-3.5 h-3.5" />
-                            <a
-                              href={b.meetingLink}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="hover:underline font-mono"
-                            >
-                              {b.meetingLink}
-                            </a>
-                          </div>
-
-                          <div className="flex flex-wrap items-center gap-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => setSelectedReceiptBooking(b)}
-                              className="h-8 text-xs gap-1.5 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10"
-                            >
-                              <Receipt className="w-3.5 h-3.5" /> Thermal Receipt
-                            </Button>
-                            <a href={getGoogleCalendarUrl(b)} target="_blank" rel="noreferrer">
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="h-8 text-xs gap-1.5 border-primary/20 text-primary hover:bg-primary/10"
-                              >
-                                <CalendarPlus className="w-3.5 h-3.5" /> G-Cal
-                              </Button>
-                            </a>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => downloadIcsForBooking(b)}
-                              className="h-8 text-xs gap-1.5 border-border"
-                            >
-                              <Download className="w-3.5 h-3.5" /> .ICS
-                            </Button>
-                            <a href={b.meetingLink} target="_blank" rel="noreferrer">
-                              <Button size="sm" className="h-8 text-xs gap-1.5">
-                                <Video className="w-3.5 h-3.5" /> Join Call
-                              </Button>
-                            </a>
-                          </div>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
+                        ))}
+                    </div>
+                  )}
                 </div>
 
-                {/* Right Column: Live Thermal Receipt Preview */}
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                      <Receipt className="w-3.5 h-3.5 text-primary" /> Thermal Receipt Ledger
-                    </span>
-                    <Badge variant="outline" className="text-[10px] font-mono">
-                      SAC 998431 · 18% GST
-                    </Badge>
+                {/* Recurring Busy Blocks */}
+                <div className="bg-card border rounded-xl p-4 shadow-sm space-y-3">
+                  <div className="flex items-center justify-between border-b pb-2.5">
+                    <div>
+                      <h4 className="font-bold text-sm text-foreground flex items-center gap-2">
+                        <Clock className="w-4 h-4 text-indigo-500" /> Weekly Recurring Busy Blocks
+                      </h4>
+                      <p className="text-[11px] text-muted-foreground">Times where you are marked unavailable in OpenSlotBooking.</p>
+                    </div>
+                    <Button size="sm" variant="outline" className="h-7 text-xs gap-1" onClick={() => setIsAddBusyOpen(true)}>
+                      <Plus className="w-3 h-3" /> Add Block
+                    </Button>
                   </div>
-                  <ThermalReceiptLedgerCard booking={localBookings[0]} />
+
+                  <div className="space-y-2 max-h-56 overflow-y-auto">
+                    {hostBusySchedule.map((blk: any, idx: number) => {
+                      const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+                      return (
+                        <div key={idx} className="flex items-center justify-between p-2 rounded-lg border bg-muted/40 text-xs">
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-foreground w-8">{dayNames[blk.weekday]}</span>
+                            <span className="font-mono text-muted-foreground text-[11px]">{blk.from} – {blk.to}</span>
+                            <span className="text-foreground truncate max-w-[140px]">· {blk.title}</span>
+                          </div>
+                          <button
+                            onClick={() => removeBusyBlock(idx)}
+                            className="text-muted-foreground hover:text-rose-500 transition-colors p-1"
+                            title="Delete busy block"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             )}
 
-            {/* SubTab 3: Coach Studio & Availability Matrix */}
-            {bookingSubTab === "availability" && (
-              <div className="space-y-6">
-                {/* Profile Card & Action Bar */}
-                <div className="bg-card border rounded-2xl p-5 sm:p-6 shadow-sm">
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-5">
-                    <div className="flex items-start gap-4">
-                      <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-primary/30 border border-primary/30 flex items-center justify-center text-primary font-display font-bold text-2xl shrink-0 shadow-sm">
-                        ML
-                      </div>
-                      <div>
-                        <div className="flex flex-wrap items-center gap-2">
-                          <h2 className="text-xl font-bold font-display text-foreground">{coachProfile.name}</h2>
-                          <Badge className="bg-primary/15 text-primary border-primary/30 text-xs font-semibold">
-                            {coachProfile.role}
-                          </Badge>
-                          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 font-mono">
-                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                            {coachLiveTime}
-                          </div>
-                        </div>
-                        <p className="text-sm font-medium text-muted-foreground mt-0.5">
-                          {coachProfile.meetingTitle} · {coachProfile.location}
-                        </p>
-                        <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground mt-2 font-mono">
-                          {coachProfile.durations.map((dur: number) => (
-                            <span key={dur} className="px-2 py-0.5 rounded bg-muted border font-semibold text-foreground">
-                              {dur}m: ₹{coachProfile.durationPrices?.[dur]?.toLocaleString("en-IN") || 999}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex flex-wrap items-center gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => {
-                          setEditCoachForm(coachProfile);
-                          setIsEditProfileOpen(true);
-                        }}
-                        className="gap-2 border-primary/30 text-primary hover:bg-primary/10"
-                      >
-                        <Edit3 className="w-4 h-4" />
-                        <span>Edit Profile & Rates</span>
-                      </Button>
-                      <Button
-                        size="sm"
-                        onClick={() => setIsAddBusyOpen(true)}
-                        className="gap-2"
-                      >
-                        <Plus className="w-4 h-4" />
-                        <span>Add Busy Block</span>
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Pending Requests & Busy Matrix */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {/* Pending Bookings */}
-                  <div className="bg-card border rounded-2xl p-5 shadow-sm space-y-4">
-                    <div className="flex items-center justify-between border-b pb-3">
-                      <div>
-                        <h3 className="font-bold text-base text-foreground flex items-center gap-2">
-                          <UserCheck className="w-4 h-4 text-amber-500" /> Pending Booking Requests
-                        </h3>
-                        <p className="text-xs text-muted-foreground mt-0.5">
-                          Approve or decline learner session requests with automated calendar dispatch.
-                        </p>
-                      </div>
-                      <Badge variant="outline" className="font-mono text-xs">
-                        {localBookings.filter((b) => b.status === "pending").length} Pending
-                      </Badge>
-                    </div>
-
-                    {localBookings.filter((b) => b.status === "pending").length === 0 ? (
-                      <div className="text-center py-8 text-muted-foreground border border-dashed rounded-xl">
-                        <CheckCircle2 className="w-8 h-8 mx-auto mb-2 text-emerald-500 opacity-80" />
-                        <p className="text-sm font-medium text-foreground">All booking requests approved!</p>
-                      </div>
-                    ) : (
-                      <div className="space-y-3">
-                        {localBookings
-                          .filter((b) => b.status === "pending")
-                          .map((bk) => (
-                            <div key={bk.id} className="p-3.5 rounded-xl border bg-accent/20 space-y-2">
-                              <div className="flex items-center justify-between">
-                                <span className="font-bold text-sm text-foreground">{bk.learnerName}</span>
-                                <span className="text-xs font-mono font-bold text-primary">₹{bk.price}</span>
-                              </div>
-                              <p className="text-xs text-muted-foreground">{bk.agenda}</p>
-                              <div className="flex items-center justify-end gap-2 pt-1">
-                                <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => rejectBooking(bk.id)}>
-                                  Decline
-                                </Button>
-                                <Button size="sm" className="h-7 text-xs bg-emerald-600 hover:bg-emerald-700" onClick={() => approveBooking(bk.id)}>
-                                  Approve & Sync
-                                </Button>
-                              </div>
-                            </div>
-                          ))}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Recurring Busy Blocks */}
-                  <div className="bg-card border rounded-2xl p-5 shadow-sm space-y-4">
-                    <div className="flex items-center justify-between border-b pb-3">
-                      <div>
-                        <h3 className="font-bold text-base text-foreground flex items-center gap-2">
-                          <Clock className="w-4 h-4 text-indigo-500" /> Weekly Recurring Busy Blocks
-                        </h3>
-                        <p className="text-xs text-muted-foreground mt-0.5">
-                          Slots where you are marked unavailable automatically in OpenSlotBooking.
-                        </p>
-                      </div>
-                      <Button size="sm" variant="outline" className="h-7 text-xs gap-1" onClick={() => setIsAddBusyOpen(true)}>
-                        <Plus className="w-3 h-3" /> Add
-                      </Button>
-                    </div>
-
-                    <div className="space-y-2 max-h-72 overflow-y-auto">
-                      {hostBusySchedule.map((blk: any, idx: number) => {
-                        const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-                        return (
-                          <div key={idx} className="flex items-center justify-between p-2.5 rounded-xl border bg-muted/30 text-xs">
-                            <div className="flex items-center gap-2">
-                              <span className="font-bold text-foreground w-9">{dayNames[blk.weekday]}</span>
-                              <span className="font-mono text-muted-foreground">{blk.from} – {blk.to}</span>
-                              <span className="text-foreground truncate max-w-[150px]">· {blk.title}</span>
-                            </div>
-                            <button
-                              onClick={() => removeBusyBlock(idx)}
-                              className="text-muted-foreground hover:text-rose-500 transition-colors p-1"
-                              title="Delete busy block"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
+            {/* Calendar-First OpenSlotBooking Component (Clean without duplicate giant marketing header) */}
+            <div className="bg-card border rounded-2xl p-4 sm:p-6 shadow-sm">
+              <OpenSlotBooking
+                headline=""
+                headlineAccent=""
+                description=""
+                meetingTitle={coachProfile.meetingTitle}
+                agenda={coachProfile.agenda}
+                location={coachProfile.location}
+                durations={coachProfile.durations}
+                durationPrices={coachProfile.durationPrices}
+                defaultDuration={coachProfile.defaultDuration}
+                host={{
+                  name: coachProfile.name,
+                  role: coachProfile.role,
+                  city: coachProfile.city,
+                  avatar: coachProfile.avatar || "/avatars/Vishwajeet.jpeg",
+                  stamp: coachProfile.stamp,
+                }}
+                hostTimeZone="Asia/Calcutta"
+                timeZones={["Asia/Calcutta", "Asia/Kolkata", "America/New_York", "Europe/London", "Asia/Singapore", "Asia/Dubai"]}
+                hostBusy={hostBusySchedule}
+                visitorEvents={sampleMyWeek}
+                onBook={handleOpenSlotBook}
+                preset="learnify"
+                gridHeight={460}
+              />
+            </div>
           </div>
         )}
 
-        {/* ============ TAB 2: 10-ROLE AI STUDIO & MESSENGER ============ */}
-        {activeTab === "ai_studio_messenger" && (
+        {/* ============ EXPERIENCE 2: 10-ROLE AI STUDIO & MESSENGER ============ */}
+        {activeTab === "ai_studio" && (
           <div className="space-y-6">
             {/* Header Persona Carousel / Compact Badges */}
-            <div className="bg-card border rounded-2xl p-4 shadow-sm space-y-3">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b pb-3">
+            <div className="bg-card border rounded-2xl p-4 sm:p-5 shadow-sm space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-3">
                 <div>
-                  <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                    10-Role AI Coaching Agent Studio & Direct Messenger
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                      10-Role AI Coaching Agent Studio & Direct Messenger
+                    </span>
+                    <Badge variant="outline" className="text-[10px] bg-primary/10 text-primary border-primary/20 py-0 px-1 font-bold">
+                      Grok-Style
+                    </Badge>
+                  </div>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    Select a specialized persona for instant architectural critiques, resume formulas, or system design drills.
+                    Select a specialized persona for instant architectural critiques, system design drills, or executive scripts.
                   </p>
                 </div>
                 <div className="flex items-center gap-1.5 p-1 rounded-lg bg-muted border self-start sm:self-auto">
                   <button
                     onClick={() => setAiMessengerMode("ai_persona")}
                     className={cn(
-                      "px-2.5 py-1 rounded text-xs font-semibold transition-all",
+                      "px-3 py-1 rounded-md text-xs font-semibold transition-all",
                       aiMessengerMode === "ai_persona" ? "bg-background text-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"
                     )}
                   >
@@ -1270,20 +1097,19 @@ export default function CoachingDashboard() {
                   <button
                     onClick={() => setAiMessengerMode("human_contacts")}
                     className={cn(
-                      "px-2.5 py-1 rounded text-xs font-semibold transition-all",
+                      "px-3 py-1 rounded-md text-xs font-semibold transition-all",
                       aiMessengerMode === "human_contacts" ? "bg-background text-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"
                     )}
                   >
-                    1:1 Peer Mentors
+                    Peer Contacts
                   </button>
                 </div>
               </div>
 
-              {/* Compact Persona Badges Grid */}
+              {/* Clean 10 Persona Badges Grid (Fixed: Clean Lucide Icons with Dedicated Gradient Containers) */}
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5">
                 {COACH_ROLES.map((role) => {
                   const IconComp = role.icon;
-                  const BrandComp = role.brandIcon;
                   const isSelected = selectedRole.id === role.id && aiMessengerMode === "ai_persona";
                   return (
                     <button
@@ -1299,12 +1125,11 @@ export default function CoachingDashboard() {
                           : "bg-card hover:bg-accent/40 border-border"
                       )}
                     >
-                      <div className="w-8 h-8 rounded-lg bg-background border flex items-center justify-center shrink-0 shadow-xs">
-                        {BrandComp ? (
-                          <BrandComp className="w-4 h-4 object-contain" />
-                        ) : (
-                          <IconComp className="w-4 h-4 text-primary" />
-                        )}
+                      <div className={cn(
+                        "w-8 h-8 rounded-lg border flex items-center justify-center shrink-0 shadow-xs bg-gradient-to-br",
+                        role.color
+                      )}>
+                        <IconComp className="w-4 h-4" />
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="text-xs font-bold text-foreground truncate group-hover:text-primary transition-colors">
@@ -1320,16 +1145,15 @@ export default function CoachingDashboard() {
 
             {/* Messenger Viewport */}
             {aiMessengerMode === "ai_persona" ? (
-              <div className="bg-card border rounded-2xl overflow-hidden shadow-sm flex flex-col h-[640px]">
+              <div className="bg-card border rounded-2xl overflow-hidden shadow-sm flex flex-col h-[650px]">
                 {/* Active Persona Header */}
                 <div className="p-4 border-b bg-muted/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
-                      {selectedRole.brandIcon ? (
-                        <selectedRole.brandIcon className="w-5 h-5" />
-                      ) : (
-                        <selectedRole.icon className="w-5 h-5 text-primary" />
-                      )}
+                    <div className={cn(
+                      "w-10 h-10 rounded-xl border flex items-center justify-center shrink-0 bg-gradient-to-br",
+                      selectedRole.color
+                    )}>
+                      <selectedRole.icon className="w-5 h-5" />
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
@@ -1337,8 +1161,8 @@ export default function CoachingDashboard() {
                         <Badge variant="outline" className="text-[10px] py-0 px-1.5 font-semibold">
                           {selectedRole.badge}
                         </Badge>
-                        <span className="inline-flex items-center gap-1 text-[10px] text-emerald-500 font-medium">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live
+                        <span className="inline-flex items-center gap-1 text-[10px] text-emerald-500 font-medium font-mono">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live Agent
                         </span>
                       </div>
                       <p className="text-xs text-muted-foreground truncate max-w-xl">{selectedRole.description}</p>
@@ -1384,12 +1208,11 @@ export default function CoachingDashboard() {
                   {aiMessages.map((msg, i) => (
                     <div key={i} className={cn("flex gap-3", msg.role === "user" ? "justify-end" : "justify-start")}>
                       {msg.role === "assistant" && (
-                        <div className="w-8 h-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0 mt-0.5">
-                          {selectedRole.brandIcon ? (
-                            <selectedRole.brandIcon className="w-4 h-4" />
-                          ) : (
-                            <selectedRole.icon className="w-4 h-4 text-primary" />
-                          )}
+                        <div className={cn(
+                          "w-8 h-8 rounded-lg border flex items-center justify-center shrink-0 mt-0.5 bg-gradient-to-br",
+                          selectedRole.color
+                        )}>
+                          <selectedRole.icon className="w-4 h-4" />
                         </div>
                       )}
                       <div
@@ -1416,8 +1239,11 @@ export default function CoachingDashboard() {
 
                   {isAiTyping && (
                     <div className="flex gap-3 items-center text-xs text-muted-foreground italic">
-                      <div className="w-8 h-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
-                        <Loader2 className="w-4 h-4 text-primary animate-spin" />
+                      <div className={cn(
+                        "w-8 h-8 rounded-lg border flex items-center justify-center shrink-0 bg-gradient-to-br",
+                        selectedRole.color
+                      )}>
+                        <Loader2 className="w-4 h-4 animate-spin" />
                       </div>
                       <span>{selectedRole.title} is formulating structured architectural response...</span>
                     </div>
@@ -1522,7 +1348,160 @@ export default function CoachingDashboard() {
           </div>
         )}
 
-        {/* ============ TAB 3: ROADMAPS ============ */}
+        {/* ============ EXPERIENCE 3: MY SESSIONS & THERMAL RECEIPTS ============ */}
+        {activeTab === "my_sessions" && (
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4">
+              <div>
+                <h3 className="font-bold text-xl text-foreground flex items-center gap-2">
+                  <Clock className="w-5 h-5 text-primary" /> My Scheduled 1:1 Sessions
+                </h3>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Manage your live Google Meet / Zoom sessions, download .ICS calendar files, and inspect GST thermal invoices on demand.
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" className="font-mono text-xs px-2 py-0.5">
+                  {localBookings.length} Total Bookings
+                </Badge>
+                <Button size="sm" onClick={() => setActiveTab("book_call")} className="gap-1.5 h-8 text-xs">
+                  <Calendar className="w-3.5 h-3.5" /> Book Another Session
+                </Button>
+              </div>
+            </div>
+
+            {localBookings.length === 0 ? (
+              <div className="text-center py-16 border border-dashed rounded-2xl bg-card">
+                <Calendar className="w-12 h-12 mx-auto mb-3 text-muted-foreground opacity-40" />
+                <h4 className="font-bold text-base text-foreground">No sessions scheduled yet</h4>
+                <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto">
+                  Book a 1:1 advisory slot with {coachProfile.name} to receive architectural reviews and interview coaching.
+                </p>
+                <Button size="sm" onClick={() => setActiveTab("book_call")} className="mt-4 gap-2">
+                  <Calendar className="w-4 h-4" /> Book First Session
+                </Button>
+              </div>
+            ) : (
+              <ul className="space-y-4">
+                {localBookings.map((b) => (
+                  <li
+                    key={b.id}
+                    className="p-5 sm:p-6 border border-border/80 rounded-2xl bg-card hover:border-primary/40 transition-all shadow-sm space-y-4"
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                      <div className="flex items-start sm:items-center gap-3.5">
+                        {/* Real Vishwajeet Profile Image */}
+                        <div className="w-12 h-12 rounded-xl overflow-hidden border border-primary/20 shrink-0 bg-muted">
+                          <img
+                            src={b.coachAvatar || coachProfile.avatar || "/avatars/Vishwajeet.jpeg"}
+                            alt={b.coachName}
+                            className="w-full h-full object-cover object-top"
+                            onError={(e) => {
+                              (e.currentTarget as HTMLImageElement).src = "/avatars/Vishwajeet.jpeg";
+                            }}
+                          />
+                        </div>
+                        <div>
+                          <div className="font-bold text-base text-foreground flex flex-wrap items-center gap-2">
+                            <span>{b.title}</span>
+                            <Badge
+                              className={cn(
+                                "text-[10px] py-0 px-2 font-semibold",
+                                b.status === "confirmed"
+                                  ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30"
+                                  : "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30"
+                              )}
+                            >
+                              {b.status === "confirmed" ? "Confirmed" : "Pending Approval"}
+                            </Badge>
+                          </div>
+                          <div className="text-xs text-muted-foreground mt-0.5">
+                            Coach: <span className="font-semibold text-foreground">{b.coachName}</span> ({b.coachRole}) · Client: <span className="font-medium text-foreground">{b.learnerName}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 self-start sm:self-auto font-mono">
+                        <span className="text-xs px-2.5 py-1 rounded-lg bg-muted border text-muted-foreground">
+                          {b.duration} min
+                        </span>
+                        <span className="text-xs px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 font-bold">
+                          ₹{b.price?.toLocaleString("en-IN") || 999}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs pt-2 border-t border-border/40">
+                      <div className="flex items-center gap-2 font-medium text-foreground">
+                        <Clock className="w-4 h-4 text-primary" />
+                        <span>{format(new Date(b.startTime), "EEEE, MMMM d, yyyy · h:mm a")}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-mono">
+                        <Bell className="w-4 h-4" />
+                        <span>{b.noticeTime || "Notice dispatched 2h prior to call"}</span>
+                      </div>
+                    </div>
+
+                    {b.agenda && (
+                      <p className="text-xs text-muted-foreground bg-muted/30 p-3 rounded-xl border border-border/40 leading-relaxed">
+                        <span className="font-semibold text-foreground">Session Focus & Agenda:</span> {b.agenda}
+                      </p>
+                    )}
+
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-border/40">
+                      <div className="text-xs text-blue-500 flex items-center gap-1.5">
+                        <Video className="w-4 h-4" />
+                        <a
+                          href={b.meetingLink}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="hover:underline font-mono"
+                        >
+                          {b.meetingLink}
+                        </a>
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setSelectedReceiptBooking(b)}
+                          className="h-8 text-xs gap-1.5 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10 font-medium"
+                        >
+                          <Receipt className="w-3.5 h-3.5" /> Thermal Receipt
+                        </Button>
+                        <a href={getGoogleCalendarUrl(b)} target="_blank" rel="noreferrer">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-8 text-xs gap-1.5 border-primary/20 text-primary hover:bg-primary/10"
+                          >
+                            <CalendarPlus className="w-3.5 h-3.5" /> G-Cal
+                          </Button>
+                        </a>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => downloadIcsForBooking(b)}
+                          className="h-8 text-xs gap-1.5 border-border"
+                        >
+                          <Download className="w-3.5 h-3.5" /> .ICS
+                        </Button>
+                        <a href={b.meetingLink} target="_blank" rel="noreferrer">
+                          <Button size="sm" className="h-8 text-xs gap-1.5 bg-primary hover:bg-primary/90">
+                            <Video className="w-3.5 h-3.5" /> Join Video Call
+                          </Button>
+                        </a>
+                      </div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
+
+        {/* ============ TAB 4: ROADMAPS ============ */}
         {activeTab === "roadmaps" && (
           <div className="space-y-6">
             <div className="bg-card border rounded-2xl p-6 shadow-sm space-y-6">
@@ -1603,14 +1582,16 @@ export default function CoachingDashboard() {
           </div>
         )}
 
-        {/* ============ TAB 4: COHORTS ============ */}
-        {activeTab === "cohorts" && <RealCohorts user={user} isCreator={isCreator} />}
-
-        {/* ============ TAB 5: OUTCOMES ============ */}
-        {activeTab === "outcomes" && <RealOutcomes user={user} />}
+        {/* ============ TAB 5: OUTCOMES & COHORTS ============ */}
+        {activeTab === "outcomes" && (
+          <div className="space-y-6">
+            <RealCohorts user={user} isCreator={isCreator} coachName={coachProfile.name} />
+            <RealOutcomes user={user} />
+          </div>
+        )}
       </div>
 
-      {/* Edit Coach Profile Modal */}
+      {/* Edit Coach Profile & Duration Pricing Modal (Matches User Requirements) */}
       <Dialog open={isEditProfileOpen} onOpenChange={setIsEditProfileOpen}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
@@ -1623,12 +1604,46 @@ export default function CoachingDashboard() {
           </DialogHeader>
 
           <div className="space-y-4 py-2">
+            {/* Real Avatar Preview and Path */}
+            <div className="p-3 rounded-xl border bg-muted/30 flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl overflow-hidden border-2 border-primary/30 shrink-0 bg-background shadow-xs">
+                <img
+                  src={editCoachForm.avatar || "/avatars/Vishwajeet.jpeg"}
+                  alt={editCoachForm.name}
+                  className="w-full h-full object-cover object-top"
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).src = "/avatars/Vishwajeet.jpeg";
+                  }}
+                />
+              </div>
+              <div className="flex-1 space-y-1">
+                <Label className="text-xs font-semibold">Coach Profile Avatar</Label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    className="h-8 text-xs font-mono"
+                    value={editCoachForm.avatar || "/avatars/Vishwajeet.jpeg"}
+                    onChange={(e) => setEditCoachForm({ ...editCoachForm, avatar: e.target.value })}
+                    placeholder="/avatars/Vishwajeet.jpeg"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="h-8 text-[11px] shrink-0"
+                    onClick={() => setEditCoachForm({ ...editCoachForm, avatar: "/avatars/Vishwajeet.jpeg" })}
+                  >
+                    Reset Photo
+                  </Button>
+                </div>
+              </div>
+            </div>
+
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold">Coach Name</Label>
               <Input
                 value={editCoachForm.name}
                 onChange={(e) => setEditCoachForm({ ...editCoachForm, name: e.target.value })}
-                placeholder="Maya Lindqvist"
+                placeholder="Vishwajeet"
               />
             </div>
 
@@ -1671,17 +1686,21 @@ export default function CoachingDashboard() {
                 rows={2}
                 value={editCoachForm.agenda}
                 onChange={(e) => setEditCoachForm({ ...editCoachForm, agenda: e.target.value })}
+                placeholder="System design review, mock tech interview, or career growth strategy session."
                 className="text-xs resize-none"
               />
             </div>
 
-            {/* Editable Duration Pricing (₹ INR) */}
-            <div className="space-y-2">
-              <Label className="text-xs font-semibold">Duration Pricing Matrix (₹ INR · 18% GST Included)</Label>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {/* Editable Duration Pricing (₹ INR · 18% GST Included) */}
+            <div className="space-y-2 pt-1 border-t border-border/40">
+              <div className="flex items-center justify-between">
+                <Label className="text-xs font-semibold">Duration Pricing Matrix (₹ INR · 18% GST Included)</Label>
+                <Badge variant="outline" className="text-[10px] font-mono">SAC 998431</Badge>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                 {[15, 30, 45, 60].map((dur) => (
-                  <div key={dur} className="space-y-1">
-                    <span className="text-[11px] text-muted-foreground font-mono">{dur} Mins:</span>
+                  <div key={dur} className="space-y-1 p-2 rounded-lg bg-muted/40 border">
+                    <span className="text-[11px] text-muted-foreground font-mono font-semibold">{dur} Mins:</span>
                     <div className="relative">
                       <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground">₹</span>
                       <Input
@@ -1798,12 +1817,12 @@ export default function CoachingDashboard() {
         </DialogContent>
       </Dialog>
 
-      {/* Thermal Receipt Ledger Dialog */}
+      {/* Thermal Receipt Ledger Dialog (On-demand) */}
       <Dialog open={!!selectedReceiptBooking} onOpenChange={(open) => !open && setSelectedReceiptBooking(null)}>
         <DialogContent className="max-w-md p-0 overflow-hidden bg-transparent border-0 shadow-2xl">
           {selectedReceiptBooking && (
             <div className="p-4 sm:p-6 bg-card rounded-2xl border shadow-xl">
-              <ThermalReceiptLedgerCard booking={selectedReceiptBooking} />
+              <ThermalReceiptLedgerCard booking={selectedReceiptBooking} coachName={coachProfile.name} />
               <div className="mt-4 flex items-center justify-end gap-2">
                 <Button size="sm" variant="outline" onClick={() => setSelectedReceiptBooking(null)}>
                   Close
@@ -1821,7 +1840,7 @@ export default function CoachingDashboard() {
 }
 
 /** Official Thermal Receipt Ledger Card (18% GST · SAC 998431) */
-function ThermalReceiptLedgerCard({ booking }: { booking?: any }) {
+function ThermalReceiptLedgerCard({ booking, coachName }: { booking?: any; coachName?: string }) {
   const price = booking?.price || 999;
   const gstRate = 0.18;
   const baseSubtotal = Math.round((price / (1 + gstRate)) * 100) / 100;
@@ -1857,7 +1876,7 @@ function ThermalReceiptLedgerCard({ booking }: { booking?: any }) {
         </div>
         <div className="flex justify-between">
           <span className="text-muted-foreground">COACH:</span>
-          <span className="text-foreground">{booking?.coachName || "Maya Lindqvist"}</span>
+          <span className="text-foreground font-semibold">{booking?.coachName || coachName || "Vishwajeet"}</span>
         </div>
         <div className="flex justify-between">
           <span className="text-muted-foreground">SESSION:</span>
@@ -1900,16 +1919,8 @@ function ThermalReceiptLedgerCard({ booking }: { booking?: any }) {
 }
 
 /** Cohorts Tab Component */
-function RealCohorts({ user, isCreator }: { user: any; isCreator: boolean }) {
-  const qc = useQueryClient();
+function RealCohorts({ user, isCreator, coachName }: { user: any; isCreator: boolean; coachName?: string }) {
   const [newOpen, setNewOpen] = useState(false);
-  const [form, setForm] = useState({
-    title: "",
-    description: "",
-    starts_at: "",
-    kind: "cohort",
-    capacity: 20,
-  });
 
   const sampleCohorts = [
     {
@@ -1920,7 +1931,7 @@ function RealCohorts({ user, isCreator }: { user: any; isCreator: boolean }) {
       capacity: 25,
       status: "live",
       peers: 21,
-      instructor: "Maya Lindqvist (Principal Architect)",
+      instructor: `${coachName || "Vishwajeet"} (Principal Architect)`,
     },
     {
       id: "ch-2",

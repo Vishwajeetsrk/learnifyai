@@ -35,6 +35,20 @@ import { useSiteSettings } from "@/hooks/use-site-settings";
 
 const FEATURED_PROJECT_PREVIEWS = [
   {
+    id: "nick-ho-porsche",
+    title: "Nick Ho Porsche Carrera",
+    category: "WebGL • 3D Depth-Map Telemetry",
+    url: "/projects",
+    thumbnail: "/preset-sites/nick-ho-porsche/Assets/car.avif",
+  },
+  {
+    id: "axion-studio",
+    title: "Axion Creative Studio",
+    category: "WebGL Shaders • London Live HUD",
+    url: "/projects",
+    thumbnail: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=300&q=80",
+  },
+  {
     id: "macos-portfolio",
     title: "macOS Ventura & Big Sur",
     category: "OS Replica • 105 Big Sur Icons",
@@ -47,20 +61,6 @@ const FEATURED_PROJECT_PREVIEWS = [
     category: "Next.js 15 • Tailwind v4",
     url: "/projects",
     thumbnail: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=300&q=80",
-  },
-  {
-    id: "gsap-bubble-menu",
-    title: "GSAP Bubble Menu & Video",
-    category: "Interactive UI • FLIP Morph",
-    url: "/course/gsap-bubble-menu",
-    thumbnail: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=300&q=80",
-  },
-  {
-    id: "nick-ho-carrera-cup",
-    title: "Porsche Carrera Cup 3D",
-    category: "WebGL • 3D Spatial UI",
-    url: "/projects",
-    thumbnail: "https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?auto=format&fit=crop&w=300&q=80",
   },
 ];
 
@@ -219,8 +219,8 @@ export function SiteHeader() {
               </MenuItem>
 
               <MenuItem setActive={setActiveDropdown} active={activeDropdown} item="More">
-                <div className="w-72 p-2 space-y-2">
-                  <div className="grid grid-cols-2 gap-2 pb-2 border-b border-border/60">
+                <div className="w-80 p-2 space-y-2.5">
+                  <div className="grid grid-cols-2 gap-2 pb-2.5 border-b border-border/60">
                     {secondaryNav.map((item) => (
                       <HoveredLink key={item.label} href={item.url}>
                         {item.label}
@@ -228,22 +228,36 @@ export function SiteHeader() {
                     ))}
                   </div>
 
-                  {/* Trending Blog Preview Card */}
-                  <div className="pt-1 px-1">
-                    <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5 flex items-center gap-1">
+                  {/* Guide Cards */}
+                  <div className="pt-0.5 space-y-2">
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground px-1 flex items-center gap-1">
                       <BookOpen className="w-3 h-3 text-sky-400" />
-                      Trending Guide
+                      Featured Guides &amp; Roadmaps
                     </div>
+                    
                     <Link
                       to="/blog/$slug"
                       params={{ slug: "ultimate-guide-free-courses-certificates-2026" }}
-                      className="block p-2 rounded-lg bg-muted/50 hover:bg-muted transition border border-border/50 group"
+                      className="block p-2 rounded-lg bg-muted/40 hover:bg-muted/70 transition border border-border/50 group"
                     >
-                      <div className="text-xs font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2">
-                        The Ultimate Guide to Free Courses &amp; Certificates in 2026
+                      <div className="text-xs font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">
+                        The Ultimate Guide to Free Courses &amp; Certificates
                       </div>
                       <div className="flex items-center gap-2 mt-1 text-[10px] text-muted-foreground font-mono">
-                        <Clock className="w-2.5 h-2.5" /> 12 min read
+                        <Clock className="w-2.5 h-2.5" /> 12 min read · 2026 Edition
+                      </div>
+                    </Link>
+
+                    <Link
+                      to="/career-studio"
+                      className="block p-2 rounded-lg bg-primary/5 hover:bg-primary/10 transition border border-primary/20 group"
+                    >
+                      <div className="text-xs font-semibold text-foreground group-hover:text-primary transition-colors flex items-center justify-between">
+                        <span>Career Studio Playbook</span>
+                        <ArrowRight className="w-3 h-3 text-primary transition-transform group-hover:translate-x-0.5" />
+                      </div>
+                      <div className="text-[10px] text-muted-foreground mt-0.5">
+                        6 AI Tools · ATS, Interview STAR, Roadmaps &amp; Trackers
                       </div>
                     </Link>
                   </div>
@@ -339,6 +353,44 @@ export function SiteHeader() {
                         </Link>
                       </SheetClose>
                     ))}
+
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground/60 px-1 pt-3 border-t border-border/30 flex items-center gap-1.5">
+                      <Sparkles className="w-3 h-3 text-primary" />
+                      Featured Projects
+                    </span>
+                    <div className="grid grid-cols-2 gap-2 pt-1">
+                      <SheetClose asChild>
+                        <Link
+                          to="/projects"
+                          className="p-2 rounded-lg bg-muted/40 hover:bg-muted border border-border/50 text-left transition flex flex-col gap-1"
+                        >
+                          <span className="text-xs font-semibold text-foreground line-clamp-1">Nick Ho Porsche</span>
+                          <span className="text-[10px] text-muted-foreground font-mono">3D WebGL</span>
+                        </Link>
+                      </SheetClose>
+                      <SheetClose asChild>
+                        <Link
+                          to="/projects"
+                          className="p-2 rounded-lg bg-muted/40 hover:bg-muted border border-border/50 text-left transition flex flex-col gap-1"
+                        >
+                          <span className="text-xs font-semibold text-foreground line-clamp-1">Axion Studio</span>
+                          <span className="text-[10px] text-muted-foreground font-mono">Shaders</span>
+                        </Link>
+                      </SheetClose>
+                    </div>
+
+                    <SheetClose asChild>
+                      <Link
+                        to="/career-studio"
+                        className="mt-2 p-2.5 rounded-lg bg-primary/10 border border-primary/20 hover:bg-primary/15 transition flex items-center justify-between text-left"
+                      >
+                        <div>
+                          <div className="text-xs font-bold text-foreground">Career Studio</div>
+                          <div className="text-[10px] text-muted-foreground">6 AI Tools Suite</div>
+                        </div>
+                        <ArrowRight className="w-3.5 h-3.5 text-primary" />
+                      </Link>
+                    </SheetClose>
                   </nav>
                 </div>
                 <div className="border-t border-border/40 pt-4 flex flex-col gap-3">

@@ -2,7 +2,7 @@
 
 <img src="src/assets/learnify-logo.png" alt="Learnify AI Logo" width="180" style="margin-bottom: 12px; filter: drop-shadow(0 4px 12px rgba(99, 102, 241, 0.25));" />
 
-# Learnify AI 6.4.0
+# Learnify AI 6.5.0
 
 **The AI-Native Learning & Career Operating System**
 
@@ -23,6 +23,13 @@
 ## 🎯 What is Learnify AI?
 
 Learnify AI is a **full-stack, AI-powered learning and career growth platform** that integrates intelligent tutoring, 11-in-1 career studio tools, autonomous AI agents, gamification, and creator economy tools into one seamless experience.
+
+### 🌟 What's New in Learnify AI 6.5.0
+* 🧑‍💻 **Coaching Studio 5.0 & Vishwajeet 1:1 Live Advisory**: Redesigned `/coaching` into 3 connected, non-overloaded experiences (1:1 Live Calendar Booking, 10-Role AI Mentor Studio, and My Sessions & Receipts). Configured Vishwajeet (*Principal Distributed Systems Architect*) with real avatar (`/avatars/Vishwajeet.jpeg`), live Bangalore IST clock, and customizable Duration Pricing Matrix (15m: ₹499, 30m: ₹999, 45m: ₹1,499, 60m: ₹1,999 with 18% GST included).
+* 🧭 **Navbar Mega-Menus & Preset Sites Showcase**: Enhanced "Projects" and "More" hover dropdowns with spring morph physics (`layoutId="active"`), featuring live project cards (**Nick Ho Porsche Carrera** with 3D WebGL depth-map canvas and **Axion Studio** with interactive WebGPU shaders) and featured guide cards with mobile sheet parity.
+* 🛠️ **Live "Edit Profile & Rates" Dialog**: Enables inline live editing of coach identity, role, location, timezone, session agenda, and tiered pricing matrix with instant `localStorage` persistence and multi-booking synchronization.
+* 🤖 **10-Role AI Agent Studio Glitch Resolution**: Purged wide SVG banner strips (`GoogleWorkspaceProIcon`) from coach cards in favor of clean Lucide icons (`Layers`, `Code2`, `Award`, `Cpu`, `Terminal`, `Compass`, `Globe`, `BookOpen`, `Briefcase`, `DollarSign`), delivering a sleek Grok-style architectural drill and critique studio.
+* 🧾 **On-Demand Indian GST Thermal Receipts & Sessions Hub**: Streamlined session management with automated start notices, ICS/G-Cal export, and modular modal GST Tax Invoices (SAC 998431, CGST 9% + SGST 9%) with 1-click print isolation.
 
 ### 🌟 What's New in Learnify AI 6.4.0
 * 🧭 **Floating Navbar Menu & Projects Navigation**: Integrated Aceternity UI spring physics (`layoutId="active"`) into desktop navigation with live thumbnail previews for featured sandboxes, cleanly renamed "Showcase & Projects" to **"Projects"**, and organized a fluid explore dropdown.
