@@ -69,6 +69,34 @@ import {
   TheSvgMicrosoftPowerpoint,
 } from "@/components/icons/BrandIcons";
 
+// TheSVG.org (@thesvg/react by GLINCKER) authentic typed vector components
+import TheSvgFigma from "@thesvg/react/figma";
+import TheSvgPowerBi from "@thesvg/react/microsoft-power-bi";
+import TheSvgWord from "@thesvg/react/microsoft-word";
+import TheSvgPowerpoint from "@thesvg/react/microsoft-powerpoint";
+import TheSvgExcel from "@thesvg/react/microsoft-excel";
+import TheSvgGoogleSheets from "@thesvg/react/google-sheets";
+import TheSvgJava from "@thesvg/react/java";
+import TheSvgChatgpt from "@thesvg/react/openai-chatgpt";
+import TheSvgClaude from "@thesvg/react/claude-ai";
+import TheSvgHtml5 from "@thesvg/react/html5";
+import TheSvgCss from "@thesvg/react/css";
+import TheSvgJavascript from "@thesvg/react/javascript";
+import TheSvgPython from "@thesvg/react/python";
+import TheSvgGoogleWorkspace from "@thesvg/react/google-workspace";
+import TheSvgVsCode from "@thesvg/react/visual-studio-code";
+import TheSvgGit from "@thesvg/react/git";
+import TheSvgReact from "@thesvg/react/react";
+import TheSvgTypescript from "@thesvg/react/typescript";
+import TheSvgTailwind from "@thesvg/react/tailwindcss";
+import TheSvgNextjs from "@thesvg/react/nextjs";
+import TheSvgNodejs from "@thesvg/react/nodejs";
+import TheSvgDocker from "@thesvg/react/docker";
+import TheSvgKubernetes from "@thesvg/react/kubernetes";
+import TheSvgPostgresql from "@thesvg/react/postgresql";
+import TheSvgMongodb from "@thesvg/react/mongodb";
+import TheSvgSupabase from "@thesvg/react/supabase";
+
 // Canonical React Icon components exported for direct use across the app
 export const ReactIcon = _React;
 export const VueIcon = _Vue;
@@ -460,6 +488,103 @@ export function CourseBrandLogo({
       />
     );
   }
+
+  // Priority 1: Official @thesvg/react vector icons (thesvg.org by GLINCKER)
+  switch (norm) {
+    case "figma":
+      return <TheSvgFigma width={size} height={size} className={cn("shrink-0", className)} />;
+    case "microsoft-power-bi":
+    case "power-bi":
+    case "powerbi":
+      return <TheSvgPowerBi width={size} height={size} className={cn("shrink-0", className)} />;
+    case "microsoft-word":
+    case "word":
+      return <TheSvgWord width={size} height={size} className={cn("shrink-0", className)} />;
+    case "microsoft-powerpoint":
+    case "powerpoint":
+      return <TheSvgPowerpoint width={size} height={size} className={cn("shrink-0", className)} />;
+    case "microsoft-excel":
+    case "excel":
+      return <TheSvgExcel width={size} height={size} className={cn("shrink-0", className)} />;
+    case "google-sheets":
+    case "sheets":
+      return <TheSvgGoogleSheets width={size} height={size} className={cn("shrink-0", className)} />;
+    case "java":
+      return <TheSvgJava width={size} height={size} className={cn("shrink-0", className)} />;
+    case "chatgpt":
+    case "openai":
+    case "openai-chatgpt":
+      return <TheSvgChatgpt width={size} height={size} className={cn("shrink-0", className)} />;
+    case "claude":
+    case "claude-ai":
+    case "anthropic":
+      return <TheSvgClaude width={size} height={size} className={cn("shrink-0", className)} />;
+    case "html5":
+    case "html":
+      return <TheSvgHtml5 width={size} height={size} className={cn("shrink-0", className)} />;
+    case "css3":
+    case "css":
+      return <TheSvgCss width={size} height={size} className={cn("shrink-0", className)} />;
+    case "javascript":
+    case "js":
+      return <TheSvgJavascript width={size} height={size} className={cn("shrink-0", className)} />;
+    case "python":
+      return <TheSvgPython width={size} height={size} className={cn("shrink-0", className)} />;
+    case "google-workspace":
+    case "workspace":
+      return <TheSvgGoogleWorkspace width={size} height={size} className={cn("shrink-0", className)} />;
+    case "vs-code":
+    case "vscode":
+    case "visual-studio-code":
+      return <TheSvgVsCode width={size} height={size} className={cn("shrink-0", className)} />;
+    case "git":
+      return <TheSvgGit width={size} height={size} className={cn("shrink-0", className)} />;
+    case "react":
+      return <TheSvgReact width={size} height={size} className={cn("shrink-0", className)} />;
+    case "typescript":
+    case "ts":
+      return <TheSvgTypescript width={size} height={size} className={cn("shrink-0", className)} />;
+    case "tailwindcss":
+    case "tailwind":
+      return <TheSvgTailwind width={size} height={size} className={cn("shrink-0", className)} />;
+    case "nextjs":
+    case "next.js":
+    case "next":
+      return <TheSvgNextjs width={size} height={size} className={cn("shrink-0", className)} />;
+    case "nodejs":
+    case "node":
+      return <TheSvgNodejs width={size} height={size} className={cn("shrink-0", className)} />;
+    case "docker":
+      return <TheSvgDocker width={size} height={size} className={cn("shrink-0", className)} />;
+    case "kubernetes":
+    case "k8s":
+      return <TheSvgKubernetes width={size} height={size} className={cn("shrink-0", className)} />;
+    case "postgresql":
+    case "postgres":
+      return <TheSvgPostgresql width={size} height={size} className={cn("shrink-0", className)} />;
+    case "mongodb":
+    case "mongo":
+      return <TheSvgMongodb width={size} height={size} className={cn("shrink-0", className)} />;
+    case "supabase":
+      return <TheSvgSupabase width={size} height={size} className={cn("shrink-0", className)} />;
+  }
+
+  // Priority 2: Fuzzy matches for @thesvg/react components
+  if (norm.includes("figma")) return <TheSvgFigma width={size} height={size} className={cn("shrink-0", className)} />;
+  if (norm.includes("power-bi") || norm.includes("powerbi")) return <TheSvgPowerBi width={size} height={size} className={cn("shrink-0", className)} />;
+  if (norm.includes("powerpoint")) return <TheSvgPowerpoint width={size} height={size} className={cn("shrink-0", className)} />;
+  if (norm.includes("word") && !norm.includes("wordpress")) return <TheSvgWord width={size} height={size} className={cn("shrink-0", className)} />;
+  if (norm.includes("excel")) return <TheSvgExcel width={size} height={size} className={cn("shrink-0", className)} />;
+  if (norm.includes("sheets")) return <TheSvgGoogleSheets width={size} height={size} className={cn("shrink-0", className)} />;
+  if (norm.includes("java") && !norm.includes("javascript")) return <TheSvgJava width={size} height={size} className={cn("shrink-0", className)} />;
+  if (norm.includes("chatgpt") || norm.includes("openai")) return <TheSvgChatgpt width={size} height={size} className={cn("shrink-0", className)} />;
+  if (norm.includes("claude")) return <TheSvgClaude width={size} height={size} className={cn("shrink-0", className)} />;
+  if (norm.includes("html")) return <TheSvgHtml5 width={size} height={size} className={cn("shrink-0", className)} />;
+  if (norm.includes("css") && !norm.includes("tailwindcss")) return <TheSvgCss width={size} height={size} className={cn("shrink-0", className)} />;
+  if (norm.includes("javascript")) return <TheSvgJavascript width={size} height={size} className={cn("shrink-0", className)} />;
+  if (norm.includes("python")) return <TheSvgPython width={size} height={size} className={cn("shrink-0", className)} />;
+  if (norm.includes("workspace")) return <TheSvgGoogleWorkspace width={size} height={size} className={cn("shrink-0", className)} />;
+  if (norm.includes("vscode") || norm.includes("vs-code")) return <TheSvgVsCode width={size} height={size} className={cn("shrink-0", className)} />;
 
   // 1. Microsoft Suite Authentic Marks (Official Guidelines)
   if (norm.includes("excel") || norm === "microsoft-excel") {

@@ -67,6 +67,137 @@ html.dark .learnify-dark-logo,
   display: inline-block !important;
 }
 
+.learnify-logo-reveal {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--foreground);
+}
+
+.learnify-logo-reveal__glass {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  padding: 1rem 1.25rem;
+  border: 1px solid rgb(255 255 255 / 55%);
+  border-radius: 1.35rem;
+  background: linear-gradient(145deg, rgb(255 255 255 / 82%), rgb(226 236 255 / 40%));
+  box-shadow:
+    0 18px 48px -28px rgb(29 78 216 / 45%),
+    inset 0 1px 0 rgb(255 255 255 / 85%);
+  backdrop-filter: blur(18px);
+  animation: learnify-glass-breathe 2.8s ease-in-out infinite;
+}
+
+.learnify-logo-reveal__glass img {
+  max-width: min(72vw, 18rem);
+}
+
+.learnify-logo-reveal__sheen {
+  position: absolute;
+  z-index: 1;
+  inset: -35% auto -35% -55%;
+  width: 38%;
+  transform: skewX(-18deg);
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 72%), transparent);
+  animation: learnify-glass-sheen 2.8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.learnify-logo-reveal__label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--muted-foreground);
+}
+
+.learnify-logo-reveal__dots {
+  display: inline-flex;
+  gap: 0.3rem;
+}
+
+.learnify-logo-reveal__dots i {
+  width: 0.3rem;
+  height: 0.3rem;
+  border-radius: 9999px;
+  background: var(--primary);
+  animation: learnify-loader-dot 1s ease-in-out infinite;
+}
+
+.learnify-logo-reveal__dots i:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.learnify-logo-reveal__dots i:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.learnify-logo-reveal--compact {
+  display: inline-flex;
+  vertical-align: middle;
+}
+
+.learnify-logo-reveal--compact .learnify-logo-reveal__glass {
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.7rem;
+  animation-duration: 3.2s;
+}
+
+@keyframes learnify-glass-breathe {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+    box-shadow:
+      0 18px 48px -28px rgb(29 78 216 / 45%),
+      inset 0 1px 0 rgb(255 255 255 / 85%);
+  }
+  50% {
+    transform: translateY(-4px) scale(1.015);
+    box-shadow:
+      0 24px 54px -28px rgb(29 78 216 / 55%),
+      inset 0 1px 0 rgb(255 255 255 / 95%);
+  }
+}
+
+@keyframes learnify-glass-sheen {
+  0%,
+  20% {
+    transform: translateX(0) skewX(-18deg);
+    opacity: 0;
+  }
+  45% {
+    opacity: 1;
+  }
+  80%,
+  100% {
+    transform: translateX(480%) skewX(-18deg);
+    opacity: 0;
+  }
+}
+
+@keyframes learnify-loader-dot {
+  0%,
+  80%,
+  100% {
+    opacity: 0.35;
+    transform: translateY(0);
+  }
+  40% {
+    opacity: 1;
+    transform: translateY(-3px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .learnify-logo-reveal__glass,
+  .learnify-logo-reveal__sheen,
+  .learnify-logo-reveal__dots i {
+    animation: none;
+  }
+}
+
 :root {
   --radius: 0.875rem;
 

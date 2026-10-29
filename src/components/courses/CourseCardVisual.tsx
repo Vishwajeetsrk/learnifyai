@@ -22,32 +22,12 @@ interface CourseCardVisualProps {
  * Add new entries here as more covers are generated.
  */
 const LOCAL_COVERS: Record<string, string> = {
-  // Generated high-definition photo covers
-  "chatgpt-claude-ai": "/course-covers/chatgpt-claude-ai.jpg",
-  "chatgpt-claude-ai-productivity": "/course-covers/chatgpt-claude-ai.jpg",
-  "java-fundamentals": "/course-covers/java-fundamentals.jpg",
-  "designing-user-interfaces-and-experiences": "/course-covers/designing-user-interfaces-and-experiences.jpg",
-  "python-for-everyone": "/course-covers/python-for-everyone.jpg",
-  "python-for-beginners": "/course-covers/python-for-everyone.jpg",
-  "javascript-zero-to-pro": "/course-covers/javascript-zero-to-pro.jpg",
-  "javascript-essentials": "/course-covers/javascript-zero-to-pro.jpg",
-
-  // Vector brand illustration covers
-  "excel-sheets-mastery": "/course-covers/excel-sheets-mastery.svg",
-  "excel-and-sheets-mastery": "/course-covers/excel-sheets-mastery.svg",
-  "figma-ui-bootcamp": "/course-covers/figma-ui-bootcamp.svg",
-  "google-workspace-pro": "/course-covers/google-workspace-pro.svg",
-  "html-css-essentials": "/course-covers/html-css-essentials.svg",
-  "power-bi-visuals": "/course-covers/power-bi-visuals.svg",
-  "power-bi-and-data-analytics": "/course-covers/power-bi-visuals.svg",
-  "vs-code-git-essentials": "/course-covers/vs-code-git-essentials.svg",
-  "vs-code-and-git-mastery": "/course-covers/vs-code-git-essentials.svg",
-  "word-powerpoint-pro": "/course-covers/word-powerpoint-pro.svg",
-  "word-and-powerpoint-pro": "/course-covers/word-powerpoint-pro.svg",
+  // Legacy or non-brand specific course covers can be added here.
+  // The 12 core courses dynamically use the high-fidelity @thesvg/react brand presentation.
 };
 
 /**
- * Maps course slug/title to canonical brand logos.
+ * Maps course slug/title to canonical brand logos from @thesvg/react.
  * Handles both existing platform courses and any newly created technologies.
  */
 export function getCourseBrands(slug: string = "", title: string = ""): KnownBrand[] {
@@ -58,7 +38,7 @@ export function getCourseBrands(slug: string = "", title: string = ""): KnownBra
     return ["wordpress", "php"];
   }
 
-  // Multi-brand course combinations
+  // 12 Core Courses with Canonical @thesvg/react Icons
   if (norm.includes("word") && norm.includes("powerpoint")) {
     return ["microsoft-word", "microsoft-powerpoint"];
   }
@@ -79,7 +59,7 @@ export function getCourseBrands(slug: string = "", title: string = ""): KnownBra
     return ["microsoft-power-bi"];
   }
   if (norm.includes("excel") || norm.includes("sheets")) {
-    return ["microsoft-excel"];
+    return ["microsoft-excel", "google-sheets"];
   }
   if (
     norm.includes("ui & ux") ||
@@ -87,16 +67,19 @@ export function getCourseBrands(slug: string = "", title: string = ""): KnownBra
     norm.includes("user-interfaces") ||
     norm.includes("design-systems")
   ) {
-    return ["figma", "tailwindcss"];
+    return ["figma"];
   }
   if (norm.includes("figma")) {
     return ["figma"];
   }
-  if (
-    norm.includes("python") &&
-    (norm.includes("data") || norm.includes("science") || norm.includes("analytics"))
-  ) {
-    return ["python", "pandas"];
+  if (norm.includes("google-workspace") || norm.includes("workspace")) {
+    return ["google-workspace"];
+  }
+  if (norm.includes("java") && !norm.includes("javascript")) {
+    return ["java"];
+  }
+  if (norm.includes("javascript") || norm.includes("js")) {
+    return ["javascript"];
   }
   if (norm.includes("python")) {
     return ["python"];
@@ -233,7 +216,7 @@ export function CourseCardVisual({
   let gradientClass = "from-slate-900 via-indigo-950/80 to-slate-900";
   let accentBorder = "border-primary/30";
 
-  if (primaryBrand.includes("excel")) {
+  if (primaryBrand.includes("excel") || primaryBrand.includes("sheets")) {
     gradientClass = "from-[#082817] via-[#0E4728] to-[#061C10]";
     accentBorder = "border-emerald-500/40";
   } else if (primaryBrand.includes("word") && !primaryBrand.includes("wordpress") || primaryBrand.includes("typescript")) {
@@ -248,10 +231,19 @@ export function CourseCardVisual({
   } else if (primaryBrand.includes("python")) {
     gradientClass = "from-[#0B1E2E] via-[#15344F] to-[#091825]";
     accentBorder = "border-sky-500/40";
+  } else if (primaryBrand.includes("java") && !primaryBrand.includes("javascript")) {
+    gradientClass = "from-[#2A1108] via-[#4E200F] to-[#1C0A04]";
+    accentBorder = "border-orange-500/40";
+  } else if (primaryBrand.includes("workspace") || primaryBrand.includes("google")) {
+    gradientClass = "from-[#0A1E38] via-[#12335E] to-[#071527]";
+    accentBorder = "border-blue-500/40";
+  } else if (primaryBrand.includes("vs-code") || primaryBrand.includes("vscode")) {
+    gradientClass = "from-[#081F3D] via-[#0F396E] to-[#05152B]";
+    accentBorder = "border-sky-500/40";
   } else if (primaryBrand.includes("figma")) {
     gradientClass = "from-[#1F1329] via-[#352245] to-[#140B1B]";
     accentBorder = "border-purple-500/40";
-  } else if (primaryBrand.includes("chatgpt") || primaryBrand.includes("supabase")) {
+  } else if (primaryBrand.includes("chatgpt") || primaryBrand.includes("claude") || primaryBrand.includes("supabase")) {
     gradientClass = "from-[#06261E] via-[#0D4033] to-[#041A14]";
     accentBorder = "border-emerald-500/40";
   } else if (primaryBrand.includes("html") || primaryBrand.includes("git")) {

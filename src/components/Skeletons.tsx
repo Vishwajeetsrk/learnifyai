@@ -1,4 +1,6 @@
 import { Skeleton } from "@/components/ui/skeleton";
+import { LearnifyLogoReveal } from "@/components/ui/liquid-glass-logo-reveal";
+import { Logo } from "@/components/Logo";
 
 export function StatCardSkeleton() {
   return (
@@ -288,8 +290,7 @@ export function AppShellSkeleton() {
       {/* Sidebar shimmer */}
       <div className="hidden md:flex w-64 flex-col border-r border-border/80 bg-card/60 p-4 space-y-6 shrink-0">
         <div className="flex items-center gap-3 px-2">
-          <Skeleton className="h-8 w-8 rounded-xl" />
-          <Skeleton className="h-5 w-28 rounded" />
+          <Logo height="h-8" />
         </div>
         <div className="space-y-2">
           {Array.from({ length: 7 }).map((_, i) => (
@@ -303,7 +304,7 @@ export function AppShellSkeleton() {
       {/* Main content shimmer */}
       <div className="flex-1 flex flex-col min-w-0">
         <div className="h-14 border-b border-border/80 flex items-center justify-between px-6 bg-card/40">
-          <Skeleton className="h-4 w-36 rounded" />
+          <LearnifyLogoReveal compact />
           <div className="flex items-center gap-3">
             <Skeleton className="h-8 w-8 rounded-full" />
             <Skeleton className="h-8 w-8 rounded-full" />
@@ -994,5 +995,4 @@ export function CertificateStudioSkeleton() {
     </div>
   );
 }
-
 

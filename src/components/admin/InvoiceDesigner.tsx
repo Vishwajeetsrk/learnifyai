@@ -40,20 +40,20 @@ const DEFAULT_INVOICE_SETTINGS: Record<string, string> = {
   invoice_gstin: "29XXXXX1234X1Z5",
   invoice_prefix: "INV",
   invoice_footer:
-    "Thank you for supporting Learnify AI! For queries, contact support.learnifyai@gmail.com.",
+    "Thank you for supporting Learnify AI! For queries, contact vishwajeetsrk@gmail.com.",
   invoice_logo_url: "/logo.png",
-  invoice_contact: "support.learnifyai@gmail.com · +91 99182 31234",
-  invoice_address: "102, Innovation Hub, Outer Ring Road, Bangalore, KA, 560103",
-  invoice_website: "https://www.learnifyai.in",
-  invoice_primary_color: "#4f46e5",
-  invoice_secondary_color: "#7c3aed",
+  invoice_contact: "vishwajeetsrk@gmail.com",
+  invoice_address: "Innovation Hub, Bangalore, India",
+  invoice_website: "www.learnifyai.in",
+  invoice_primary_color: "#0f1b3d",
+  invoice_secondary_color: "#d4af37",
   invoice_watermark: "PAID",
-  invoice_signature: "",
+  invoice_signature: "/vishwajeet fake sign.png",
   invoice_terms:
     "1. Fees paid are governed under Consumer Protection (E-Commerce) Rules 2020. 2. Subscriptions auto-renew until cancelled.",
   invoice_refund_policy:
     "Auto-approved refunds are processed within 5-7 working days via Cashfree.",
-  invoice_template: "modern",
+  invoice_template: "luxury",
   invoice_qr_enabled: "true",
 };
 
@@ -172,32 +172,46 @@ export default function InvoiceDesigner() {
 
   const triggerDownloadTest = async () => {
     const mockInvoice = {
-      invoice_number: "INV-TEST-2026",
-      created_at: new Date().toISOString(),
-      due_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+      invoice_number: "INV-B91D4407",
+      created_at: new Date("2026-07-12T10:00:00Z").toISOString(),
+      due_date: new Date("2026-07-12T10:00:00Z").toISOString(),
       status: "paid",
       amount_inr: 4999.0,
       tax_inr: 899.82,
       total_inr: 5898.82,
-      line_items: [{ name: "Premium SaaS Accelerator Program", quantity: 1, amount: 4999.0 }],
-      payment_method: "UPI (Cashfree)",
-      paid_at: new Date().toISOString(),
-      cashfree_order_id: "CF_ORDER_9918231",
-      notes: "This is a verification test invoice.",
+      line_items: [
+        {
+          name: "Premium SaaS Accelerator Program (Course Access)",
+          quantity: 1,
+          amount: 4999.0,
+        },
+      ],
+      payment_method: "UPI (GPay)",
+      paid_at: new Date("2026-07-12T10:00:00Z").toISOString(),
+      cashfree_order_id: "TXN_CF_881923",
+      notes: "Official GST Tax Invoice - Learnify AI",
       terms: settings.invoice_terms,
     };
 
     try {
-      await downloadInvoicePdf(mockInvoice, "student@example.com", {
+      await downloadInvoicePdf(mockInvoice, "priya.sharma@example.com", {
         company_name: settings.invoice_company_name,
         legal_name: settings.invoice_legal_name,
         gstin: settings.invoice_gstin,
         prefix: settings.invoice_prefix,
         footer: settings.invoice_footer,
-        logo_url: settings.invoice_logo_url,
+        logo_url: settings.invoice_logo_url || "/logo.png",
         contact: settings.invoice_contact,
-        primary_color: settings.invoice_primary_color,
-        secondary_color: settings.invoice_secondary_color,
+        primary_color: settings.invoice_primary_color || "#0f1b3d",
+        secondary_color: settings.invoice_secondary_color || "#d4af37",
+        address: settings.invoice_address,
+        website: settings.invoice_website,
+        template: settings.invoice_template || "luxury",
+        signature: settings.invoice_signature || "/vishwajeet fake sign.png",
+        terms: settings.invoice_terms,
+        refund_policy: settings.invoice_refund_policy,
+        watermark: settings.invoice_watermark,
+        qr_enabled: settings.invoice_qr_enabled,
       });
       toast.success("Test PDF download triggered!");
     } catch (err: any) {
@@ -289,7 +303,7 @@ export default function InvoiceDesigner() {
                   <Input
                     value={settings.invoice_contact}
                     onChange={(e) => handleChange("invoice_contact", e.target.value)}
-                    placeholder="support.learnifyai@gmail.com"
+                    placeholder="vishwajeetsrk@gmail.com"
                   />
                 </div>
                 <div className="space-y-2">
@@ -297,7 +311,7 @@ export default function InvoiceDesigner() {
                   <Input
                     value={settings.invoice_website}
                     onChange={(e) => handleChange("invoice_website", e.target.value)}
-                    placeholder="https://learnifyai.com"
+                    placeholder="www.learnifyai.in"
                   />
                 </div>
               </TabsContent>
@@ -565,9 +579,9 @@ export default function InvoiceDesigner() {
                   <div className="flex items-center gap-3">
                     {settings.invoice_logo_url && (
                       <img
-                        src={settings.invoice_logo_url}
+                        src={settings.invoice_logo_url || "/logo.png"}
                         alt="Logo"
-                        className="w-12 h-12 object-contain"
+                        className="h-10 w-auto max-w-[150px] object-contain"
                       />
                     )}
                     <div>
@@ -659,7 +673,7 @@ export default function InvoiceDesigner() {
                   GSTIN: <strong>{settings.invoice_gstin}</strong>
                 </span>
                 <span className="text-[10px] text-muted-foreground block">
-                  Support: {settings.invoice_contact || "support.learnifyai@gmail.com"}
+                  Support: {settings.invoice_contact || "vishwajeetsrk@gmail.com"}
                 </span>
               </div>
 
@@ -757,7 +771,7 @@ export default function InvoiceDesigner() {
                         Scan to Verify
                       </strong>
                       <span className="text-[8px] text-muted-foreground block leading-tight mt-0.5">
-                        Secured & tamper-proof validation on learnifyai.com.
+                        Secured & tamper-proof validation on www.learnifyai.in.
                       </span>
                     </div>
                   </div>

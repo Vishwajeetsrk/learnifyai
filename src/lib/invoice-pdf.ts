@@ -4,6 +4,7 @@
 import jsPDF from "jspdf";
 import { autoTable } from "jspdf-autotable";
 import { format } from "date-fns";
+import { supabase } from "@/integrations/supabase/client";
 
 interface InvoiceData {
   invoice_number: string;
@@ -51,16 +52,16 @@ const DEFAULT_BRANDING: BrandingData = {
   prefix: "INV",
   footer:
     "This is an official computer-generated invoice compliant with GST and Consumer Protection Rules 2020.",
-  contact: "support.learnifyai@gmail.com · +91 99182 31234",
-  primary_color: "#4F46E5",
-  secondary_color: "#7C3AED",
+  contact: "vishwajeetsrk@gmail.com",
+  primary_color: "#0F1B3D",
+  secondary_color: "#D4AF37",
   success_color: "#22C55E",
-  address: "102, Innovation Hub, Outer Ring Road, Bangalore, KA, 560103",
-  website: "https://www.learnifyai.in",
-  signature: "",
+  address: "Innovation Hub, Bangalore, India",
+  website: "www.learnifyai.in",
+  signature: "/vishwajeet fake sign.png",
   terms: "1. Fees paid are non-refundable. 2. Subscriptions auto-renew until cancelled.",
   refund_policy: "Refunds are processed within 5-7 working days under special circumstances.",
-  template: "modern",
+  template: "luxury",
   qr_enabled: "true",
   watermark: "PAID",
 };
@@ -111,9 +112,62 @@ export async function downloadInvoicePdf(
   userEmail: string,
   brandingOverrides?: Partial<BrandingData>,
 ) {
+  let dbSettings: Partial<BrandingData> = {};
+  if (typeof window !== "undefined") {
+    try {
+      const { data } = await supabase
+        .from("site_settings")
+        .select("key,value")
+        .like("key", "invoice_%");
+      if (data && data.length > 0) {
+        const map: Record<string, string> = {};
+        data.forEach((r) => {
+          map[r.key] = r.value || "";
+        });
+        dbSettings = {
+          company_name: map.invoice_company_name,
+          legal_name: map.invoice_legal_name,
+          gstin: map.invoice_gstin,
+          prefix: map.invoice_prefix,
+          footer: map.invoice_footer,
+          logo_url: map.invoice_logo_url,
+          contact: map.invoice_contact,
+          primary_color: map.invoice_primary_color,
+          secondary_color: map.invoice_secondary_color,
+          address: map.invoice_address,
+          website: map.invoice_website,
+          signature: map.invoice_signature,
+          terms: map.invoice_terms,
+          refund_policy: map.invoice_refund_policy,
+          template: map.invoice_template,
+          qr_enabled: map.invoice_qr_enabled,
+          watermark: map.invoice_watermark,
+        };
+        (Object.keys(dbSettings) as (keyof BrandingData)[]).forEach((k) => {
+          if (!dbSettings[k]) delete dbSettings[k];
+        });
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  const cleanOverrides: Partial<BrandingData> = {};
+  if (brandingOverrides) {
+    (Object.keys(brandingOverrides) as (keyof BrandingData)[]).forEach((k) => {
+      if (
+        brandingOverrides[k] !== undefined &&
+        brandingOverrides[k] !== null &&
+        brandingOverrides[k] !== ""
+      ) {
+        cleanOverrides[k] = brandingOverrides[k];
+      }
+    });
+  }
+
   const doc = new jsPDF({ unit: "mm", format: "a4" });
-  const branding = { ...DEFAULT_BRANDING, ...brandingOverrides };
-  const templateStyle = branding.template || "modern";
+  const branding = { ...DEFAULT_BRANDING, ...dbSettings, ...cleanOverrides };
+  const templateStyle = branding.template || "luxury";
 
   // Template-specific palette defaults
   let primaryHex = branding.primary_color || DEFAULT_BRANDING.primary_color!;
@@ -173,15 +227,16 @@ export async function downloadInvoicePdf(
         : logoBase64.includes("image/svg")
           ? "SVG"
           : "PNG";
-      const logoY = templateStyle === "minimal" ? 6 : 8;
-      doc.addImage(logoBase64, ext, margin, logoY, 28, 28);
+      const logoY = templateStyle === "minimal" ? 5 : 11;
+      // Proportional rectangular logo rendering (16:9 / 1.77 aspect ratio)
+      doc.addImage(logoBase64, ext, margin, logoY, 32, 18);
     } catch {
       // logo failed — skip silently
     }
   }
 
   // ─── 3. COMPANY NAME & LEGAL INFO (header) ────────────────────────────────
-  const textStartX = logoBase64 ? margin + 32 : margin;
+  const textStartX = logoBase64 ? margin + 36 : margin;
   const isDarkT =
     templateStyle === "dark" ||
     templateStyle === "luxury" ||

@@ -8,6 +8,22 @@ import {
   ClaudeCode as TheSvgClaudeCodeIcon,
   MicrosoftPowerpoint as TheSvgMicrosoftPowerpoint,
 } from "@thesvg/react";
+import TheSvgFigma from "@thesvg/react/figma";
+import TheSvgPowerBi from "@thesvg/react/microsoft-power-bi";
+import TheSvgWord from "@thesvg/react/microsoft-word";
+import TheSvgPowerpoint from "@thesvg/react/microsoft-powerpoint";
+import TheSvgExcel from "@thesvg/react/microsoft-excel";
+import TheSvgGoogleSheets from "@thesvg/react/google-sheets";
+import TheSvgJava from "@thesvg/react/java";
+import TheSvgChatgpt from "@thesvg/react/openai-chatgpt";
+import TheSvgClaude from "@thesvg/react/claude-ai";
+import TheSvgHtml5 from "@thesvg/react/html5";
+import TheSvgCss from "@thesvg/react/css";
+import TheSvgJavascript from "@thesvg/react/javascript";
+import TheSvgPython from "@thesvg/react/python";
+import TheSvgGoogleWorkspace from "@thesvg/react/google-workspace";
+import TheSvgVsCode from "@thesvg/react/visual-studio-code";
+import TheSvgGit from "@thesvg/react/git";
 import { cn } from "@/lib/utils";
 
 // Re-export core primitives for universal access
@@ -18,6 +34,22 @@ export {
   TheSvgClaudeAiIcon,
   TheSvgClaudeCodeIcon,
   TheSvgMicrosoftPowerpoint,
+  TheSvgFigma,
+  TheSvgPowerBi,
+  TheSvgWord,
+  TheSvgPowerpoint,
+  TheSvgExcel,
+  TheSvgGoogleSheets,
+  TheSvgJava,
+  TheSvgChatgpt,
+  TheSvgClaude,
+  TheSvgHtml5,
+  TheSvgCss,
+  TheSvgJavascript,
+  TheSvgPython,
+  TheSvgGoogleWorkspace,
+  TheSvgVsCode,
+  TheSvgGit,
 };
 
 export interface BrandIconProps extends React.HTMLAttributes<HTMLDivElement> {

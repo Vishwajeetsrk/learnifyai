@@ -139,15 +139,7 @@ function BillingPage() {
         supabase
           .from("site_settings")
           .select("key,value")
-          .in("key", [
-            "invoice_company_name",
-            "invoice_legal_name",
-            "invoice_gstin",
-            "invoice_prefix",
-            "invoice_footer",
-            "invoice_logo_url",
-            "invoice_contact",
-          ]),
+          .like("key", "invoice_%"),
       ]);
       const pb = profileBrand.data;
       const ss: Record<string, string> = {};
@@ -160,6 +152,16 @@ function BillingPage() {
         footer: pb?.invoice_footer || ss.invoice_footer,
         logo_url: pb?.invoice_logo_url || pb?.org_logo_url || ss.invoice_logo_url,
         contact: pb?.invoice_contact || ss.invoice_contact,
+        address: ss.invoice_address,
+        website: ss.invoice_website,
+        primary_color: ss.invoice_primary_color,
+        secondary_color: ss.invoice_secondary_color,
+        signature: ss.invoice_signature,
+        terms: ss.invoice_terms,
+        refund_policy: ss.invoice_refund_policy,
+        template: ss.invoice_template,
+        qr_enabled: ss.invoice_qr_enabled,
+        watermark: ss.invoice_watermark,
       });
     } catch (err: any) {
       toast.error(err?.message ?? "Failed to generate invoice");
