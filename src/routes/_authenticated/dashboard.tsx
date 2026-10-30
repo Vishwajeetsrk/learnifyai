@@ -23,7 +23,7 @@ import {
   BarChart3,
   Brain,
 } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { useServerFn } from "@tanstack/react-start";
 import { AppShell } from "@/components/AppShell";
@@ -50,6 +50,7 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 function DashboardPage() {
   const { t } = useTranslation();
   const { user, isAdmin } = useAuth();
+  const qc = useQueryClient();
   const name = (user?.user_metadata?.full_name as string) ?? user?.email?.split("@")[0] ?? "there";
   const [brokenImgs, setBrokenImgs] = useState<Set<string>>(new Set());
 
@@ -421,13 +422,11 @@ function DashboardPage() {
               highestStreak={profileQ.data?.highest_streak || 1}
               xp={profileQ.data?.xp || 0}
               onCheckInSuccess={(newStreak, newXp) => {
-                logDailyFn({
-                  data: {
-                    actions_count: 1,
-                    xp_earned: 10,
-                    notes: "Daily Check-in Stream claimed",
-                  },
-                }).catch(() => {});
+                qc.invalidateQueries({ queryKey: ["my-profile-dash"] });
+                qc.invalidateQueries({ queryKey: ["profile-avatar"] });
+                qc.invalidateQueries({ queryKey: ["daily-streak-status"] });
+                qc.invalidateQueries({ queryKey: ["leaderboard"] });
+                qc.invalidateQueries({ queryKey: ["my-rank"] });
               }}
             />
             <div className="bg-card border rounded-3xl p-6 shadow-card flex flex-col justify-between">

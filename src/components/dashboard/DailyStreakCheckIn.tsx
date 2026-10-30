@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useServerFn } from "@tanstack/react-start";
 import {
   Flame,
   CheckCircle2,
@@ -17,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { claimDailyStreak, getDailyStreakStatus } from "@/lib/gamification.functions";
 
 export interface DailyStreakCheckInProps {
   currentStreak: number;
@@ -82,6 +84,9 @@ export function DailyStreakCheckIn({
   const [localXp, setLocalXp] = useState<number>(xp);
   const [flamePulsing, setFlamePulsing] = useState<boolean>(false);
 
+  const claimStreakFn = useServerFn(claimDailyStreak);
+  const getStatusFn = useServerFn(getDailyStreakStatus);
+
   const todayKey = useMemo(() => {
     return `learnify_checkin_${new Date().toISOString().slice(0, 10)}`;
   }, []);
@@ -102,10 +107,35 @@ export function DailyStreakCheckIn({
 
   useEffect(() => {
     const claimedToday = localStorage.getItem(todayKey) === "true";
-    setHasCheckedIn(claimedToday);
-  }, [todayKey]);
+    if (claimedToday) {
+      setHasCheckedIn(true);
+    }
 
-  const handleClaim = useCallback(() => {
+    // Server-verified check-in status (syncs across devices and incognito tabs)
+    const tz =
+      typeof Intl !== "undefined"
+        ? Intl.DateTimeFormat().resolvedOptions().timeZone
+        : "UTC";
+
+    getStatusFn({ data: { timezone: tz } })
+      .then((status) => {
+        if (status?.hasCheckedInToday) {
+          setHasCheckedIn(true);
+          localStorage.setItem(todayKey, "true");
+        }
+        if (typeof status?.currentStreak === "number") {
+          setStreakCount(status.currentStreak);
+        }
+        if (typeof status?.xp === "number") {
+          setLocalXp(status.xp);
+        }
+      })
+      .catch(() => {
+        // Fallback gracefully to local state
+      });
+  }, [getStatusFn, todayKey]);
+
+  const handleClaim = useCallback(async () => {
     if (hasCheckedIn || isSubmitting) return;
 
     setIsSubmitting(true);
@@ -113,34 +143,50 @@ export function DailyStreakCheckIn({
     playChime();
 
     try {
-      // Dynamic fire & confetti burst
-      confetti({
-        particleCount: 75,
-        spread: 80,
-        origin: { y: 0.65 },
-        colors: ["#F97316", "#EF4444", "#FBBF24", "#6366F1", "#10B981"],
-      });
+      const tz =
+        typeof Intl !== "undefined"
+          ? Intl.DateTimeFormat().resolvedOptions().timeZone
+          : "UTC";
 
-      const updatedStreak = streakCount + (hasCheckedIn ? 0 : 1);
-      const updatedXp = localXp + 10;
+      const res = await claimStreakFn({ data: { timezone: tz } });
 
-      localStorage.setItem(todayKey, "true");
-      setHasCheckedIn(true);
-      setStreakCount(updatedStreak);
-      setLocalXp(updatedXp);
+      if (res && res.success) {
+        // Dynamic fire & confetti burst
+        confetti({
+          particleCount: 85,
+          spread: 80,
+          origin: { y: 0.65 },
+          colors: ["#F97316", "#EF4444", "#FBBF24", "#6366F1", "#10B981"],
+        });
 
-      toast.success(`🔥 Day ${updatedStreak} Streak Maintained!`, {
-        description: "+10 XP awarded. Come back tomorrow to continue your streak!",
-      });
+        localStorage.setItem(todayKey, "true");
+        setHasCheckedIn(true);
+        setStreakCount(res.streak);
+        setLocalXp(res.xp);
 
-      onCheckInSuccess?.(updatedStreak, updatedXp);
+        if (res.alreadyClaimed) {
+          toast.info("Streak already active for today! Come back tomorrow.");
+        } else if (res.isMilestone) {
+          toast.success(`🎉 Milestone Reached: ${res.streak}-Day Streak!`, {
+            description: `+${res.awardedXp} XP awarded (including +${res.milestoneBonus} milestone bonus)!`,
+          });
+        } else {
+          toast.success(`🔥 Day ${res.streak} Streak Maintained!`, {
+            description: `+${res.awardedXp} XP awarded. Come back tomorrow to continue your streak!`,
+          });
+        }
+
+        onCheckInSuccess?.(res.streak, res.xp);
+      } else {
+        toast.error("Could not record check-in. Please try again.");
+      }
     } catch {
       toast.error("Could not record check-in. Please try again.");
     } finally {
       setIsSubmitting(false);
       setTimeout(() => setFlamePulsing(false), 1200);
     }
-  }, [hasCheckedIn, isSubmitting, streakCount, localXp, todayKey, onCheckInSuccess]);
+  }, [hasCheckedIn, isSubmitting, claimStreakFn, todayKey, onCheckInSuccess]);
 
   // Next streak milestone calculation (e.g. 7 days, 14 days, 30 days)
   const nextMilestone = useMemo(() => {
@@ -301,7 +347,11 @@ export function DailyStreakCheckIn({
                 const isToday = idx === todayDayIndex;
                 const isFuture = idx > todayDayIndex;
 
-                const isMarkedDone = isPast || (isToday && hasCheckedIn);
+                // Accurate check: A past day of this week was maintained only if within the active streak
+                const daysAgo = todayDayIndex - idx;
+                const isMarkedDone =
+                  (isToday && hasCheckedIn) ||
+                  (isPast && daysAgo <= (hasCheckedIn ? streakCount - 1 : streakCount));
 
                 return (
                   <div

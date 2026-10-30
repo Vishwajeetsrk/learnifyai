@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { LogOut, Settings as SettingsIcon, User as UserIcon, Shield } from "lucide-react";
+import { LogOut, Settings as SettingsIcon, User as UserIcon, Shield, Flame, Sparkles } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -93,11 +93,13 @@ export function UserAvatarMenu({ size = "md", showName = false, className }: Pro
           </div>
         </DropdownMenuLabel>
         <div className="px-2 py-1.5 flex gap-2 justify-center text-xs font-semibold bg-muted/50 mx-2 mb-2 rounded-md">
-          <div className="flex items-center text-orange-500">
-            🔥 {profileQuery.data?.current_streak ?? 0}
+          <div className="flex items-center gap-1 text-orange-500">
+            <Flame className="h-3.5 w-3.5 fill-orange-500" />
+            <span>{profileQuery.data?.current_streak ?? 0}</span>
           </div>
-          <div className="flex items-center text-yellow-500">
-            ⭐ {profileQuery.data?.xp ?? 0} XP
+          <div className="flex items-center gap-1 text-amber-500">
+            <Sparkles className="h-3.5 w-3.5 fill-amber-500" />
+            <span>{profileQuery.data?.xp ?? 0} XP</span>
           </div>
         </div>
         <DropdownMenuSeparator />
