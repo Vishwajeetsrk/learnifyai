@@ -16,14 +16,194 @@ interface CourseCardVisualProps {
   aspectRatio?: "video" | "square";
 }
 
+export interface CourseVisualTheme {
+  title: string;
+  brands: KnownBrand[];
+  gradientClass: string;
+  accentBorder: string;
+  badgeStyles?: Array<{
+    border: string;
+    bg?: string;
+  }>;
+}
+
+/**
+ * Canonical 12 Core Courses Matrix powered by @thesvg/react (thesvg.org by GLINCKER).
+ * Every core course features pixel-perfect SVG brand vectors, signature radiant backdrops,
+ * and high-contrast glass badges with interactive hover scaling.
+ */
+export const CORE_COURSE_THEMES: Record<string, CourseVisualTheme> = {
+  // 1. Designing User Interfaces & Experiences (UI & UX)
+  "designing-user-interfaces-and-experiences": {
+    title: "Designing User Interfaces and Experiences (UI & UX)",
+    brands: ["figma"],
+    gradientClass: "from-[#1F1329] via-[#352245] to-[#140B1B]", // Royal Purple (#1F1329 → #352245)
+    accentBorder: "border-purple-500/40",
+  },
+  // 2. Power BI Data Visualization
+  "power-bi-visuals": {
+    title: "Power BI Data Visualization",
+    brands: ["microsoft-power-bi"],
+    gradientClass: "from-[#2A230B] via-[#4D3F12] to-[#1C1706]", // Amber Gold (#2A230B → #4D3F12)
+    accentBorder: "border-amber-500/40",
+  },
+  "power-bi-and-data-analytics": {
+    title: "Power BI Data Visualization",
+    brands: ["microsoft-power-bi"],
+    gradientClass: "from-[#2A230B] via-[#4D3F12] to-[#1C1706]",
+    accentBorder: "border-amber-500/40",
+  },
+  // 3. Word & PowerPoint Pro (Deep Blue & Crimson dual badge)
+  "word-powerpoint-pro": {
+    title: "Word & PowerPoint Pro",
+    brands: ["microsoft-word", "microsoft-powerpoint"],
+    gradientClass: "from-[#081E3D] via-[#1A2645] to-[#250B10]", // Deep Blue & Crimson
+    accentBorder: "border-blue-500/40",
+    badgeStyles: [
+      { border: "border-blue-500/50", bg: "bg-[#081E3D]/90" },
+      { border: "border-rose-500/50", bg: "bg-[#250B10]/90" },
+    ],
+  },
+  "word-and-powerpoint-pro": {
+    title: "Word & PowerPoint Pro",
+    brands: ["microsoft-word", "microsoft-powerpoint"],
+    gradientClass: "from-[#081E3D] via-[#1A2645] to-[#250B10]",
+    accentBorder: "border-blue-500/40",
+    badgeStyles: [
+      { border: "border-blue-500/50", bg: "bg-[#081E3D]/90" },
+      { border: "border-rose-500/50", bg: "bg-[#250B10]/90" },
+    ],
+  },
+  // 4. Java Fundamentals
+  "java-fundamentals": {
+    title: "Java Fundamentals",
+    brands: ["java"],
+    gradientClass: "from-[#2A1108] via-[#4E200F] to-[#1C0A04]", // Coffee Crimson (#2A1108 → #4E200F)
+    accentBorder: "border-orange-500/40",
+  },
+  // 5. ChatGPT & Claude AI Productivity
+  "chatgpt-claude-ai": {
+    title: "ChatGPT & Claude AI Productivity",
+    brands: ["chatgpt", "claude"],
+    gradientClass: "from-[#06261E] via-[#0D4033] to-[#041A14]", // Forest Emerald (#06261E → #0D4033)
+    accentBorder: "border-emerald-500/40",
+    badgeStyles: [
+      { border: "border-emerald-500/50", bg: "bg-[#06261E]/90" },
+      { border: "border-amber-600/50", bg: "bg-[#24170D]/90" },
+    ],
+  },
+  "chatgpt-claude-ai-productivity": {
+    title: "ChatGPT & Claude AI Productivity",
+    brands: ["chatgpt", "claude"],
+    gradientClass: "from-[#06261E] via-[#0D4033] to-[#041A14]",
+    accentBorder: "border-emerald-500/40",
+    badgeStyles: [
+      { border: "border-emerald-500/50", bg: "bg-[#06261E]/90" },
+      { border: "border-amber-600/50", bg: "bg-[#24170D]/90" },
+    ],
+  },
+  // 6. Figma UI Bootcamp
+  "figma-ui-bootcamp": {
+    title: "Figma UI Bootcamp",
+    brands: ["figma"],
+    gradientClass: "from-[#1F1329] via-[#352245] to-[#140B1B]", // Royal Purple (#1F1329 → #352245)
+    accentBorder: "border-purple-500/40",
+  },
+  // 7. HTML & CSS Essentials
+  "html-css-essentials": {
+    title: "HTML & CSS Essentials",
+    brands: ["html5", "css3"],
+    gradientClass: "from-[#2B1109] via-[#4F2011] to-[#1C0A04]", // Orange Flame (#2B1109 → #4F2011)
+    accentBorder: "border-orange-500/40",
+    badgeStyles: [
+      { border: "border-orange-500/50", bg: "bg-[#2B1109]/90" },
+      { border: "border-blue-500/50", bg: "bg-[#0A1A2F]/90" },
+    ],
+  },
+  // 8. JavaScript Zero to Pro
+  "javascript-zero-to-pro": {
+    title: "JavaScript Zero to Pro",
+    brands: ["javascript"],
+    gradientClass: "from-[#2A230B] via-[#4D3F12] to-[#1C1706]", // Cyber Gold (#2A230B → #4D3F12)
+    accentBorder: "border-amber-500/40",
+  },
+  "javascript-essentials": {
+    title: "JavaScript Zero to Pro",
+    brands: ["javascript"],
+    gradientClass: "from-[#2A230B] via-[#4D3F12] to-[#1C1706]",
+    accentBorder: "border-amber-500/40",
+  },
+  // 9. Python for Everyone
+  "python-for-everyone": {
+    title: "Python for Everyone",
+    brands: ["python"],
+    gradientClass: "from-[#0B1E2E] via-[#15344F] to-[#091825]", // Navy Tech (#0B1E2E → #15344F)
+    accentBorder: "border-sky-500/40",
+  },
+  "python-for-beginners": {
+    title: "Python for Everyone",
+    brands: ["python"],
+    gradientClass: "from-[#0B1E2E] via-[#15344F] to-[#091825]",
+    accentBorder: "border-sky-500/40",
+  },
+  // 10. Google Workspace Pro
+  "google-workspace-pro": {
+    title: "Google Workspace Pro",
+    brands: ["google-workspace"],
+    gradientClass: "from-[#0A1E38] via-[#12335E] to-[#071527]", // Google Blue (#0A1E38 → #12335E)
+    accentBorder: "border-blue-500/40",
+  },
+  // 11. Excel & Sheets Mastery
+  "excel-sheets-mastery": {
+    title: "Excel & Sheets Mastery",
+    brands: ["microsoft-excel", "google-sheets"],
+    gradientClass: "from-[#082817] via-[#0E4728] to-[#061C10]", // Excel Emerald (#082817 → #0E4728)
+    accentBorder: "border-emerald-500/40",
+    badgeStyles: [
+      { border: "border-emerald-500/50", bg: "bg-[#082817]/90" },
+      { border: "border-green-500/50", bg: "bg-[#0A2616]/90" },
+    ],
+  },
+  "excel-and-sheets-mastery": {
+    title: "Excel & Sheets Mastery",
+    brands: ["microsoft-excel", "google-sheets"],
+    gradientClass: "from-[#082817] via-[#0E4728] to-[#061C10]",
+    accentBorder: "border-emerald-500/40",
+    badgeStyles: [
+      { border: "border-emerald-500/50", bg: "bg-[#082817]/90" },
+      { border: "border-green-500/50", bg: "bg-[#0A2616]/90" },
+    ],
+  },
+  // 12. VS Code + Git Essentials
+  "vs-code-git-essentials": {
+    title: "VS Code + Git Essentials",
+    brands: ["vs-code", "git"],
+    gradientClass: "from-[#081F3D] via-[#0F396E] to-[#05152B]", // Azure Blue (#081F3D → #0F396E)
+    accentBorder: "border-sky-500/40",
+    badgeStyles: [
+      { border: "border-sky-500/50", bg: "bg-[#081F3D]/90" },
+      { border: "border-orange-500/50", bg: "bg-[#28120A]/90" },
+    ],
+  },
+  "vs-code-and-git-mastery": {
+    title: "VS Code + Git Essentials",
+    brands: ["vs-code", "git"],
+    gradientClass: "from-[#081F3D] via-[#0F396E] to-[#05152B]",
+    accentBorder: "border-sky-500/40",
+    badgeStyles: [
+      { border: "border-sky-500/50", bg: "bg-[#081F3D]/90" },
+      { border: "border-orange-500/50", bg: "bg-[#28120A]/90" },
+    ],
+  },
+};
+
 /**
  * Local high-quality generated course covers (slug → path).
  * These take priority over any database cover_url.
  * Add new entries here as more covers are generated.
  */
 const LOCAL_COVERS: Record<string, string> = {
-  // Legacy or non-brand specific course covers can be added here.
-  // The 12 core courses dynamically use the high-fidelity @thesvg/react brand presentation.
+  // Non-core custom course covers can be mapped here.
 };
 
 /**
@@ -31,6 +211,11 @@ const LOCAL_COVERS: Record<string, string> = {
  * Handles both existing platform courses and any newly created technologies.
  */
 export function getCourseBrands(slug: string = "", title: string = ""): KnownBrand[] {
+  const normSlug = (slug || "").toLowerCase().trim();
+  if (CORE_COURSE_THEMES[normSlug]) {
+    return CORE_COURSE_THEMES[normSlug].brands;
+  }
+
   const norm = `${slug} ${title}`.toLowerCase();
 
   // WordPress explicitly first to avoid accidental 'word' matching
@@ -199,6 +384,80 @@ export function CourseCardVisual({
   className,
   aspectRatio = "video",
 }: CourseCardVisualProps) {
+  const normSlug = (course.slug || "").toLowerCase().trim();
+  let coreTheme = CORE_COURSE_THEMES[normSlug];
+
+  if (!coreTheme && course.title) {
+    const normTitle = (course.title || "").toLowerCase();
+    for (const [key, theme] of Object.entries(CORE_COURSE_THEMES)) {
+      if (
+        (normSlug && normSlug.includes(key)) ||
+        (theme.title && normTitle.includes(theme.title.toLowerCase()))
+      ) {
+        coreTheme = theme;
+        break;
+      }
+    }
+  }
+
+  // 1. Dedicated Authentic @thesvg/react Vector Visual Cards for Core Masteries
+  if (coreTheme) {
+    const brands = coreTheme.brands;
+    return (
+      <div
+        className={cn(
+          "w-full overflow-hidden relative border-b border-border/50 flex items-center justify-center select-none group",
+          aspectRatio === "video" ? "aspect-video" : "aspect-square",
+          className,
+        )}
+      >
+        <div
+          className={cn(
+            "w-full h-full bg-gradient-to-br transition-all duration-500 flex flex-col items-center justify-center p-6 relative overflow-hidden",
+            coreTheme.gradientClass,
+          )}
+        >
+          {/* Subtle micro-grid pattern */}
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-[size:16px_16px] pointer-events-none" />
+
+          {/* Radiant ambient glow backdrop */}
+          <div className="absolute w-32 h-32 rounded-full bg-white/10 blur-2xl pointer-events-none group-hover:scale-125 transition-transform duration-500" />
+
+          {/* Centered Glass Brand Badges */}
+          <div className="relative z-10 flex items-center justify-center">
+            {brands.map((b, i) => {
+              const badgeStyle = coreTheme.badgeStyles?.[i];
+              return (
+                <div
+                  key={b}
+                  className={cn(
+                    "rounded-2xl backdrop-blur-md shadow-2xl border transition-all duration-300 group-hover:scale-105 group-hover:-translate-y-0.5 flex items-center justify-center",
+                    brands.length === 1 ? "p-4" : "p-3",
+                    badgeStyle?.bg || "bg-card/85",
+                    badgeStyle?.border || coreTheme.accentBorder,
+                    i > 0 && "-ml-2.5 shadow-xl relative z-10",
+                  )}
+                >
+                  <CourseBrandLogo brand={b} size={brands.length === 1 ? 46 : 38} />
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Clean brand label footer */}
+          <div className="absolute bottom-2.5 inset-x-3.5 flex items-center justify-between text-[10px] font-semibold text-white/70 tracking-wider uppercase">
+            <span className="font-display flex items-center gap-1.5">
+              <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+              Learnify AI
+            </span>
+            <span className="text-white/50">{course.category || "Mastery"}</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // 2. Custom or non-core courses fallback
   const brands = getCourseBrands(course.slug, course.title);
   const cleanCover = course.cover_url ? getCleanBannerUrl(course.cover_url) : null;
 
