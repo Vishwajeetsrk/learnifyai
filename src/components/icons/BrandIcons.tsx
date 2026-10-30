@@ -1,13 +1,7 @@
 import React from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { ChatGptIcon, ClaudeIcon } from "@hugeicons/core-free-icons";
-import {
-  OpenaiChatgpt as TheSvgOpenaiChatgpt,
-  Claude as TheSvgClaudeIcon,
-  ClaudeAi as TheSvgClaudeAiIcon,
-  ClaudeCode as TheSvgClaudeCodeIcon,
-  MicrosoftPowerpoint as TheSvgMicrosoftPowerpoint,
-} from "@thesvg/react";
+import ChatGptIcon from "@hugeicons/core-free-icons/ChatGptIcon";
+import ClaudeIcon from "@hugeicons/core-free-icons/ClaudeIcon";
 import TheSvgFigma from "@thesvg/react/figma";
 import TheSvgPowerBi from "@thesvg/react/microsoft-power-bi";
 import TheSvgWord from "@thesvg/react/microsoft-word";
@@ -25,6 +19,13 @@ import TheSvgGoogleWorkspace from "@thesvg/react/google-workspace";
 import TheSvgVsCode from "@thesvg/react/visual-studio-code";
 import TheSvgGit from "@thesvg/react/git";
 import { cn } from "@/lib/utils";
+
+// Subpath aliases matching previous exports without loading full barrels
+const TheSvgOpenaiChatgpt = TheSvgChatgpt;
+const TheSvgClaudeIcon = TheSvgClaude;
+const TheSvgClaudeAiIcon = TheSvgClaude;
+const TheSvgClaudeCodeIcon = TheSvgClaude;
+const TheSvgMicrosoftPowerpoint = TheSvgPowerpoint;
 
 // Re-export core primitives for universal access
 export { HugeiconsIcon, ChatGptIcon, ClaudeIcon };
