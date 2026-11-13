@@ -35,11 +35,11 @@ import { useSiteSettings } from "@/hooks/use-site-settings";
 
 const FEATURED_PROJECT_PREVIEWS = [
   {
-    id: "nick-ho-porsche",
-    title: "Nick Ho Porsche Carrera",
-    category: "WebGL • 3D Depth-Map Telemetry",
+    id: "acreage-nike",
+    title: "Acreage × Nike",
+    category: "Next-Gen Footwear • GSAP & Motion",
     url: "/projects",
-    thumbnail: "/preset-sites/nick-ho-porsche/Assets/car.avif",
+    thumbnail: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=300&q=80",
   },
   {
     id: "axion-studio",
@@ -56,11 +56,11 @@ const FEATURED_PROJECT_PREVIEWS = [
     thumbnail: "/preset-sites/macos-portfolio/assets/icons/finder.png",
   },
   {
-    id: "productized-agency",
-    title: "Productized Agency",
-    category: "Next.js 15 • Tailwind v4",
+    id: "bionova",
+    title: "BioNova Health AI",
+    category: "Interactive Canvas • SVG Biometrics",
     url: "/projects",
-    thumbnail: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=300&q=80",
+    thumbnail: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=300&q=80",
   },
 ];
 
@@ -364,8 +364,8 @@ export function SiteHeader() {
                           to="/projects"
                           className="p-2 rounded-lg bg-muted/40 hover:bg-muted border border-border/50 text-left transition flex flex-col gap-1"
                         >
-                          <span className="text-xs font-semibold text-foreground line-clamp-1">Nick Ho Porsche</span>
-                          <span className="text-[10px] text-muted-foreground font-mono">3D WebGL</span>
+                          <span className="text-xs font-semibold text-foreground line-clamp-1">Acreage × Nike</span>
+                          <span className="text-[10px] text-muted-foreground font-mono">Next-Gen GSAP</span>
                         </Link>
                       </SheetClose>
                       <SheetClose asChild>

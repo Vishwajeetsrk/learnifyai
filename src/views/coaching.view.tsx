@@ -72,6 +72,7 @@ import RoadmapBuilder from "@/components/admin/RoadmapBuilder";
 import { cn } from "@/lib/utils";
 import OpenSlotBooking, { MeetingIcons } from "@/components/ui/open-slot-booking";
 import { careerCoachChat } from "@/lib/career-coach.functions";
+import { AiMentorMessenger } from "@/components/coaches/AiMentorMessenger";
 
 export const COACH_ROLES = [
   {
@@ -653,13 +654,14 @@ export default function CoachingDashboard() {
     },
   });
 
-  const sendMessage = async () => {
-    if (!user || !activeChatUser || !messageText.trim()) return;
+  const sendMessage = async (overrideText?: string) => {
+    const textToSend = overrideText || messageText;
+    if (!user || !activeChatUser || !textToSend.trim()) return;
     try {
       const { error } = await supabase.from("messages" as any).insert({
         sender_id: user.id,
         receiver_id: activeChatUser.id,
-        content: messageText.trim(),
+        content: textToSend.trim(),
       });
       if (error) throw error;
       setMessageText("");
@@ -1065,286 +1067,37 @@ export default function CoachingDashboard() {
           </div>
         )}
 
-        {/* ============ EXPERIENCE 2: 10-ROLE AI STUDIO & MESSENGER ============ */}
+        {/* ============ EXPERIENCE 2: 10-ROLE AI STUDIO & MESSENGER 2.0 ============ */}
         {activeTab === "ai_studio" && (
           <div className="space-y-6">
-            {/* Header Persona Carousel / Compact Badges */}
-            <div className="bg-card border rounded-2xl p-4 sm:p-5 shadow-sm space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-3">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                      10-Role AI Coaching Agent Studio & Direct Messenger
-                    </span>
-                    <Badge variant="outline" className="text-[10px] bg-primary/10 text-primary border-primary/20 py-0 px-1 font-bold">
-                      Grok-Style
-                    </Badge>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    Select a specialized persona for instant architectural critiques, system design drills, or executive scripts.
-                  </p>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                    10-Role AI Coaching Agent Studio & Direct Messenger 2.0
+                  </span>
+                  <Badge variant="outline" className="text-[10px] bg-primary/10 text-primary border-primary/20 py-0 px-1 font-bold">
+                    Social Messenger 2.0
+                  </Badge>
+                  <span className="inline-flex items-center gap-1 text-[10px] text-emerald-500 font-semibold font-mono">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> 10 AI Mentors Available
+                  </span>
                 </div>
-                <div className="flex items-center gap-1.5 p-1 rounded-lg bg-muted border self-start sm:self-auto">
-                  <button
-                    onClick={() => setAiMessengerMode("ai_persona")}
-                    className={cn(
-                      "px-3 py-1 rounded-md text-xs font-semibold transition-all",
-                      aiMessengerMode === "ai_persona" ? "bg-background text-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"
-                    )}
-                  >
-                    10 AI Personas
-                  </button>
-                  <button
-                    onClick={() => setAiMessengerMode("human_contacts")}
-                    className={cn(
-                      "px-3 py-1 rounded-md text-xs font-semibold transition-all",
-                      aiMessengerMode === "human_contacts" ? "bg-background text-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"
-                    )}
-                  >
-                    Peer Contacts
-                  </button>
-                </div>
-              </div>
-
-              {/* Clean 10 Persona Badges Grid (Fixed: Clean Lucide Icons with Dedicated Gradient Containers) */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5">
-                {COACH_ROLES.map((role) => {
-                  const IconComp = role.icon;
-                  const isSelected = selectedRole.id === role.id && aiMessengerMode === "ai_persona";
-                  return (
-                    <button
-                      key={role.id}
-                      onClick={() => {
-                        setAiMessengerMode("ai_persona");
-                        handleRoleChange(role);
-                      }}
-                      className={cn(
-                        "p-2.5 rounded-xl border text-left transition-all duration-200 flex items-center gap-2.5 group cursor-pointer",
-                        isSelected
-                          ? "bg-primary/10 border-primary ring-1 ring-primary shadow-xs"
-                          : "bg-card hover:bg-accent/40 border-border"
-                      )}
-                    >
-                      <div className={cn(
-                        "w-8 h-8 rounded-lg border flex items-center justify-center shrink-0 shadow-xs bg-gradient-to-br",
-                        role.color
-                      )}>
-                        <IconComp className="w-4 h-4" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="text-xs font-bold text-foreground truncate group-hover:text-primary transition-colors">
-                          {role.title.split(" ")[0]} {role.title.split(" ")[1]}
-                        </div>
-                        <div className="text-[10px] text-muted-foreground truncate">{role.badge}</div>
-                      </div>
-                    </button>
-                  );
-                })}
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Direct, social 1-on-1 conversations with 10 specialized AI mentors. Real streaming, layered memory, live artifacts & interactive drills.
+                </p>
               </div>
             </div>
 
-            {/* Messenger Viewport */}
-            {aiMessengerMode === "ai_persona" ? (
-              <div className="bg-card border rounded-2xl overflow-hidden shadow-sm flex flex-col h-[650px]">
-                {/* Active Persona Header */}
-                <div className="p-4 border-b bg-muted/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <div className={cn(
-                      "w-10 h-10 rounded-xl border flex items-center justify-center shrink-0 bg-gradient-to-br",
-                      selectedRole.color
-                    )}>
-                      <selectedRole.icon className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-bold text-sm text-foreground">{selectedRole.title}</h3>
-                        <Badge variant="outline" className="text-[10px] py-0 px-1.5 font-semibold">
-                          {selectedRole.badge}
-                        </Badge>
-                        <span className="inline-flex items-center gap-1 text-[10px] text-emerald-500 font-medium font-mono">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live Agent
-                        </span>
-                      </div>
-                      <p className="text-xs text-muted-foreground truncate max-w-xl">{selectedRole.description}</p>
-                    </div>
-                  </div>
-
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="h-8 text-xs gap-1.5 border-border self-start sm:self-auto"
-                    onClick={() =>
-                      setAiMessages([
-                        {
-                          role: "assistant",
-                          content: `Context refreshed for ${selectedRole.title}. How may I help you excel?`,
-                        },
-                      ])
-                    }
-                  >
-                    <RefreshCw className="w-3.5 h-3.5" /> Clear History
-                  </Button>
-                </div>
-
-                {/* Sample Prompt Chips */}
-                <div className="px-4 py-2 bg-muted/10 border-b flex items-center gap-2 overflow-x-auto scrollbar-none">
-                  <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider shrink-0">
-                    Quick Drills:
-                  </span>
-                  {selectedRole.samplePrompts.map((p, i) => (
-                    <button
-                      key={i}
-                      onClick={() => handleSendAiMessage(p)}
-                      disabled={isAiTyping}
-                      className="text-xs px-2.5 py-1 rounded-full bg-card hover:bg-primary/10 hover:text-primary border text-muted-foreground transition-all shrink-0 font-medium disabled:opacity-50"
-                    >
-                      {p}
-                    </button>
-                  ))}
-                </div>
-
-                {/* Chat Messages Stream */}
-                <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                  {aiMessages.map((msg, i) => (
-                    <div key={i} className={cn("flex gap-3", msg.role === "user" ? "justify-end" : "justify-start")}>
-                      {msg.role === "assistant" && (
-                        <div className={cn(
-                          "w-8 h-8 rounded-lg border flex items-center justify-center shrink-0 mt-0.5 bg-gradient-to-br",
-                          selectedRole.color
-                        )}>
-                          <selectedRole.icon className="w-4 h-4" />
-                        </div>
-                      )}
-                      <div
-                        className={cn(
-                          "max-w-[85%] rounded-2xl p-4 text-sm leading-relaxed relative group shadow-xs",
-                          msg.role === "user"
-                            ? "bg-primary text-primary-foreground rounded-tr-sm"
-                            : "bg-muted/40 border border-border/80 text-foreground rounded-tl-sm"
-                        )}
-                      >
-                        <div className="whitespace-pre-wrap font-sans">{msg.content}</div>
-                        {msg.role === "assistant" && (
-                          <button
-                            onClick={() => copyAiResponse(msg.content)}
-                            className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-md hover:bg-muted text-muted-foreground"
-                            title="Copy response"
-                          >
-                            <Copy className="w-3.5 h-3.5" />
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-
-                  {isAiTyping && (
-                    <div className="flex gap-3 items-center text-xs text-muted-foreground italic">
-                      <div className={cn(
-                        "w-8 h-8 rounded-lg border flex items-center justify-center shrink-0 bg-gradient-to-br",
-                        selectedRole.color
-                      )}>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      </div>
-                      <span>{selectedRole.title} is formulating structured architectural response...</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Chat Input */}
-                <div className="p-4 border-t bg-card flex gap-2">
-                  <Textarea
-                    placeholder={`Ask ${selectedRole.title} anything... (Shift+Enter for new line)`}
-                    value={chatInput}
-                    onChange={(e) => setChatInput(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && !e.shiftKey) {
-                        e.preventDefault();
-                        handleSendAiMessage();
-                      }
-                    }}
-                    rows={1}
-                    className="min-h-[44px] max-h-32 resize-none text-sm"
-                  />
-                  <Button
-                    onClick={() => handleSendAiMessage()}
-                    disabled={!chatInput.trim() || isAiTyping}
-                    className="h-11 px-4 gap-1.5"
-                  >
-                    <Send className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              /* Human Peer Messenger */
-              <div className="bg-card border rounded-2xl overflow-hidden shadow-sm flex h-[600px]">
-                <div className="w-72 border-r bg-muted/10 p-3 space-y-2 overflow-y-auto">
-                  <h4 className="text-xs font-bold text-muted-foreground uppercase px-2">Contacts</h4>
-                  {contacts.length === 0 ? (
-                    <p className="text-xs text-muted-foreground p-2">No peers yet. Book a session to connect!</p>
-                  ) : (
-                    contacts.map((c: any) => (
-                      <button
-                        key={c.id}
-                        onClick={() => setActiveChatUser(c)}
-                        className={cn(
-                          "w-full p-2.5 rounded-xl border text-left flex items-center gap-2.5 transition-all",
-                          activeChatUser?.id === c.id ? "bg-accent border-primary" : "hover:bg-accent/40 border-transparent"
-                        )}
-                      >
-                        <DefaultAvatar src={c.avatar_url} name={c.full_name} className="w-8 h-8" />
-                        <span className="text-xs font-bold truncate">{c.full_name}</span>
-                      </button>
-                    ))
-                  )}
-                </div>
-                <div className="flex-1 flex flex-col">
-                  {activeChatUser ? (
-                    <>
-                      <div className="p-3 border-b font-bold text-sm flex items-center gap-2 bg-muted/20">
-                        <DefaultAvatar src={activeChatUser.avatar_url} name={activeChatUser.full_name} className="w-7 h-7" />
-                        <span>{activeChatUser.full_name}</span>
-                      </div>
-                      <div className="flex-1 overflow-y-auto p-4 space-y-3">
-                        {messages.map((m: any) => (
-                          <div
-                            key={m.id}
-                            className={cn("flex", m.sender_id === user?.id ? "justify-end" : "justify-start")}
-                          >
-                            <div
-                              className={cn(
-                                "max-w-[70%] p-3 rounded-2xl text-xs",
-                                m.sender_id === user?.id
-                                  ? "bg-primary text-primary-foreground"
-                                  : "bg-muted border text-foreground"
-                              )}
-                            >
-                              {m.content}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                      <div className="p-3 border-t flex gap-2">
-                        <Input
-                          placeholder="Type a message..."
-                          value={messageText}
-                          onChange={(e) => setMessageText(e.target.value)}
-                          onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-                          className="h-10 text-xs"
-                        />
-                        <Button onClick={sendMessage} className="h-10 px-4">
-                          <Send className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </>
-                  ) : (
-                    <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground p-6">
-                      <MessageCircle className="w-10 h-10 mb-2 opacity-30" />
-                      <p className="text-xs">Select a contact to begin direct 1:1 conversation.</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
+            <AiMentorMessenger
+              user={user}
+              contacts={contacts}
+              activeChatUser={activeChatUser}
+              setActiveChatUser={setActiveChatUser}
+              peerMessages={messages}
+              onSendPeerMessage={sendMessage}
+              onOpenBookingModal={() => setActiveTab("book_call")}
+            />
           </div>
         )}
 

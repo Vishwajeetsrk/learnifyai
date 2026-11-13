@@ -557,78 +557,6 @@ export default function MacOSDesktop() {
 `;
   }
 
-  if (p.id === "productized-agency") {
-    return `// ==========================================
-// Learnify AI — Aceternity Productized Agency Template
-// Stack: Next.js 15 + React 19 + Tailwind CSS + Framer Motion
-// ==========================================
-
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-
-export default function ProductizedAgencyHero() {
-  const [activePlan, setActivePlan] = useState<'standard' | 'pro'>('pro');
-
-  return (
-    <section className="relative min-h-screen bg-black text-white flex flex-col items-center justify-center px-4 py-20 overflow-hidden">
-      {/* Background radial gradient */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.3),rgba(255,255,255,0))]" />
-
-      {/* Hero Badge */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-white/10 bg-white/5 backdrop-blur-md text-xs font-medium text-purple-300 mb-8"
-      >
-        ✨ Productized Design & Dev Agency for SaaS Founders
-      </motion.div>
-
-      {/* Hero Title */}
-      <motion.h1
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="text-4xl md:text-7xl font-bold tracking-tight text-center max-w-4xl bg-gradient-to-b from-white via-white/90 to-white/40 bg-clip-text text-transparent"
-      >
-        High-impact design & code subscriptions for fast-growing startups.
-      </motion.h1>
-
-      {/* Subtitle */}
-      <motion.p
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="mt-6 text-base md:text-xl text-zinc-400 text-center max-w-2xl leading-relaxed"
-      >
-        One flat monthly fee. Pause or cancel anytime. Get top 1% design & full-stack development delivered in days.
-      </motion.p>
-
-      {/* CTA Buttons */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className="mt-10 flex flex-col sm:flex-row items-center gap-4"
-      >
-        <a
-          href="#pricing"
-          className="px-8 py-3.5 rounded-xl font-semibold text-black bg-white hover:bg-zinc-200 transition-all shadow-xl hover:scale-105 flex items-center gap-2 text-sm"
-        >
-          View Subscription Plans →
-        </a>
-        <a
-          href="#work"
-          className="px-8 py-3.5 rounded-xl font-semibold text-white bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 transition-all text-sm"
-        >
-          Explore Recent Work
-        </a>
-      </motion.div>
-    </section>
-  );
-}
-`;
-  }
-
   return `// ==========================================
 // Learnify AI — ${p.title}
 // Tech: ${(p.tech || []).join(", ") || "React, Tailwind CSS, TypeScript"}
@@ -885,8 +813,8 @@ function ProjectsPage() {
             >
               <span className="text-xs text-muted-foreground font-medium mr-1">Trending:</span>
               {[
-                { label: "Porsche Carrera Cup", query: "porsche" },
                 { label: "Nike Next-Gen", query: "nike" },
+                { label: "macOS Sonoma", query: "macos" },
                 { label: "GSAP 3", query: "gsap" },
                 { label: "3D Spline", query: "3d" },
                 { label: "WebGL Shaders", query: "shader" },
