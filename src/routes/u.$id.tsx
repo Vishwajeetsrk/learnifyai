@@ -90,6 +90,7 @@ import {
 import { FilePreview } from "@/components/FilePreview";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { getCleanBannerUrl } from "@/lib/utils";
+import { getEffectiveCourseCover } from "@/components/courses/CourseCardVisual";
 
 export const Route = createFileRoute("/u/$id")({
   head: ({ params }) => ({
@@ -1685,17 +1686,20 @@ function CourseGrid({
           className="group rounded-2xl border bg-card overflow-hidden shadow-card hover:shadow-lg transition"
         >
           <div className="aspect-video bg-muted overflow-hidden">
-            {c.cover_url ? (
-              <SafeImage
-                src={getCleanBannerUrl(c.cover_url) ?? c.cover_url}
-                alt=""
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-              />
-            ) : (
-              <div className="w-full h-full grid place-items-center">
-                <GraduationCap className="h-10 w-10 text-muted-foreground" />
-              </div>
-            )}
+            {(() => {
+              const cover = getEffectiveCourseCover(c.slug, c.cover_url);
+              return cover ? (
+                <SafeImage
+                  src={cover}
+                  alt=""
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                />
+              ) : (
+                <div className="w-full h-full grid place-items-center">
+                  <GraduationCap className="h-10 w-10 text-muted-foreground" />
+                </div>
+              );
+            })()}
           </div>
           <div className="p-4">
             {c.category && (

@@ -50,7 +50,7 @@ import { LessonSocial } from "@/components/LessonSocial";
 import { CoursePlayer } from "@/components/CoursePlayer";
 import { getRealHumanAvatar } from "@/lib/real-avatars";
 import { CourseBrandLogo } from "@/components/courses/CourseBrandLogo";
-import { getCourseBrands } from "@/components/courses/CourseCardVisual";
+import { getCourseBrands, getEffectiveCourseCover } from "@/components/courses/CourseCardVisual";
 import { formatCourseDuration } from "@/lib/brand-registry";
 import { InteractiveLessonContent } from "@/components/courses/InteractiveLessonContent";
 import { AppShell } from "@/components/AppShell";
@@ -1041,7 +1041,7 @@ function CourseDetail() {
                   mode="advanced"
                   url={activeVideo.src}
                   thumbnailUrl={
-                    getCleanBannerUrl(course?.cover_url ?? null) ?? course?.cover_url ?? undefined
+                    getEffectiveCourseCover(course?.slug, course?.cover_url) ?? undefined
                   }
                   startSeconds={activeProgress?.watched_seconds ?? 0}
                   restrictDownload={!isAdmin && user?.id !== course?.created_by}

@@ -21,6 +21,7 @@ import { DashboardSkeleton } from "@/components/Skeletons";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { getCleanBannerUrl } from "@/lib/utils";
+import { getEffectiveCourseCover } from "@/components/courses/CourseCardVisual";
 
 export const Route = createFileRoute("/_authenticated/creator")({
   head: () => ({ meta: [{ title: "Creator Hub — Learnify AI" }] }),
@@ -232,18 +233,21 @@ function CreatorHub() {
                 {data?.courses.map((c) => (
                   <div key={c.id} className="py-3 flex items-center gap-3">
                     <div className="h-12 w-20 rounded-md bg-muted overflow-hidden shrink-0">
-                      {c.cover_url ? (
-                        <img
-                          src={getCleanBannerUrl(c.cover_url) ?? c.cover_url}
-                          alt={c.title}
-                          className="w-full h-full object-cover"
-                          loading="lazy"
-                          decoding="async"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).style.display = "none";
-                          }}
-                        />
-                      ) : null}
+                      {(() => {
+                        const cover = getEffectiveCourseCover(c.slug, c.cover_url);
+                        return cover ? (
+                          <img
+                            src={cover}
+                            alt={c.title}
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                            decoding="async"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).style.display = "none";
+                            }}
+                          />
+                        ) : null;
+                      })()}
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="text-sm font-medium truncate">{c.title}</div>

@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { getCleanBannerUrl } from "@/lib/utils";
+import { getEffectiveCourseCover } from "@/components/courses/CourseCardVisual";
 import { checkoutCart, getActiveCoupons, type CouponDef } from "@/lib/course.functions";
 import { createRazorpayWalletOrder, verifyRazorpayWalletPayment } from "@/lib/payment.functions";
 import { CelebrationOverlay } from "@/components/CelebrationOverlay";
@@ -257,18 +258,21 @@ function CartPage() {
               {items.map((it: any) => (
                 <div key={it.id} className="rounded-xl border bg-card p-3 flex gap-3 shadow-card">
                   <div className="w-24 sm:w-32 aspect-video bg-muted rounded-lg overflow-hidden shrink-0">
-                    {it.courses?.cover_url && (
-                      <img
-                        src={getCleanBannerUrl(it.courses.cover_url) ?? it.courses.cover_url}
-                        alt={it.courses.title}
-                        className="w-full h-full object-cover"
-                        loading="lazy"
-                        decoding="async"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).style.display = "none";
-                        }}
-                      />
-                    )}
+                    {(() => {
+                      const cover = getEffectiveCourseCover(it.courses?.slug, it.courses?.cover_url);
+                      return cover ? (
+                        <img
+                          src={cover}
+                          alt={it.courses?.title || "Course"}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                          decoding="async"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = "none";
+                          }}
+                        />
+                      ) : null;
+                    })()}
                   </div>
                   <div className="flex-1 min-w-0">
                     <Link

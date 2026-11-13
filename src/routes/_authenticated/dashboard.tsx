@@ -41,6 +41,7 @@ import { DashboardSkeleton, StatCardSkeleton } from "@/components/Skeletons";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TourChecklist } from "@/components/ProductTour";
 import { DailyStreakCheckIn } from "@/components/dashboard/DailyStreakCheckIn";
+import { CourseCardVisual } from "@/components/courses/CourseCardVisual";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({ meta: [{ title: "Dashboard — Learnify AI" }] }),
@@ -645,22 +646,14 @@ function DashboardPage() {
                     key={e.id}
                     className="group rounded-2xl border bg-card overflow-hidden shadow-card hover:shadow-lg hover:-translate-y-0.5 transition-all flex flex-col"
                   >
-                    <Link to="/courses/$slug" params={{ slug: e.courses?.slug }} className="block">
-                      <div className="aspect-video bg-muted overflow-hidden">
-                        {e.courses?.cover_url && !brokenImgs.has(e.courses.slug) ? (
-                          <img
-                            src={getCleanBannerUrl(e.courses.cover_url) ?? e.courses.cover_url}
-                            alt={e.courses.title}
-                            className="w-full h-full object-cover group-hover:scale-105 transition"
-                            loading="lazy"
-                            onError={() => markBroken(e.courses.slug)}
-                          />
-                        ) : (
-                          <div className="w-full h-full grid place-items-center">
-                            <GraduationCap className="h-10 w-10 text-muted-foreground" />
-                          </div>
-                        )}
-                      </div>
+                    <Link to="/courses/$slug" params={{ slug: e.courses?.slug }} className="block overflow-hidden">
+                      {e.courses ? (
+                        <CourseCardVisual course={e.courses} />
+                      ) : (
+                        <div className="aspect-video bg-muted overflow-hidden grid place-items-center">
+                          <GraduationCap className="h-10 w-10 text-muted-foreground" />
+                        </div>
+                      )}
                     </Link>
                     <div className="p-4 flex-1 flex flex-col gap-2 min-w-0">
                       <div className="flex items-center gap-2 text-[10px] uppercase flex-wrap">

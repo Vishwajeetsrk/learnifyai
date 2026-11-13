@@ -7,10 +7,10 @@ import { GraduationCap } from "lucide-react";
 
 interface CourseCardVisualProps {
   course: {
-    slug?: string;
-    title?: string;
+    slug?: string | null;
+    title?: string | null;
     cover_url?: string | null;
-    category?: string;
+    category?: string | null;
   };
   className?: string;
   aspectRatio?: "video" | "square";
@@ -199,24 +199,67 @@ export const CORE_COURSE_THEMES: Record<string, CourseVisualTheme> = {
 
 /**
  * Local high-quality generated course covers (slug → path).
- * These take priority over any database cover_url.
- * Add new entries here as more covers are generated.
+ * Fallbacks when database cover_url is not set, ensuring every course displays its authentic cover image.
  */
-const LOCAL_COVERS: Record<string, string> = {
-  // Non-core custom course covers can be mapped here.
+export const LOCAL_COVERS: Record<string, string> = {
+  // 1. Designing User Interfaces & Experiences (UI & UX)
+  "designing-user-interfaces-and-experiences": "/course-covers/designing-user-interfaces-and-experiences.jpg",
+  // 2. Power BI Data Visualization
+  "power-bi-visuals": "/course-covers/power-bi-visuals.svg",
+  "power-bi-and-data-analytics": "/course-covers/power-bi-visuals.svg",
+  // 3. Word & PowerPoint Pro
+  "word-powerpoint-pro": "/course-covers/word-powerpoint-pro.svg",
+  "word-and-powerpoint-pro": "/course-covers/word-powerpoint-pro.svg",
+  // 4. Java Fundamentals
+  "java-fundamentals": "/course-covers/java-fundamentals.jpg",
+  // 5. ChatGPT & Claude AI Productivity
+  "chatgpt-claude-ai": "/course-covers/chatgpt-claude-ai.jpg",
+  "chatgpt-claude-ai-productivity": "/course-covers/chatgpt-claude-ai.jpg",
+  // 6. Figma UI Bootcamp
+  "figma-ui-bootcamp": "/course-covers/figma-ui-bootcamp.svg",
+  // 7. HTML & CSS Essentials
+  "html-css-essentials": "/course-covers/html-css-essentials.svg",
+  // 8. JavaScript Zero to Pro
+  "javascript-zero-to-pro": "/course-covers/javascript-zero-to-pro.jpg",
+  "javascript-essentials": "/course-covers/javascript-zero-to-pro.jpg",
+  // 9. Python for Everyone
+  "python-for-everyone": "/course-covers/python-for-everyone.jpg",
+  "python-for-beginners": "/course-covers/python-for-everyone.jpg",
+  // 10. VS Code + Git Essentials
+  "vs-code-git-essentials": "/course-covers/vs-code-git-essentials.svg",
+  "vs-code-and-git-mastery": "/course-covers/vs-code-git-essentials.svg",
+  // 11. Excel & Sheets Mastery
+  "excel-sheets-mastery": "/course-covers/excel-sheets-mastery.svg",
+  "excel-and-sheets-mastery": "/course-covers/excel-sheets-mastery.svg",
+  // 12. Google Workspace Pro
+  "google-workspace-pro": "/course-covers/google-workspace-pro.svg",
+  // Master Template
+  "template-mastery": "/course-covers/template-mastery.svg",
 };
+
+/**
+ * Resolves the effective cover URL for any course:
+ * Prioritizes user/database assigned cover_url, then falls back to local curated cover.
+ */
+export function getEffectiveCourseCover(slug?: string | null, coverUrl?: string | null): string | null {
+  const clean = coverUrl ? getCleanBannerUrl(coverUrl) : null;
+  if (clean && clean.trim().length > 0) return clean;
+  if (!slug) return null;
+  const normSlug = slug.toLowerCase().trim();
+  return LOCAL_COVERS[normSlug] || LOCAL_COVERS[slug] || null;
+}
 
 /**
  * Maps course slug/title to canonical brand logos from @thesvg/react.
  * Handles both existing platform courses and any newly created technologies.
  */
-export function getCourseBrands(slug: string = "", title: string = ""): KnownBrand[] {
+export function getCourseBrands(slug?: string | null, title?: string | null): KnownBrand[] {
   const normSlug = (slug || "").toLowerCase().trim();
   if (CORE_COURSE_THEMES[normSlug]) {
     return CORE_COURSE_THEMES[normSlug].brands;
   }
 
-  const norm = `${slug} ${title}`.toLowerCase();
+  const norm = `${slug || ""} ${title || ""}`.toLowerCase();
 
   // WordPress explicitly first to avoid accidental 'word' matching
   if (norm.includes("wordpress") || norm.includes("woocommerce")) {
@@ -384,9 +427,63 @@ export function CourseCardVisual({
   className,
   aspectRatio = "video",
 }: CourseCardVisualProps) {
+  const [imgError, setImgError] = React.useState(false);
   const normSlug = (course.slug || "").toLowerCase().trim();
-  let coreTheme = CORE_COURSE_THEMES[normSlug];
 
+  // 1. Effective Cover Resolution (Database cover_url takes priority, then curated local cover)
+  const effectiveCover = !imgError ? getEffectiveCourseCover(course.slug, course.cover_url) : null;
+  const hasValidCustomCover = Boolean(effectiveCover);
+
+  const brands = getCourseBrands(course.slug, course.title);
+
+  // 1. Dedicated presentation when a valid cover image exists:
+  // Showcases user's cover image with authentic @thesvg/react floating brand badge & subtle vignette
+  if (hasValidCustomCover) {
+    return (
+      <div
+        className={cn(
+          "w-full overflow-hidden relative border-b border-border/50 flex items-center justify-center select-none group bg-muted/40",
+          aspectRatio === "video" ? "aspect-video" : "aspect-square",
+          className,
+        )}
+      >
+        <SafeImage
+          src={effectiveCover!}
+          alt={course.title || "Course Cover"}
+          className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+          onError={() => setImgError(true)}
+        />
+
+        {/* Subtle cinematic gradient vignette for crisp text/badge readability */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/15 to-black/25 pointer-events-none" />
+
+        {/* Floating Brand Badge powered by @thesvg/react */}
+        {brands.length > 0 && (
+          <div className="absolute top-2.5 left-2.5 z-10 flex items-center gap-1.5 p-1 rounded-xl bg-black/70 backdrop-blur-md border border-white/20 shadow-xl transition-all duration-300 group-hover:scale-105">
+            {brands.map((b) => (
+              <div key={b} className="p-1 rounded-lg bg-white/10 flex items-center justify-center shadow-inner">
+                <CourseBrandLogo brand={b} size={20} />
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Clean brand label footer */}
+        <div className="absolute bottom-2.5 inset-x-3 z-10 flex items-center justify-between text-[10px] font-semibold text-white/95 tracking-wider uppercase drop-shadow-md">
+          <span className="font-display flex items-center gap-1.5">
+            <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            Learnify AI
+          </span>
+          <span className="px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-sm border border-white/20 text-white/90 font-medium">
+            {course.category || "Course"}
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  // 2. Fallback: Radiant Vector Card with centered @thesvg/react Brand Badges (when no cover image is provided)
+  let coreTheme = CORE_COURSE_THEMES[normSlug];
   if (!coreTheme && course.title) {
     const normTitle = (course.title || "").toLowerCase();
     for (const [key, theme] of Object.entries(CORE_COURSE_THEMES)) {
@@ -400,76 +497,6 @@ export function CourseCardVisual({
     }
   }
 
-  // 1. Dedicated Authentic @thesvg/react Vector Visual Cards for Core Masteries
-  if (coreTheme) {
-    const brands = coreTheme.brands;
-    return (
-      <div
-        className={cn(
-          "w-full overflow-hidden relative border-b border-border/50 flex items-center justify-center select-none group",
-          aspectRatio === "video" ? "aspect-video" : "aspect-square",
-          className,
-        )}
-      >
-        <div
-          className={cn(
-            "w-full h-full bg-gradient-to-br transition-all duration-500 flex flex-col items-center justify-center p-6 relative overflow-hidden",
-            coreTheme.gradientClass,
-          )}
-        >
-          {/* Subtle micro-grid pattern */}
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-[size:16px_16px] pointer-events-none" />
-
-          {/* Radiant ambient glow backdrop */}
-          <div className="absolute w-32 h-32 rounded-full bg-white/10 blur-2xl pointer-events-none group-hover:scale-125 transition-transform duration-500" />
-
-          {/* Centered Glass Brand Badges */}
-          <div className="relative z-10 flex items-center justify-center">
-            {brands.map((b, i) => {
-              const badgeStyle = coreTheme.badgeStyles?.[i];
-              return (
-                <div
-                  key={b}
-                  className={cn(
-                    "rounded-2xl backdrop-blur-md shadow-2xl border transition-all duration-300 group-hover:scale-105 group-hover:-translate-y-0.5 flex items-center justify-center",
-                    brands.length === 1 ? "p-4" : "p-3",
-                    badgeStyle?.bg || "bg-card/85",
-                    badgeStyle?.border || coreTheme.accentBorder,
-                    i > 0 && "-ml-2.5 shadow-xl relative z-10",
-                  )}
-                >
-                  <CourseBrandLogo brand={b} size={brands.length === 1 ? 46 : 38} />
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Clean brand label footer */}
-          <div className="absolute bottom-2.5 inset-x-3.5 flex items-center justify-between text-[10px] font-semibold text-white/70 tracking-wider uppercase">
-            <span className="font-display flex items-center gap-1.5">
-              <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-              Learnify AI
-            </span>
-            <span className="text-white/50">{course.category || "Mastery"}</span>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // 2. Custom or non-core courses fallback
-  const brands = getCourseBrands(course.slug, course.title);
-  const cleanCover = course.cover_url ? getCleanBannerUrl(course.cover_url) : null;
-
-  // Local curated covers (slug-based fallback if DB cover is missing)
-  const localCover = course.slug ? LOCAL_COVERS[course.slug] ?? null : null;
-
-  // Effective cover: prioritize database cover_url (user uploaded/assigned), fall back to curated local cover
-  const effectiveCover = cleanCover || localCover;
-
-  // Render actual image if we have a valid raster or SVG file reference
-  const hasValidCustomCover = Boolean(effectiveCover);
-
   // Gradient themes matching brand colors
   const primaryBrand = String(brands[0] || "");
   let gradientClass = "from-slate-900 via-indigo-950/80 to-slate-900";
@@ -478,7 +505,7 @@ export function CourseCardVisual({
   if (primaryBrand.includes("excel") || primaryBrand.includes("sheets")) {
     gradientClass = "from-[#082817] via-[#0E4728] to-[#061C10]";
     accentBorder = "border-emerald-500/40";
-  } else if (primaryBrand.includes("word") && !primaryBrand.includes("wordpress") || primaryBrand.includes("typescript")) {
+  } else if ((primaryBrand.includes("word") && !primaryBrand.includes("wordpress")) || primaryBrand.includes("typescript")) {
     gradientClass = "from-[#081E3D] via-[#103A70] to-[#05152B]";
     accentBorder = "border-blue-500/40";
   } else if (primaryBrand.includes("powerpoint")) {
@@ -531,70 +558,66 @@ export function CourseCardVisual({
     accentBorder = "border-rose-500/40";
   }
 
+  const visualGradient = coreTheme?.gradientClass || gradientClass;
+  const visualBorder = coreTheme?.accentBorder || accentBorder;
+  const visualBrands = coreTheme?.brands || brands;
+
   return (
     <div
       className={cn(
-        "w-full overflow-hidden relative border-b border-border/50 flex items-center justify-center select-none",
+        "w-full overflow-hidden relative border-b border-border/50 flex items-center justify-center select-none group",
         aspectRatio === "video" ? "aspect-video" : "aspect-square",
         className,
       )}
     >
-      {hasValidCustomCover ? (
-        <>
-          <SafeImage
-            src={effectiveCover!}
-            alt={course.title || "Course Cover"}
-            className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
-          />
-          {brands.length > 0 && (
-            <div className="absolute top-2.5 left-2.5 p-1 rounded-lg bg-black/70 backdrop-blur-md border border-white/10 shadow-lg flex items-center gap-1.5">
-              {brands.map((b) => (
-                <CourseBrandLogo key={b} brand={b} size={20} />
-              ))}
-            </div>
-          )}
-        </>
-      ) : (
-        <div
-          className={cn(
-            "w-full h-full bg-gradient-to-br transition-all duration-500 flex flex-col items-center justify-center p-6 relative",
-            gradientClass,
-          )}
-        >
-          {/* Subtle micro-grid pattern */}
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-[size:16px_16px] pointer-events-none" />
+      <div
+        className={cn(
+          "w-full h-full bg-gradient-to-br transition-all duration-500 flex flex-col items-center justify-center p-6 relative overflow-hidden",
+          visualGradient,
+        )}
+      >
+        {/* Subtle micro-grid pattern */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-[size:16px_16px] pointer-events-none" />
 
-          {/* Glow backdrop */}
-          <div className="absolute w-24 h-24 rounded-full bg-white/5 blur-xl pointer-events-none" />
+        {/* Radiant ambient glow backdrop */}
+        <div className="absolute w-32 h-32 rounded-full bg-white/10 blur-2xl pointer-events-none group-hover:scale-125 transition-transform duration-500" />
 
-          {brands.length > 0 ? (
-            <div className="relative z-10 flex items-center gap-3">
-              {brands.map((b, i) => (
+        {/* Centered Glass Brand Badges */}
+        {visualBrands.length > 0 ? (
+          <div className="relative z-10 flex items-center justify-center">
+            {visualBrands.map((b, i) => {
+              const badgeStyle = coreTheme?.badgeStyles?.[i];
+              return (
                 <div
                   key={b}
                   className={cn(
-                    "p-3 rounded-2xl bg-card/85 backdrop-blur-md shadow-2xl border transition-transform duration-300 group-hover:scale-110 flex items-center justify-center",
-                    accentBorder,
-                    i > 0 && "-ml-2",
+                    "rounded-2xl backdrop-blur-md shadow-2xl border transition-all duration-300 group-hover:scale-105 group-hover:-translate-y-0.5 flex items-center justify-center",
+                    visualBrands.length === 1 ? "p-4" : "p-3",
+                    badgeStyle?.bg || "bg-card/85",
+                    badgeStyle?.border || visualBorder,
+                    i > 0 && "-ml-2.5 shadow-xl relative z-10",
                   )}
                 >
-                  <CourseBrandLogo brand={b} size={42} />
+                  <CourseBrandLogo brand={b} size={visualBrands.length === 1 ? 46 : 38} />
                 </div>
-              ))}
-            </div>
-          ) : (
-            <div className="relative z-10 p-3.5 rounded-2xl bg-primary/10 border border-primary/20 text-primary">
-              <GraduationCap className="h-10 w-10" />
-            </div>
-          )}
-
-          {/* Clean brand label footer */}
-          <div className="absolute bottom-2.5 inset-x-3 flex items-center justify-between text-[10px] font-semibold text-white/60 tracking-wider uppercase">
-            <span>Learnify AI</span>
-            <span>{course.category || "Course"}</span>
+              );
+            })}
           </div>
+        ) : (
+          <div className="relative z-10 p-3.5 rounded-2xl bg-primary/10 border border-primary/20 text-primary">
+            <GraduationCap className="h-10 w-10" />
+          </div>
+        )}
+
+        {/* Clean brand label footer */}
+        <div className="absolute bottom-2.5 inset-x-3.5 flex items-center justify-between text-[10px] font-semibold text-white/70 tracking-wider uppercase">
+          <span className="font-display flex items-center gap-1.5">
+            <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+            Learnify AI
+          </span>
+          <span className="text-white/50">{course.category || "Mastery"}</span>
         </div>
-      )}
+      </div>
     </div>
   );
 }
