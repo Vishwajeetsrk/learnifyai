@@ -16,7 +16,6 @@ import {
   RotateCcw,
   ExternalLink,
   Bot,
-  Chrome,
   Terminal,
   Code2,
   Check,
@@ -42,7 +41,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { HugeiconsIcon, ChatGptIcon, ClaudeIcon } from "@/components/icons/BrandIcons";
 import { ScrimbaWorkspace, PracticeChallenge } from "@/components/courses/ScrimbaWorkspace";
 import { ScrimbaLearningHub } from "./ScrimbaLearningHub";
 import {
@@ -162,7 +160,6 @@ export function UnpackAnythingStudio() {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const [generationStep, setGenerationStep] = useState<string>("");
-  const [copiedLink, setCopiedLink] = useState<boolean>(false);
 
   // Active Generated Video Session
   const [activeExplainer, setActiveExplainer] = useState<{
@@ -274,14 +271,6 @@ export function UnpackAnythingStudio() {
       practiceChallenges: item.bundle.practiceChallenges,
     });
     toast.success(`Loaded video: ${item.title}`);
-  };
-
-  const copyApiSnippet = () => {
-    const snippet = `POST /api/v1/explainers\nContent-Type: application/json\n\n{\n  "prompt": "${prompt || "Explain this code"}",\n  "persona": "${selectedPersona}",\n  "format": "${sizeFormat}"\n}`;
-    navigator.clipboard.writeText(snippet);
-    setCopiedLink(true);
-    toast.success("API Request payload copied to clipboard!");
-    setTimeout(() => setCopiedLink(false), 2000);
   };
 
   return (
@@ -642,188 +631,6 @@ export function UnpackAnythingStudio() {
         </div>
 
         <ScrimbaLearningHub initialTopicId="magnetism" defaultMode="watch" />
-      </div>
-
-      {/* ─── 4 Ecosystem Integration Showcase Cards (Exact Specs) ─── */}
-      <div className="space-y-4 pt-4">
-        <div className="flex items-center gap-2">
-          <Sliders className="h-4 w-4 text-primary" />
-          <h3 className="font-display font-bold text-lg text-foreground">
-            Connect Everywhere · The Explainer Ecosystem
-          </h3>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* 1. ChatGPT Plugin */}
-          <div className="rounded-2xl border border-border/80 bg-card p-5 space-y-4 hover:border-emerald-500/40 transition-all flex flex-col justify-between shadow-sm">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="h-9 w-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 flex items-center justify-center">
-                  <HugeiconsIcon icon={ChatGptIcon} size={20} />
-                </div>
-                <Badge variant="outline" className="border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-[10px]">
-                  ChatGPT Plugin
-                </Badge>
-              </div>
-
-              <div>
-                <h4 className="font-bold text-sm text-foreground">Ask @Explain anything</h4>
-                <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                  Use the plugin on ChatGPT and the answer arrives as a video, not text.
-                </p>
-              </div>
-
-              <div className="p-3 rounded-xl bg-muted/40 border border-border/60 text-xs font-mono space-y-1.5">
-                <div className="text-slate-400">@Explain what is SEO for beginners?</div>
-                <div className="text-emerald-500 font-semibold flex items-center gap-1">
-                  <Check className="h-3 w-3" /> Sure! Here&apos;s a clear explanation (Video attached)
-                </div>
-              </div>
-            </div>
-
-            <Button
-              asChild
-              variant="outline"
-              size="sm"
-              className="w-full text-xs font-semibold border-emerald-500/30 hover:bg-emerald-500/10 hover:text-emerald-500"
-            >
-              <a href="https://chatgpt.com/plugins/explain?open_in_app" target="_blank" rel="noopener noreferrer">
-                Open ChatGPT Plugin <ExternalLink className="h-3 w-3 ml-1.5" />
-              </a>
-            </Button>
-          </div>
-
-          {/* 2. Chrome Extension */}
-          <div className="rounded-2xl border border-border/80 bg-card p-5 space-y-4 hover:border-sky-500/40 transition-all flex flex-col justify-between shadow-sm">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="h-9 w-9 rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-500 flex items-center justify-center">
-                  <Chrome className="h-5 w-5" />
-                </div>
-                <Badge variant="outline" className="border-sky-500/30 text-sky-600 dark:text-sky-400 text-[10px]">
-                  Chrome Extension
-                </Badge>
-              </div>
-
-              <div>
-                <h4 className="font-bold text-sm text-foreground">Explain any webpage</h4>
-                <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                  Turn any long article or webpage you visit into an interactive video summary.
-                </p>
-              </div>
-
-              <div className="p-3 rounded-xl bg-muted/40 border border-border/60 text-xs font-mono space-y-1.5">
-                <div className="text-slate-400 truncate">dev.to/why-signals-are-fast</div>
-                <div className="text-sky-400 font-semibold flex items-center gap-1">
-                  <Play className="h-3 w-3" /> Explain this page
-                </div>
-              </div>
-            </div>
-
-            <Button
-              asChild
-              variant="outline"
-              size="sm"
-              className="w-full text-xs font-semibold border-sky-500/30 hover:bg-sky-500/10 hover:text-sky-400"
-            >
-              <a href="https://chromewebstore.google.com/detail/explain-by-" target="_blank" rel="noopener noreferrer">
-                Install Extension <ExternalLink className="h-3 w-3 ml-1.5" />
-              </a>
-            </Button>
-          </div>
-
-          {/* 3. Claude + MCP */}
-          <div className="rounded-2xl border border-border/80 bg-card p-5 space-y-4 hover:border-purple-500/40 transition-all flex flex-col justify-between shadow-sm">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="h-9 w-9 rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-500 flex items-center justify-center">
-                  <HugeiconsIcon icon={ClaudeIcon} size={20} />
-                </div>
-                <Badge variant="outline" className="border-purple-500/30 text-purple-600 dark:text-purple-400 text-[10px]">
-                  Claude + MCP
-                </Badge>
-              </div>
-
-              <div>
-                <h4 className="font-bold text-sm text-foreground">Explain your codebase</h4>
-                <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                  Create videos of your codebase or PR, right from Claude or Codex.
-                </p>
-              </div>
-
-              <div className="p-2.5 rounded-xl bg-muted/40 border border-border/60 text-[11px] font-mono space-y-1">
-                <div className="flex items-center gap-1 text-slate-400">
-                  <FileCode className="h-3 w-3 text-purple-400" />
-                  <span>src/components/parser.ts</span>
-                </div>
-                <div className="flex items-center gap-1 text-slate-400">
-                  <FileCode className="h-3 w-3 text-yellow-400" />
-                  <span>index.ts</span>
-                </div>
-                <div className="flex items-center gap-1 text-slate-400">
-                  <FileText className="h-3 w-3 text-sky-400" />
-                  <span>README.md</span>
-                </div>
-              </div>
-            </div>
-
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                navigator.clipboard.writeText(`{"mcpServers": {"explain-codebase": {"command": "npx", "args": ["-y", "@learnifyai/mcp-explainer"]}}}`);
-                toast.success("Claude MCP config copied to clipboard!");
-              }}
-              className="w-full text-xs font-semibold border-purple-500/30 hover:bg-purple-500/10 hover:text-purple-400 cursor-pointer"
-            >
-              <Copy className="h-3 w-3 mr-1.5" />
-              Copy Claude MCP Config
-            </Button>
-          </div>
-
-          {/* 4. Developer API */}
-          <div className="rounded-2xl border border-border/80 bg-card p-5 space-y-4 hover:border-amber-500/40 transition-all flex flex-col justify-between shadow-sm">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="h-9 w-9 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-500 flex items-center justify-center">
-                  <Code2 className="h-5 w-5" />
-                </div>
-                <Badge variant="outline" className="border-amber-500/30 text-amber-600 dark:text-amber-400 text-[10px]">
-                  REST API
-                </Badge>
-              </div>
-
-              <div>
-                <h4 className="font-bold text-sm text-foreground">Add explainers to your app</h4>
-                <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                  Create and embed explainer videos from your own server.
-                </p>
-              </div>
-
-              <div className="p-2.5 rounded-xl bg-[#090C15] border border-slate-800 text-[11px] font-mono text-slate-300 space-y-1">
-                <div className="text-amber-400 font-bold">POST /api/v1/explainers</div>
-                <div className="text-slate-400">prompt: &quot;Explain this Q3 report&quot;</div>
-                <div className="text-slate-400">file: q3-report.pdf</div>
-                <div className="text-emerald-400 font-semibold pt-1 border-t border-slate-800 flex items-center gap-1">
-                  <span>↓ Q3 report, explained</span>
-                  <span className="text-[10px] text-slate-500">3:12</span>
-                </div>
-              </div>
-            </div>
-
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={copyApiSnippet}
-              className="w-full text-xs font-semibold border-amber-500/30 hover:bg-amber-500/10 hover:text-amber-500 cursor-pointer"
-            >
-              {copiedLink ? <Check className="h-3 w-3 mr-1.5 text-emerald-400" /> : <Copy className="h-3 w-3 mr-1.5" />}
-              {copiedLink ? "Copied!" : "Copy API Request"}
-            </Button>
-          </div>
-        </div>
       </div>
     </div>
   );
