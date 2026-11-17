@@ -19,6 +19,26 @@ export interface ProductUpdate {
 
 export const DEFAULT_PRODUCT_UPDATES: ProductUpdate[] = [
   {
+    id: "update-v4-3",
+    version: "v4.3",
+    releaseDate: "Nov 17, 2026",
+    title: "10-Role AI Coaching Agent Studio 2.0, Cute Avatar Eye-Tracking & Voice Dialing HD",
+    summary: "Transforming career mentorship into a real-time conversational social messenger with mouse gaze tracking, multi-language speech dialing, and Google Workspace skill engine.",
+    mediaType: "image",
+    mediaUrl: "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=1200&q=80",
+    badge: "Major Release",
+    bulletPoints: [
+      "10-Role AI Coaching Agent Studio & Direct Messenger 2.0 with real-time streaming replies & threaded conversations",
+      "Interactive cute character avatar with spontaneous blinking, ambient breathing, and responsive mouse gaze tracking",
+      "Multi-language Voice Dialing HD with automatic language detection (English, Hindi, Hinglish)",
+      "Google Workspace & Drive Studio: 1-click RFC docs, spreadsheets, slides, and custom skill engine folder integration",
+      "Indian GST Thermal Receipt Ledger (18% GST · SAC 998431) with itemized tax breakdowns and instant print",
+      "Clean single-column mobile messenger view with 1-tap touch navigation",
+    ],
+    isPublished: true,
+    order: 1,
+  },
+  {
     id: "update-v4-2",
     version: "v4.2",
     releaseDate: "Oct 26, 2026",
@@ -36,7 +56,7 @@ export const DEFAULT_PRODUCT_UPDATES: ProductUpdate[] = [
       "Brand-new ultra-sleek footer with watermark typography and creator badge",
     ],
     isPublished: true,
-    order: 1,
+    order: 2,
   },
   {
     id: "update-v4-1",
@@ -55,7 +75,7 @@ export const DEFAULT_PRODUCT_UPDATES: ProductUpdate[] = [
       "Ambient drone synthesizer with Web Audio API harmonic drones",
     ],
     isPublished: true,
-    order: 2,
+    order: 3,
   },
   {
     id: "update-v4-0",
@@ -74,7 +94,7 @@ export const DEFAULT_PRODUCT_UPDATES: ProductUpdate[] = [
       "GST-compliant automated invoicing with Cashfree and UPI payments",
     ],
     isPublished: true,
-    order: 3,
+    order: 4,
   },
 ];
 

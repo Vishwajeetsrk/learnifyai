@@ -846,31 +846,22 @@ ${customSkillsSummary ? `\nSkill Engine Knowledge Base:\n${customSkillsSummary}`
                       />
 
                       <div className="flex-1 min-w-0 space-y-0.5">
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between gap-1">
                           <span className="text-xs font-bold text-foreground truncate group-hover:text-primary transition-colors">
                             {mentor.name}
                           </span>
                           <span className="text-[10px] text-muted-foreground font-mono shrink-0">
-                            {lastMsg ? format(new Date(lastMsg.timestamp), "HH:mm") : "Ready"}
+                            {lastMsg ? format(new Date(lastMsg.timestamp), "HH:mm") : "Online"}
                           </span>
                         </div>
 
-                        <p className="text-[11px] text-muted-foreground truncate font-medium">
-                          {mentor.title.split("&")[0]}
+                        <p className="text-[11px] text-primary/80 font-medium truncate">
+                          {mentor.title}
                         </p>
 
-                        <p className="text-[11px] text-foreground/70 truncate line-clamp-1 italic">
-                          "{previewText.slice(0, 50)}..."
+                        <p className="text-[11px] text-muted-foreground truncate">
+                          {previewText}
                         </p>
-
-                        <div className="pt-0.5 flex items-center justify-between">
-                          <span className="inline-flex items-center gap-1 text-[10px] text-emerald-500 font-semibold font-mono">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> AI Mentor
-                          </span>
-                          <span className="text-[10px] px-1.5 py-0.2 rounded bg-muted font-bold text-muted-foreground">
-                            {mentor.badge}
-                          </span>
-                        </div>
                       </div>
                     </button>
                   );

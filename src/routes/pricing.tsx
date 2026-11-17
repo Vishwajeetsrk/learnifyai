@@ -524,7 +524,7 @@ function PricingPage() {
   });
   const learnerCount = platformStats?.learners ?? CANONICAL_BENCHMARKS.learners;
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
-  const [pricingPresentation, setPricingPresentation] = useState<"cards" | "receipt">("cards");
+  const [pricingPresentation, setPricingPresentation] = useState<"cards" | "receipt">("receipt");
   const [faqSearch, setFaqSearch] = useState("");
   const [faqCategory, setFaqCategory] = useState<string | null>(null);
   const [couponCode, setCouponCode] = useState("");
@@ -1745,82 +1745,7 @@ function PricingPage() {
           />
         </section>
 
-        {/* ========== FINAL CTA ========== */}
-        <section className="container mx-auto px-6 py-16 md:py-20 max-w-4xl">
-          <div className="relative rounded-3xl overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700" />
-            <div className="absolute inset-0 opacity-10">
-              <div className="absolute top-0 right-0 w-64 h-64 rounded-full bg-white/20 blur-3xl -translate-y-1/2 translate-x-1/3" />
-              <div className="absolute bottom-0 left-0 w-48 h-48 rounded-full bg-white/20 blur-3xl translate-y-1/2 -translate-x-1/3" />
-            </div>
-            <div className="relative px-8 py-16 md:px-16 md:py-20 text-center text-white">
-              <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
-                Ready to Learn Smarter?
-              </h2>
-              <p className="text-lg text-white/80 max-w-lg mx-auto mb-8">
-                Join thousands of learners building skills with AI.
-              </p>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <div className="transition-transform duration-200 hover:scale-105 active:scale-95">
-                  <Button
-                    asChild
-                    size="lg"
-                    className="h-13 px-8 text-base font-semibold rounded-xl bg-white text-indigo-700 hover:bg-white/90 shadow-lg"
-                  >
-                    <Link to="/signup">
-                      Start Free Now
-                      <ArrowRight className="h-5 w-5 ml-2" />
-                    </Link>
-                  </Button>
-                </div>
-                <div className="transition-transform duration-200 hover:scale-105 active:scale-95">
-                  <Button
-                    size="lg"
-                    className="h-13 px-8 text-base font-semibold rounded-xl bg-white/10 text-white border-2 border-white/30 hover:bg-white/20 hover:border-white/50 shadow-lg backdrop-blur-sm"
-                    onClick={() => {
-                      document
-                        .getElementById("interactive-demo")
-                        ?.scrollIntoView({ behavior: "smooth" });
-                    }}
-                  >
-                    <Play className="h-5 w-5 mr-2" />
-                    Watch Demo
-                  </Button>
-                </div>
-              </div>
-              <p className="mt-6 text-sm text-white/60">
-                Instant Activation · Transparent Billing · Cancel Renewal Anytime
-              </p>
-            </div>
-          </div>
-        </section>
 
-        {/* ========== SECURE PAYMENTS ========== */}
-        <section className="container mx-auto px-6 pb-16 max-w-3xl">
-          <div className="text-center space-y-2">
-            <div className="flex items-center justify-center gap-2">
-              <CreditCard className="h-5 w-5 text-primary" />
-              <span className="text-sm font-semibold">Secure payments powered by Razorpay & Cashfree</span>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              Digital subscriptions activate instantly upon successful verification. Review our{" "}
-              <Link
-                to="/refund-policy"
-                className="text-primary underline underline-offset-2 hover:opacity-80 transition"
-              >
-                Refund Policy
-              </Link>{" "}
-              for exception reviews. No credit card required for Free tier.{" "}
-              <a
-                href="mailto:support.learnifyai@gmail.com"
-                className="text-primary underline underline-offset-2 hover:opacity-80 transition"
-              >
-                Contact us
-              </a>{" "}
-              anytime.
-            </p>
-          </div>
-        </section>
 
         {/* ========== MOBILE STICKY CTA ========== */}
         <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden p-4 bg-background/95 backdrop-blur-lg border-t">

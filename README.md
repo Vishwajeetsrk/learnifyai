@@ -2,7 +2,7 @@
 
 <img src="src/assets/learnify-logo.png" alt="Learnify AI Logo" width="180" style="margin-bottom: 12px; filter: drop-shadow(0 4px 12px rgba(99, 102, 241, 0.25));" />
 
-# Learnify AI 6.6.0
+# Learnify AI 6.7.0
 
 **The AI-Native Learning & Career Operating System**
 
@@ -23,6 +23,15 @@
 ## 🎯 What is Learnify AI?
 
 Learnify AI is a **full-stack, AI-powered learning and career growth platform** that integrates intelligent tutoring, 11-in-1 career studio tools, autonomous AI agents, gamification, and creator economy tools into one seamless experience.
+
+### 🌟 What's New in Learnify AI 6.7.0
+* 🤖 **AI Coaching Agent Studio & Direct Messenger 2.0**: Re-architected `/coaching` AI studio into a social messenger experience with 10 specialized AI mentors, layered memory, and clean mobile-first viewports.
+* 👀 **Cute Character Avatar with Real-Time Mouse Gaze Tracking**: Spherical white face, dark outer boundary, vertical capsule eyes with specular glints, pastel lavender blush, spontaneous blinking, and responsive viewport gaze coordinates.
+* 🎙️ **Voice Dialing HD & Multi-Language Detection**: Bi-directional voice communication with automated accent & language detection (English, Hindi, Hinglish) and synthesized voice output.
+* ☁️ **Google Drive & Workspace Integration Studio**: Direct connection for RFC doc creation, Google Sheets latency calculators, and custom agent skill folder ingestion (`SKILL.md`, JSON, prompts).
+* 🧾 **Clean Thermal Receipt Ledger Pricing**: Simplified `/pricing` with Thermal Receipt Ledger as the primary default presentation (18% GST · SAC 998431 compliant) and removed legacy bottom CTAs.
+* 🎬 **Programmatic Film & Explainer Engine Skills**: Added `lemo-opuscar` skill alongside `motion-video-director` and `remotion` for code-based generative video and animated canvas explainers.
+* 📜 **Enhanced Updates Changelog & Timeline**: Upgraded `/updates` with dynamic reading scroll progress, category search/filtering, and connected vertical guide rails.
 
 ### 🌟 What's New in Learnify AI 6.6.0
 * 💳 **1:1 Coaching Payment Flow & Automated Gmail Dispatches**: Built a dedicated checkout modal for 1:1 sessions (UPI / QR, Cards, NetBanking), instant order generation, automatic `.ics` calendar invite downloads, and dual-dispatch email notifications via Resend/SMTP to learner and coach (`support.learnifyai@gmail.com`).
