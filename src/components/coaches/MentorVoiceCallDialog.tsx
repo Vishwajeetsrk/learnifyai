@@ -37,6 +37,7 @@ export function MentorVoiceCallDialog({
   const [isSpeakerMuted, setIsSpeakerMuted] = useState(false);
   const [liveTranscript, setLiveTranscript] = useState("");
   const [mentorSpokenText, setMentorSpokenText] = useState("");
+  const [callHistory, setCallHistory] = useState<Array<{ role: "user" | "assistant"; content: string }>>([]);
   const [isAiSpeaking, setIsAiSpeaking] = useState(false);
   const [isAiThinking, setIsAiThinking] = useState(false);
 
@@ -46,10 +47,13 @@ export function MentorVoiceCallDialog({
 
   const askAi = useServerFn(careerCoachChat);
 
+  const isFemaleMentor = ["system_architect", "frontend_architect", "product_manager", "career_growth"].includes(mentor.id);
+
   // Call Timer
   useEffect(() => {
     if (open) {
       setCallDuration(0);
+      setCallHistory([]);
       callTimerRef.current = setInterval(() => {
         setCallDuration((prev) => prev + 1);
       }, 1000);
@@ -96,29 +100,55 @@ export function MentorVoiceCallDialog({
 
   const handleAiVoiceResponse = async (queryText: string) => {
     setIsAiThinking(true);
+    const isHindi = /[\u0900-\u097F]/.test(queryText) || /\b(kaise|kya|kyun|haan|nahi|namaste|bhai|theek|sunte|karo|batao|shukriya|boliye)\b/i.test(queryText);
+    const langDirective = isHindi
+      ? "User is speaking Hindi/Hinglish. You MUST respond conversationally in friendly, natural Hindi / Hinglish."
+      : "Respond naturally in the same language and tone as the user.";
+
     try {
+      const historyPayload = callHistory.slice(-8);
+
       const res = await askAi({
         data: {
-          message: queryText,
-          mentorId: mentor.id,
-          systemPrompt: `You are ${mentor.name}, in a live voice call with the learner. Answer directly, conversationally, concisely (2-3 sentences), warmly, and clearly as spoken dialogue. Do not use markdown code blocks or bullet lists.`,
+          content: queryText,
+          history: historyPayload,
+          coachRole: mentor.id,
+          userProfile: `LIVE 1:1 VOICE CALL. Speak as ${mentor.name} (${mentor.title}). ${langDirective} Give a clear, warm, spoken answer in 2-3 sentences. Absolutely NO markdown, NO bullet points, NO asterisks, and NO code blocks, as this text will be read aloud via text-to-speech.`,
         },
       });
 
-      const reply = res.content || `I hear you. Let's tackle that together.`;
+      const reply = res?.content || (isHindi ? "Haan, main sun rahi hoon. Bataiye kya sawaal hai?" : "I hear you clearly. Let's dig into that architecture challenge!");
       setMentorSpokenText(reply);
+      setCallHistory((prev) => [
+        ...prev,
+        { role: "user", content: queryText },
+        { role: "assistant", content: reply },
+      ]);
       setIsAiThinking(false);
 
       if (!isSpeakerMuted) {
         stopTtsRef.current = speakMentorReply(
           reply,
           () => setIsAiSpeaking(true),
-          () => setIsAiSpeaking(false)
+          () => setIsAiSpeaking(false),
+          isFemaleMentor ? "female" : "male"
         );
       }
-    } catch {
+    } catch (err) {
+      console.error("AI Voice response error:", err);
       setIsAiThinking(false);
-      setMentorSpokenText("I had a brief glitch on the audio line. Could you repeat that?");
+      const fallback = isHindi
+        ? `Haan, main sun rahi hoon. Aapka sawaal bohot sahi hai. Distributed systems mein latency aur fault tolerance sabse zaroori hain.`
+        : `I'm with you. In distributed architecture, prioritizing latency SLAs and partitioning strategy is the key first step.`;
+      setMentorSpokenText(fallback);
+      if (!isSpeakerMuted) {
+        stopTtsRef.current = speakMentorReply(
+          fallback,
+          () => setIsAiSpeaking(true),
+          () => setIsAiSpeaking(false),
+          isFemaleMentor ? "female" : "male"
+        );
+      }
     }
   };
 

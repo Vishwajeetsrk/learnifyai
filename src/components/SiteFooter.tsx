@@ -1,6 +1,8 @@
 import { useMemo } from "react";
 import { useSiteSettings } from "@/hooks/use-site-settings";
 import { usePublicMenu } from "@/hooks/use-wcms-public";
+import { useTheme } from "@/hooks/use-theme";
+import { cn } from "@/lib/utils";
 import {
   DoodleCrewFooter,
   FooterColumn,
@@ -171,33 +173,43 @@ export function SiteFooter() {
 
   const currentYear = new Date().getFullYear();
 
+  const { resolvedMode } = useTheme();
+  const isDark = resolvedMode === "dark";
+
   const extraBrandContent = (
     <div className="pt-2 flex flex-col gap-3">
-      <div className="flex items-center gap-2.5 text-xs text-slate-400">
+      <div className="flex items-center gap-2.5 text-xs text-muted-foreground">
         <span>Built with 💙 by</span>
         <a
           href="https://www.linkedin.com/in/vishwajeetsrk"
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900 border border-slate-700/80 text-slate-200 shadow-md hover:border-sky-500/60 hover:bg-slate-800 hover:scale-105 transition-all group"
+          className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-card border border-border/80 text-foreground shadow-xs hover:border-[#347A3D] hover:bg-muted/70 hover:scale-105 transition-all group"
           title="Connect with Vishwajeet on LinkedIn"
         >
           <img
             src="/assets/vishwajeet-profile.png"
             alt="Vishwajeet"
-            className="w-5 h-5 rounded-full object-cover object-top ring-1 ring-sky-400/50 group-hover:ring-sky-400 transition"
+            className="w-5 h-5 rounded-full object-cover object-top ring-1 ring-emerald-500/50 group-hover:ring-emerald-500 transition"
           />
-          <span className="font-semibold text-xs text-white group-hover:text-sky-300 transition-colors">Vishwajeet</span>
+          <span className="font-semibold text-xs text-foreground group-hover:text-[#347A3D] dark:group-hover:text-emerald-400 transition-colors">
+            Vishwajeet
+          </span>
         </a>
       </div>
     </div>
   );
 
   return (
-    <div className="relative mt-20 border-t border-white/10 bg-[#05060a]">
-      {/* ─── Ambient Glow Gradients ─── */}
-      <div className="absolute top-0 left-1/4 -translate-y-1/2 w-96 h-96 bg-sky-500/5 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-96 h-96 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none" />
+    <div
+      className={cn(
+        "relative mt-20 border-t transition-colors duration-300",
+        isDark ? "border-emerald-950/40 bg-[#070c08] text-[#f2fbf4]" : "border-[#DDE8DC] bg-[#F8FAF8] text-[#0f2415]"
+      )}
+    >
+      {/* ─── Brand Green & Orange Ambient Glow ─── */}
+      <div className="absolute top-0 left-1/4 -translate-y-1/2 w-96 h-96 bg-emerald-500/10 dark:bg-emerald-500/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-96 h-96 bg-orange-500/10 dark:bg-orange-500/5 rounded-full blur-3xl pointer-events-none" />
 
       <DoodleCrewFooter
         wordmark="LEARNIFY"
@@ -212,12 +224,20 @@ export function SiteFooter() {
         legal={legal}
         socials={socials}
         crew={LEARNIFY_CREW}
-        preset="night"
-        palette={{
-          background: "#05060a",
-          ink: "#f8fafc",
-          accent: "#38bdf8",
-        }}
+        preset={isDark ? "night" : "paper"}
+        palette={
+          isDark
+            ? {
+                background: "#070c08",
+                ink: "#f2fbf4",
+                accent: "#347A3D",
+              }
+            : {
+                background: "#F8FAF8",
+                ink: "#0f2415",
+                accent: "#245F30",
+              }
+        }
         interactive={true}
         backToTop={true}
       />

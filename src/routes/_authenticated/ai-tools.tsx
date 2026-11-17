@@ -140,11 +140,21 @@ const TOOLS: {
 ];
 
 function AIToolsPage() {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const [open, setOpen] = useState<ToolId | null>(null);
   const [categoryFilter, setCategoryFilter] = useState<"all" | "career" | "learning" | "code">(
     "all",
   );
+  const [unpackReleasedToAll, setUnpackReleasedToAll] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return localStorage.getItem("unpack_released_to_all") === "true";
+  });
+
+  const handleToggleUnpackRelease = (checked: boolean) => {
+    setUnpackReleasedToAll(checked);
+    localStorage.setItem("unpack_released_to_all", checked ? "true" : "false");
+    toast.success(checked ? "Unpack Anything is now LIVE for all users!" : "Unpack Anything set to Admin-only (Coming Soon for users).");
+  };
 
   const usageQuery = useQuery({
     enabled: !!user,
@@ -199,7 +209,105 @@ function AIToolsPage() {
 
           {/* Unpack Anything Studio Tab Content */}
           <TabsContent value="unpack" className="pt-6">
-            <UnpackAnythingStudio />
+            {/* Admin Access Controls Banner */}
+            {isAdmin && (
+              <div className="mb-6 p-4 rounded-2xl border border-primary/30 bg-primary/10 flex items-center justify-between gap-4 flex-wrap">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-primary text-primary-foreground flex items-center justify-center font-bold text-xs">
+                    ADM
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold text-foreground">Admin Control: Unpack Anything Studio</span>
+                      <Badge className="bg-primary/20 text-primary border-primary/30 text-[10px] font-bold">
+                        Super Admin Access
+                      </Badge>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground mt-0.5">
+                      Toggle below to activate or hide this studio for regular students across Learnify AI.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 text-xs">
+                  <span className="text-muted-foreground font-medium">
+                    {unpackReleasedToAll ? "Status: Live for all users" : "Status: Admin only (Users see Coming Soon)"}
+                  </span>
+                  <Button
+                    size="sm"
+                    variant={unpackReleasedToAll ? "default" : "outline"}
+                    onClick={() => handleToggleUnpackRelease(!unpackReleasedToAll)}
+                    className="h-8 text-xs font-semibold gap-1.5"
+                  >
+                    <Sparkles className="w-3.5 h-3.5" />
+                    {unpackReleasedToAll ? "Make Admin Only" : "Release to All Users"}
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Check whether user has access (Admin or Live for all) */}
+            {isAdmin || unpackReleasedToAll ? (
+              <UnpackAnythingStudio />
+            ) : (
+              /* Coming Soon Card for Regular Students */
+              <div className="p-8 sm:p-12 rounded-3xl border bg-card/60 backdrop-blur-sm text-center max-w-2xl mx-auto space-y-5 shadow-sm">
+                <div className="w-16 h-16 rounded-3xl bg-primary/10 text-primary flex items-center justify-center mx-auto shadow-inner">
+                  <Sparkles className="w-8 h-8 animate-pulse" />
+                </div>
+
+                <div className="space-y-2">
+                  <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/30 font-semibold px-3 py-1">
+                    Coming Soon · Closed Beta Preview
+                  </Badge>
+                  <h3 className="text-2xl font-bold font-display text-foreground">
+                    Unpack Anything (Learnify AI)
+                  </h3>
+                  <p className="text-xs sm:text-sm text-muted-foreground max-w-lg mx-auto leading-relaxed">
+                    Deconstruct complex repositories, architecture blueprints, system RFCs, and documentation into interactive, step-by-step visual models.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-left pt-2">
+                  <div className="p-3.5 rounded-2xl bg-muted/40 border text-xs space-y-1">
+                    <div className="font-bold text-foreground flex items-center gap-1.5">
+                      <Code2 className="w-4 h-4 text-emerald-500" />
+                      <span>Code Unpacker</span>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground">
+                      Reverse-engineers full-stack repositories into digestible architectural modules.
+                    </p>
+                  </div>
+                  <div className="p-3.5 rounded-2xl bg-muted/40 border text-xs space-y-1">
+                    <div className="font-bold text-foreground flex items-center gap-1.5">
+                      <Layers className="w-4 h-4 text-primary" />
+                      <span>Visual Flows</span>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground">
+                      Auto-generates component graphs, sequence charts, and state diagrams.
+                    </p>
+                  </div>
+                  <div className="p-3.5 rounded-2xl bg-muted/40 border text-xs space-y-1">
+                    <div className="font-bold text-foreground flex items-center gap-1.5">
+                      <Zap className="w-4 h-4 text-amber-500" />
+                      <span>Live Sandbox</span>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground">
+                      Interactive test benches to inspect logic boundaries and latency bottlenecks.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="pt-2">
+                  <Button
+                    onClick={() => toast.success("You are on the VIP Early Access Waitlist! We'll notify you when it opens.")}
+                    className="font-semibold text-xs h-9 px-5 gap-2 shadow-md cursor-pointer"
+                  >
+                    <Sparkles className="w-3.5 h-3.5" /> Request Early Access
+                  </Button>
+                </div>
+              </div>
+            )}
           </TabsContent>
 
           <TabsContent value="tools" className="pt-4">

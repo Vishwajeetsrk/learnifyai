@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { cn } from "@/lib/utils";
 import type { MentorRole } from "./mentorData";
 
-export type FaceExpression = "idle" | "happy" | "thinking" | "talking" | "wink";
+export type FaceExpression = "idle" | "happy" | "excited" | "thinking" | "working" | "talking" | "wink";
 
 interface CuteMentorFaceProps {
   mentor: MentorRole;
@@ -10,6 +10,7 @@ interface CuteMentorFaceProps {
   expression?: FaceExpression;
   isInteractive?: boolean;
   isSpeaking?: boolean;
+  showOnlineBadge?: boolean;
   customColor?: string;
   className?: string;
 }
@@ -28,6 +29,7 @@ export function CuteMentorFace({
   expression = "idle",
   isInteractive = true,
   isSpeaking = false,
+  showOnlineBadge = false,
   customColor,
   className,
 }: CuteMentorFaceProps) {
@@ -181,26 +183,26 @@ export function CuteMentorFace({
               {/* Right Eye closed slit */}
               <line x1="57" y1="46" x2="67" y2="46" stroke="#0F172A" strokeWidth="3.5" strokeLinecap="round" />
             </>
-          ) : currentExpr === "happy" ? (
-            /* Expression: HAPPY (^ ^) */
+          ) : currentExpr === "happy" || currentExpr === "excited" ? (
+            /* Expression: HAPPY / EXCITED (^ ^) */
             <>
               <path
-                d="M 32 48 Q 38 38 44 48"
+                d="M 32 48 Q 38 37 44 48"
                 fill="none"
                 stroke="#0F172A"
                 strokeWidth="4"
                 strokeLinecap="round"
               />
               <path
-                d="M 56 48 Q 62 38 68 48"
+                d="M 56 48 Q 62 37 68 48"
                 fill="none"
                 stroke="#0F172A"
                 strokeWidth="4"
                 strokeLinecap="round"
               />
             </>
-          ) : currentExpr === "thinking" ? (
-            /* Expression: THINKING (o o scanning) */
+          ) : currentExpr === "thinking" || currentExpr === "working" ? (
+            /* Expression: THINKING / WORKING (o o scanning) */
             <>
               <circle cx="38" cy="46" r="6" fill="#0F172A" />
               <circle cx="39.5" cy="44.5" r="2" fill="#FFFFFF" />
@@ -255,6 +257,19 @@ export function CuteMentorFace({
         <span
           className="absolute -inset-1 rounded-full animate-ping pointer-events-none opacity-40"
           style={{ backgroundColor: accentColor }}
+        />
+      )}
+
+      {/* Online Presence Badge at bottom-right (Green circle with white ring matching reference image) */}
+      {showOnlineBadge && (
+        <span
+          className={cn(
+            "absolute rounded-full bg-emerald-500 border-2 border-white dark:border-slate-900 shadow-xs z-20 pointer-events-none",
+            size === "xl" ? "w-5 h-5 -bottom-0.5 -right-0.5" :
+            size === "lg" ? "w-4 h-4 bottom-0 right-0" :
+            size === "md" ? "w-3.5 h-3.5 -bottom-0.5 -right-0.5" :
+            "w-2.5 h-2.5 -bottom-0.5 -right-0.5"
+          )}
         />
       )}
     </div>

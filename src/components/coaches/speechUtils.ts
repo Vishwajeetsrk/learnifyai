@@ -114,9 +114,15 @@ export function startSpeechRecognition({
 
 /**
  * Text-to-Speech (TTS) Voice Synthesis for Mentor Voice Dialing
+ * Intelligently detects language (Hindi, Hinglish, English) and selects appropriate natural voices
  */
-export function speakMentorReply(text: string, onStart?: () => void, onEnd?: () => void): () => void {
-  if (!("speechSynthesis" in window)) {
+export function speakMentorReply(
+  text: string,
+  onStart?: () => void,
+  onEnd?: () => void,
+  preferredGender: "female" | "male" = "female"
+): () => void {
+  if (typeof window === "undefined" || !("speechSynthesis" in window)) {
     return () => {};
   }
 
@@ -124,19 +130,34 @@ export function speakMentorReply(text: string, onStart?: () => void, onEnd?: () 
 
   const cleanText = text
     .replace(/```[\s\S]*?```/g, "Code block omitted.") // skip long code blocks
-    .replace(/[*_#`]/g, "")
+    .replace(/[*_#`~]/g, "")
     .trim();
 
-  const utterance = new SpeechSynthesisUtterance(cleanText.slice(0, 400));
-  utterance.rate = 1.05;
-  utterance.pitch = 1.0;
+  const utterance = new SpeechSynthesisUtterance(cleanText.slice(0, 500));
+  utterance.rate = 1.02;
+  utterance.pitch = preferredGender === "female" ? 1.05 : 0.95;
 
-  // Try picking a natural voice
+  const isHindi = /[\u0900-\u097F]/.test(cleanText) || /\b(kaise|kya|kyun|haan|nahi|namaste|bhai|theek|sunte|karo|batao|shukriya)\b/i.test(cleanText);
+
   const voices = window.speechSynthesis.getVoices();
-  const naturalVoice = voices.find(
-    (v) => (v.name.includes("Natural") || v.name.includes("Google") || v.name.includes("Samantha")) && v.lang.startsWith("en")
-  );
-  if (naturalVoice) utterance.voice = naturalVoice;
+  if (voices.length > 0) {
+    if (isHindi) {
+      utterance.lang = "hi-IN";
+      const hindiVoice = voices.find(
+        (v) => v.lang.startsWith("hi") || v.name.toLowerCase().includes("hindi") || v.lang.includes("IN")
+      );
+      if (hindiVoice) utterance.voice = hindiVoice;
+    } else {
+      utterance.lang = "en-US";
+      // Pick natural matching voice
+      const candidate = voices.find(
+        (v) =>
+          (v.name.includes("Natural") || v.name.includes("Google") || v.name.includes("Premium") || v.name.includes("Neural")) &&
+          v.lang.startsWith("en")
+      ) || voices.find((v) => v.lang.startsWith("en"));
+      if (candidate) utterance.voice = candidate;
+    }
+  }
 
   utterance.onstart = () => onStart?.();
   utterance.onend = () => onEnd?.();

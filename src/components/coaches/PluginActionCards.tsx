@@ -11,6 +11,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Sparkles,
+  ShieldCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -71,19 +72,25 @@ export function GmailActionCard({
           {body}
         </div>
 
-        <div className="flex items-center justify-end gap-2 pt-1">
-          <Button size="sm" variant="outline" onClick={handleCopy} className="h-7 text-xs gap-1">
-            {copied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
-            <span>{copied ? "Copied" : "Copy Draft"}</span>
-          </Button>
-          <Button
-            size="sm"
-            onClick={() => openGmailCompose({ to, subject, body })}
-            className="h-7 text-xs gap-1.5 bg-red-600 hover:bg-red-700 text-white font-semibold"
-          >
-            <ExternalLink className="w-3.5 h-3.5" />
-            <span>Open in Gmail</span>
-          </Button>
+        <div className="flex items-center justify-between pt-1 border-t border-border/40">
+          <span className="inline-flex items-center gap-1 text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+            Workspace Permitted
+          </span>
+          <div className="flex items-center gap-2">
+            <Button size="sm" variant="outline" onClick={handleCopy} className="h-7 text-xs gap-1">
+              {copied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+              <span>{copied ? "Copied" : "Copy Draft"}</span>
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => openGmailCompose({ to, subject, body })}
+              className="h-7 text-xs gap-1.5 bg-red-600 hover:bg-red-700 text-white font-semibold cursor-pointer"
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+              <span>Compose in Gmail</span>
+            </Button>
+          </div>
         </div>
       </div>
     </div>
@@ -132,25 +139,31 @@ export function GoogleDocsActionCard({
           {content}
         </div>
 
-        <div className="flex items-center justify-end gap-2 pt-1">
-          <Button size="sm" variant="outline" onClick={handleDownload} className="h-7 text-xs gap-1">
-            <Download className="w-3.5 h-3.5" /> .MD
-          </Button>
-          <Button size="sm" variant="outline" onClick={handleCopy} className="h-7 text-xs gap-1">
-            {copied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
-            <span>{copied ? "Copied" : "Copy"}</span>
-          </Button>
-          <Button
-            size="sm"
-            onClick={() => {
-              openGoogleDocsWithContent(title, content);
-              toast.info("Copied to clipboard! Simply press Ctrl+V (or Cmd+V) inside your new Google Doc.");
-            }}
-            className="h-7 text-xs gap-1.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold"
-          >
-            <ExternalLink className="w-3.5 h-3.5" />
-            <span>Open in Google Docs</span>
-          </Button>
+        <div className="flex items-center justify-between pt-1 border-t border-border/40">
+          <span className="inline-flex items-center gap-1 text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+            Google Drive: Ready
+          </span>
+          <div className="flex items-center gap-2">
+            <Button size="sm" variant="outline" onClick={handleDownload} className="h-7 text-xs gap-1">
+              <Download className="w-3.5 h-3.5" /> .MD
+            </Button>
+            <Button size="sm" variant="outline" onClick={handleCopy} className="h-7 text-xs gap-1">
+              {copied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+              <span>{copied ? "Copied" : "Copy"}</span>
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => {
+                openGoogleDocsWithContent(title, content);
+                toast.info("Copied to clipboard! Simply press Ctrl+V inside your Google Doc.");
+              }}
+              className="h-7 text-xs gap-1.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold cursor-pointer"
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+              <span>Preview in Google Docs</span>
+            </Button>
+          </div>
         </div>
       </div>
     </div>
@@ -220,21 +233,27 @@ export function GoogleSheetsActionCard({
           </table>
         </div>
 
-        <div className="flex items-center justify-end gap-2 pt-1">
-          <Button size="sm" variant="outline" onClick={handleDownloadCsv} className="h-7 text-xs gap-1">
-            <Download className="w-3.5 h-3.5" /> .CSV
-          </Button>
-          <Button
-            size="sm"
-            onClick={() => {
-              openGoogleSheetsWithData(title, csvData);
-              toast.info("Table copied to clipboard! Paste (Ctrl+V) directly into cell A1 in Google Sheets.");
-            }}
-            className="h-7 text-xs gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold"
-          >
-            <ExternalLink className="w-3.5 h-3.5" />
-            <span>Open in Google Sheets</span>
-          </Button>
+        <div className="flex items-center justify-between pt-1 border-t border-border/40">
+          <span className="inline-flex items-center gap-1 text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+            Google Drive: Ready
+          </span>
+          <div className="flex items-center gap-2">
+            <Button size="sm" variant="outline" onClick={handleDownloadCsv} className="h-7 text-xs gap-1">
+              <Download className="w-3.5 h-3.5" /> .CSV
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => {
+                openGoogleSheetsWithData(title, csvData);
+                toast.info("Table copied to clipboard! Paste directly into cell A1 in Google Sheets.");
+              }}
+              className="h-7 text-xs gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold cursor-pointer"
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+              <span>Preview in Google Sheets</span>
+            </Button>
+          </div>
         </div>
       </div>
     </div>
@@ -297,14 +316,14 @@ export function GoogleSlidesActionCard({
         </div>
 
         {/* Carousel controls & Open in Google Slides */}
-        <div className="flex items-center justify-between pt-1">
+        <div className="flex items-center justify-between pt-1 border-t border-border/40">
           <div className="flex items-center gap-1.5">
             <Button
               size="sm"
               variant="outline"
               disabled={currentIdx === 0}
               onClick={() => setCurrentIdx((prev) => Math.max(0, prev - 1))}
-              className="h-7 w-7 p-0"
+              className="h-7 w-7 p-0 cursor-pointer"
             >
               <ChevronLeft className="w-4 h-4" />
             </Button>
@@ -313,10 +332,14 @@ export function GoogleSlidesActionCard({
               variant="outline"
               disabled={currentIdx === slides.length - 1}
               onClick={() => setCurrentIdx((prev) => Math.min(slides.length - 1, prev + 1))}
-              className="h-7 w-7 p-0"
+              className="h-7 w-7 p-0 cursor-pointer"
             >
               <ChevronRight className="w-4 h-4" />
             </Button>
+            <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1 ml-1">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+              Drive Synced
+            </span>
           </div>
 
           <Button
@@ -325,10 +348,10 @@ export function GoogleSlidesActionCard({
               openGoogleSlidesWithDeck(title, fullOutline);
               toast.info("Slide deck outline copied to clipboard! Paste into your new Google Slides presentation.");
             }}
-            className="h-7 text-xs gap-1.5 bg-amber-600 hover:bg-amber-700 text-white font-semibold"
+            className="h-7 text-xs gap-1.5 bg-amber-600 hover:bg-amber-700 text-white font-semibold cursor-pointer"
           >
             <ExternalLink className="w-3.5 h-3.5" />
-            <span>Open in Google Slides</span>
+            <span>Preview in Google Slides</span>
           </Button>
         </div>
       </div>

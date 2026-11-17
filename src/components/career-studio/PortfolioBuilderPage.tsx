@@ -99,6 +99,95 @@ type ProjectEntry = {
   imageUrl?: string;
 };
 
+export function parseProjectsFromResumeText(rawText: string): ProjectEntry[] {
+  if (!rawText || !rawText.trim()) return [];
+
+  const lines = rawText.split("\n").map((l) => l.trim()).filter(Boolean);
+  const projects: ProjectEntry[] = [];
+  let current: ProjectEntry | null = null;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+
+    // Detect if this line is tech stack
+    const techMatch = line.match(/^(?:Tech Stack|Technologies|Stack|Built with)[:\s]+(.+)/i);
+    if (techMatch) {
+      if (current) {
+        current.techStack = techMatch[1].trim();
+      }
+      continue;
+    }
+
+    // Detect GitHub or Live demo URLs
+    const urlMatch = line.match(/(https?:\/\/[^\s]+)/);
+    const githubUrlMatch = line.match(/(?:github(?:\.com)?[\s/:]+)([a-zA-Z0-9_\-./]+)/i);
+
+    if (githubUrlMatch && !line.startsWith("•") && !line.startsWith("-")) {
+      if (current) {
+        current.githubUrl = urlMatch ? urlMatch[1] : `https://github.com/${githubUrlMatch[1].replace(/^[/: ]+/, "")}`;
+        continue;
+      }
+    }
+
+    // Check if line is a bullet point description
+    const isBullet = /^[-*•·]/.test(line);
+    if (isBullet) {
+      const cleanBullet = line.replace(/^[-*•·]\s*/, "").trim();
+      if (current) {
+        if (/github/i.test(cleanBullet)) {
+          const m = cleanBullet.match(/github\s*[:\-]?\s*([a-zA-Z0-9_\-./]+)/i);
+          if (m) {
+            current.githubUrl = m[1].startsWith("http") ? m[1] : `https://github.com/${m[1].replace(/^[/: ]+/, "")}`;
+            continue;
+          }
+        }
+        current.description = current.description
+          ? `${current.description}\n• ${cleanBullet}`
+          : cleanBullet;
+      }
+      continue;
+    }
+
+    // Check if this line looks like a project title:
+    const isTitleCandidate =
+      !isBullet &&
+      !line.toLowerCase().startsWith("tech stack") &&
+      !line.toLowerCase().startsWith("live demo") &&
+      line.length > 2 &&
+      line.length < 120;
+
+    if (isTitleCandidate) {
+      const cleanTitle = line
+        .replace(/\s*(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|\d{4})\s*[-–]\s*(?:Present|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|\d{4}).*$/i, "")
+        .replace(/[:\-–]\s*$/, "")
+        .trim();
+
+      if (current && current.name) {
+        projects.push(current);
+      }
+      current = {
+        name: cleanTitle || line,
+        description: "",
+        techStack: "",
+        githubUrl: urlMatch ? urlMatch[1] : "",
+        liveUrl: "",
+        imageUrl: "",
+      };
+      continue;
+    }
+
+    if (current) {
+      current.description = current.description ? `${current.description} ${line}` : line;
+    }
+  }
+
+  if (current && current.name) {
+    projects.push(current);
+  }
+
+  return projects.filter((p) => p.name.trim().length > 1);
+}
+
 function SkillLogo({
   name,
   size = 16,
@@ -406,22 +495,10 @@ ${
       }));
 
       if (fields.projects) {
-        const projectLines = fields.projects.split("\n").filter(Boolean);
-        const parsedProjects: ProjectEntry[] = projectLines
-          .map((line: string) => {
-            const content = (line.match(/^\s*[-*]\s*(.+)/)?.[1] || line).trim();
-            const urlMatch = content.match(/(https?:\/\/[^\s]+)/);
-            const name =
-              content
-                .replace(/(https?:\/\/[^\s]+)/, "")
-                .replace(/[:\-–]\s*$/, "")
-                .trim()
-                .split(/[:\-–]/)[0]
-                ?.trim() || content.trim();
-            return { name, description: "", techStack: "", githubUrl: urlMatch ? urlMatch[1] : "" };
-          })
-          .filter((p: ProjectEntry) => p.name.length > 1);
-        setProjects(parsedProjects);
+        const parsedProjects = parseProjectsFromResumeText(fields.projects);
+        if (parsedProjects.length > 0) {
+          setProjects(parsedProjects);
+        }
       }
 
       toast.success("Profile auto-filled from uploaded resume!");

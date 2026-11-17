@@ -1,5 +1,13 @@
 export type MentorTone = "candid" | "encouraging" | "socratic" | "concise" | "deep_dive";
 
+export interface CustomSkillFile {
+  id: string;
+  name: string;
+  size: string;
+  content: string;
+  uploadedAt: string;
+}
+
 export interface MentorPluginsConfig {
   gmail: boolean;
   googleDocs: boolean;
@@ -11,11 +19,18 @@ export interface MentorPluginsConfig {
 
 export interface MentorCustomization {
   mentorId: string;
+  customName?: string;
+  customTitle?: string;
+  customAvatarColor?: string;
   learnerBackground: string;
   careerGoal: string;
   preferredTone: MentorTone;
   customPrompt: string;
   plugins: MentorPluginsConfig;
+  googleConnected?: boolean;
+  googleAccountEmail?: string;
+  googleDriveEnabled?: boolean;
+  customSkills?: CustomSkillFile[];
   mentorLevel: number;
   mentorXp: number;
   updatedAt: string;
@@ -32,11 +47,26 @@ export const DEFAULT_PLUGINS: MentorPluginsConfig = {
 
 export const DEFAULT_CUSTOMIZATION = (mentorId: string): MentorCustomization => ({
   mentorId,
+  customName: "",
+  customTitle: "",
+  customAvatarColor: "",
   learnerBackground: "Full-stack engineer preparing for Staff / Principal interviews and architecture challenges.",
   careerGoal: "Crack Tier-1 Tech Offer (Google / Uber / Microsoft / Atlassian) & scale distributed systems.",
   preferredTone: "candid",
   customPrompt: "",
   plugins: { ...DEFAULT_PLUGINS },
+  googleConnected: true,
+  googleAccountEmail: "support.learnifyai@gmail.com",
+  googleDriveEnabled: true,
+  customSkills: [
+    {
+      id: "skill-sys-design",
+      name: "Distributed Systems Architecture Guidelines (v2.4).md",
+      size: "14.2 KB",
+      content: "# Distributed Systems Evaluation Framework\n- P99 Latency targets < 80ms\n- Consistent hashing for state partitioning\n- Circuit breakers & backpressure queues",
+      uploadedAt: new Date().toISOString(),
+    },
+  ],
   mentorLevel: 2,
   mentorXp: 1850,
   updatedAt: new Date().toISOString(),

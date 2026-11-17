@@ -49,6 +49,11 @@ import {
   Table,
   Presentation,
   Mail,
+  GraduationCap,
+  Target,
+  Code2,
+  MessageSquare,
+  Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -124,14 +129,14 @@ interface AiMentorMessengerProps {
   onOpenBookingModal?: () => void;
 }
 
-const COACHING_MODES: Array<{ id: CoachingMode; label: string; icon: string; desc: string }> = [
-  { id: "chat", label: "Direct Chat", icon: "💬", desc: "Conversational 1-on-1 coaching" },
-  { id: "teach_me", label: "Teach Me", icon: "🎓", desc: "Socratic deep-dive with analogies" },
-  { id: "practice", label: "Practice Challenge", icon: "⚡", desc: "Hands-on engineering problem" },
-  { id: "mock_interview", label: "Mock Interview", icon: "🎯", desc: "FAANG-style interview simulation" },
-  { id: "code_review", label: "Code Review", icon: "🔍", desc: "Correctness, security & performance" },
-  { id: "career_plan", label: "Career Plan", icon: "🗺️", desc: "Target role & roadmap milestones" },
-  { id: "guide_me", label: "Guide Me", icon: "🧭", desc: "Step-by-step phased curriculum" },
+const COACHING_MODES: Array<{ id: CoachingMode; label: string; icon: any; desc: string }> = [
+  { id: "chat", label: "Direct Chat", icon: MessageSquare, desc: "Conversational 1-on-1 coaching" },
+  { id: "teach_me", label: "Teach Me", icon: GraduationCap, desc: "Socratic deep-dive with analogies" },
+  { id: "practice", label: "Practice Challenge", icon: Zap, desc: "Hands-on engineering problem" },
+  { id: "mock_interview", label: "Mock Interview", icon: Target, desc: "FAANG-style interview simulation" },
+  { id: "code_review", label: "Code Review", icon: Code2, desc: "Correctness, security & performance" },
+  { id: "career_plan", label: "Career Plan", icon: Compass, desc: "Target role & roadmap milestones" },
+  { id: "guide_me", label: "Guide Me", icon: Layers, desc: "Step-by-step phased curriculum" },
 ];
 
 const GUIDED_STEPS: Record<string, string[]> = {
@@ -182,7 +187,6 @@ export function AiMentorMessenger({
   const [searchQuery, setSearchQuery] = useState("");
   const [profileDialogOpen, setProfileDialogOpen] = useState(false);
   const [mobileShowChat, setMobileShowChat] = useState(false);
-  const [showLiveOrb, setShowLiveOrb] = useState(false);
 
   // Active Coaching Mode
   const [activeMode, setActiveMode] = useState<CoachingMode>("chat");
@@ -357,12 +361,23 @@ export function AiMentorMessenger({
         .map(([k]) => k)
         .join(", ");
 
+      const customSkillsSummary = (mentorConfig.customSkills || [])
+        .map((s) => `[Skill: ${s.name}]\n${s.content.slice(0, 1500)}`)
+        .join("\n\n");
+
+      const isHindiQuery = /[\u0900-\u097F]/.test(userMessage.content) || /\b(kaise|kya|kyun|haan|nahi|namaste|bhai|theek|sunte|karo|batao|shukriya|boliye)\b/i.test(userMessage.content);
+      const languageDirective = isHindiQuery ? "User is asking in Hindi/Hinglish. Respond in friendly, fluent Hindi/Hinglish." : "";
+
       const profilePayload = `User Name: ${user?.user_metadata?.full_name || "Learner"}.
+Mentor Persona: ${mentorConfig.customName || selectedMentor.name} (${mentorConfig.customTitle || selectedMentor.title}).
 Learner Background: ${mentorConfig.learnerBackground || "Software Engineer"}.
 Target Career Goal: ${mentorConfig.careerGoal || "Staff Engineering Leadership"}.
 Mentor Tone: ${mentorConfig.preferredTone}.
+${languageDirective}
 Custom Directives: ${mentorConfig.customPrompt || "Provide clear, structured, actionable engineering advice."}
-Active Work Plugins: ${activePluginNames}. Mode: ${activeMode}.`;
+Active Work Plugins: ${activePluginNames}. Mode: ${activeMode}.
+Google Workspace Sync: ${mentorConfig.googleConnected ? "Active (support.learnifyai@gmail.com)" : "Disabled"}.
+${customSkillsSummary ? `\nSkill Engine Knowledge Base:\n${customSkillsSummary}` : ""}`;
 
       const response = await runCareerCoach({
         data: {
@@ -931,22 +946,17 @@ Active Work Plugins: ${activePluginNames}. Mode: ${activeMode}.`;
                     onClick={() => setProfileDialogOpen(true)}
                     className="cursor-pointer group flex items-center gap-3 min-w-0"
                   >
-                    {showLiveOrb ? (
-                      <div className="w-10 h-10 rounded-2xl overflow-hidden bg-black flex items-center justify-center shrink-0 border border-primary/40 shadow-sm">
-                        <LiveOrb size={36} color={selectedMentor.accentHex} eyeColor="#FFFFFF" />
-                      </div>
-                    ) : (
-                      <MentorAvatar
-                        mentor={selectedMentor}
-                        size="md"
-                        status={isGenerating ? "thinking" : "available"}
-                      />
-                    )}
+                    <MentorAvatar
+                      mentor={selectedMentor}
+                      size="md"
+                      status={isGenerating ? "thinking" : "available"}
+                      customColor={mentorConfig.customAvatarColor}
+                    />
 
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
                         <h3 className="font-bold text-sm text-foreground truncate group-hover:text-primary transition-colors">
-                          {selectedMentor.name}
+                          {mentorConfig.customName || selectedMentor.name}
                         </h3>
                         <Badge variant="outline" className="hidden md:inline-flex text-[10px] py-0 px-1.5 font-bold border-primary/30 text-primary">
                           {selectedMentor.badge}
@@ -955,7 +965,9 @@ Active Work Plugins: ${activePluginNames}. Mode: ${activeMode}.`;
                           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> AI Mentor · Available
                         </span>
                       </div>
-                      <p className="text-[11px] text-muted-foreground truncate">{selectedMentor.title}</p>
+                      <p className="text-[11px] text-muted-foreground truncate">
+                        {mentorConfig.customTitle || selectedMentor.title}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -970,7 +982,10 @@ Active Work Plugins: ${activePluginNames}. Mode: ${activeMode}.`;
                         size="sm"
                         className="h-8 text-xs font-semibold gap-1.5 rounded-xl border-border/80"
                       >
-                        <span>{COACHING_MODES.find((m) => m.id === activeMode)?.icon}</span>
+                        {(() => {
+                          const IconComp = COACHING_MODES.find((m) => m.id === activeMode)?.icon || MessageSquare;
+                          return <IconComp className="w-3.5 h-3.5 text-primary" />;
+                        })()}
                         <span className="hidden md:inline">{COACHING_MODES.find((m) => m.id === activeMode)?.label}</span>
                         <ChevronDown className="w-3 h-3 opacity-60" />
                       </Button>
@@ -980,25 +995,28 @@ Active Work Plugins: ${activePluginNames}. Mode: ${activeMode}.`;
                         Coaching Mode
                       </DropdownMenuLabel>
                       <DropdownMenuSeparator />
-                      {COACHING_MODES.map((mode) => (
-                        <DropdownMenuItem
-                          key={mode.id}
-                          onClick={() => {
-                            setActiveMode(mode.id);
-                            toast.success(`Switched to ${mode.label} mode`);
-                          }}
-                          className={cn(
-                            "rounded-xl text-xs py-2 px-2.5 flex items-start gap-2.5 cursor-pointer",
-                            activeMode === mode.id && "bg-primary/10 text-primary font-semibold"
-                          )}
-                        >
-                          <span className="text-base">{mode.icon}</span>
-                          <div className="flex-1 min-w-0">
-                            <div className="font-semibold">{mode.label}</div>
-                            <div className="text-[10px] text-muted-foreground">{mode.desc}</div>
-                          </div>
-                        </DropdownMenuItem>
-                      ))}
+                      {COACHING_MODES.map((mode) => {
+                        const IconComp = mode.icon;
+                        return (
+                          <DropdownMenuItem
+                            key={mode.id}
+                            onClick={() => {
+                              setActiveMode(mode.id);
+                              toast.success(`Switched to ${mode.label} mode`);
+                            }}
+                            className={cn(
+                              "rounded-xl text-xs py-2 px-2.5 flex items-start gap-2.5 cursor-pointer",
+                              activeMode === mode.id && "bg-primary/10 text-primary font-semibold"
+                            )}
+                          >
+                            <IconComp className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                            <div className="flex-1 min-w-0">
+                              <div className="font-semibold">{mode.label}</div>
+                              <div className="text-[10px] text-muted-foreground">{mode.desc}</div>
+                            </div>
+                          </DropdownMenuItem>
+                        );
+                      })}
                     </DropdownMenuContent>
                   </DropdownMenu>
 
@@ -1024,20 +1042,6 @@ Active Work Plugins: ${activePluginNames}. Mode: ${activeMode}.`;
                   >
                     <Sliders className="w-3.5 h-3.5" />
                     <span className="hidden md:inline">Plugins & Skills</span>
-                  </Button>
-
-                  {/* Toggle LiveOrb avatar */}
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setShowLiveOrb(!showLiveOrb)}
-                    className={cn(
-                      "h-8 w-8 rounded-xl",
-                      showLiveOrb && "bg-primary/10 text-primary"
-                    )}
-                    title={showLiveOrb ? "Switch to Standard Avatar" : "Enable Living Eye-Tracking Orb"}
-                  >
-                    {showLiveOrb ? <Eye className="w-4 h-4 text-primary" /> : <EyeOff className="w-4 h-4" />}
                   </Button>
 
                   {/* View Profile */}
@@ -1290,21 +1294,28 @@ Active Work Plugins: ${activePluginNames}. Mode: ${activeMode}.`;
                         >
                           <span>{format(new Date(msg.timestamp), "HH:mm")}</span>
 
-                          {/* Reactions list */}
+                          {/* SVG Reactions toolbar (No emojis, 100% real SVG icons) */}
                           {!isUser && (
-                            <div className="flex items-center gap-1">
-                              {["👍", "💡", "🚀", "❤️"].map((emoji) => {
-                                const hasReacted = msg.reactions?.includes(emoji);
+                            <div className="flex items-center gap-0.5">
+                              {[
+                                { id: "thumbs", icon: ThumbsUp, label: "Helpful" },
+                                { id: "idea", icon: Lightbulb, label: "Insight" },
+                                { id: "rocket", icon: Rocket, label: "Brilliant" },
+                                { id: "heart", icon: Heart, label: "Love it" },
+                              ].map((react) => {
+                                const hasReacted = msg.reactions?.includes(react.id);
+                                const IconComp = react.icon;
                                 return (
                                   <button
-                                    key={emoji}
-                                    onClick={() => handleToggleReaction(msg.id, emoji)}
+                                    key={react.id}
+                                    onClick={() => handleToggleReaction(msg.id, react.id)}
                                     className={cn(
-                                      "px-1 py-0.5 rounded text-[10px] hover:bg-muted transition-colors",
-                                      hasReacted ? "bg-primary/20 text-primary font-bold" : "opacity-60 hover:opacity-100"
+                                      "p-1 rounded text-xs hover:bg-muted transition-colors flex items-center justify-center cursor-pointer",
+                                      hasReacted ? "bg-primary/20 text-primary font-bold" : "opacity-50 hover:opacity-100 text-muted-foreground"
                                     )}
+                                    title={react.label}
                                   >
-                                    {emoji}
+                                    <IconComp className={cn("w-3 h-3", hasReacted && "fill-primary text-primary")} />
                                   </button>
                                 );
                               })}
