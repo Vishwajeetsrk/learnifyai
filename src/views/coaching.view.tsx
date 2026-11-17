@@ -347,7 +347,11 @@ export default function CoachingDashboard() {
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed.map((b) => ({
+          // Filter out legacy dummy mock bookings; only retain verified paid bookings
+          const realBookings = parsed.filter(
+            (b) => !b.id.startsWith("bk-init-") && b.paymentStatus === "paid" && b.status === "confirmed"
+          );
+          return realBookings.map((b) => ({
             ...b,
             coachName: b.coachName === "Maya Lindqvist" ? "Vishwajeet" : b.coachName || "Vishwajeet",
             coachAvatar: b.coachAvatar || "/avatars/Vishwajeet.jpeg",
@@ -355,50 +359,7 @@ export default function CoachingDashboard() {
         }
       }
     } catch {}
-    return [
-      {
-        id: "bk-init-1",
-        coachName: "Vishwajeet",
-        coachAvatar: "/avatars/Vishwajeet.jpeg",
-        coachRole: "Principal Distributed Systems Architect",
-        learnerName: "Siddharth Verma",
-        learnerEmail: "siddharth.v@techcorp.io",
-        title: "1:1 Technical & Career Advisory",
-        agenda: "Distributed Consensus & Raft vs Paxos Tradeoffs for low-latency writes",
-        startTime: new Date(Date.now() + 2 * 3600000).toISOString(),
-        endTime: new Date(Date.now() + 2.75 * 3600000).toISOString(),
-        duration: 45,
-        price: 1499,
-        orderId: "COACH-24530",
-        platform: "Google Meet",
-        meetingLink: "https://meet.google.com/lnf-dist-sys",
-        status: "confirmed",
-        noticeSent: true,
-        noticeTime: "Dispatched 2 hours prior to call",
-        bookedAt: new Date(Date.now() - 86400000).toISOString(),
-      },
-      {
-        id: "bk-init-2",
-        coachName: "Vishwajeet",
-        coachAvatar: "/avatars/Vishwajeet.jpeg",
-        coachRole: "Principal Distributed Systems Architect",
-        learnerName: "Aarav Patel",
-        learnerEmail: "aarav.p@scaleops.dev",
-        title: "1:1 Technical & Career Advisory",
-        agenda: "System design critique for event-driven streaming pipeline with Kafka",
-        startTime: new Date(Date.now() + 26 * 3600000).toISOString(),
-        endTime: new Date(Date.now() + 26.5 * 3600000).toISOString(),
-        duration: 30,
-        price: 999,
-        orderId: "COACH-52346",
-        platform: "Zoom",
-        meetingLink: "https://zoom.us/j/9847261947",
-        status: "pending",
-        noticeSent: false,
-        noticeTime: "Queued for automated dispatch",
-        bookedAt: new Date(Date.now() - 3600000).toISOString(),
-      },
-    ];
+    return [];
   });
 
   const saveCoachProfile = () => {
@@ -569,17 +530,19 @@ export default function CoachingDashboard() {
         orderId,
         platform,
         meetingLink,
-        status: "confirmed",
-        paymentStatus: "paid",
-        noticeSent: true,
-        noticeTime: "Dispatched 2 hours prior to call",
+        status: "pending",
+        paymentStatus: "unpaid",
+        noticeSent: false,
+        noticeTime: "Dispatched upon verified payment",
         bookedAt: new Date().toISOString(),
       };
 
       setPendingCheckoutBooking(prepBk);
       setIsCheckoutOpen(true);
+      return { paymentPending: true };
     } catch (err: any) {
       toast.error(err?.message || "Booking setup failed");
+      return false;
     }
   };
 
@@ -1009,57 +972,64 @@ export default function CoachingDashboard() {
         {/* ============ EXPERIENCE 1: 1:1 LIVE CALENDAR BOOKING ============ */}
         {activeTab === "book_call" && (
           <div className="space-y-6">
-            {/* Notice Active Banner (Starts in ~2 Hours Alert) */}
-            {localBookings.length > 0 && (
-              <div className="bg-gradient-to-r from-indigo-500/10 via-primary/5 to-cyan-500/10 border border-primary/30 rounded-2xl p-5 shadow-sm">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                  <div className="flex items-start gap-3.5">
-                    <div className="w-10 h-10 rounded-xl bg-primary/20 text-primary flex items-center justify-center shrink-0 mt-0.5">
-                      <Bell className="w-5 h-5 animate-pulse text-indigo-500" />
-                    </div>
-                    <div>
-                      <div className="flex flex-wrap items-center gap-2">
-                        <Badge className="bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 text-[11px] font-semibold">
-                          Notice Active · Starts in ~2 Hours
-                        </Badge>
-                        <span className="text-xs text-muted-foreground font-mono">Calcutta (GMT+5:30)</span>
+            {/* Notice Active Banner (Rendered only when a real, verified paid session exists) */}
+            {(() => {
+              const upcomingSession = localBookings.find(
+                (b) => b.status === "confirmed" && b.paymentStatus === "paid"
+              );
+              if (!upcomingSession) return null;
+
+              return (
+                <div className="bg-gradient-to-r from-indigo-500/10 via-primary/5 to-cyan-500/10 border border-primary/30 rounded-2xl p-5 shadow-sm">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div className="flex items-start gap-3.5">
+                      <div className="w-10 h-10 rounded-xl bg-primary/20 text-primary flex items-center justify-center shrink-0 mt-0.5">
+                        <Bell className="w-5 h-5 animate-pulse text-indigo-500" />
                       </div>
-                      <h4 className="font-bold text-foreground text-sm sm:text-base mt-1">
-                        Upcoming Advisory Session: {localBookings[0]?.title || coachProfile.meetingTitle}
-                      </h4>
-                      <p className="text-xs text-muted-foreground mt-0.5 max-w-xl">
-                        Notice dispatched: HD room generated with {coachProfile.name} ({coachProfile.role}). Automatic email alert & calendar reminders active.
-                      </p>
+                      <div>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <Badge className="bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 text-[11px] font-semibold">
+                            Notice Active · Starts Soon
+                          </Badge>
+                          <span className="text-xs text-muted-foreground font-mono">{coachProfile.city} (GMT+5:30)</span>
+                        </div>
+                        <h4 className="font-bold text-foreground text-sm sm:text-base mt-1">
+                          Upcoming Advisory Session: {upcomingSession.title || coachProfile.meetingTitle}
+                        </h4>
+                        <p className="text-xs text-muted-foreground mt-0.5 max-w-xl">
+                          Notice dispatched: HD room generated with {coachProfile.name} ({coachProfile.role}). Automatic email alert &amp; calendar reminders active.
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-                    <Button
-                      size="sm"
-                      className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-xs flex-1 sm:flex-initial"
-                      onClick={() => window.open(localBookings[0]?.meetingLink || "https://meet.google.com/lnf-dist-sys", "_blank")}
-                    >
-                      <Video className="w-4 h-4" /> Join Video Call
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="gap-1.5 border-border text-xs"
-                      onClick={() => toast.success("Notice re-dispatched! Email and SMS alert sent to learner.")}
-                    >
-                      <Bell className="w-3.5 h-3.5 text-primary" /> Test Notice
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="gap-1.5 border-border text-xs"
-                      onClick={() => downloadIcsForBooking(localBookings[0])}
-                    >
-                      <Download className="w-3.5 h-3.5" /> .ICS
-                    </Button>
+                    <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                      <Button
+                        size="sm"
+                        className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-xs flex-1 sm:flex-initial"
+                        onClick={() => window.open(upcomingSession.meetingLink || "https://meet.google.com/lnf-dist-sys", "_blank")}
+                      >
+                        <Video className="w-4 h-4" /> Join Video Call
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="gap-1.5 border-border text-xs"
+                        onClick={() => toast.success("Notice re-dispatched! Email alert sent to your Gmail.")}
+                      >
+                        <Bell className="w-3.5 h-3.5 text-primary" /> Test Notice
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="gap-1.5 border-border text-xs"
+                        onClick={() => downloadIcsForBooking(upcomingSession)}
+                      >
+                        <Download className="w-3.5 h-3.5" /> .ICS
+                      </Button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              );
+            })()}
 
             {/* Coach Profile Card with Real Avatar & Duration Pricing Matrix */}
             <div className="bg-card border rounded-2xl p-5 sm:p-6 shadow-sm space-y-4">

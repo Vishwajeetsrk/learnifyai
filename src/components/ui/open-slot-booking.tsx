@@ -1311,7 +1311,12 @@ export default function OpenSlotBooking({
 
     setPhase("sending")
     try {
-      await Promise.resolve(onBook ? onBook(booking) : null)
+      const res = await Promise.resolve(onBook ? onBook(booking) : null)
+      if (res === false || (res && typeof res === "object" && (res as any).paymentPending)) {
+        // Payment is handled via checkout modal or pending; keep form open and do NOT show fake booked ticket
+        setPhase("form")
+        return
+      }
     } catch {
       setPhase("form")
       setErrors({ form: L.bookError })
@@ -1687,7 +1692,7 @@ export default function OpenSlotBooking({
                 {L.back}
               </button>
               <button type="submit" className="osb-primary" disabled={phase === "sending"}>
-                {phase === "sending" ? L.sending : durationPrices?.[duration] ? `Pay & Confirm ₹${durationPrices[duration].toLocaleString("en-IN")}` : L.confirm}
+                {phase === "sending" ? L.sending : durationPrices?.[duration] ? `Proceed to Payment (₹${durationPrices[duration].toLocaleString("en-IN")})` : L.confirm}
                 {phase !== "sending" && Icon.arrow}
               </button>
             </div>
