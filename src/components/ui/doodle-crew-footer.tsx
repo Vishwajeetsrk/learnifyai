@@ -328,7 +328,7 @@ export const DEFAULT_COLUMNS: FooterColumn[] = [
 ]
 
 export const DEFAULT_ACTIONS: FooterAction[] = [
-  { label: "Launch Studio IDE v4.2", href: "/studio", icon: "bolt", variant: "solid" },
+  { label: "Launch Studio IDE v4.2", href: "/playground/web", icon: "bolt", variant: "solid" },
   { label: "What's New", href: "/updates", icon: "sparkle", variant: "outline" },
 ]
 

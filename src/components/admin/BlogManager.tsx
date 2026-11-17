@@ -119,6 +119,7 @@ function BlogEditorModal({
     const c = initialValues.content || "";
     return c.trim().startsWith("#") || c.includes("## ") ? "markdown" : "rich";
   });
+  const [showMarkdownPreview, setShowMarkdownPreview] = useState(false);
 
   const [saving, setSaving] = useState(false);
   const [publishing, setPublishing] = useState(false);
@@ -192,6 +193,12 @@ function BlogEditorModal({
     },
     enabled: open,
   });
+
+  const wordCount = useMemo(() => {
+    const plain = (formData.content || "").replace(/<[^>]*>/g, " ").trim();
+    return plain ? plain.split(/\s+/).length : 0;
+  }, [formData.content]);
+  const readingTimeMin = Math.max(1, Math.ceil(wordCount / 200));
 
   // Handle Save Draft (Explicit manual draft save)
   const handleSaveDraft = async () => {
@@ -494,33 +501,57 @@ function BlogEditorModal({
 
           {/* Editor Header: Visual vs Markdown */}
           <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label className="text-xs font-semibold">Article Content</Label>
-              <div className="flex items-center rounded-lg border bg-muted/40 p-0.5 text-xs">
-                <button
-                  type="button"
-                  onClick={() => setEditorMode("rich")}
-                  className={cn(
-                    "px-3 py-1 rounded-md transition-all font-medium flex items-center gap-1.5 cursor-pointer",
-                    editorMode === "rich"
-                      ? "bg-background text-foreground shadow-xs font-semibold"
-                      : "text-muted-foreground hover:text-foreground"
-                  )}
-                >
-                  <Sparkles className="h-3 w-3 text-indigo-400" /> Visual Editor
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setEditorMode("markdown")}
-                  className={cn(
-                    "px-3 py-1 rounded-md transition-all font-medium flex items-center gap-1.5 cursor-pointer",
-                    editorMode === "markdown"
-                      ? "bg-background text-foreground shadow-xs font-semibold"
-                      : "text-muted-foreground hover:text-foreground"
-                  )}
-                >
-                  <Code2 className="h-3 w-3 text-sky-400" /> Markdown / Raw HTML
-                </button>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <Label className="text-xs font-semibold">Article Content</Label>
+                <span className="text-[11px] font-mono text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-md border">
+                  {wordCount} words · ~{readingTimeMin} min read
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                {editorMode === "markdown" && (
+                  <button
+                    type="button"
+                    onClick={() => setShowMarkdownPreview(!showMarkdownPreview)}
+                    className={cn(
+                      "px-2.5 py-1 rounded-md text-xs font-medium border transition-colors flex items-center gap-1 cursor-pointer",
+                      showMarkdownPreview
+                        ? "bg-primary/10 border-primary/30 text-primary"
+                        : "bg-muted/40 hover:bg-muted border-border text-muted-foreground"
+                    )}
+                  >
+                    <Eye className="h-3 w-3" />
+                    <span>{showMarkdownPreview ? "Hide Split Preview" : "Show Split Preview"}</span>
+                  </button>
+                )}
+
+                <div className="flex items-center rounded-lg border bg-muted/40 p-0.5 text-xs">
+                  <button
+                    type="button"
+                    onClick={() => setEditorMode("rich")}
+                    className={cn(
+                      "px-3 py-1 rounded-md transition-all font-medium flex items-center gap-1.5 cursor-pointer",
+                      editorMode === "rich"
+                        ? "bg-background text-foreground shadow-xs font-semibold"
+                        : "text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    <Sparkles className="h-3 w-3 text-indigo-400" /> Visual Editor
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEditorMode("markdown")}
+                    className={cn(
+                      "px-3 py-1 rounded-md transition-all font-medium flex items-center gap-1.5 cursor-pointer",
+                      editorMode === "markdown"
+                        ? "bg-background text-foreground shadow-xs font-semibold"
+                        : "text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    <Code2 className="h-3 w-3 text-sky-400" /> Markdown / Raw HTML
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -534,6 +565,34 @@ function BlogEditorModal({
                   placeholder="Start writing or paste your article..."
                 />
               </Suspense>
+            ) : showMarkdownPreview ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Textarea
+                  rows={18}
+                  value={formData.content || ""}
+                  onChange={(e) => updateField("content", e.target.value)}
+                  placeholder="# Write your post in Markdown..."
+                  className="font-mono text-xs leading-relaxed min-h-[440px] bg-slate-950/20"
+                />
+                <div className="p-4 rounded-xl border border-border/80 bg-card/60 overflow-y-auto max-h-[460px] prose prose-sm dark:prose-invert">
+                  <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground border-b pb-2 mb-3">
+                    Live Formatted Preview
+                  </div>
+                  <div
+                    dangerouslySetInnerHTML={{
+                      __html: (formData.content || "")
+                        .replace(/^### (.*$)/gim, "<h3>$1</h3>")
+                        .replace(/^## (.*$)/gim, "<h2>$1</h2>")
+                        .replace(/^# (.*$)/gim, "<h1>$1</h1>")
+                        .replace(/\*\*(.*)\*\*/gim, "<b>$1</b>")
+                        .replace(/\*(.*)\*/gim, "<i>$1</i>")
+                        .replace(/!\[(.*?)\]\((.*?)\)/gim, "<img alt='$1' src='$2' />")
+                        .replace(/\[(.*?)\]\((.*?)\)/gim, "<a href='$2'>$1</a>")
+                        .replace(/\n$/gim, "<br />"),
+                    }}
+                  />
+                </div>
+              </div>
             ) : (
               <Textarea
                 rows={18}

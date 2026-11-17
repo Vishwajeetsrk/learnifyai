@@ -3,6 +3,7 @@ import { useSiteSettings } from "@/hooks/use-site-settings";
 import { usePublicMenu } from "@/hooks/use-wcms-public";
 import { useTheme } from "@/hooks/use-theme";
 import { cn } from "@/lib/utils";
+import learnifyLogoLight from "@/assets/learnify-logo-light.png";
 import {
   DoodleCrewFooter,
   FooterColumn,
@@ -79,7 +80,7 @@ const LEARNIFY_CREW: CrewMember[] = [
 ];
 
 const ACTIONS: FooterAction[] = [
-  { label: "Launch Studio IDE v4.2", href: "/studio", icon: "bolt", variant: "solid" },
+  { label: "Launch Studio IDE v4.2", href: "/playground/web", icon: "bolt", variant: "solid" },
   { label: "What's New", href: "/updates", icon: "sparkle", variant: "outline" },
 ];
 
@@ -214,7 +215,8 @@ export function SiteFooter() {
       <DoodleCrewFooter
         wordmark="LEARNIFY"
         brand="Learnify AI"
-        logoUrl="/assets/learnify-logo.png"
+        logoUrl={learnifyLogoLight}
+        showBrandText={true}
         blurb="Learn smarter. Grow faster. The AI-native learning & career operating system for developers, AI engineers, and modern creators."
         extraBrandContent={extraBrandContent}
         tagline="Hand-drawn intelligence for the builders and learners of tomorrow."

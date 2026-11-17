@@ -24,8 +24,8 @@ export const DEFAULT_PRODUCT_UPDATES: ProductUpdate[] = [
     releaseDate: "Nov 17, 2026",
     title: "10-Role AI Coaching Agent Studio 2.0, Cute Avatar Eye-Tracking & Voice Dialing HD",
     summary: "Transforming career mentorship into a real-time conversational social messenger with mouse gaze tracking, multi-language speech dialing, and Google Workspace skill engine.",
-    mediaType: "image",
-    mediaUrl: "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=1200&q=80",
+    mediaType: "video",
+    mediaUrl: "/videos/lesson-explainer.mp4",
     badge: "Major Release",
     bulletPoints: [
       "10-Role AI Coaching Agent Studio & Direct Messenger 2.0 with real-time streaming replies & threaded conversations",

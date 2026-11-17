@@ -25,6 +25,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getProductUpdates, ProductUpdate } from "@/lib/updatesStore";
+import { CuteMentorFace } from "@/components/coaches/CuteMentorFace";
+import { MENTORS } from "@/components/coaches/mentorData";
 
 export const Route = createFileRoute("/updates")({
   head: () => ({
@@ -268,7 +270,64 @@ function UpdatesPage() {
                     <div className="md:col-span-7 space-y-6">
                       {/* Visual Media Card */}
                       <div className="relative rounded-2xl overflow-hidden border border-border/70 bg-card/60 shadow-xl group transition-all duration-300 hover:border-sky-500/40">
-                        {item.mediaType === "video" ? (
+                        {item.id === "update-v4-3" ? (
+                          <div className="relative flex flex-col items-center justify-center p-8 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 border border-indigo-500/20 text-center overflow-hidden">
+                            {/* Ambient Glow */}
+                            <div className="absolute inset-0 bg-radial-gradient from-indigo-500/10 via-transparent to-transparent pointer-events-none" />
+
+                            <div className="relative z-10 flex flex-col items-center space-y-4">
+                              <div className="relative group cursor-pointer">
+                                <CuteMentorFace
+                                  mentor={MENTORS[0]}
+                                  size="xl"
+                                  isInteractive={true}
+                                  showOnlineBadge={true}
+                                  className="transform transition-transform hover:scale-110"
+                                />
+                              </div>
+
+                              <div className="space-y-1">
+                                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                                  Real-Time Mouse Gaze Physics Active
+                                </span>
+                                <p className="text-xs text-slate-300 max-w-sm pt-1">
+                                  Move your cursor anywhere on the screen — eyes follow mouse trajectory and blink spontaneously every 2.5–6s.
+                                </p>
+                              </div>
+
+                              <div className="flex items-center gap-2 pt-2">
+                                <Button size="sm" asChild className="h-8 text-xs bg-indigo-600 hover:bg-indigo-500 text-white gap-1.5">
+                                  <Link to="/coaches">
+                                    <Sparkles className="w-3.5 h-3.5" /> Launch AI Coach Studio
+                                  </Link>
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => setPlayingVideoId(isVideoPlaying ? null : item.id)}
+                                  className="h-8 text-xs border-white/20 text-slate-200 hover:bg-white/10 gap-1.5"
+                                >
+                                  <Play className="w-3.5 h-3.5" /> {isVideoPlaying ? "Close Video" : "Watch 1080p Video"}
+                                </Button>
+                              </div>
+
+                              {isVideoPlaying && (
+                                <div className="w-full mt-4 rounded-xl overflow-hidden border border-white/10 shadow-2xl">
+                                  <video
+                                    src={item.mediaUrl}
+                                    controls
+                                    autoPlay
+                                    muted
+                                    loop
+                                    playsInline
+                                    className="w-full aspect-video object-cover"
+                                  />
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        ) : item.mediaType === "video" ? (
                           <div className="relative aspect-video bg-black flex items-center justify-center overflow-hidden">
                             <video
                               src={item.mediaUrl}

@@ -53,7 +53,7 @@ export const Route = createFileRoute("/_authenticated/playground/editor")({
   validateSearch: (s: Record<string, unknown>) => searchSchema.parse(s),
   beforeLoad: ({ search }) => {
     if (!search.project) {
-      throw redirect({ to: "/playground/projects" });
+      throw redirect({ to: "/playground/projects", statusCode: 301 });
     }
   },
   head: () => ({ meta: [{ title: "Code Editor — Learnify AI" }] }),

@@ -549,12 +549,20 @@ const SidebarMenuButton = React.forwardRef<
       size = "default",
       tooltip,
       className,
+      onClick,
       ...props
     },
     ref
   ) => {
     const Comp = asChild ? Slot : "button"
-    const { isMobile, state } = useSidebar()
+    const { isMobile, state, setOpenMobile } = useSidebar()
+
+    const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+      onClick?.(e)
+      if (isMobile) {
+        setOpenMobile(false)
+      }
+    }
 
     const button = (
       <Comp
@@ -563,6 +571,7 @@ const SidebarMenuButton = React.forwardRef<
         data-size={size}
         data-active={isActive}
         className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
+        onClick={handleClick}
         {...props}
       />
     )
@@ -710,8 +719,16 @@ const SidebarMenuSubButton = React.forwardRef<
     size?: "sm" | "md"
     isActive?: boolean
   }
->(({ asChild = false, size = "md", isActive, className, ...props }, ref) => {
+>(({ asChild = false, size = "md", isActive, className, onClick, ...props }, ref) => {
   const Comp = asChild ? Slot : "a"
+  const { isMobile, setOpenMobile } = useSidebar()
+
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    onClick?.(e)
+    if (isMobile) {
+      setOpenMobile(false)
+    }
+  }
 
   return (
     <Comp
@@ -727,6 +744,7 @@ const SidebarMenuSubButton = React.forwardRef<
         "group-data-[collapsible=icon]:hidden",
         className
       )}
+      onClick={handleClick}
       {...props}
     />
   )
