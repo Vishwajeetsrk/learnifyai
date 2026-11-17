@@ -39,7 +39,7 @@ export function MentorAvatar({
 }: MentorAvatarProps) {
   const badgeCls = BADGE_MAP[size];
 
-  // Map status to cute face expression
+  // Map status to expressive cute face expression
   let expression: FaceExpression = "idle";
   if (status === "thinking") expression = "thinking";
   else if (status === "responding") expression = "happy";
@@ -63,18 +63,17 @@ export function MentorAvatar({
         expression={expression}
         isSpeaking={isSpeaking}
         customColor={customColor}
-        showOnlineBadge={showStatusIndicator && status === "available"}
+        showOnlineBadge={showStatusIndicator && (status === "available" || status === "idle")}
       />
 
-      {/* Special status indicator for non-idle states (thinking / responding) */}
-      {showStatusIndicator && status !== "available" && (
+      {/* Special status indicator for dynamic non-idle states (thinking / responding) */}
+      {showStatusIndicator && status !== "available" && status !== "idle" && (
         <span
           className={cn(
             "absolute rounded-full border-2 border-background z-20 flex items-center justify-center transition-all",
             badgeCls,
             status === "thinking" && "bg-amber-400 animate-pulse",
-            status === "responding" && "bg-indigo-400 animate-ping",
-            status === "idle" && "bg-slate-400"
+            status === "responding" && "bg-emerald-400 animate-ping"
           )}
           title={`AI Mentor · ${status}`}
         >

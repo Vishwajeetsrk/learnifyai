@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@ai-sdk/openai-compatible": "^2.0.54",
+    "@animate-ui/react": "^2.4.6",
     "@codesandbox/sandpack-react": "^2.20.0",
     "@codesandbox/sandpack-themes": "^2.0.21",
     "@dev.icons/react": "^1.1.0",

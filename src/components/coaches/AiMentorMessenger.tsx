@@ -88,6 +88,8 @@ import {
   getMentorCustomization,
   type MentorCustomization,
 } from "./mentorCustomization";
+import { playBassPulse } from "./speechUtils";
+import { MotionGrid, MotionGridCells } from "@/components/animate-ui/motion-grid";
 import { startSpeechRecognition, type VoiceRecognitionSession } from "./speechUtils";
 
 export interface ChatMessage {
@@ -329,6 +331,7 @@ export function AiMentorMessenger({
     setInputMessage("");
     setIsGenerating(true);
     setStreamStatus("thinking");
+    playBassPulse("message");
 
     // Contextual system instruction adjustments based on coaching mode
     let modeInstruction = "";
@@ -426,6 +429,7 @@ ${customSkillsSummary ? `\nSkill Engine Knowledge Base:\n${customSkillsSummary}`
 
         if (streamedLength >= fullContent.length) {
           clearInterval(streamTimer);
+          playBassPulse("message");
           // Mark complete & detect if an artifact was created
           let artifactData: any = undefined;
           if (fullContent.includes("```") && (fullContent.includes("class ") || fullContent.includes("function ") || fullContent.includes("interface "))) {
@@ -1328,17 +1332,26 @@ ${customSkillsSummary ? `\nSkill Engine Knowledge Base:\n${customSkillsSummary}`
                   );
                 })}
 
-                {/* Real-time Typing / Generating Indicator */}
+                {/* Real-time Typing / Generating Indicator with Animated MotionGrid Dot Matrix */}
                 {isGenerating && streamStatus === "thinking" && (
                   <div className="flex items-center gap-3 text-xs text-muted-foreground italic pl-1 animate-in fade-in-50">
-                    <MentorAvatar mentor={selectedMentor} size="sm" status="thinking" showStatusIndicator={false} />
-                    <div className="flex items-center gap-2 bg-muted/40 border px-3 py-2 rounded-2xl">
-                      <span className="flex gap-1 items-center">
-                        <span className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce [animation-delay:-0.3s]" />
-                        <span className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce [animation-delay:-0.15s]" />
-                        <span className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce" />
+                    <MentorAvatar mentor={selectedMentor} size="sm" status="thinking" showStatusIndicator={true} />
+                    <div className="flex items-center gap-2.5 bg-muted/60 border border-border/80 px-3.5 py-2 rounded-2xl shadow-xs">
+                      <MotionGrid
+                        gridSize={[5, 5]}
+                        frames={[
+                          [[0, 2], [1, 2], [2, 2], [3, 2], [4, 2]],
+                          [[2, 0], [2, 1], [2, 2], [2, 3], [2, 4]],
+                          [[1, 1], [1, 3], [2, 2], [3, 1], [3, 3]],
+                          [[0, 0], [4, 4], [2, 2], [0, 4], [4, 0]],
+                        ]}
+                        className="w-fit gap-0.5"
+                      >
+                        <MotionGridCells className="aspect-square size-[2.5px] rounded-full bg-primary/30 data-[active=true]:bg-primary" />
+                      </MotionGrid>
+                      <span className="font-medium text-foreground">
+                        {selectedMentor.name} is thinking &amp; architecting response...
                       </span>
-                      <span>{selectedMentor.name} is formulating architectural response...</span>
                     </div>
                   </div>
                 )}

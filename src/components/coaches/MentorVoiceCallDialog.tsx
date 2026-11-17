@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import type { MentorRole } from "./mentorData";
 import { CuteMentorFace } from "./CuteMentorFace";
-import { startSpeechRecognition, speakMentorReply, type VoiceRecognitionSession } from "./speechUtils";
+import { startSpeechRecognition, speakMentorReply, detectLanguage, playBassPulse, type VoiceRecognitionSession } from "./speechUtils";
 import { careerCoachChat } from "@/lib/career-coach.functions";
 import { useServerFn } from "@tanstack/react-start";
 
@@ -100,9 +100,11 @@ export function MentorVoiceCallDialog({
 
   const handleAiVoiceResponse = async (queryText: string) => {
     setIsAiThinking(true);
-    const isHindi = /[\u0900-\u097F]/.test(queryText) || /\b(kaise|kya|kyun|haan|nahi|namaste|bhai|theek|sunte|karo|batao|shukriya|boliye)\b/i.test(queryText);
-    const langDirective = isHindi
-      ? "User is speaking Hindi/Hinglish. You MUST respond conversationally in friendly, natural Hindi / Hinglish."
+    playBassPulse("haptic");
+    const { langName, isNonEnglish } = detectLanguage(queryText);
+    const isHindi = langName === "Hindi" || langName === "Hinglish";
+    const langDirective = isNonEnglish
+      ? `User is speaking in ${langName}. You MUST respond conversationally in natural, fluent ${langName} in the exact same language.`
       : "Respond naturally in the same language and tone as the user.";
 
     try {
