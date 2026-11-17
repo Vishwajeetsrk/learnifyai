@@ -50,10 +50,40 @@ export const Route = createFileRoute("/projects")({
   loader: () => projectsData as Project[],
   head: () => ({
     meta: [
-      { title: "Projects — Learnify AI" },
+      { title: "Templates & Interactive Sandboxes — Learnify AI" },
       {
         name: "description",
-        content: `Explore ${projectsData.length} interactive website design templates, micro-sites, and UX prototypes built with next-generation aesthetics.`,
+        content: `Explore ${projectsData.length} interactive website design templates, 3D WebGL sandboxes, and UX prototypes built with next-generation aesthetics.`,
+      },
+      { property: "og:title", content: "Templates & Interactive Sandboxes — Learnify AI" },
+      {
+        property: "og:description",
+        content: `Explore ${projectsData.length} interactive website design templates, 3D WebGL sandboxes, and UX prototypes built with next-generation aesthetics.`,
+      },
+      { property: "og:url", content: "https://www.learnifyai.in/projects" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+    links: [{ rel: "canonical", href: "https://www.learnifyai.in/projects" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "ItemList",
+          "@id": "https://www.learnifyai.in/projects#itemlist",
+          name: "Interactive Website Design Templates & 3D Sandboxes",
+          description: `Explore ${projectsData.length} interactive website design templates, micro-sites, and UX prototypes built with next-generation aesthetics.`,
+          url: "https://www.learnifyai.in/projects",
+          numberOfItems: projectsData.length,
+          itemListElement: (projectsData as any[]).slice(0, 30).map((proj, idx) => ({
+            "@type": "ListItem",
+            position: idx + 1,
+            name: proj.name,
+            description: proj.description || proj.name,
+            url: `https://www.learnifyai.in/projects#${proj.id}`,
+            image: proj.thumbnail ? `https://www.learnifyai.in${proj.thumbnail}` : undefined,
+          })),
+        }),
       },
     ],
   }),

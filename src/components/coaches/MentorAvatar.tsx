@@ -63,15 +63,15 @@ export function MentorAvatar({
         expression={expression}
         isSpeaking={isSpeaking}
         customColor={customColor}
+        showOnlineBadge={showStatusIndicator && status === "available"}
       />
 
-      {/* Status indicator: AI Mentor Presence */}
-      {showStatusIndicator && (
+      {/* Special status indicator for non-idle states (thinking / responding) */}
+      {showStatusIndicator && status !== "available" && (
         <span
           className={cn(
             "absolute rounded-full border-2 border-background z-20 flex items-center justify-center transition-all",
             badgeCls,
-            status === "available" && "bg-emerald-500 shadow-xs",
             status === "thinking" && "bg-amber-400 animate-pulse",
             status === "responding" && "bg-indigo-400 animate-ping",
             status === "idle" && "bg-slate-400"

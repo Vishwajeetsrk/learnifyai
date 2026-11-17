@@ -40,20 +40,122 @@ import { formatCourseDuration } from "@/lib/brand-registry";
 export const Route = createFileRoute("/_authenticated/courses/")({
   head: () => ({
     meta: [
-      { title: "Courses & Masteries — Learnify AI" },
+      { title: "Software Courses & Career Masteries — Learnify AI" },
       {
         name: "description",
         content:
-          "Explore hands-on software masteries and interactive courses in React, Python, System Design, AI, and Cloud on Learnify AI.",
+          "Explore 12+ industry-accredited software masteries in React 19, Python, System Design, and AI. Learn with live browser sandboxes and verifiable certificates.",
       },
-      { property: "og:title", content: "Courses & Masteries — Learnify AI" },
+      { property: "og:title", content: "Software Courses & Career Masteries — Learnify AI" },
       {
         property: "og:description",
         content:
-          "Explore hands-on software masteries and interactive courses on Learnify AI.",
+          "Explore 12+ industry-accredited software masteries in React 19, Python, System Design, and AI on Learnify AI.",
       },
+      { property: "og:url", content: "https://www.learnifyai.in/courses" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "canonical", href: "https://www.learnifyai.in/courses" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "ItemList",
+          "@id": "https://www.learnifyai.in/courses#itemlist",
+          name: "Industry-Accredited Software Engineering Masteries",
+          description: "Curated software engineering courses and certification masteries with browser compilation and verifiable credentials.",
+          url: "https://www.learnifyai.in/courses",
+          numberOfItems: 12,
+          itemListElement: [
+            {
+              "@type": "ListItem",
+              position: 1,
+              name: "Figma UI/UX Design System Mastery",
+              url: "https://www.learnifyai.in/courses/figma-ui-ux",
+              description: "Complete design system architecture, auto-layout 5.0, tokens, and design-to-code workflows.",
+            },
+            {
+              "@type": "ListItem",
+              position: 2,
+              name: "Python 3.12 Core & High-Performance Systems",
+              url: "https://www.learnifyai.in/courses/python-mastery",
+              description: "Master modern Python, async I/O, multiprocessing, type hints, and backend architecture.",
+            },
+            {
+              "@type": "ListItem",
+              position: 3,
+              name: "JavaScript Pro & Modern ECMAScript",
+              url: "https://www.learnifyai.in/courses/javascript-pro",
+              description: "Deep dive into event loop mechanics, closures, prototypes, and browser runtime performance.",
+            },
+            {
+              "@type": "ListItem",
+              position: 4,
+              name: "React 19 & Next-Gen Frontend Engineering",
+              url: "https://www.learnifyai.in/courses/react-19-mastery",
+              description: "Server Actions, concurrent rendering transitions, optimistic updates, and performance budgets.",
+            },
+            {
+              "@type": "ListItem",
+              position: 5,
+              name: "ChatGPT, Claude & Generative AI Prompt Engineering",
+              url: "https://www.learnifyai.in/courses/chatgpt-claude-ai",
+              description: "System prompts, tool-calling pipelines, RAG architecture, and production LLM orchestration.",
+            },
+            {
+              "@type": "ListItem",
+              position: 6,
+              name: "System Design & Planetary Microservices",
+              url: "https://www.learnifyai.in/courses/system-design",
+              description: "High-concurrency microservices, Kafka event streaming, database sharding, and latency optimization.",
+            },
+            {
+              "@type": "ListItem",
+              position: 7,
+              name: "HTML5 & Modern CSS3 Architecture",
+              url: "https://www.learnifyai.in/courses/html-css-mastery",
+              description: "Semantic HTML5, CSS Grid, Flexbox, Tailwind CSS v4, and accessible web standards.",
+            },
+            {
+              "@type": "ListItem",
+              position: 8,
+              name: "Microsoft Power BI & Executive Analytics",
+              url: "https://www.learnifyai.in/courses/power-bi-analytics",
+              description: "Data modeling, DAX queries, ETL pipelines, and interactive executive reporting dashboards.",
+            },
+            {
+              "@type": "ListItem",
+              position: 9,
+              name: "Advanced Microsoft Excel & Financial Modeling",
+              url: "https://www.learnifyai.in/courses/excel-advanced",
+              description: "Dynamic array formulas, XLOOKUP, pivot tables, financial modeling, and macro automation.",
+            },
+            {
+              "@type": "ListItem",
+              position: 10,
+              name: "Java Enterprise Architecture & Microservices",
+              url: "https://www.learnifyai.in/courses/java-enterprise",
+              description: "Core Java OOP, Spring Boot, JVM garbage collection tuning, and distributed transaction sagas.",
+            },
+            {
+              "@type": "ListItem",
+              position: 11,
+              name: "VS Code & Git Team Version Control",
+              url: "https://www.learnifyai.in/courses/vscode-git",
+              description: "Git branching strategies, interactive rebasing, merge conflict resolution, and developer productivity.",
+            },
+            {
+              "@type": "ListItem",
+              position: 12,
+              name: "Google Workspace & Cloud Collaboration",
+              url: "https://www.learnifyai.in/courses/google-workspace",
+              description: "Google Docs, Sheets, Slides, and Apps Script automations for modern high-velocity teams.",
+            },
+          ],
+        }),
+      },
+    ],
   }),
   component: CoursesPage,
 });

@@ -33,11 +33,11 @@ export function Navbar({ className }: { className?: string }) {
       <Menu setActive={setActive}>
         <MenuItem setActive={setActive} active={active} item="Coaching">
           <div className="flex flex-col space-y-3.5 text-sm min-w-[200px] p-1">
-            <HoveredLink href="/coaching" className="flex items-center gap-2">
+            <HoveredLink href="/coaches" className="flex items-center gap-2">
               <Compass className="w-4 h-4 text-indigo-500" />
               <span>1-on-1 Mentorship</span>
             </HoveredLink>
-            <HoveredLink href="/coaching#agent" className="flex items-center gap-2">
+            <HoveredLink href="/coaches" className="flex items-center gap-2">
               <Cpu className="w-4 h-4 text-emerald-500" />
               <span>10-Role AI Coach Studio</span>
             </HoveredLink>
@@ -45,7 +45,7 @@ export function Navbar({ className }: { className?: string }) {
               <Layers className="w-4 h-4 text-amber-500" />
               <span>Executive Directory</span>
             </HoveredLink>
-            <HoveredLink href="/coaching#booking" className="flex items-center gap-2">
+            <HoveredLink href="/coaches" className="flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-pink-500" />
               <span>Open Slot Calendar</span>
             </HoveredLink>

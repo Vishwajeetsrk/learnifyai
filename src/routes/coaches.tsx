@@ -26,19 +26,79 @@ import { AppleCoachBookingModal } from "@/components/coaches/AppleCoachBookingMo
 export const Route = createFileRoute("/coaches")({
   head: () => ({
     meta: [
-      { title: "Coaches — Learnify AI" },
+      { title: "Staff & Principal Mentors — Learnify AI" },
       {
         name: "description",
-        content: "Offer 1-on-1 coaching with built-in scheduling, messaging, and payments.",
+        content: "1-on-1 engineering advisory with Staff & Principal Architects, plus 10 specialized AI mentors with real-time drills and architecture critiques.",
       },
-      { property: "og:title", content: "Coaches — Learnify AI" },
+      { property: "og:title", content: "Staff & Principal Mentors — Learnify AI" },
       {
         property: "og:description",
         content:
-          "All the tools you need to run a coaching practice — without the spreadsheet juggling.",
+          "1-on-1 engineering advisory with Staff & Principal Architects, plus 10 specialized AI mentors with real-time drills.",
       },
+      { property: "og:url", content: "https://www.learnifyai.in/coaches" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "canonical", href: "https://www.learnifyai.in/coaches" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "ItemList",
+          "@id": "https://www.learnifyai.in/coaches#itemlist",
+          name: "Learnify AI Mentors & Advisory Roster",
+          description: "Staff & Principal engineering mentors and 10-role AI coaching specialists.",
+          url: "https://www.learnifyai.in/coaches",
+          numberOfItems: 11,
+          itemListElement: [
+            {
+              "@type": "ListItem",
+              position: 1,
+              name: "Vishwajeet — Principal Distributed Systems Architect",
+              description: "Planetary-scale system design, high-throughput microservices, and Staff+ career trajectories.",
+              url: "https://www.learnifyai.in/coaching#vishwajeet",
+            },
+            {
+              "@type": "ListItem",
+              position: 2,
+              name: "Maya Lin — System Design & Distributed Architect",
+              description: "Distributed consensus, Kafka streaming, database sharding, and latency budgets.",
+              url: "https://www.learnifyai.in/coaching#maya-lin",
+            },
+            {
+              "@type": "ListItem",
+              position: 3,
+              name: "Elena Rostova — Frontend & Design Systems Architect",
+              description: "React 19, fine-grained state management, 60fps motion physics, and Core Web Vitals.",
+              url: "https://www.learnifyai.in/coaching#elena-rostova",
+            },
+            {
+              "@type": "ListItem",
+              position: 4,
+              name: "Marcus Vance — Behavioral & Leadership Coach",
+              description: "STAR framework, executive alignment, conflict management, and offer negotiation.",
+              url: "https://www.learnifyai.in/coaching#marcus-vance",
+            },
+            {
+              "@type": "ListItem",
+              position: 5,
+              name: "Dr. Aris Thorne — AI/ML Research Specialist",
+              description: "RAG pipelines, vector retrieval, fine-tuning, and production LLM orchestration.",
+              url: "https://www.learnifyai.in/coaching#aris-thorne",
+            },
+            {
+              "@type": "ListItem",
+              position: 6,
+              name: "Kenji Sato — Data Structures & Algorithms Maestro",
+              description: "Competitive programming, LeetCode Hard paradigms, and algorithmic invariants.",
+              url: "https://www.learnifyai.in/coaching#kenji-sato",
+            },
+          ],
+        }),
+      },
+    ],
   }),
   component: CoachesPage,
 });

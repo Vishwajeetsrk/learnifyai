@@ -3,11 +3,13 @@ import { cn } from "@/lib/utils";
 import type { MentorRole } from "./mentorData";
 
 export type FaceExpression = "idle" | "happy" | "excited" | "thinking" | "working" | "talking" | "wink";
+export type FaceVariant = "base" | "cute";
 
 interface CuteMentorFaceProps {
   mentor: MentorRole;
   size?: "xs" | "sm" | "md" | "lg" | "xl";
   expression?: FaceExpression;
+  variant?: FaceVariant;
   isInteractive?: boolean;
   isSpeaking?: boolean;
   showOnlineBadge?: boolean;
@@ -27,9 +29,10 @@ export function CuteMentorFace({
   mentor,
   size = "md",
   expression = "idle",
+  variant = "cute",
   isInteractive = true,
   isSpeaking = false,
-  showOnlineBadge = false,
+  showOnlineBadge = true,
   customColor,
   className,
 }: CuteMentorFaceProps) {
@@ -56,7 +59,7 @@ export function CuteMentorFace({
     return () => clearTimeout(blinkTimeout);
   }, []);
 
-  // Mouse eye-tracking when interactive
+  // Mouse eye-tracking when interactive - both eyes follow mouse cursor smoothly
   useEffect(() => {
     if (!isInteractive) return;
 
@@ -81,6 +84,7 @@ export function CuteMentorFace({
   }, [isInteractive, size]);
 
   const currentExpr = isSpeaking ? "talking" : expression;
+  const isCute = variant === "cute";
 
   return (
     <div
@@ -94,13 +98,15 @@ export function CuteMentorFace({
         height: spec.box,
       }}
     >
-      {/* Outer Glow Halo matching Mentor Accent */}
-      <div
-        className="absolute inset-0 rounded-full blur-md opacity-30 transition-all duration-300"
-        style={{ backgroundColor: accentColor }}
-      />
+      {/* Outer Glow Halo matching Mentor Accent / Lavender Periwinkle (Image 2) */}
+      {isCute && (
+        <div
+          className="absolute inset-0 rounded-full blur-md opacity-35 transition-all duration-300 pointer-events-none"
+          style={{ backgroundColor: accentColor }}
+        />
+      )}
 
-      {/* Main Circular Character Face */}
+      {/* Main Circular Character Face SVG */}
       <svg
         width={spec.box}
         height={spec.box}
@@ -108,93 +114,99 @@ export function CuteMentorFace({
         className="relative z-10 w-full h-full overflow-visible drop-shadow-sm"
       >
         <defs>
-          {/* Subtle 3D Spherical Radial Face Gradient */}
-          <radialGradient id={`face-grad-${mentor.id}`} cx="35%" cy="30%" r="70%">
+          {/* 3D Radial Face Gradient - Pure White with subtle soft depth */}
+          <radialGradient id={`face-grad-${mentor.id}`} cx="38%" cy="32%" r="68%">
             <stop offset="0%" stopColor="#FFFFFF" />
-            <stop offset="70%" stopColor="#F1F5F9" />
-            <stop offset="100%" stopColor="#E2E8F0" />
+            <stop offset="75%" stopColor="#F8FAFC" />
+            <stop offset="100%" stopColor="#EEF2F6" />
           </radialGradient>
 
-          {/* Eye Shiny Specular Filter */}
+          {/* Eye Gradient - Deep obsidian navy */}
           <linearGradient id={`eye-grad-${mentor.id}`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#0F172A" />
+            <stop offset="0%" stopColor="#0B0F19" />
             <stop offset="100%" stopColor="#1E293B" />
           </linearGradient>
+
+          {/* Soft Lavender Airbrushed Blush Gradient (Matches Image 2 exactly) */}
+          <radialGradient id={`blush-grad-${mentor.id}`} cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#C4B5FD" stopOpacity="0.85" />
+            <stop offset="50%" stopColor="#A78BFA" stopOpacity="0.45" />
+            <stop offset="100%" stopColor="#A78BFA" stopOpacity="0" />
+          </radialGradient>
         </defs>
 
-        {/* Outer Dark Ring (Matches uploaded image circular bezel) */}
+        {/* Outer Dark Ring (Matches Image 1 & 2 circular bezel) */}
         <circle
           cx="50"
           cy="50"
-          r="48"
+          r="47.5"
           fill="none"
           stroke="#0F172A"
-          strokeWidth="4"
-          className="dark:stroke-slate-900"
+          strokeWidth="3.5"
         />
 
-        {/* Thin Mentor Color Aura Ring */}
-        <circle
-          cx="50"
-          cy="50"
-          r="46"
-          fill="none"
-          stroke={accentColor}
-          strokeWidth="2"
-          strokeOpacity="0.85"
-        />
+        {/* Inner Periwinkle / Accent Aura Ring (Matches Image 2 subtle violet-blue glow border) */}
+        {isCute && (
+          <circle
+            cx="50"
+            cy="50"
+            r="45.5"
+            fill="none"
+            stroke={accentColor}
+            strokeWidth="1.8"
+            strokeOpacity="0.75"
+          />
+        )}
 
         {/* Clean Bright White Face Base */}
         <circle
           cx="50"
           cy="50"
-          r="44.5"
+          r="44"
           fill={`url(#face-grad-${mentor.id})`}
         />
 
-        {/* Cute Pastel Blush Cheeks */}
-        <circle
-          cx="28"
-          cy="58"
-          r="6.5"
-          fill={accentColor}
-          fillOpacity="0.25"
-          className="transition-opacity duration-300"
-        />
-        <circle
-          cx="72"
-          cy="58"
-          r="6.5"
-          fill={accentColor}
-          fillOpacity="0.25"
-          className="transition-opacity duration-300"
-        />
+        {/* Cute Pastel Lavender Blush Cheeks (Image 2: positioned directly next to eyes) */}
+        {isCute && (
+          <>
+            <circle
+              cx="27"
+              cy="53"
+              r="8"
+              fill={`url(#blush-grad-${mentor.id})`}
+            />
+            <circle
+              cx="73"
+              cy="53"
+              r="8"
+              fill={`url(#blush-grad-${mentor.id})`}
+            />
+          </>
+        )}
 
-        {/* Eyes Group with Eye Tracking Offset */}
+        {/* Eyes Group with Mouse Gaze Tracking Offset */}
         <g
           transform={`translate(${lookOffset.x}, ${lookOffset.y})`}
           className="transition-transform duration-100 ease-out"
         >
-          {/* Expression: BLINKING */}
+          {/* Expression: BLINKING (Eyes close to cute horizontal slits) */}
           {isBlinking ? (
             <>
-              {/* Left Eye closed slit */}
               <line x1="33" y1="46" x2="43" y2="46" stroke="#0F172A" strokeWidth="3.5" strokeLinecap="round" />
-              {/* Right Eye closed slit */}
               <line x1="57" y1="46" x2="67" y2="46" stroke="#0F172A" strokeWidth="3.5" strokeLinecap="round" />
             </>
           ) : currentExpr === "happy" || currentExpr === "excited" ? (
             /* Expression: HAPPY / EXCITED (^ ^) */
             <>
               <path
-                d="M 32 48 Q 38 37 44 48"
+                d="M 33 48 Q 38.5 38 44 48"
                 fill="none"
                 stroke="#0F172A"
                 strokeWidth="4"
                 strokeLinecap="round"
               />
               <path
-                d="M 56 48 Q 62 37 68 48"
+                d="M 56 48 Q 61.5 38 67 48"
                 fill="none"
                 stroke="#0F172A"
                 strokeWidth="4"
@@ -202,39 +214,59 @@ export function CuteMentorFace({
               />
             </>
           ) : currentExpr === "thinking" || currentExpr === "working" ? (
-            /* Expression: THINKING / WORKING (o o scanning) */
+            /* Expression: THINKING / WORKING (o o inquisitive scan) */
             <>
-              <circle cx="38" cy="46" r="6" fill="#0F172A" />
-              <circle cx="39.5" cy="44.5" r="2" fill="#FFFFFF" />
-              <circle cx="62" cy="46" r="6" fill="#0F172A" />
-              <circle cx="63.5" cy="44.5" r="2" fill="#FFFFFF" />
+              <circle cx="38.5" cy="46" r="6.5" fill="#0F172A" />
+              <circle cx="40" cy="44" r="2" fill="#FFFFFF" />
+              <circle cx="61.5" cy="46" r="6.5" fill="#0F172A" />
+              <circle cx="63" cy="44" r="2" fill="#FFFFFF" />
             </>
           ) : (
-            /* Expression: IDLE / DEFAULT (| | two vertical capsule eyes as in user image) */
+            /* Expression: IDLE / DEFAULT (Two bold vertical capsules with shiny anime highlights) */
             <>
               {/* Left Eye: Vertical Pill Capsule */}
               <rect
-                x="34.5"
+                x="35"
                 y="35"
                 width="7"
                 height="22"
                 rx="3.5"
                 fill={`url(#eye-grad-${mentor.id})`}
               />
-              {/* Left Eye Specular Reflection Dot */}
-              <circle cx="36.5" cy="39" r="1.5" fill="#FFFFFF" opacity="0.9" />
+              {/* Left Eye Specular Reflection - Vertical oval highlight matching Image 2 */}
+              {isCute && (
+                <rect
+                  x="36.5"
+                  y="37.5"
+                  width="2.2"
+                  height="6"
+                  rx="1.1"
+                  fill="#FFFFFF"
+                  opacity="0.95"
+                />
+              )}
 
               {/* Right Eye: Vertical Pill Capsule */}
               <rect
-                x="58.5"
+                x="58"
                 y="35"
                 width="7"
                 height="22"
                 rx="3.5"
                 fill={`url(#eye-grad-${mentor.id})`}
               />
-              {/* Right Eye Specular Reflection Dot */}
-              <circle cx="60.5" cy="39" r="1.5" fill="#FFFFFF" opacity="0.9" />
+              {/* Right Eye Specular Reflection - Vertical oval highlight matching Image 2 */}
+              {isCute && (
+                <rect
+                  x="59.5"
+                  y="37.5"
+                  width="2.2"
+                  height="6"
+                  rx="1.1"
+                  fill="#FFFFFF"
+                  opacity="0.95"
+                />
+              )}
             </>
           )}
 
@@ -250,26 +282,31 @@ export function CuteMentorFace({
             />
           )}
         </g>
+
+        {/* Online Status Badge inside SVG (Matches Image 2: bottom right green dot with crisp white border) */}
+        {showOnlineBadge && isCute && (
+          <g>
+            <circle
+              cx="80"
+              cy="79"
+              r="11"
+              fill="#FFFFFF"
+            />
+            <circle
+              cx="80"
+              cy="79"
+              r="8.5"
+              fill="#00C950"
+            />
+          </g>
+        )}
       </svg>
 
-      {/* Speaking Voice Aura Wave */}
+      {/* Speaking Voice Bass Aura Wave */}
       {isSpeaking && (
         <span
           className="absolute -inset-1 rounded-full animate-ping pointer-events-none opacity-40"
           style={{ backgroundColor: accentColor }}
-        />
-      )}
-
-      {/* Online Presence Badge at bottom-right (Green circle with white ring matching reference image) */}
-      {showOnlineBadge && (
-        <span
-          className={cn(
-            "absolute rounded-full bg-emerald-500 border-2 border-white dark:border-slate-900 shadow-xs z-20 pointer-events-none",
-            size === "xl" ? "w-5 h-5 -bottom-0.5 -right-0.5" :
-            size === "lg" ? "w-4 h-4 bottom-0 right-0" :
-            size === "md" ? "w-3.5 h-3.5 -bottom-0.5 -right-0.5" :
-            "w-2.5 h-2.5 -bottom-0.5 -right-0.5"
-          )}
         />
       )}
     </div>

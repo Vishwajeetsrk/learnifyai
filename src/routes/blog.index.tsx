@@ -28,14 +28,66 @@ import { useRef } from "react";
 export const Route = createFileRoute("/blog/")({
   head: () => ({
     meta: [
-      { title: "Blog — Learnify AI" },
+      { title: "Engineering Blog & Tech Career Playbooks — Learnify AI" },
       {
         name: "description",
         content:
-          "Insights, tutorials, career advice, and platform updates from the Learnify AI team.",
+          "In-depth guides on full-stack AI engineering, Indian SaaS payments (Cashfree vs Razorpay), autonomous agents, and verifiable certifications.",
       },
+      { property: "og:title", content: "Engineering Blog & Tech Career Playbooks — Learnify AI" },
+      {
+        property: "og:description",
+        content:
+          "In-depth guides on full-stack AI engineering, Indian SaaS payments (Cashfree vs Razorpay), autonomous agents, and verifiable certifications.",
+      },
+      { property: "og:url", content: "https://www.learnifyai.in/blog" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "canonical", href: "https://www.learnifyai.in/blog" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "ItemList",
+          "@id": "https://www.learnifyai.in/blog#itemlist",
+          name: "Learnify AI Engineering & Career Articles",
+          description: "Technical tutorials, career roadmaps, and software engineering deep dives.",
+          url: "https://www.learnifyai.in/blog",
+          numberOfItems: 4,
+          itemListElement: [
+            {
+              "@type": "ListItem",
+              position: 1,
+              name: "How to Become a Full-Stack AI Engineer in 2026: The Complete Roadmap",
+              url: "https://www.learnifyai.in/blog/full-stack-ai-engineer-roadmap-2026",
+              description: "Master TanStack Start, React 19, Supabase, LangChain, and Vercel AI SDK to build production-grade AI SaaS applications.",
+            },
+            {
+              "@type": "ListItem",
+              position: 2,
+              name: "The Ultimate Guide to Free Software Engineering Courses & Verifiable Certificates in 2026",
+              url: "https://www.learnifyai.in/blog/ultimate-guide-free-courses-certificates-2026",
+              description: "Complete roadmap to earning cryptographically verifiable credentials in Python, JavaScript, React, and System Design.",
+            },
+            {
+              "@type": "ListItem",
+              position: 3,
+              name: "Comparing Cashfree vs Razorpay for Indian EdTech & SaaS Applications",
+              url: "https://www.learnifyai.in/blog/cashfree-vs-razorpay-india-saas",
+              description: "Comprehensive breakdown of transaction MDR fees, GST 18% SAC 998431 compliance, and RBI recurring e-mandates.",
+            },
+            {
+              "@type": "ListItem",
+              position: 4,
+              name: "Building Autonomous Multi-Agent Workflows with LangGraph and Python",
+              url: "https://www.learnifyai.in/blog/autonomous-ai-agents-langgraph-python",
+              description: "Architecting stateful multi-agent systems with tool-calling, human-in-the-loop gates, and persistent memory.",
+            },
+          ],
+        }),
+      },
+    ],
   }),
   component: BlogIndexPage,
 });
