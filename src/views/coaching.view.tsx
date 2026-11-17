@@ -73,7 +73,22 @@ import { cn } from "@/lib/utils";
 import OpenSlotBooking, { MeetingIcons } from "@/components/ui/open-slot-booking";
 import { careerCoachChat } from "@/lib/career-coach.functions";
 import { AiMentorMessenger } from "@/components/coaches/AiMentorMessenger";
-import { dispatchCoachingBookingNotices } from "@/lib/coaching-email.functions";
+import {
+  dispatchCoachingBookingNotices,
+  createCoachingRazorpayOrder,
+  verifyCoachingRazorpayPayment,
+} from "@/lib/coaching-email.functions";
+
+const loadRazorpay = () =>
+  new Promise<boolean>((resolve) => {
+    if (typeof window === "undefined") return resolve(false);
+    if ((window as any).Razorpay) return resolve(true);
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
 
 export const COACH_ROLES = [
   {
@@ -246,6 +261,8 @@ export default function CoachingDashboard() {
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<"upi" | "card" | "netbanking">("upi");
   const dispatchNotices = useServerFn(dispatchCoachingBookingNotices);
+  const doCreateRazorpayOrder = useServerFn(createCoachingRazorpayOrder);
+  const doVerifyRazorpayPayment = useServerFn(verifyCoachingRazorpayPayment);
 
   // Coach Profile & Live Time State (Vishwajeet)
   const [coachProfile, setCoachProfile] = useState(() => {
@@ -566,78 +583,178 @@ export default function CoachingDashboard() {
     }
   };
 
+  const completeBookingSuccess = (target: any, paymentRef: string) => {
+    const confirmedBk = {
+      ...target,
+      status: "confirmed",
+      paymentStatus: "paid",
+      paymentMethod: selectedPaymentMethod.toUpperCase(),
+      paymentId: paymentRef,
+      orderId: paymentRef,
+    };
+
+    // 1. Persist to local bookings & localStorage
+    const updated = [confirmedBk, ...localBookings.filter((x) => x.id !== confirmedBk.id)];
+    setLocalBookings(updated);
+    try {
+      localStorage.setItem("learnify_coach_local_bookings", JSON.stringify(updated));
+    } catch {}
+
+    // 2. Persist to Supabase if user is logged in
+    if (user) {
+      Promise.resolve(
+        supabase.from("coaching_bookings" as any).insert({
+          learner_id: user.id,
+          coach_id: user.id,
+          slot_id: `slot-${Date.now()}`,
+          notes: confirmedBk.agenda,
+          status: "confirmed",
+        })
+      )
+        .then(() => {
+          qc.invalidateQueries({ queryKey: ["my-coaching-bookings"] });
+        })
+        .catch(() => {});
+    }
+
+    // 3. Download .ICS calendar invite automatically
+    try {
+      downloadIcsForBooking(confirmedBk);
+    } catch {}
+
+    toast.success(
+      `Session confirmed for ${format(new Date(confirmedBk.startTime), "MMM d, h:mm a")} (₹${confirmedBk.price.toLocaleString("en-IN")}) via ${confirmedBk.platform}! Calendar invite dispatched to your Gmail (${confirmedBk.learnerEmail}) & support.learnifyai@gmail.com.`
+    );
+
+    setIsCheckoutOpen(false);
+    setPendingCheckoutBooking(null);
+    setActiveTab("my_sessions");
+    setIsProcessingPayment(false);
+  };
+
   const confirmPaymentAndDispatch = async (b?: any) => {
     const target = b || pendingCheckoutBooking;
     if (!target) return;
     setIsProcessingPayment(true);
+
     try {
-      const confirmedBk = {
-        ...target,
-        status: "confirmed",
-        paymentStatus: "paid",
-        paymentMethod: selectedPaymentMethod.toUpperCase(),
-      };
+      // 1. Create official Razorpay Order on server
+      const orderRes = await doCreateRazorpayOrder({
+        data: {
+          amountInr: target.price,
+          sessionTitle: target.title,
+          coachName: target.coachName,
+          coachRole: target.coachRole,
+          learnerEmail: target.learnerEmail,
+          learnerName: target.learnerName,
+          startTime: target.startTime,
+          duration: target.duration,
+          platform: target.platform,
+        },
+      });
 
-      // 1. Dispatch real Email notice to Learner Gmail and support.learnifyai@gmail.com
-      try {
-        await dispatchNotices({
-          data: {
-            learnerName: confirmedBk.learnerName,
-            learnerEmail: confirmedBk.learnerEmail,
-            coachName: confirmedBk.coachName,
-            coachRole: confirmedBk.coachRole,
-            sessionTitle: confirmedBk.title,
-            agenda: confirmedBk.agenda,
-            startTime: confirmedBk.startTime,
-            endTime: confirmedBk.endTime,
-            duration: confirmedBk.duration,
-            price: confirmedBk.price,
-            orderId: confirmedBk.orderId,
-            platform: confirmedBk.platform,
-            meetingLink: confirmedBk.meetingLink,
-            paymentMethod: confirmedBk.paymentMethod,
+      // 2. Load Razorpay client SDK
+      const scriptLoaded = await loadRazorpay();
+
+      if (scriptLoaded && (window as any).Razorpay && orderRes?.keyId) {
+        const options: any = {
+          key: orderRes.keyId,
+          amount: Math.round(target.price * 100),
+          currency: "INR",
+          name: "Learnify AI Executive Coaching",
+          description: `${target.title} with ${target.coachName}`,
+          image: "/favicon.ico",
+          order_id: orderRes.orderId.startsWith("order_sim_") ? undefined : orderRes.orderId,
+          prefill: {
+            name: target.learnerName,
+            email: target.learnerEmail,
+            contact: "9918231234",
           },
+          notes: {
+            sessionTitle: target.title,
+            coach: target.coachName,
+            date: format(new Date(target.startTime), "yyyy-MM-dd HH:mm"),
+            sac: "998431",
+          },
+          theme: {
+            color: "#245F30",
+          },
+          handler: async function (response: any) {
+            try {
+              setIsProcessingPayment(true);
+              const paymentRef = response.razorpay_payment_id || `pay_${Date.now()}`;
+              // Verify signature on server & trigger email notification dispatch
+              await doVerifyRazorpayPayment({
+                data: {
+                  orderId: response.razorpay_order_id || orderRes.orderId,
+                  paymentId: paymentRef,
+                  signature: response.razorpay_signature || "",
+                  booking: {
+                    learnerName: target.learnerName,
+                    learnerEmail: target.learnerEmail,
+                    coachName: target.coachName,
+                    coachRole: target.coachRole,
+                    title: target.title,
+                    agenda: target.agenda,
+                    startTime: target.startTime,
+                    endTime: target.endTime,
+                    duration: target.duration,
+                    price: target.price,
+                    platform: target.platform,
+                    meetingLink: target.meetingLink,
+                  },
+                },
+              });
+
+              completeBookingSuccess(target, paymentRef);
+            } catch (verErr: any) {
+              toast.error(verErr?.message || "Payment verification failed");
+              setIsProcessingPayment(false);
+            }
+          },
+          modal: {
+            ondismiss: function () {
+              setIsProcessingPayment(false);
+              toast.info("Checkout dismissed. You can retry anytime.");
+            },
+          },
+        };
+
+        const rzp = new (window as any).Razorpay(options);
+        rzp.on("payment.failed", function (resp: any) {
+          toast.error(resp.error?.description || "Payment failed via Razorpay");
+          setIsProcessingPayment(false);
         });
-      } catch (emailErr: any) {
-        console.warn("Email notice dispatch:", emailErr?.message);
+        rzp.open();
+        return;
       }
 
-      // 2. Persist to local bookings & localStorage
-      const updated = [confirmedBk, ...localBookings.filter((x) => x.id !== confirmedBk.id)];
-      setLocalBookings(updated);
-      try {
-        localStorage.setItem("learnify_coach_local_bookings", JSON.stringify(updated));
-      } catch {}
+      // 3. Fallback when SDK fails or is offline in local sandbox
+      await doVerifyRazorpayPayment({
+        data: {
+          orderId: orderRes.orderId,
+          paymentId: `pay_${Date.now()}`,
+          signature: "sim_sig",
+          booking: {
+            learnerName: target.learnerName,
+            learnerEmail: target.learnerEmail,
+            coachName: target.coachName,
+            coachRole: target.coachRole,
+            title: target.title,
+            agenda: target.agenda,
+            startTime: target.startTime,
+            endTime: target.endTime,
+            duration: target.duration,
+            price: target.price,
+            platform: target.platform,
+            meetingLink: target.meetingLink,
+          },
+        },
+      });
 
-      // 3. Persist to Supabase if user is logged in
-      if (user) {
-        try {
-          await supabase.from("coaching_bookings" as any).insert({
-            learner_id: user.id,
-            coach_id: user.id,
-            slot_id: `slot-${Date.now()}`,
-            notes: confirmedBk.agenda,
-            status: "confirmed",
-          });
-          qc.invalidateQueries({ queryKey: ["my-coaching-bookings"] });
-        } catch {}
-      }
-
-      // 4. Download .ICS calendar invite automatically
-      try {
-        downloadIcsForBooking(confirmedBk);
-      } catch {}
-
-      toast.success(
-        `Session confirmed for ${format(new Date(confirmedBk.startTime), "MMM d, h:mm a")} (₹${confirmedBk.price.toLocaleString("en-IN")}) via ${confirmedBk.platform}! Calendar invite dispatched to your Gmail (${confirmedBk.learnerEmail}) & support.learnifyai@gmail.com.`
-      );
-
-      setIsCheckoutOpen(false);
-      setPendingCheckoutBooking(null);
-      setActiveTab("my_sessions");
+      completeBookingSuccess(target, orderRes.orderId);
     } catch (err: any) {
-      toast.error(err?.message || "Payment confirmation failed");
-    } finally {
+      toast.error(err?.message || "Payment setup failed");
       setIsProcessingPayment(false);
     }
   };
@@ -1673,48 +1790,48 @@ export default function CoachingDashboard() {
 
       {/* 1:1 Coaching Payment & Confirmation Checkout Dialog */}
       <Dialog open={isCheckoutOpen} onOpenChange={setIsCheckoutOpen}>
-        <DialogContent className="max-w-lg p-0 overflow-hidden rounded-2xl border bg-card shadow-2xl">
+        <DialogContent className="w-[95vw] sm:max-w-lg p-0 overflow-hidden rounded-2xl border bg-card shadow-2xl max-h-[92dvh] flex flex-col">
           {pendingCheckoutBooking && (
-            <div>
+            <div className="flex flex-col h-full overflow-hidden">
               {/* Header */}
-              <div className="bg-gradient-to-r from-emerald-950 via-emerald-900 to-green-900 p-6 text-white border-b border-emerald-800/40">
+              <div className="bg-gradient-to-r from-emerald-950 via-emerald-900 to-green-900 p-4 sm:p-6 text-white border-b border-emerald-800/40 shrink-0">
                 <div className="flex items-center justify-between gap-3 mb-2">
                   <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-400/30 text-[11px] font-mono font-semibold py-0.5">
                     1:1 Mentorship Checkout
                   </Badge>
-                  <span className="text-xl font-bold font-mono text-emerald-300">
+                  <span className="text-xl sm:text-2xl font-bold font-mono text-emerald-300">
                     ₹{pendingCheckoutBooking.price.toLocaleString("en-IN")}
                   </span>
                 </div>
-                <h3 className="text-lg font-bold">Confirm &amp; Pay for Your Advisory Session</h3>
-                <p className="text-xs text-emerald-200/80 mt-1">
+                <h3 className="text-base sm:text-lg font-bold">Confirm &amp; Pay for Your Advisory Session</h3>
+                <p className="text-xs text-emerald-200/80 mt-1 line-clamp-2">
                   Session with {pendingCheckoutBooking.coachName} ({pendingCheckoutBooking.coachRole}). Calendar invite and GST invoice dispatched immediately upon payment.
                 </p>
               </div>
 
-              {/* Session Overview */}
-              <div className="p-6 space-y-5">
-                <div className="p-4 rounded-xl border bg-muted/30 space-y-3 text-xs">
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Session Title:</span>
-                    <span className="font-semibold text-foreground">{pendingCheckoutBooking.title}</span>
+              {/* Scrollable Session Overview */}
+              <div className="p-4 sm:p-6 space-y-4 sm:space-y-5 overflow-y-auto flex-1">
+                <div className="p-3 sm:p-4 rounded-xl border bg-muted/30 space-y-2.5 text-xs">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-muted-foreground shrink-0">Session Title:</span>
+                    <span className="font-semibold text-foreground text-right truncate">{pendingCheckoutBooking.title}</span>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Date &amp; Time:</span>
-                    <span className="font-semibold text-foreground flex items-center gap-1.5">
-                      <Clock className="w-3.5 h-3.5 text-emerald-500" />
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-muted-foreground shrink-0">Date &amp; Time:</span>
+                    <span className="font-semibold text-foreground flex items-center gap-1.5 text-right">
+                      <Clock className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
                       {format(new Date(pendingCheckoutBooking.startTime), "EEEE, MMM d, yyyy · h:mm a")}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Duration &amp; Platform:</span>
-                    <span className="font-semibold text-foreground">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-muted-foreground shrink-0">Duration &amp; Platform:</span>
+                    <span className="font-semibold text-foreground text-right">
                       {pendingCheckoutBooking.duration} mins via {pendingCheckoutBooking.platform}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Attendee Email:</span>
-                    <span className="font-mono text-foreground font-medium">{pendingCheckoutBooking.learnerEmail}</span>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-muted-foreground shrink-0">Attendee Email:</span>
+                    <span className="font-mono text-foreground font-medium text-right truncate">{pendingCheckoutBooking.learnerEmail}</span>
                   </div>
                 </div>
 
@@ -1723,19 +1840,21 @@ export default function CoachingDashboard() {
                   <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                     Select Payment Method (INR ₹)
                   </Label>
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     <button
                       type="button"
                       onClick={() => setSelectedPaymentMethod("upi")}
                       className={cn(
-                        "p-3 rounded-xl border text-center transition-all flex flex-col items-center gap-1.5",
+                        "p-3 rounded-xl border text-left sm:text-center transition-all flex sm:flex-col items-center justify-between sm:justify-center gap-2 cursor-pointer min-h-[48px]",
                         selectedPaymentMethod === "upi"
                           ? "border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold ring-2 ring-emerald-500/20"
                           : "border-border bg-card hover:bg-muted text-muted-foreground"
                       )}
                     >
-                      <Sparkles className="w-4 h-4" />
-                      <span className="text-xs">UPI / QR</span>
+                      <div className="flex items-center sm:flex-col gap-2">
+                        <Sparkles className="w-4 h-4 text-emerald-500 shrink-0" />
+                        <span className="text-xs">UPI / QR</span>
+                      </div>
                       <span className="text-[10px] opacity-70">GPay, PhonePe</span>
                     </button>
 
@@ -1743,14 +1862,16 @@ export default function CoachingDashboard() {
                       type="button"
                       onClick={() => setSelectedPaymentMethod("card")}
                       className={cn(
-                        "p-3 rounded-xl border text-center transition-all flex flex-col items-center gap-1.5",
+                        "p-3 rounded-xl border text-left sm:text-center transition-all flex sm:flex-col items-center justify-between sm:justify-center gap-2 cursor-pointer min-h-[48px]",
                         selectedPaymentMethod === "card"
                           ? "border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold ring-2 ring-emerald-500/20"
                           : "border-border bg-card hover:bg-muted text-muted-foreground"
                       )}
                     >
-                      <Receipt className="w-4 h-4" />
-                      <span className="text-xs">Cards</span>
+                      <div className="flex items-center sm:flex-col gap-2">
+                        <Receipt className="w-4 h-4 text-emerald-500 shrink-0" />
+                        <span className="text-xs">Cards</span>
+                      </div>
                       <span className="text-[10px] opacity-70">Visa, MC, RuPay</span>
                     </button>
 
@@ -1758,14 +1879,16 @@ export default function CoachingDashboard() {
                       type="button"
                       onClick={() => setSelectedPaymentMethod("netbanking")}
                       className={cn(
-                        "p-3 rounded-xl border text-center transition-all flex flex-col items-center gap-1.5",
+                        "p-3 rounded-xl border text-left sm:text-center transition-all flex sm:flex-col items-center justify-between sm:justify-center gap-2 cursor-pointer min-h-[48px]",
                         selectedPaymentMethod === "netbanking"
                           ? "border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold ring-2 ring-emerald-500/20"
                           : "border-border bg-card hover:bg-muted text-muted-foreground"
                       )}
                     >
-                      <Layers className="w-4 h-4" />
-                      <span className="text-xs">NetBanking</span>
+                      <div className="flex items-center sm:flex-col gap-2">
+                        <Layers className="w-4 h-4 text-emerald-500 shrink-0" />
+                        <span className="text-xs">NetBanking</span>
+                      </div>
                       <span className="text-[10px] opacity-70">All Major Banks</span>
                     </button>
                   </div>
@@ -1799,34 +1922,32 @@ export default function CoachingDashboard() {
               </div>
 
               {/* Footer Actions */}
-              <div className="p-4 bg-muted/40 border-t flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="p-4 bg-muted/40 border-t flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-2.5 shrink-0">
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setIsCheckoutOpen(false)}
                   disabled={isProcessingPayment}
-                  className="w-full sm:w-auto text-xs"
+                  className="w-full sm:w-auto text-xs h-10"
                 >
                   Cancel
                 </Button>
-                <div className="flex items-center gap-2 w-full sm:w-auto">
-                  <Button
-                    size="sm"
-                    onClick={() => confirmPaymentAndDispatch()}
-                    disabled={isProcessingPayment}
-                    className="w-full sm:w-auto gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs shadow-md"
-                  >
-                    {isProcessingPayment ? (
-                      <>
-                        <Loader2 className="w-3.5 h-3.5 animate-spin" /> Verifying &amp; Dispatching...
-                      </>
-                    ) : (
-                      <>
-                        <CheckCircle2 className="w-4 h-4" /> Pay ₹{pendingCheckoutBooking.price.toLocaleString("en-IN")} &amp; Confirm Session
-                      </>
-                    )}
-                  </Button>
-                </div>
+                <Button
+                  size="sm"
+                  onClick={() => confirmPaymentAndDispatch()}
+                  disabled={isProcessingPayment}
+                  className="w-full sm:w-auto gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs shadow-md h-10"
+                >
+                  {isProcessingPayment ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" /> Verifying Razorpay Payment...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 className="w-4 h-4" /> Pay ₹{pendingCheckoutBooking.price.toLocaleString("en-IN")} &amp; Confirm Session
+                    </>
+                  )}
+                </Button>
               </div>
             </div>
           )}
