@@ -44,6 +44,11 @@ import {
   Clock,
   RefreshCw,
   Plus,
+  Phone,
+  Sliders,
+  Table,
+  Presentation,
+  Mail,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -65,6 +70,20 @@ import { MentorAvatar } from "./MentorAvatar";
 import { MentorProfileDialog } from "./MentorProfileDialog";
 import { LiveOrb } from "@/components/ui/live-orb";
 import { careerCoachChat } from "@/lib/career-coach.functions";
+import { MentorUpgradeDialog } from "./MentorUpgradeDialog";
+import { MentorVoiceCallDialog } from "./MentorVoiceCallDialog";
+import {
+  GmailActionCard,
+  GoogleDocsActionCard,
+  GoogleSheetsActionCard,
+  GoogleSlidesActionCard,
+  PluginToolbar,
+} from "./PluginActionCards";
+import {
+  getMentorCustomization,
+  type MentorCustomization,
+} from "./mentorCustomization";
+import { startSpeechRecognition, type VoiceRecognitionSession } from "./speechUtils";
 
 export interface ChatMessage {
   id: string;
@@ -79,6 +98,11 @@ export interface ChatMessage {
     title: string;
     description: string;
     content: string;
+  };
+  pluginCard?: {
+    type: "gmail" | "docs" | "sheets" | "slides";
+    title?: string;
+    data: any;
   };
   toolsUsed?: string[];
 }
@@ -172,8 +196,17 @@ export function AiMentorMessenger({
   const [peerInput, setPeerInput] = useState("");
   const [attachments, setAttachments] = useState<Array<{ name: string; type: string; size: string }>>([]);
 
-  // Voice Input State
+  // Voice Input & Call State
   const [isRecording, setIsRecording] = useState(false);
+  const [upgradeDialogOpen, setUpgradeDialogOpen] = useState(false);
+  const [voiceCallDialogOpen, setVoiceCallDialogOpen] = useState(false);
+  const [mentorConfig, setMentorConfig] = useState<MentorCustomization>(() => getMentorCustomization(selectedMentor.id));
+  const voiceSessionRef = useRef<VoiceRecognitionSession | null>(null);
+
+  // Sync customized preferences on mentor switch
+  useEffect(() => {
+    setMentorConfig(getMentorCustomization(selectedMentor.id));
+  }, [selectedMentor.id]);
 
   // Refs
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -319,12 +352,24 @@ export function AiMentorMessenger({
       await new Promise((r) => setTimeout(r, 600));
       setStreamStatus("streaming");
 
+      const activePluginNames = Object.entries(mentorConfig.plugins)
+        .filter(([_, v]) => v)
+        .map(([k]) => k)
+        .join(", ");
+
+      const profilePayload = `User Name: ${user?.user_metadata?.full_name || "Learner"}.
+Learner Background: ${mentorConfig.learnerBackground || "Software Engineer"}.
+Target Career Goal: ${mentorConfig.careerGoal || "Staff Engineering Leadership"}.
+Mentor Tone: ${mentorConfig.preferredTone}.
+Custom Directives: ${mentorConfig.customPrompt || "Provide clear, structured, actionable engineering advice."}
+Active Work Plugins: ${activePluginNames}. Mode: ${activeMode}.`;
+
       const response = await runCareerCoach({
         data: {
           content: userMessage.content + modeInstruction,
           history,
           coachRole: selectedMentor.id,
-          userProfile: `User Name: ${user?.user_metadata?.full_name || "Learner"}. Goal: Mastery in ${selectedMentor.title}. Mode: ${activeMode}.`,
+          userProfile: profilePayload,
         },
       });
 
@@ -489,48 +534,167 @@ export function AiMentorMessenger({
     toast.success(`Started new conversation with ${selectedMentor.name}`);
   };
 
-  // Voice recording toggle using Web Speech API
+  // Voice recording toggle using deduplicated speechUtils
   const handleToggleSpeech = () => {
-    if (!("webkitSpeechRecognition" in window) && !("SpeechRecognition" in window)) {
-      toast.error("Speech recognition is not supported in this browser.");
-      return;
-    }
-
     if (isRecording) {
+      if (voiceSessionRef.current) {
+        voiceSessionRef.current.stop();
+      }
       setIsRecording(false);
       return;
     }
 
-    try {
-      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-      const recognition = new SpeechRecognition();
-      recognition.continuous = false;
-      recognition.interimResults = false;
-      recognition.lang = "en-US";
-
-      recognition.onstart = () => {
-        setIsRecording(true);
-        toast.info("Listening... speak your engineering question.");
-      };
-
-      recognition.onresult = (event: any) => {
-        const transcript = event.results[0][0].transcript;
-        setInputMessage((prev) => (prev ? `${prev} ${transcript}` : transcript));
-        setIsRecording(false);
-      };
-
-      recognition.onerror = () => {
+    const session = startSpeechRecognition({
+      onResult: (transcript: string) => {
+        if (transcript) {
+          setInputMessage(transcript);
+        }
+      },
+      onError: () => {
         setIsRecording(false);
         toast.error("Microphone input error.");
-      };
-
-      recognition.onend = () => {
+      },
+      onEnd: () => {
         setIsRecording(false);
-      };
+      },
+    });
 
-      recognition.start();
-    } catch {
-      setIsRecording(false);
+    if (session.isSupported) {
+      voiceSessionRef.current = session;
+      setIsRecording(true);
+      toast.info("Listening... speak your engineering question.");
+    } else {
+      toast.error("Speech recognition is not supported in this browser.");
+    }
+  };
+
+  // Handle triggering a plugin action directly from toolbar
+  const handleTriggerPlugin = (pluginId: "gmail" | "docs" | "sheets" | "slides" | "github" | "web") => {
+    if (pluginId === "gmail") {
+      const draft = {
+        to: "recruiter@techcorp.com",
+        subject: `Application for Senior Software Engineer - Referral Follow-up`,
+        body: `Hi there,\n\nI hope you're doing well. I wanted to follow up on my recent application for the Senior Software Engineer position.\n\nBest regards,\n[Your Name]`,
+      };
+      const newMsg: ChatMessage = {
+        id: `plugin-gmail-${Date.now()}`,
+        role: "assistant",
+        content: `I've prepared a high-conversion follow-up email draft tailored for tech recruiters. You can launch it directly in Gmail with one click:`,
+        timestamp: Date.now(),
+        status: "complete",
+        pluginCard: {
+          type: "gmail",
+          title: "Gmail Draft",
+          data: draft,
+        },
+      };
+      setConversations((prev) => ({
+        ...prev,
+        [selectedMentor.id]: [...(prev[selectedMentor.id] || []), newMsg],
+      }));
+      toast.success("Gmail action ready!");
+    } else if (pluginId === "docs") {
+      const docData = {
+        title: `${selectedMentor.name} - System RFC & Architecture Spec`,
+        content: `# System Architecture Specification\nPrepared by ${selectedMentor.name} (AI Mentor)\n\n## 1. Executive Summary\nHigh-throughput, event-driven microservices architecture targeting 99.99% availability.\n\n## 2. Key Components\n- API Gateway with JWT & rate limiting\n- Distributed Event Bus (Kafka / NATS)\n- Read-optimized PostgreSQL + Redis cache layer\n\n## 3. SLA & Observability\n- P99 latency < 80ms\n- OpenTelemetry tracing & Prometheus metrics`,
+      };
+      const newMsg: ChatMessage = {
+        id: `plugin-docs-${Date.now()}`,
+        role: "assistant",
+        content: `I've drafted a production-grade System Architecture Spec / RFC. Click below to copy and create your Google Doc instantly:`,
+        timestamp: Date.now(),
+        status: "complete",
+        pluginCard: {
+          type: "docs",
+          title: docData.title,
+          data: docData,
+        },
+      };
+      setConversations((prev) => ({
+        ...prev,
+        [selectedMentor.id]: [...(prev[selectedMentor.id] || []), newMsg],
+      }));
+      toast.success("Google Docs spec ready!");
+    } else if (pluginId === "sheets") {
+      const csvContent = `Company,Role,Stage,Target Base,Status,Follow-up Date\nGoogle,Staff SWE,Onsite Scheduled,₹85,00,000,In Progress,Nov 24\nMicrosoft,Principal SDE,Technical Screen,₹78,00,000,In Progress,Nov 28\nSwiggy,Lead Architect,Offer Discussion,₹65,00,000,Offer Received,Dec 01\nRazorpay,Staff Engineer,System Design 2,₹70,00,000,In Progress,Dec 05`;
+      const sheetData = {
+        title: "Tech Compensation & Interview Pipeline Tracker",
+        csvData: csvContent,
+      };
+      const newMsg: ChatMessage = {
+        id: `plugin-sheets-${Date.now()}`,
+        role: "assistant",
+        content: `Here is your structured pipeline tracker table. You can export as CSV or open in Google Sheets:`,
+        timestamp: Date.now(),
+        status: "complete",
+        pluginCard: {
+          type: "sheets",
+          title: sheetData.title,
+          data: sheetData,
+        },
+      };
+      setConversations((prev) => ({
+        ...prev,
+        [selectedMentor.id]: [...(prev[selectedMentor.id] || []), newMsg],
+      }));
+      toast.success("Google Sheets table generated!");
+    } else if (pluginId === "slides") {
+      const slideData = {
+        title: "Executive System Design Presentation",
+        slides: [
+          {
+            slideNumber: 1,
+            title: "Scalable Event Architecture",
+            bullets: [
+              "Event-driven architecture decoupling ingestion from processing",
+              "Sub-50ms ingestion latency under 50,000 rps load",
+              "Idempotent event consumers with Dead Letter Queue fallback",
+            ],
+            notes: "Highlight decoupling advantages and backpressure handling.",
+          },
+          {
+            slideNumber: 2,
+            title: "Data Layer & Partitioning",
+            bullets: [
+              "PostgreSQL primary with read replicas and connection pooling (PgBouncer)",
+              "Multi-region Redis clusters for session & cached state",
+              "Consistent hashing across distributed worker nodes",
+            ],
+            notes: "Emphasize connection pooling to prevent DB thread exhaustion.",
+          },
+          {
+            slideNumber: 3,
+            title: "Resilience & Chaos Engineering",
+            bullets: [
+              "Circuit breaker pattern with Resilience4j/Envoy",
+              "Automated canary deployments with Istio service mesh",
+              "Zero-downtime database schema migrations",
+            ],
+            notes: "Mention automated rollback upon error budget breach.",
+          },
+        ],
+      };
+      const newMsg: ChatMessage = {
+        id: `plugin-slides-${Date.now()}`,
+        role: "assistant",
+        content: `I've prepared a slide deck outline for your executive design presentation:`,
+        timestamp: Date.now(),
+        status: "complete",
+        pluginCard: {
+          type: "slides",
+          title: slideData.title,
+          data: slideData,
+        },
+      };
+      setConversations((prev) => ({
+        ...prev,
+        [selectedMentor.id]: [...(prev[selectedMentor.id] || []), newMsg],
+      }));
+      toast.success("Google Slides deck ready!");
+    } else if (pluginId === "github") {
+      setInputMessage("Audit this GitHub repository architecture and suggest structural refactoring improvements: ");
+    } else if (pluginId === "web") {
+      setInputMessage("Search live benchmarks and current industry standard salary/architectural patterns for: ");
     }
   };
 
@@ -838,6 +1002,30 @@ export function AiMentorMessenger({
                     </DropdownMenuContent>
                   </DropdownMenu>
 
+                  {/* Voice Call Button */}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setVoiceCallDialogOpen(true)}
+                    className="h-8 text-xs font-semibold gap-1.5 rounded-xl border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10 cursor-pointer"
+                    title="Start 1:1 Voice Call with AI Mentor"
+                  >
+                    <Phone className="w-3.5 h-3.5 text-emerald-500" />
+                    <span className="hidden md:inline">Voice Call</span>
+                  </Button>
+
+                  {/* Customize & Skills Upgrade */}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setUpgradeDialogOpen(true)}
+                    className="h-8 text-xs font-semibold gap-1.5 rounded-xl border-primary/30 text-primary hover:bg-primary/10 cursor-pointer"
+                    title="Customize Memory & Skills (Gmail, Docs, Sheets, Slides)"
+                  >
+                    <Sliders className="w-3.5 h-3.5" />
+                    <span className="hidden md:inline">Plugins & Skills</span>
+                  </Button>
+
                   {/* Toggle LiveOrb avatar */}
                   <Button
                     variant="ghost"
@@ -1031,6 +1219,41 @@ export function AiMentorMessenger({
                             </div>
                           )}
 
+                          {/* Working Interactive Plugin Action Cards (Gmail, Docs, Sheets, Slides) */}
+                          {msg.pluginCard?.type === "gmail" && (
+                            <div className="mt-3">
+                              <GmailActionCard
+                                to={msg.pluginCard.data.to}
+                                subject={msg.pluginCard.data.subject}
+                                body={msg.pluginCard.data.body}
+                              />
+                            </div>
+                          )}
+                          {msg.pluginCard?.type === "docs" && (
+                            <div className="mt-3">
+                              <GoogleDocsActionCard
+                                title={msg.pluginCard.data.title}
+                                content={msg.pluginCard.data.content}
+                              />
+                            </div>
+                          )}
+                          {msg.pluginCard?.type === "sheets" && (
+                            <div className="mt-3">
+                              <GoogleSheetsActionCard
+                                title={msg.pluginCard.data.title}
+                                csvData={msg.pluginCard.data.csvData}
+                              />
+                            </div>
+                          )}
+                          {msg.pluginCard?.type === "slides" && (
+                            <div className="mt-3">
+                              <GoogleSlidesActionCard
+                                title={msg.pluginCard.data.title}
+                                slides={msg.pluginCard.data.slides}
+                              />
+                            </div>
+                          )}
+
                           {/* Hover action toolbar for assistant responses */}
                           {!isUser && (
                             <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 bg-card/80 backdrop-blur-md border rounded-lg p-0.5">
@@ -1119,6 +1342,19 @@ export function AiMentorMessenger({
                 )}
 
                 <div ref={messagesEndRef} />
+              </div>
+
+              {/* Working Skills & Plugins Quick Toolbar (Gmail, Docs, Sheets, Slides, GitHub, Web Search) */}
+              <div className="px-4 py-1.5 bg-muted/30 border-t flex items-center justify-between gap-2">
+                <PluginToolbar
+                  onTriggerPlugin={handleTriggerPlugin}
+                />
+                <button
+                  onClick={() => setUpgradeDialogOpen(true)}
+                  className="text-[10px] text-primary hover:underline font-semibold shrink-0 cursor-pointer hidden sm:inline"
+                >
+                  Configure Plugins →
+                </button>
               </div>
 
               {/* Proactive Coaching Follow-up Prompt Chips */}
@@ -1328,6 +1564,21 @@ export function AiMentorMessenger({
           )}
         </div>
       </div>
+
+      {/* Mentor Customization & Skills Upgrade Dialog */}
+      <MentorUpgradeDialog
+        mentor={selectedMentor}
+        open={upgradeDialogOpen}
+        onOpenChange={setUpgradeDialogOpen}
+        onCustomizationSaved={(updated: MentorCustomization) => setMentorConfig(updated)}
+      />
+
+      {/* Real-time Voice Call Dialog */}
+      <MentorVoiceCallDialog
+        mentor={selectedMentor}
+        open={voiceCallDialogOpen}
+        onOpenChange={setVoiceCallDialogOpen}
+      />
     </div>
   );
 }

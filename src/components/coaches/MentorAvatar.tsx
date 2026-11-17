@@ -1,7 +1,7 @@
 import React from "react";
 import { cn } from "@/lib/utils";
 import type { MentorRole } from "./mentorData";
-import { Sparkles } from "lucide-react";
+import { CuteMentorFace, type FaceExpression } from "./CuteMentorFace";
 
 export type AvatarSize = "xs" | "sm" | "md" | "lg" | "xl";
 export type MentorStatus = "available" | "thinking" | "responding" | "idle";
@@ -12,16 +12,18 @@ interface MentorAvatarProps {
   status?: MentorStatus;
   selected?: boolean;
   showStatusIndicator?: boolean;
+  isSpeaking?: boolean;
+  customColor?: string;
   className?: string;
   onClick?: () => void;
 }
 
-const SIZE_MAP: Record<AvatarSize, { container: string; icon: string; badge: string; text: string; ring: string }> = {
-  xs: { container: "w-6 h-6", icon: "w-3 h-3", badge: "w-2 h-2 -bottom-0.5 -right-0.5", text: "text-[10px]", ring: "ring-1" },
-  sm: { container: "w-8 h-8", icon: "w-4 h-4", badge: "w-2.5 h-2.5 -bottom-0.5 -right-0.5", text: "text-xs font-bold", ring: "ring-2" },
-  md: { container: "w-11 h-11", icon: "w-5 h-5", badge: "w-3 h-3 -bottom-0.5 -right-0.5", text: "text-sm font-bold", ring: "ring-2" },
-  lg: { container: "w-14 h-14", icon: "w-7 h-7", badge: "w-3.5 h-3.5 bottom-0 right-0", text: "text-base font-bold", ring: "ring-2" },
-  xl: { container: "w-20 h-20", icon: "w-10 h-10", badge: "w-4 h-4 bottom-0.5 right-0.5", text: "text-xl font-bold", ring: "ring-4" },
+const BADGE_MAP: Record<AvatarSize, string> = {
+  xs: "w-2 h-2 -bottom-0.5 -right-0.5",
+  sm: "w-2.5 h-2.5 -bottom-0.5 -right-0.5",
+  md: "w-3.5 h-3.5 -bottom-0.5 -right-0.5",
+  lg: "w-4 h-4 bottom-0 right-0",
+  xl: "w-5 h-5 bottom-0.5 right-0.5",
 };
 
 export function MentorAvatar({
@@ -30,58 +32,46 @@ export function MentorAvatar({
   status = "available",
   selected = false,
   showStatusIndicator = true,
+  isSpeaking = false,
+  customColor,
   className,
   onClick,
 }: MentorAvatarProps) {
-  const cfg = SIZE_MAP[size];
-  const IconComp = mentor.icon;
+  const badgeCls = BADGE_MAP[size];
+
+  // Map status to cute face expression
+  let expression: FaceExpression = "idle";
+  if (status === "thinking") expression = "thinking";
+  else if (status === "responding") expression = "happy";
+  if (isSpeaking) expression = "talking";
 
   return (
     <div
       onClick={onClick}
       className={cn(
-        "relative shrink-0 flex items-center justify-center rounded-2xl select-none transition-all duration-200",
-        cfg.container,
-        mentor.avatarBg,
+        "relative shrink-0 flex items-center justify-center rounded-full select-none transition-all duration-300",
         selected && "ring-2 ring-primary ring-offset-2 ring-offset-background scale-105",
         onClick && "cursor-pointer hover:scale-105 active:scale-95",
         className
       )}
-      style={{
-        boxShadow: `0 4px 20px -2px ${mentor.accentHex}33`,
-      }}
+      title={`${mentor.name} · ${mentor.title}`}
     >
-      {/* Decorative gradient overlay */}
-      <div className="absolute inset-0 rounded-2xl bg-gradient-to-tr from-black/40 via-transparent to-white/10 pointer-events-none" />
-
-      {/* Thinking animated ring */}
-      {status === "thinking" && (
-        <span
-          className="absolute -inset-1 rounded-2xl animate-spin border-2 border-dashed pointer-events-none"
-          style={{ borderColor: mentor.accentHex }}
-        />
-      )}
-
-      {/* Responding subtle pulse glow */}
-      {status === "responding" && (
-        <span
-          className="absolute -inset-1 rounded-2xl animate-pulse bg-current/20 pointer-events-none"
-          style={{ color: mentor.accentHex }}
-        />
-      )}
-
-      {/* Mentor Icon / Identifier */}
-      <div className="relative z-10 flex items-center justify-center">
-        <IconComp className={cn(cfg.icon, "drop-shadow-sm transition-transform")} />
-      </div>
+      {/* Animated Cute Character Face directly modeled after user reference image */}
+      <CuteMentorFace
+        mentor={mentor}
+        size={size}
+        expression={expression}
+        isSpeaking={isSpeaking}
+        customColor={customColor}
+      />
 
       {/* Status indicator: AI Mentor Presence */}
       {showStatusIndicator && (
         <span
           className={cn(
-            "absolute rounded-full border-2 border-background z-20 flex items-center justify-center",
-            cfg.badge,
-            status === "available" && "bg-emerald-500",
+            "absolute rounded-full border-2 border-background z-20 flex items-center justify-center transition-all",
+            badgeCls,
+            status === "available" && "bg-emerald-500 shadow-xs",
             status === "thinking" && "bg-amber-400 animate-pulse",
             status === "responding" && "bg-indigo-400 animate-ping",
             status === "idle" && "bg-slate-400"
@@ -89,7 +79,7 @@ export function MentorAvatar({
           title={`AI Mentor · ${status}`}
         >
           {size === "xl" && (
-            <span className="w-1.5 h-1.5 rounded-full bg-white opacity-80" />
+            <span className="w-1.5 h-1.5 rounded-full bg-white opacity-90" />
           )}
         </span>
       )}

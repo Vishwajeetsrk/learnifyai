@@ -1544,13 +1544,28 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
       recognition.lang = "en-US";
 
       let initialAnswer = userAnswer ? `${userAnswer.trim()} ` : "";
+      let finalAccumulated = "";
 
       recognition.onresult = (event: any) => {
-        let transcript = "";
-        for (let i = 0; i < event.results.length; i++) {
-          transcript += event.results[i][0].transcript;
+        let interim = "";
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          const text = event.results[i][0].transcript;
+          if (event.results[i].isFinal) {
+            finalAccumulated += (finalAccumulated ? " " : "") + text.trim();
+          } else {
+            interim += (interim ? " " : "") + text.trim();
+          }
         }
-        setUserAnswer(`${initialAnswer}${transcript}`);
+
+        const combined = (initialAnswer + finalAccumulated + (interim ? " " + interim : "")).replace(/\s+/g, " ").trim();
+        const words = combined.split(" ");
+        const deduped: string[] = [];
+        for (let w = 0; w < words.length; w++) {
+          if (w === 0 || words[w].toLowerCase() !== deduped[deduped.length - 1]?.toLowerCase()) {
+            deduped.push(words[w]);
+          }
+        }
+        setUserAnswer(deduped.join(" "));
       };
 
       recognition.onerror = (event: any) => {
