@@ -53,7 +53,7 @@ function FaqPage() {
           finish="auto"
           askNote="Can't find your answer in the drawer? Our academic council answers within the hour."
           askLabel="Ask Support"
-          askHref="mailto:support@learnifyai.in"
+          askHref="mailto:support.learnifyai@gmail.com"
         />
       </main>
       <SiteFooter />

@@ -35,32 +35,32 @@ import { useSiteSettings } from "@/hooks/use-site-settings";
 
 const FEATURED_PROJECT_PREVIEWS = [
   {
+    id: "macos-portfolio",
+    title: "macOS Sonoma & Big Sur",
+    category: "Apple OS • Interactive Desktop",
+    url: "/preset-sites/macos-portfolio/index.html",
+    thumbnail: "/previews/macbook-1.gif",
+  },
+  {
+    id: "macos-desktop-original",
+    title: "macOS Desktop Original",
+    category: "Full OS Replica • Window Manager",
+    url: "/preset-sites/macos-desktop-original/index.html",
+    thumbnail: "/previews/macbook-2.gif",
+  },
+  {
+    id: "toonhub",
+    title: "TOONHUB 3D Figurines",
+    category: "Spline 3D • Procedural Characters",
+    url: "/preset-sites/toonhub/index.html",
+    thumbnail: "/previews/toonhub.gif",
+  },
+  {
     id: "acreage-nike",
     title: "Acreage × Nike",
     category: "Next-Gen Footwear • GSAP & Motion",
     url: "/projects",
     thumbnail: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=300&q=80",
-  },
-  {
-    id: "axion-studio",
-    title: "Axion Creative Studio",
-    category: "WebGL Shaders • London Live HUD",
-    url: "/projects",
-    thumbnail: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=300&q=80",
-  },
-  {
-    id: "macos-portfolio",
-    title: "macOS Ventura & Big Sur",
-    category: "OS Replica • 105 Big Sur Icons",
-    url: "/projects",
-    thumbnail: "/preset-sites/macos-portfolio/assets/icons/finder.png",
-  },
-  {
-    id: "bionova",
-    title: "BioNova Health AI",
-    category: "Interactive Canvas • SVG Biometrics",
-    url: "/projects",
-    thumbnail: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=300&q=80",
   },
 ];
 
@@ -360,22 +360,26 @@ export function SiteHeader() {
                     </span>
                     <div className="grid grid-cols-2 gap-2 pt-1">
                       <SheetClose asChild>
-                        <Link
-                          to="/projects"
+                        <a
+                          href="/preset-sites/macos-portfolio/index.html"
+                          target="_blank"
+                          rel="noopener noreferrer"
                           className="p-2 rounded-lg bg-muted/40 hover:bg-muted border border-border/50 text-left transition flex flex-col gap-1"
                         >
-                          <span className="text-xs font-semibold text-foreground line-clamp-1">Acreage × Nike</span>
-                          <span className="text-[10px] text-muted-foreground font-mono">Next-Gen GSAP</span>
-                        </Link>
+                          <span className="text-xs font-semibold text-foreground line-clamp-1">macOS Sonoma</span>
+                          <span className="text-[10px] text-muted-foreground font-mono">Live Demo</span>
+                        </a>
                       </SheetClose>
                       <SheetClose asChild>
-                        <Link
-                          to="/projects"
+                        <a
+                          href="/preset-sites/toonhub/index.html"
+                          target="_blank"
+                          rel="noopener noreferrer"
                           className="p-2 rounded-lg bg-muted/40 hover:bg-muted border border-border/50 text-left transition flex flex-col gap-1"
                         >
-                          <span className="text-xs font-semibold text-foreground line-clamp-1">Axion Studio</span>
-                          <span className="text-[10px] text-muted-foreground font-mono">Shaders</span>
-                        </Link>
+                          <span className="text-xs font-semibold text-foreground line-clamp-1">Toonhub 3D</span>
+                          <span className="text-[10px] text-muted-foreground font-mono">Interactive</span>
+                        </a>
                       </SheetClose>
                     </div>
 

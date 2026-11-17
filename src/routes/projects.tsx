@@ -254,8 +254,18 @@ function ProjectCard({
       <div
         className={`aspect-video bg-gradient-to-br ${bg} relative overflow-hidden flex-shrink-0`}
       >
+        {/* Animated preview GIF / thumbnail cover if available */}
+        {p.thumbnail && (
+          <img
+            src={p.thumbnail}
+            alt={p.name}
+            className="absolute inset-0 w-full h-full object-cover z-0 transition-transform duration-500 group-hover:scale-105"
+            loading="lazy"
+          />
+        )}
+
         {/* Loading shimmer placeholder */}
-        {!iframeLoaded && (
+        {!p.thumbnail && !iframeLoaded && (
           <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-black/60 to-black/90">
             <div className="w-full h-full animate-pulse bg-gradient-to-br from-white/5 to-white/10" />
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 z-10">
@@ -265,8 +275,8 @@ function ProjectCard({
           </div>
         )}
 
-        {/* Lazy-mounted Live Iframe Cover */}
-        {isVisible && !iframeError && (
+        {/* Lazy-mounted Live Iframe Cover (for projects without GIF covers) */}
+        {isVisible && !iframeError && !p.thumbnail && (
           <div
             className={`absolute inset-0 overflow-hidden transition-opacity duration-700 ${
               iframeLoaded ? "opacity-100" : "opacity-0"

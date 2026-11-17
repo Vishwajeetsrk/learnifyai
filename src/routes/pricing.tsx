@@ -1741,7 +1741,7 @@ function PricingPage() {
             ]}
             askNote="Have a custom enterprise training requirement or bulk team query?"
             askLabel="Contact Billing"
-            askHref="mailto:billing@learnifyai.in"
+            askHref="mailto:support.learnifyai@gmail.com"
           />
         </section>
 

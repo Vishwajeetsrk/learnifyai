@@ -69,6 +69,35 @@ export type MegaMenu = {
   imageCaption?: string;
 };
 
+export const PROJECTS_MENU: MegaMenu = {
+  columns: [
+    {
+      eyebrow: "Interactive Preset Sites",
+      links: [
+        { label: "macOS Sonoma & Big Sur", href: "/preset-sites/macos-portfolio/index.html", active: true, badge: "Live Demo" },
+        { label: "macOS Desktop Original", href: "/preset-sites/macos-desktop-original/index.html", badge: "Replica" },
+        { label: "TOONHUB 3D Figurines", href: "/preset-sites/toonhub/index.html", badge: "3D Spline" },
+      ],
+    },
+    {
+      eyebrow: "Code & Showcases",
+      links: [
+        { label: "Explore All 48 Projects", href: "/projects" },
+        { label: "Acreage × Nike Footwear", href: "/projects" },
+        { label: "BioNova Health AI Canvas", href: "/projects" },
+      ],
+    },
+  ],
+  footerLinks: [
+    { label: "Download templates with 1-click source code", href: "/projects" },
+  ],
+  image: {
+    src: "/previews/macbook-1.gif",
+    alt: "macOS Sonoma Interactive Portfolio Demo",
+  },
+  imageCaption: "Live interactive projects with 60fps animations",
+};
+
 export const SOLUTIONS_MENU: MegaMenu = {
   columns: [
     {
@@ -153,12 +182,14 @@ export const RESOURCES_MENU: MegaMenu = {
 };
 
 export const MEGA_MENUS: Record<string, MegaMenu> = {
+  Projects: PROJECTS_MENU,
   Solutions: SOLUTIONS_MENU,
   Pricing: PRICING_MENU,
   Resources: RESOURCES_MENU,
 };
 
 export const NAV_ITEMS = [
+  { label: "Projects", hasMenu: true },
   { label: "Solutions", hasMenu: true },
   { label: "Pricing", hasMenu: true },
   { label: "Resources", hasMenu: true },

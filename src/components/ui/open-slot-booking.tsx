@@ -877,7 +877,7 @@ export default function OpenSlotBooking({
   headline = "Accelerate Your Tech Trajectory.",
   headlineAccent = "Book 1-on-1 Mentorship.",
   description = "Reserve a dedicated session with vetted engineering directors, staff architects, and career strategists. Pick an open slot synced live with our calendars.",
-  altContact = { label: "Need corporate group mentoring? contact@learnifyai.in", href: "mailto:contact@learnifyai.in" },
+  altContact = { label: "Need corporate group mentoring? support.learnifyai@gmail.com", href: "mailto:support.learnifyai@gmail.com" },
   host = {
     name: "Vishwajeet",
     role: "Principal Distributed Systems Architect",
@@ -1384,7 +1384,7 @@ export default function OpenSlotBooking({
       title: meetingTitle + " with " + host.name,
       description: `${agenda || ""}\n\n${meetDetails}\n\nAttendee: ${name} (${email})\nNotes: ${note || "None"}`,
       location: generatedLink || location,
-      uid: s.start + "-" + uid + "@learnifyai.in",
+      uid: s.start + "-" + uid + "@learnifyai.com",
     })
     const url = URL.createObjectURL(new Blob([ics], { type: "text/calendar;charset=utf-8" }))
     const a = document.createElement("a")

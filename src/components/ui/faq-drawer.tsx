@@ -97,7 +97,7 @@ const DEFAULTS: Required<FaqDrawerOptions> = Object.freeze({
   single: true,
   askNote: "Have a specific question not in the drawer? Our academic support council is ready to help.",
   askLabel: "Ask Council",
-  askHref: "mailto:support@learnifyai.in",
+  askHref: "mailto:support.learnifyai@gmail.com",
   finish: "auto",
   cards: DEFAULT_LEARNIFY_CARDS,
 });

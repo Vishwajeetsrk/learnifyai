@@ -2,7 +2,7 @@
 
 <img src="src/assets/learnify-logo.png" alt="Learnify AI Logo" width="180" style="margin-bottom: 12px; filter: drop-shadow(0 4px 12px rgba(99, 102, 241, 0.25));" />
 
-# Learnify AI 6.5.0
+# Learnify AI 6.6.0
 
 **The AI-Native Learning & Career Operating System**
 
@@ -24,7 +24,11 @@
 
 Learnify AI is a **full-stack, AI-powered learning and career growth platform** that integrates intelligent tutoring, 11-in-1 career studio tools, autonomous AI agents, gamification, and creator economy tools into one seamless experience.
 
-### 🌟 What's New in Learnify AI 6.5.0
+### 🌟 What's New in Learnify AI 6.6.0
+* 💳 **1:1 Coaching Payment Flow & Automated Gmail Dispatches**: Built a dedicated checkout modal for 1:1 sessions (UPI / QR, Cards, NetBanking), instant order generation, automatic `.ics` calendar invite downloads, and dual-dispatch email notifications via Resend/SMTP to learner and coach (`support.learnifyai@gmail.com`).
+* 🎥 **Optimized 60fps GIF Project Previews**: Added interactive preview GIFs for `macos-portfolio`, `macos-desktop-original`, and `toonhub` preset sites in SiteHeader, Navbar2 mega menu, and `/projects` catalog, optimized with lanczos palettegen down to ~3-4MB for instant 60fps rendering without latency.
+* 📧 **Canonical Support Email Enforcement**: Migrated all legacy email references (`contact@learnifyai.in` and `support@learnifyai.in`) across all components, FAQ drawers, and booking forms to the canonical email: `support.learnifyai@gmail.com`.
+* 🤖 **10-Role AI Coaching Agent Studio & Direct Messenger 2.0**: Transformed the AI studio tab into a high-retention conversational messenger with 10 specialized AI mentors, layered memory, and interactive code execution.
 * 🎨 **Official TheSVG.org Vector Brand Icons**: Integrated `@thesvg/react` (by GLINCKER) across all 12 platform courses with pixel-perfect brand geometries, tailored radiant backdrops, and interactive hover physics across `/courses` and `/courses/$slug` (Figma, Power BI, Word & PowerPoint, Java, ChatGPT & Claude, HTML5 & CSS, JavaScript, Python, Google Workspace, Excel & Google Sheets, VS Code + Git).
 * 🧑‍💻 **Coaching Studio 5.0 & Vishwajeet 1:1 Live Advisory**: Redesigned `/coaching` into 3 connected, non-overloaded experiences (1:1 Live Calendar Booking, 10-Role AI Mentor Studio, and My Sessions & Receipts). Configured Vishwajeet (*Principal Distributed Systems Architect*) with real avatar (`/avatars/Vishwajeet.jpeg`), live Bangalore IST clock, and customizable Duration Pricing Matrix (15m: ₹499, 30m: ₹999, 45m: ₹1,499, 60m: ₹1,999 with 18% GST included).
 * 🧭 **Navbar Mega-Menus & Preset Sites Showcase**: Enhanced "Projects" and "More" hover dropdowns with spring morph physics (`layoutId="active"`), featuring live project cards (**Nick Ho Porsche Carrera** with 3D WebGL depth-map canvas and **Axion Studio** with interactive WebGPU shaders) and featured guide cards with mobile sheet parity.

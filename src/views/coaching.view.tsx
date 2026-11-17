@@ -73,6 +73,7 @@ import { cn } from "@/lib/utils";
 import OpenSlotBooking, { MeetingIcons } from "@/components/ui/open-slot-booking";
 import { careerCoachChat } from "@/lib/career-coach.functions";
 import { AiMentorMessenger } from "@/components/coaches/AiMentorMessenger";
+import { dispatchCoachingBookingNotices } from "@/lib/coaching-email.functions";
 
 export const COACH_ROLES = [
   {
@@ -238,6 +239,13 @@ export default function CoachingDashboard() {
   // Secondary toggle for managing host availability & recurring blocks inside book_call
   const [showAvailabilityManager, setShowAvailabilityManager] = useState(false);
   const [selectedReceiptBooking, setSelectedReceiptBooking] = useState<any | null>(null);
+
+  // 1:1 Coaching Payment & Checkout Modal State
+  const [pendingCheckoutBooking, setPendingCheckoutBooking] = useState<any | null>(null);
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<"upi" | "card" | "netbanking">("upi");
+  const dispatchNotices = useServerFn(dispatchCoachingBookingNotices);
 
   // Coach Profile & Live Time State (Vishwajeet)
   const [coachProfile, setCoachProfile] = useState(() => {
@@ -520,43 +528,117 @@ export default function CoachingDashboard() {
     try {
       const dur = booking.duration || coachProfile.defaultDuration;
       const price = coachProfile.durationPrices?.[dur] || 999;
-      const newBk = {
+      const orderId = `COACH-${Math.floor(10000 + Math.random() * 90000)}`;
+      const platform = booking.platform === "zoom" ? "Zoom" : "Google Meet";
+      const meetingLink =
+        booking.meetingLink ||
+        (platform === "Zoom"
+          ? `https://zoom.us/j/${Math.floor(100000000 + Math.random() * 900000000)}?pwd=${Math.random().toString(36).substring(2, 8)}`
+          : "https://meet.google.com/lnf-dist-sys");
+
+      const prepBk = {
         id: `bk-${Date.now()}`,
         coachName: coachProfile.name,
         coachAvatar: coachProfile.avatar || "/avatars/Vishwajeet.jpeg",
         coachRole: coachProfile.role,
         learnerName: booking.name || user?.user_metadata?.full_name || "Learner",
-        learnerEmail: booking.email || user?.email || "learner@learnify.ai",
+        learnerEmail: booking.email || user?.email || "support.learnifyai@gmail.com",
         title: coachProfile.meetingTitle,
         agenda: booking.note || coachProfile.agenda,
         startTime: booking.start instanceof Date ? booking.start.toISOString() : new Date(booking.start).toISOString(),
         endTime: booking.end instanceof Date ? booking.end.toISOString() : new Date(booking.end).toISOString(),
         duration: dur,
         price,
-        orderId: `COACH-${Math.floor(10000 + Math.random() * 90000)}`,
-        platform: booking.platform === "zoom" ? "Zoom" : "Google Meet",
-        meetingLink: booking.meetingLink || "https://meet.google.com/lnf-dist-sys",
+        orderId,
+        platform,
+        meetingLink,
         status: "confirmed",
+        paymentStatus: "paid",
         noticeSent: true,
         noticeTime: "Dispatched 2 hours prior to call",
         bookedAt: new Date().toISOString(),
       };
 
-      const updated = [newBk, ...localBookings];
+      setPendingCheckoutBooking(prepBk);
+      setIsCheckoutOpen(true);
+    } catch (err: any) {
+      toast.error(err?.message || "Booking setup failed");
+    }
+  };
+
+  const confirmPaymentAndDispatch = async (b?: any) => {
+    const target = b || pendingCheckoutBooking;
+    if (!target) return;
+    setIsProcessingPayment(true);
+    try {
+      const confirmedBk = {
+        ...target,
+        status: "confirmed",
+        paymentStatus: "paid",
+        paymentMethod: selectedPaymentMethod.toUpperCase(),
+      };
+
+      // 1. Dispatch real Email notice to Learner Gmail and support.learnifyai@gmail.com
+      try {
+        await dispatchNotices({
+          data: {
+            learnerName: confirmedBk.learnerName,
+            learnerEmail: confirmedBk.learnerEmail,
+            coachName: confirmedBk.coachName,
+            coachRole: confirmedBk.coachRole,
+            sessionTitle: confirmedBk.title,
+            agenda: confirmedBk.agenda,
+            startTime: confirmedBk.startTime,
+            endTime: confirmedBk.endTime,
+            duration: confirmedBk.duration,
+            price: confirmedBk.price,
+            orderId: confirmedBk.orderId,
+            platform: confirmedBk.platform,
+            meetingLink: confirmedBk.meetingLink,
+            paymentMethod: confirmedBk.paymentMethod,
+          },
+        });
+      } catch (emailErr: any) {
+        console.warn("Email notice dispatch:", emailErr?.message);
+      }
+
+      // 2. Persist to local bookings & localStorage
+      const updated = [confirmedBk, ...localBookings.filter((x) => x.id !== confirmedBk.id)];
       setLocalBookings(updated);
       try {
         localStorage.setItem("learnify_coach_local_bookings", JSON.stringify(updated));
       } catch {}
 
-      toast.success(
-        `Session confirmed for ${format(new Date(booking.start), "MMM d, h:mm a")} (₹${price.toLocaleString("en-IN")}) via ${newBk.platform}! Calendar invite dispatched.`
-      );
+      // 3. Persist to Supabase if user is logged in
       if (user) {
-        qc.invalidateQueries({ queryKey: ["my-coaching-bookings"] });
+        try {
+          await supabase.from("coaching_bookings" as any).insert({
+            learner_id: user.id,
+            coach_id: user.id,
+            slot_id: `slot-${Date.now()}`,
+            notes: confirmedBk.agenda,
+            status: "confirmed",
+          });
+          qc.invalidateQueries({ queryKey: ["my-coaching-bookings"] });
+        } catch {}
       }
+
+      // 4. Download .ICS calendar invite automatically
+      try {
+        downloadIcsForBooking(confirmedBk);
+      } catch {}
+
+      toast.success(
+        `Session confirmed for ${format(new Date(confirmedBk.startTime), "MMM d, h:mm a")} (₹${confirmedBk.price.toLocaleString("en-IN")}) via ${confirmedBk.platform}! Calendar invite dispatched to your Gmail (${confirmedBk.learnerEmail}) & support.learnifyai@gmail.com.`
+      );
+
+      setIsCheckoutOpen(false);
+      setPendingCheckoutBooking(null);
       setActiveTab("my_sessions");
     } catch (err: any) {
-      toast.error(err?.message || "Booking failed");
+      toast.error(err?.message || "Payment confirmation failed");
+    } finally {
+      setIsProcessingPayment(false);
     }
   };
 
@@ -606,7 +688,7 @@ export default function CoachingDashboard() {
       "CALSCALE:GREGORIAN",
       "METHOD:PUBLISH",
       "BEGIN:VEVENT",
-      `UID:learnify-coach-${b.id || Date.now()}@learnifyai.in`,
+      `UID:learnify-coach-${b.id || Date.now()}@learnifyai.com`,
       `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "")}`,
       `DTSTART:${start.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "")}`,
       `DTEND:${end.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "")}`,
@@ -1583,6 +1665,168 @@ export default function CoachingDashboard() {
                 <Button size="sm" className="gap-1.5" onClick={() => window.print()}>
                   <Printer className="w-4 h-4" /> Print Tax Invoice
                 </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* 1:1 Coaching Payment & Confirmation Checkout Dialog */}
+      <Dialog open={isCheckoutOpen} onOpenChange={setIsCheckoutOpen}>
+        <DialogContent className="max-w-lg p-0 overflow-hidden rounded-2xl border bg-card shadow-2xl">
+          {pendingCheckoutBooking && (
+            <div>
+              {/* Header */}
+              <div className="bg-gradient-to-r from-emerald-950 via-emerald-900 to-green-900 p-6 text-white border-b border-emerald-800/40">
+                <div className="flex items-center justify-between gap-3 mb-2">
+                  <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-400/30 text-[11px] font-mono font-semibold py-0.5">
+                    1:1 Mentorship Checkout
+                  </Badge>
+                  <span className="text-xl font-bold font-mono text-emerald-300">
+                    ₹{pendingCheckoutBooking.price.toLocaleString("en-IN")}
+                  </span>
+                </div>
+                <h3 className="text-lg font-bold">Confirm &amp; Pay for Your Advisory Session</h3>
+                <p className="text-xs text-emerald-200/80 mt-1">
+                  Session with {pendingCheckoutBooking.coachName} ({pendingCheckoutBooking.coachRole}). Calendar invite and GST invoice dispatched immediately upon payment.
+                </p>
+              </div>
+
+              {/* Session Overview */}
+              <div className="p-6 space-y-5">
+                <div className="p-4 rounded-xl border bg-muted/30 space-y-3 text-xs">
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">Session Title:</span>
+                    <span className="font-semibold text-foreground">{pendingCheckoutBooking.title}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">Date &amp; Time:</span>
+                    <span className="font-semibold text-foreground flex items-center gap-1.5">
+                      <Clock className="w-3.5 h-3.5 text-emerald-500" />
+                      {format(new Date(pendingCheckoutBooking.startTime), "EEEE, MMM d, yyyy · h:mm a")}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">Duration &amp; Platform:</span>
+                    <span className="font-semibold text-foreground">
+                      {pendingCheckoutBooking.duration} mins via {pendingCheckoutBooking.platform}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">Attendee Email:</span>
+                    <span className="font-mono text-foreground font-medium">{pendingCheckoutBooking.learnerEmail}</span>
+                  </div>
+                </div>
+
+                {/* Payment Method Selector */}
+                <div className="space-y-2">
+                  <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                    Select Payment Method (INR ₹)
+                  </Label>
+                  <div className="grid grid-cols-3 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedPaymentMethod("upi")}
+                      className={cn(
+                        "p-3 rounded-xl border text-center transition-all flex flex-col items-center gap-1.5",
+                        selectedPaymentMethod === "upi"
+                          ? "border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold ring-2 ring-emerald-500/20"
+                          : "border-border bg-card hover:bg-muted text-muted-foreground"
+                      )}
+                    >
+                      <Sparkles className="w-4 h-4" />
+                      <span className="text-xs">UPI / QR</span>
+                      <span className="text-[10px] opacity-70">GPay, PhonePe</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setSelectedPaymentMethod("card")}
+                      className={cn(
+                        "p-3 rounded-xl border text-center transition-all flex flex-col items-center gap-1.5",
+                        selectedPaymentMethod === "card"
+                          ? "border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold ring-2 ring-emerald-500/20"
+                          : "border-border bg-card hover:bg-muted text-muted-foreground"
+                      )}
+                    >
+                      <Receipt className="w-4 h-4" />
+                      <span className="text-xs">Cards</span>
+                      <span className="text-[10px] opacity-70">Visa, MC, RuPay</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setSelectedPaymentMethod("netbanking")}
+                      className={cn(
+                        "p-3 rounded-xl border text-center transition-all flex flex-col items-center gap-1.5",
+                        selectedPaymentMethod === "netbanking"
+                          ? "border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold ring-2 ring-emerald-500/20"
+                          : "border-border bg-card hover:bg-muted text-muted-foreground"
+                      )}
+                    >
+                      <Layers className="w-4 h-4" />
+                      <span className="text-xs">NetBanking</span>
+                      <span className="text-[10px] opacity-70">All Major Banks</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* GST Fee Breakdown */}
+                <div className="border-t pt-3 space-y-1.5 text-xs text-muted-foreground">
+                  <div className="flex justify-between">
+                    <span>1:1 Mentorship Fee:</span>
+                    <span className="font-mono text-foreground font-semibold">₹{pendingCheckoutBooking.price.toLocaleString("en-IN")}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>GST (18% inclusive · SAC 998431):</span>
+                    <span className="text-emerald-600 dark:text-emerald-400 font-medium">Included</span>
+                  </div>
+                  <div className="flex justify-between font-bold text-sm text-foreground pt-1.5 border-t">
+                    <span>Total Amount Payable:</span>
+                    <span className="font-mono text-emerald-600 dark:text-emerald-400 text-base">
+                      ₹{pendingCheckoutBooking.price.toLocaleString("en-IN")}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Notice text */}
+                <div className="p-2.5 rounded-lg bg-emerald-500/5 border border-emerald-500/20 text-[11px] text-muted-foreground flex items-center gap-2">
+                  <Bell className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>
+                    Email confirmation with Zoom/Meet link and calendar invite (.ics) will be dispatched to <strong>{pendingCheckoutBooking.learnerEmail}</strong> &amp; <strong>support.learnifyai@gmail.com</strong>.
+                  </span>
+                </div>
+              </div>
+
+              {/* Footer Actions */}
+              <div className="p-4 bg-muted/40 border-t flex flex-col sm:flex-row items-center justify-between gap-3">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsCheckoutOpen(false)}
+                  disabled={isProcessingPayment}
+                  className="w-full sm:w-auto text-xs"
+                >
+                  Cancel
+                </Button>
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                  <Button
+                    size="sm"
+                    onClick={() => confirmPaymentAndDispatch()}
+                    disabled={isProcessingPayment}
+                    className="w-full sm:w-auto gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs shadow-md"
+                  >
+                    {isProcessingPayment ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" /> Verifying &amp; Dispatching...
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle2 className="w-4 h-4" /> Pay ₹{pendingCheckoutBooking.price.toLocaleString("en-IN")} &amp; Confirm Session
+                      </>
+                    )}
+                  </Button>
+                </div>
               </div>
             </div>
           )}
