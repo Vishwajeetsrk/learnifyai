@@ -5,6 +5,8 @@
     "title": "Acreage × Nike — Next-Gen Footwear",
     "description": "Dual sticky fullscreen sections with GSAP pill BubbleMenu, mouse-trail SpotlightReveal over react-player video, glass 78% stat card, and Nike swoosh…",
     "path": "/preset-sites/acreage-nike/index.html",
+    "thumbnail": "/previews/nike.gif",
+    "preview_gif": "/previews/nike.gif",
     "course_modules": [
       {
         "step": 1,

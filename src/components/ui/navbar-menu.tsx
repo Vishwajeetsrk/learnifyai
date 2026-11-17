@@ -1,8 +1,12 @@
 "use client";
 import React from "react";
-import { motion, type Transition } from "framer-motion";
+// [Laggy Framer Motion layoutId spring physics commented out for 60fps cross-device performance across Mac, PC, and Mobile]
+// import { motion, type Transition } from "framer-motion";
 import { Link } from "@tanstack/react-router";
+import { cn } from "@/lib/utils";
 
+/*
+// Commented out: Heavy layoutId spring physics causing frame drops on Mac and Mobile
 const transition: Transition = {
   type: "spring",
   mass: 0.5,
@@ -11,6 +15,7 @@ const transition: Transition = {
   restDelta: 0.001,
   restSpeed: 0.001,
 };
+*/
 
 export const MenuItem = ({
   setActive,
@@ -25,35 +30,24 @@ export const MenuItem = ({
 }) => {
   return (
     <div onMouseEnter={() => setActive(item)} className="relative py-1">
-      <motion.div
-        transition={{ duration: 0.2 }}
-        className="cursor-pointer text-muted-foreground hover:text-foreground text-sm font-medium transition-colors flex items-center gap-1 select-none"
-      >
+      <div className="cursor-pointer text-muted-foreground hover:text-foreground text-sm font-medium transition-colors duration-150 flex items-center gap-1 select-none">
         <span>{item}</span>
-      </motion.div>
+      </div>
       {active !== null && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.85, y: 8 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={transition}
+        <div
+          className={cn(
+            "absolute top-full left-1/2 transform -translate-x-1/2 pt-2 z-50 transition-all duration-150 ease-out",
+            active === item
+              ? "opacity-100 scale-100 translate-y-0 pointer-events-auto visible"
+              : "opacity-0 scale-95 -translate-y-1 pointer-events-none invisible"
+          )}
         >
           {active === item && (
-            <div className="absolute top-full left-1/2 transform -translate-x-1/2 pt-2 z-50 before:content-[''] before:absolute before:top-0 before:inset-x-0 before:h-3">
-              <motion.div
-                transition={transition}
-                layoutId="active" // layoutId ensures smooth animation
-                className="bg-card/95 text-card-foreground dark:bg-black/95 backdrop-blur-md rounded-2xl overflow-hidden border border-border/80 shadow-2xl"
-              >
-                <motion.div
-                  layout // layout ensures smooth animation
-                  className="w-max h-full p-4"
-                >
-                  {children}
-                </motion.div>
-              </motion.div>
+            <div className="bg-card/95 text-card-foreground dark:bg-black/95 backdrop-blur-md rounded-2xl overflow-hidden border border-border/80 shadow-2xl p-4 w-max">
+              {children}
             </div>
           )}
-        </motion.div>
+        </div>
       )}
     </div>
   );

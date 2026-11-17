@@ -83,7 +83,7 @@ export const PROJECTS_MENU: MegaMenu = {
       eyebrow: "Code & Showcases",
       links: [
         { label: "Explore All 48 Projects", href: "/projects" },
-        { label: "Acreage × Nike Footwear", href: "/projects" },
+        { label: "Acreage × Nike Footwear", href: "/preset-sites/acreage-nike/index.html", badge: "GSAP 3D" },
         { label: "BioNova Health AI Canvas", href: "/projects" },
       ],
     },

@@ -59,8 +59,8 @@ const FEATURED_PROJECT_PREVIEWS = [
     id: "acreage-nike",
     title: "Acreage × Nike",
     category: "Next-Gen Footwear • GSAP & Motion",
-    url: "/projects",
-    thumbnail: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=300&q=80",
+    url: "/preset-sites/acreage-nike/index.html",
+    thumbnail: "/previews/nike.gif",
   },
 ];
 
@@ -185,35 +185,32 @@ export function SiteHeader() {
                     <div className="flex items-center gap-2">
                       <Sparkles className="w-3.5 h-3.5 text-primary" />
                       <span className="font-display font-bold text-xs uppercase tracking-wider text-foreground">Featured Live Projects</span>
-                      <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-primary/15 text-primary">49 Live</span>
+                      <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-primary/15 text-primary">48 Live</span>
                     </div>
                     <Link to="/projects" className="text-[11px] font-semibold text-primary hover:underline flex items-center gap-1">
                       All Projects <ArrowRight className="w-3 h-3" />
                     </Link>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {/* 4 Featured Project Cards: GIF only, opens fullscreen in new tab */}
+                  <div className="grid grid-cols-2 gap-2.5">
                     {FEATURED_PROJECT_PREVIEWS.map((p) => (
-                      <ProductItem
+                      <a
                         key={p.id}
-                        title={p.title}
-                        description={p.category}
                         href={p.url}
-                        src={p.thumbnail}
-                        badge="Live"
-                      />
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group relative block aspect-video rounded-xl overflow-hidden border border-border/70 hover:border-primary/60 transition-all duration-200 shadow-sm hover:shadow-md bg-muted/30"
+                        title={p.title}
+                      >
+                        <img
+                          src={p.thumbnail}
+                          alt={p.title}
+                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                          loading="lazy"
+                        />
+                      </a>
                     ))}
-                  </div>
-
-                  <div className="mt-2.5 pt-2 border-t border-border/60 flex items-center justify-between px-2 text-[11px]">
-                    <Link to="/projects" className="text-muted-foreground hover:text-foreground font-medium flex items-center gap-1 hover:text-primary transition-colors">
-                      <Layers className="w-3.5 h-3.5 text-sky-400" />
-                      Community Showcase
-                    </Link>
-                    <Link to="/projects" className="text-muted-foreground hover:text-foreground font-medium flex items-center gap-1 hover:text-primary transition-colors">
-                      <Laptop className="w-3.5 h-3.5 text-purple-400" />
-                      Interactive Templates
-                    </Link>
                   </div>
                 </div>
               </MenuItem>
@@ -356,31 +353,27 @@ export function SiteHeader() {
 
                     <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground/60 px-1 pt-3 border-t border-border/30 flex items-center gap-1.5">
                       <Sparkles className="w-3 h-3 text-primary" />
-                      Featured Projects
+                      Featured Live Projects (4)
                     </span>
                     <div className="grid grid-cols-2 gap-2 pt-1">
-                      <SheetClose asChild>
-                        <a
-                          href="/preset-sites/macos-portfolio/index.html"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="p-2 rounded-lg bg-muted/40 hover:bg-muted border border-border/50 text-left transition flex flex-col gap-1"
-                        >
-                          <span className="text-xs font-semibold text-foreground line-clamp-1">macOS Sonoma</span>
-                          <span className="text-[10px] text-muted-foreground font-mono">Live Demo</span>
-                        </a>
-                      </SheetClose>
-                      <SheetClose asChild>
-                        <a
-                          href="/preset-sites/toonhub/index.html"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="p-2 rounded-lg bg-muted/40 hover:bg-muted border border-border/50 text-left transition flex flex-col gap-1"
-                        >
-                          <span className="text-xs font-semibold text-foreground line-clamp-1">Toonhub 3D</span>
-                          <span className="text-[10px] text-muted-foreground font-mono">Interactive</span>
-                        </a>
-                      </SheetClose>
+                      {FEATURED_PROJECT_PREVIEWS.map((p) => (
+                        <SheetClose key={p.id} asChild>
+                          <a
+                            href={p.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="group relative aspect-video rounded-lg overflow-hidden border border-border/70 hover:border-primary/60 transition block bg-muted/40 shadow-xs"
+                            title={p.title}
+                          >
+                            <img
+                              src={p.thumbnail}
+                              alt={p.title}
+                              className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                              loading="lazy"
+                            />
+                          </a>
+                        </SheetClose>
+                      ))}
                     </div>
 
                     <SheetClose asChild>
