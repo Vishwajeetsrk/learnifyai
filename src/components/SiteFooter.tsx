@@ -216,7 +216,7 @@ export function SiteFooter() {
         wordmark="LEARNIFY"
         brand="Learnify AI"
         logoUrl={learnifyLogoLight}
-        showBrandText={true}
+        showBrandText={false}
         blurb="Learn smarter. Grow faster. The AI-native learning & career operating system for developers, AI engineers, and modern creators."
         extraBrandContent={extraBrandContent}
         tagline="Hand-drawn intelligence for the builders and learners of tomorrow."
