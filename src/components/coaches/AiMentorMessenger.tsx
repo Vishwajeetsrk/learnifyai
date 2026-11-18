@@ -54,6 +54,8 @@ import {
   Code2,
   MessageSquare,
   Zap,
+  Pin,
+  PinOff,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -90,6 +92,8 @@ import {
 } from "./mentorCustomization";
 import { playBassPulse } from "./speechUtils";
 import { MotionGrid, MotionGridCells } from "@/components/animate-ui/motion-grid";
+import { IconButtonParticles } from "@/components/animate-ui/icon-button";
+import { AutoHeight } from "@/components/animate-ui/auto-height";
 import { startSpeechRecognition, type VoiceRecognitionSession } from "./speechUtils";
 
 export interface ChatMessage {
@@ -214,18 +218,67 @@ export function AiMentorMessenger({
     setMentorConfig(getMentorCustomization(selectedMentor.id));
   }, [selectedMentor.id]);
 
+  // Pinned Mentors State (defaults to Maya Lin & Elena Rostova)
+  const [pinnedMentorIds, setPinnedMentorIds] = useState<string[]>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("learnify_pinned_mentors");
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch {}
+      }
+    }
+    return ["system_architect", "frontend_architect"];
+  });
+
+  const togglePinMentor = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setPinnedMentorIds((prev) => {
+      const isCurrentlyPinned = prev.includes(id);
+      const next = isCurrentlyPinned ? prev.filter((p) => p !== id) : [...prev, id];
+      try {
+        localStorage.setItem("learnify_pinned_mentors", JSON.stringify(next));
+      } catch {}
+      toast.success(isCurrentlyPinned ? "Mentor unpinned" : "Mentor pinned to top");
+      return next;
+    });
+  };
+
   // Refs
   const abortControllerRef = useRef<AbortController | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatScrollContainerRef = useRef<HTMLDivElement>(null);
   const runCareerCoach = useServerFn(careerCoachChat);
 
-  // Load conversations from localStorage on mount
+  // Load conversations from localStorage on mount & clean legacy robotic messages
   useEffect(() => {
     try {
       const stored = localStorage.getItem("learnify_ai_mentor_chats_v2");
       if (stored) {
-        setConversations(JSON.parse(stored));
+        const parsed = JSON.parse(stored);
+        let updated = false;
+        Object.keys(parsed).forEach((mentorId) => {
+          parsed[mentorId] = (parsed[mentorId] || []).map((msg: ChatMessage) => {
+            if (
+              msg.role === "assistant" &&
+              (msg.content.includes("operating at full capacity") ||
+               msg.content.includes("brief glitch on the audio line") ||
+               (msg.content.includes("Chat context reset for") && parsed[mentorId].length <= 2))
+            ) {
+              updated = true;
+              const mentor = MENTORS.find((m) => m.id === mentorId);
+              return {
+                ...msg,
+                content: mentor?.initialMessage || "Hi Vishwajeet! Let's dive into high-leverage architecture and engineering drills today. What challenge are we tackling?",
+              };
+            }
+            return msg;
+          });
+        });
+        setConversations(parsed);
+        if (updated) {
+          localStorage.setItem("learnify_ai_mentor_chats_v2", JSON.stringify(parsed));
+        }
       } else {
         // Initialize default greetings for all 10 mentors
         const initial: Record<string, ChatMessage[]> = {};
@@ -298,6 +351,17 @@ export function AiMentorMessenger({
       return true;
     });
   }, [searchQuery, categoryFilter]);
+
+  // Sorted mentors with pinned at top
+  const sortedMentors = useMemo(() => {
+    return [...filteredMentors].sort((a, b) => {
+      const aPinned = pinnedMentorIds.includes(a.id);
+      const bPinned = pinnedMentorIds.includes(b.id);
+      if (aPinned && !bPinned) return -1;
+      if (!aPinned && bPinned) return 1;
+      return 0;
+    });
+  }, [filteredMentors, pinnedMentorIds]);
 
   // Send message handler with true typing & streaming states
   const handleSendMessage = async (textToSend?: string) => {
@@ -724,7 +788,7 @@ ${customSkillsSummary ? `\nSkill Engine Knowledge Base:\n${customSkillsSummary}`
   };
 
   return (
-    <div className="w-full bg-card border rounded-3xl overflow-hidden shadow-xl flex flex-col h-[750px] max-h-[85vh]">
+    <div className="w-full bg-card border rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl flex flex-col h-[calc(100dvh-140px)] min-h-[580px] max-h-[860px]">
       {/* Mentor Profile Dialog */}
       <MentorProfileDialog
         mentor={selectedMentor}
@@ -741,7 +805,7 @@ ${customSkillsSummary ? `\nSkill Engine Knowledge Base:\n${customSkillsSummary}`
         {/* ============================================================== */}
         <div
           className={cn(
-            "w-full sm:w-80 md:w-88 border-r bg-muted/15 flex flex-col shrink-0 transition-all duration-300",
+            "w-full sm:w-72 lg:w-80 border-r bg-muted/15 flex flex-col shrink-0 transition-all duration-300",
             mobileShowChat ? "hidden sm:flex" : "flex"
           )}
         >
@@ -823,8 +887,9 @@ ${customSkillsSummary ? `\nSkill Engine Knowledge Base:\n${customSkillsSummary}`
           <ScrollArea className="flex-1">
             {messengerTab === "mentors" ? (
               <div className="p-2 space-y-1">
-                {filteredMentors.map((mentor) => {
+                {sortedMentors.map((mentor) => {
                   const isSelected = selectedMentor.id === mentor.id;
+                  const isPinned = pinnedMentorIds.includes(mentor.id);
                   const msgs = conversations[mentor.id] || [];
                   const lastMsg = msgs[msgs.length - 1];
                   const previewText = lastMsg ? lastMsg.content : mentor.specialty;
@@ -854,9 +919,22 @@ ${customSkillsSummary ? `\nSkill Engine Knowledge Base:\n${customSkillsSummary}`
                           <span className="text-xs font-bold text-foreground truncate group-hover:text-primary transition-colors">
                             {mentor.name}
                           </span>
-                          <span className="text-[10px] text-muted-foreground font-mono shrink-0">
-                            {lastMsg ? format(new Date(lastMsg.timestamp), "HH:mm") : "Online"}
-                          </span>
+                          <div className="flex items-center gap-1 shrink-0">
+                            {/* Pin / Unpin Button */}
+                            <span
+                              onClick={(e) => togglePinMentor(mentor.id, e)}
+                              className={cn(
+                                "p-1 rounded-md transition-all hover:bg-muted/80 text-muted-foreground hover:text-foreground cursor-pointer",
+                                isPinned ? "opacity-100 text-primary" : "opacity-0 group-hover:opacity-80"
+                              )}
+                              title={isPinned ? "Unpin Mentor" : "Pin Mentor to Top"}
+                            >
+                              {isPinned ? <PinOff className="w-3 h-3 text-primary" /> : <Pin className="w-3 h-3" />}
+                            </span>
+                            <span className="text-[10px] text-muted-foreground font-mono">
+                              {lastMsg ? format(new Date(lastMsg.timestamp), "HH:mm") : "Online"}
+                            </span>
+                          </div>
                         </div>
 
                         <p className="text-[11px] text-primary/80 font-medium truncate">
@@ -924,8 +1002,8 @@ ${customSkillsSummary ? `\nSkill Engine Knowledge Base:\n${customSkillsSummary}`
           {messengerTab === "mentors" ? (
             <>
               {/* Active Mentor Header */}
-              <div className="h-16 px-4 border-b bg-card flex items-center justify-between gap-3 shrink-0">
-                <div className="flex items-center gap-3 min-w-0">
+              <div className="h-16 px-3 sm:px-4 border-b bg-card flex items-center justify-between gap-2 sm:gap-3 shrink-0">
+                <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1 overflow-hidden">
                   {/* Mobile Back Button */}
                   <Button
                     variant="ghost"
@@ -939,28 +1017,29 @@ ${customSkillsSummary ? `\nSkill Engine Knowledge Base:\n${customSkillsSummary}`
                   {/* Header Mentor Avatar */}
                   <div
                     onClick={() => setProfileDialogOpen(true)}
-                    className="cursor-pointer group flex items-center gap-3 min-w-0"
+                    className="cursor-pointer group flex items-center gap-2.5 min-w-0 flex-1 overflow-hidden"
                   >
                     <MentorAvatar
                       mentor={selectedMentor}
                       size="md"
                       status={isGenerating ? "thinking" : "available"}
                       customColor={mentorConfig.customAvatarColor}
+                      showStatusIndicator={true}
                     />
 
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-bold text-sm text-foreground truncate group-hover:text-primary transition-colors">
+                    <div className="min-w-0 flex-1 flex flex-col justify-center overflow-hidden">
+                      <div className="flex items-center gap-1.5 flex-nowrap min-w-0">
+                        <h3 className="font-bold text-sm text-foreground truncate group-hover:text-primary transition-colors min-w-0">
                           {mentorConfig.customName || selectedMentor.name}
                         </h3>
-                        <Badge variant="outline" className="hidden md:inline-flex text-[10px] py-0 px-1.5 font-bold border-primary/30 text-primary">
+                        <Badge variant="outline" className="hidden xl:inline-flex text-[10px] py-0 px-1.5 font-bold border-primary/30 text-primary shrink-0">
                           {selectedMentor.badge}
                         </Badge>
-                        <span className="inline-flex items-center gap-1 text-[10px] text-emerald-500 font-semibold font-mono">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> AI Mentor · Available
+                        <span className="hidden md:inline-flex items-center gap-1 text-[10px] text-emerald-500 font-semibold font-mono shrink-0">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Available
                         </span>
                       </div>
-                      <p className="text-[11px] text-muted-foreground truncate">
+                      <p className="text-[11px] text-muted-foreground truncate min-w-0">
                         {mentorConfig.customTitle || selectedMentor.title}
                       </p>
                     </div>
@@ -968,14 +1047,14 @@ ${customSkillsSummary ? `\nSkill Engine Knowledge Base:\n${customSkillsSummary}`
                 </div>
 
                 {/* Header Action Controls */}
-                <div className="flex items-center gap-1.5 shrink-0">
+                <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
                   {/* Coaching Mode Selector Dropdown */}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button
                         variant="outline"
                         size="sm"
-                        className="h-8 text-xs font-semibold gap-1.5 rounded-xl border-border/80"
+                        className="h-8 text-xs font-semibold gap-1 sm:gap-1.5 rounded-xl border-border/80 px-2 sm:px-2.5"
                       >
                         {(() => {
                           const IconComp = COACHING_MODES.find((m) => m.id === activeMode)?.icon || MessageSquare;
@@ -1020,7 +1099,7 @@ ${customSkillsSummary ? `\nSkill Engine Knowledge Base:\n${customSkillsSummary}`
                     variant="outline"
                     size="sm"
                     onClick={() => setVoiceCallDialogOpen(true)}
-                    className="h-8 text-xs font-semibold gap-1.5 rounded-xl border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10 cursor-pointer"
+                    className="h-8 text-xs font-semibold gap-1 sm:gap-1.5 rounded-xl border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10 px-2 sm:px-2.5 cursor-pointer shrink-0"
                     title="Start 1:1 Voice Call with AI Mentor"
                   >
                     <Phone className="w-3.5 h-3.5 text-emerald-500" />
@@ -1032,11 +1111,11 @@ ${customSkillsSummary ? `\nSkill Engine Knowledge Base:\n${customSkillsSummary}`
                     variant="outline"
                     size="sm"
                     onClick={() => setUpgradeDialogOpen(true)}
-                    className="h-8 text-xs font-semibold gap-1.5 rounded-xl border-primary/30 text-primary hover:bg-primary/10 cursor-pointer"
+                    className="h-8 text-xs font-semibold gap-1 sm:gap-1.5 rounded-xl border-primary/30 text-primary hover:bg-primary/10 px-2 sm:px-2.5 cursor-pointer shrink-0"
                     title="Customize Memory & Skills (Gmail, Docs, Sheets, Slides)"
                   >
                     <Sliders className="w-3.5 h-3.5" />
-                    <span className="hidden md:inline">Plugins & Skills</span>
+                    <span className="hidden xl:inline">Plugins & Skills</span>
                   </Button>
 
                   {/* View Profile */}
@@ -1181,9 +1260,9 @@ ${customSkillsSummary ? `\nSkill Engine Knowledge Base:\n${customSkillsSummary}`
                             </ReactMarkdown>
                           </div>
 
-                          {/* Interactive Artifact Card (if generated) */}
+                          {/* Interactive Artifact Card (if generated with AutoHeight) */}
                           {msg.artifact && (
-                            <div className="mt-3 p-3 rounded-xl bg-muted/40 border border-primary/20 space-y-2">
+                            <AutoHeight deps={[msg.artifact.content]} className="mt-3 p-3 rounded-xl bg-muted/40 border border-primary/20 space-y-2">
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-1.5 text-xs font-bold text-foreground">
                                   <Layers className="w-3.5 h-3.5 text-primary" />
@@ -1215,7 +1294,7 @@ ${customSkillsSummary ? `\nSkill Engine Knowledge Base:\n${customSkillsSummary}`
                                   <Play className="w-3 h-3" /> View In Sandbox
                                 </Button>
                               </div>
-                            </div>
+                            </AutoHeight>
                           )}
 
                           {/* Working Interactive Plugin Action Cards (Gmail, Docs, Sheets, Slides) */}
@@ -1305,12 +1384,13 @@ ${customSkillsSummary ? `\nSkill Engine Knowledge Base:\n${customSkillsSummary}`
                                     key={react.id}
                                     onClick={() => handleToggleReaction(msg.id, react.id)}
                                     className={cn(
-                                      "p-1 rounded text-xs hover:bg-muted transition-colors flex items-center justify-center cursor-pointer",
+                                      "relative p-1 rounded text-xs hover:bg-muted transition-colors flex items-center justify-center cursor-pointer",
                                       hasReacted ? "bg-primary/20 text-primary font-bold" : "opacity-50 hover:opacity-100 text-muted-foreground"
                                     )}
                                     title={react.label}
                                   >
-                                    <IconComp className={cn("w-3 h-3", hasReacted && "fill-primary text-primary")} />
+                                    <IconComp className={cn("w-3 h-3 transition-transform", hasReacted && "fill-primary text-primary scale-110")} />
+                                    {hasReacted && <IconButtonParticles className="text-primary pointer-events-none" />}
                                   </button>
                                 );
                               })}

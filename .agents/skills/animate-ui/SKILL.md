@@ -96,33 +96,71 @@ import {
 </Select>
 ```
 
-### 3. Typewriter Code Block
-Animated code display with copy confirmation:
+### 3. Pinned List with Smooth Group Gliding
+Items smoothly glide between pinned and unpinned sections using spring physics:
 
 ```tsx
 import {
-  CodeBlock,
-  CodeBlockHeader,
-  CodeBlockTitle,
-  CodeBlockActions,
-  CodeBlockCopyButton,
-  CodeBlockContent,
-  CodeBlockLine,
-} from "@/components/animate-ui/code-block";
+  PinnedList,
+  PinnedListItem,
+  PinnedListItems,
+  PinnedListLabel,
+  PinnedListPinned,
+  PinnedListTrigger,
+  PinnedListUnpinned,
+} from "@/components/animate-ui/pinned-list";
 
-<CodeBlock>
-  <CodeBlockHeader>
-    <CodeBlockTitle>SystemDesign.ts</CodeBlockTitle>
-    <CodeBlockActions>
-      <CodeBlockCopyButton value={codeText} />
-    </CodeBlockActions>
-  </CodeBlockHeader>
-  <CodeBlockContent lineNumbers>
-    {codeLines.map((line, idx) => (
-      <CodeBlockLine key={idx}>{line}</CodeBlockLine>
-    ))}
-  </CodeBlockContent>
-</CodeBlock>
+<PinnedList defaultItems={items}>
+  <PinnedListPinned>
+    <PinnedListLabel>Pinned Mentors</PinnedListLabel>
+    <PinnedListItems>
+      {(item) => <Row item={item} />}
+    </PinnedListItems>
+  </PinnedListPinned>
+  <PinnedListUnpinned>
+    <PinnedListLabel>All Mentors</PinnedListLabel>
+    <PinnedListItems>
+      {(item) => <Row item={item} />}
+    </PinnedListItems>
+  </PinnedListUnpinned>
+</PinnedList>
+```
+
+### 4. Icon Button with Particle Burst
+Expressive button with physics-based particle burst on click:
+
+```tsx
+import { IconButtonParticles } from "@/components/animate-ui/icon-button";
+import { FavouriteIcon } from "@hugeicons/core-free-icons";
+
+<IconButtonParticles
+  icon={FavouriteIcon}
+  aria-label="Favorite Mentor"
+  particleCount={10}
+  onClick={() => handleLike()}
+/>
+```
+
+### 5. Sweeping Highlight Text
+High-contrast animated highlighter marker effect:
+
+```tsx
+import { HighlightText } from "@/components/animate-ui/highlight-text";
+
+<HighlightText color="#FDE047" delay={200}>
+  Staff & Principal Engineers
+</HighlightText>
+```
+
+### 6. Auto-Height Animated Container
+Smoothly interpolates container height as dynamic content expands or contracts:
+
+```tsx
+import { AutoHeight } from "@/components/animate-ui/auto-height";
+
+<AutoHeight deps={[messages.length, activeArtifact]}>
+  <ArtifactCard content={activeArtifact} />
+</AutoHeight>
 ```
 
 ---
@@ -131,4 +169,5 @@ import {
 1. **Always use `@/lib/utils` for `cn`**: Never import `cn` directly from `"cn"`.
 2. **Subpath imports for `@animate-ui/react`**: `@animate-ui/react` exports subpath primitives (e.g. `@animate-ui/react/primitives/radix-ui`, `@animate-ui/react/primitives/base-ui/...`). Do not import from the bare root package.
 3. **Hugeicons integration**: Use `<HugeiconsIcon icon={IconName} strokeWidth={2} />` for smooth icon rendering.
-4. **Clean DOM disposal**: Clean up all intervals, timers, and Web Audio contexts on component unmount.
+4. **Shiki & Heavy Syntax Highlighters**: Keep syntax highlighters dynamically imported on client inside `useEffect`. Mark `shiki` as `ssr.external` to avoid blowing up memory in Nitro server builds.
+5. **Clean DOM disposal**: Clean up all intervals, timers, and Web Audio contexts on component unmount.

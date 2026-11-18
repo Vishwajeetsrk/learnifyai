@@ -73,6 +73,7 @@ import { cn } from "@/lib/utils";
 import OpenSlotBooking, { MeetingIcons } from "@/components/ui/open-slot-booking";
 import { careerCoachChat } from "@/lib/career-coach.functions";
 import { AiMentorMessenger } from "@/components/coaches/AiMentorMessenger";
+import { HighlightText } from "@/components/animate-ui/highlight-text";
 import {
   dispatchCoachingBookingNotices,
   createCoachingRazorpayOrder,
@@ -843,8 +844,8 @@ export default function CoachingDashboard() {
               <Sparkles className="w-3.5 h-3.5" />
               <span>Executive Coaching Studio 5.0</span>
             </div>
-            <h1 className="text-3xl font-display font-semibold tracking-tight text-foreground">
-              Coaching & Mentorship Studio
+            <h1 className="text-2xl sm:text-3xl font-display font-semibold tracking-tight text-foreground">
+              <HighlightText text="Coaching & Mentorship Studio" className="rounded-lg bg-linear-to-r from-emerald-500/15 via-primary/15 to-purple-500/15 px-2 py-0.5 text-2xl sm:text-3xl font-bold dark:from-emerald-500/25 dark:to-purple-500/25" />
             </h1>
             <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
               Direct 1-on-1 mentorship with Staff & Principal Engineers, plus our 10-Role AI Coaching Agent Studio with real-time tool calling and code execution.

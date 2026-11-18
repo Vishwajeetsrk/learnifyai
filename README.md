@@ -2,7 +2,7 @@
 
 <img src="src/assets/learnify-logo.png" alt="Learnify AI Logo" width="180" style="margin-bottom: 12px; filter: drop-shadow(0 4px 12px rgba(99, 102, 241, 0.25));" />
 
-# Learnify AI 6.7.0
+# Learnify AI 6.8.0
 
 **The AI-Native Learning & Career Operating System**
 
@@ -23,6 +23,12 @@
 ## 🎯 What is Learnify AI?
 
 Learnify AI is a **full-stack, AI-powered learning and career growth platform** that integrates intelligent tutoring, 11-in-1 career studio tools, autonomous AI agents, gamification, and creator economy tools into one seamless experience.
+
+### 🌟 What's New in Learnify AI 6.8.0
+* 🚀 **Vercel Build Optimization & Nitro SSR Memory Resolution**: Externalized client-only libraries (`monaco-editor`, `xlsx`, `exceljs`, `jspdf`, `sql.js`, `sandpack`) from SSR, transitioned 3.3MB raw HTML shaders to on-demand browser dynamic imports, eliminated heavy Shiki WebAssembly bundle in favor of zero-WASM `highlight.js`, and unified Motion/Framer-Motion engines. Slashed SSR modules by **92%** (from 9,121 to 761), eliminating the exit code 134 out-of-memory crash.
+* 👀 **Pixel-Perfect Cute Character Avatar (Image 2 Alignment)**: Perfectly matches reference with centered black capsule eyes, top-right white specular catchlights, soft pastel lilac blush discs (`#C4B5FD`), ethereal periwinkle glow halo, and vibrant emerald online badge (`#00C950`). Equipped with interactive mouse gaze tracking across the screen, natural blinking, acoustic bass soundwaves, and dynamic expressions (`happy`, `excited`, `thinking`, `working`).
+* 💬 **AI Mentor Messenger Layout & Header Polish**: Restored sharp, high-leverage architectural greetings, added pinned mentor favorites to top of list, made header action buttons responsive across all screen breakpoints, and suppressed floating support widget collisions on `/coaching` routes.
+* 📦 **Animate UI Integration**: Seamlessly integrated `@animate-ui/react` primitives including `motion-grid`, `pinned-list`, `icon-button`, `highlight-text`, `auto-height`, and `animated-icon` backed by unified `framer-motion`.
 
 ### 🌟 What's New in Learnify AI 6.7.0
 * 🤖 **AI Coaching Agent Studio & Direct Messenger 2.0**: Re-architected `/coaching` AI studio into a social messenger experience with 10 specialized AI mentors, layered memory, and clean mobile-first viewports.

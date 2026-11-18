@@ -212,25 +212,27 @@ export function CuteMentorFace({
 
         {/* Cute Pastel Lavender Blush Cheeks (Image 2: circles flanking the eyes) */}
         <circle
-          cx="26"
+          cx="30"
           cy="53"
           r="8.5"
-          fill={`url(#blush-grad-${uniqueId})`}
+          fill="#C4B5FD"
+          opacity="0.88"
           className="transition-all duration-300"
           style={{
-            transform: currentExpr === "happy" || currentExpr === "excited" ? "scale(1.15)" : "scale(1)",
-            transformOrigin: "26px 53px",
+            transform: currentExpr === "happy" || currentExpr === "excited" ? "scale(1.18)" : "scale(1)",
+            transformOrigin: "30px 53px",
           }}
         />
         <circle
-          cx="74"
+          cx="70"
           cy="53"
           r="8.5"
-          fill={`url(#blush-grad-${uniqueId})`}
+          fill="#C4B5FD"
+          opacity="0.88"
           className="transition-all duration-300"
           style={{
-            transform: currentExpr === "happy" || currentExpr === "excited" ? "scale(1.15)" : "scale(1)",
-            transformOrigin: "74px 53px",
+            transform: currentExpr === "happy" || currentExpr === "excited" ? "scale(1.18)" : "scale(1)",
+            transformOrigin: "70px 53px",
           }}
         />
 
@@ -242,24 +244,24 @@ export function CuteMentorFace({
           {isBlinking ? (
             /* BLINK: Closed cute horizontal slits */
             <>
-              <line x1="33" y1="46" x2="43" y2="46" stroke="#0F172A" strokeWidth="3.5" strokeLinecap="round" />
-              <line x1="57" y1="46" x2="67" y2="46" stroke="#0F172A" strokeWidth="3.5" strokeLinecap="round" />
+              <line x1="40" y1="46" x2="48.5" y2="46" stroke="#0F172A" strokeWidth="3.4" strokeLinecap="round" />
+              <line x1="51.5" y1="46" x2="60" y2="46" stroke="#0F172A" strokeWidth="3.4" strokeLinecap="round" />
             </>
           ) : currentExpr === "happy" ? (
             /* HAPPY: Joyful upward curve arcs (^ ^) */
             <>
               <path
-                d="M 32 49 Q 38 39 44 49"
+                d="M 40 48 Q 44.8 39 49.5 48"
                 fill="none"
                 stroke="#0F172A"
-                strokeWidth="4"
+                strokeWidth="3.8"
                 strokeLinecap="round"
               />
               <path
-                d="M 56 49 Q 62 39 68 49"
+                d="M 50.5 48 Q 55.2 39 60 48"
                 fill="none"
                 stroke="#0F172A"
-                strokeWidth="4"
+                strokeWidth="3.8"
                 strokeLinecap="round"
               />
             </>
@@ -267,68 +269,68 @@ export function CuteMentorFace({
             /* EXCITED: Joyful arc eyes with sparkling stars */
             <>
               <path
-                d="M 31 49 Q 38 37 45 49"
+                d="M 40 48 Q 44.8 37 49.5 48"
                 fill="none"
                 stroke="#0F172A"
-                strokeWidth="4.2"
+                strokeWidth="4"
                 strokeLinecap="round"
               />
               <path
-                d="M 55 49 Q 62 37 69 49"
+                d="M 50.5 48 Q 55.2 37 60 48"
                 fill="none"
                 stroke="#0F172A"
-                strokeWidth="4.2"
+                strokeWidth="4"
                 strokeLinecap="round"
               />
               {/* Joy sparkle dots */}
-              <circle cx="38" cy="34" r="1.5" fill={accentColor} />
-              <circle cx="62" cy="34" r="1.5" fill={accentColor} />
+              <circle cx="45" cy="33" r="1.5" fill={accentColor} />
+              <circle cx="55" cy="33" r="1.5" fill={accentColor} />
             </>
           ) : currentExpr === "thinking" || currentExpr === "working" ? (
             /* THINKING / WORKING: Attentive inquisitive scan with specular shine */
             <>
               <rect
-                x="35"
+                x="41.5"
                 y="37"
-                width="7"
-                height="19"
-                rx="3.5"
+                width="6.8"
+                height="19.5"
+                rx="3.4"
                 fill={`url(#eye-grad-${uniqueId})`}
               />
-              <circle cx="37.5" cy="40.5" r="1.8" fill="#FFFFFF" />
+              <circle cx="44.2" cy="40.5" r="1.8" fill="#FFFFFF" />
               <rect
-                x="58"
+                x="51.7"
                 y="37"
-                width="7"
-                height="19"
-                rx="3.5"
+                width="6.8"
+                height="19.5"
+                rx="3.4"
                 fill={`url(#eye-grad-${uniqueId})`}
               />
-              <circle cx="60.5" cy="40.5" r="1.8" fill="#FFFFFF" />
+              <circle cx="54.4" cy="40.5" r="1.8" fill="#FFFFFF" />
             </>
           ) : currentExpr === "wink" ? (
             /* WINK: Left eye closed arc, right eye gleaming pill */
             <>
               <path
-                d="M 33 48 Q 38.5 42 44 48"
+                d="M 40 47 Q 44.8 41 49.5 47"
                 fill="none"
                 stroke="#0F172A"
-                strokeWidth="3.5"
+                strokeWidth="3.4"
                 strokeLinecap="round"
               />
               <rect
-                x="58"
-                y="35"
-                width="7.2"
-                height="22"
-                rx="3.6"
+                x="51.7"
+                y="36"
+                width="6.8"
+                height="21.5"
+                rx="3.4"
                 fill={`url(#eye-grad-${uniqueId})`}
               />
               <rect
-                x="59.8"
-                y="37.5"
+                x="54.4"
+                y="38"
                 width="2.4"
-                height="7"
+                height="6.2"
                 rx="1.2"
                 fill="#FFFFFF"
                 opacity="0.95"
@@ -339,57 +341,57 @@ export function CuteMentorFace({
             <>
               {/* Left Eye: Vertical Pill Capsule */}
               <rect
-                x="35"
-                y="35"
-                width="7.2"
-                height="22"
-                rx="3.6"
+                x="41.5"
+                y="36"
+                width="6.8"
+                height="21.5"
+                rx="3.4"
                 fill={`url(#eye-grad-${uniqueId})`}
               />
-              {/* Left Eye Primary White Specular Highlight */}
+              {/* Left Eye Primary White Specular Highlight (Top-Right Glint from Image 2) */}
               <rect
-                x="36.8"
-                y="37.5"
+                x="44.2"
+                y="38"
                 width="2.4"
-                height="7"
+                height="6.2"
                 rx="1.2"
                 fill="#FFFFFF"
-                opacity="0.95"
+                opacity="0.98"
               />
               {/* Left Eye Subtle Bottom Specular Dot */}
-              <circle cx="38" cy="51" r="0.9" fill="#FFFFFF" opacity="0.8" />
+              <circle cx="44.2" cy="52" r="0.9" fill="#FFFFFF" opacity="0.8" />
 
               {/* Right Eye: Vertical Pill Capsule */}
               <rect
-                x="58"
-                y="35"
-                width="7.2"
-                height="22"
-                rx="3.6"
+                x="51.7"
+                y="36"
+                width="6.8"
+                height="21.5"
+                rx="3.4"
                 fill={`url(#eye-grad-${uniqueId})`}
               />
-              {/* Right Eye Primary White Specular Highlight */}
+              {/* Right Eye Primary White Specular Highlight (Top-Right Glint from Image 2) */}
               <rect
-                x="59.8"
-                y="37.5"
+                x="54.4"
+                y="38"
                 width="2.4"
-                height="7"
+                height="6.2"
                 rx="1.2"
                 fill="#FFFFFF"
-                opacity="0.95"
+                opacity="0.98"
               />
               {/* Right Eye Subtle Bottom Specular Dot */}
-              <circle cx="61" cy="51" r="0.9" fill="#FFFFFF" opacity="0.8" />
+              <circle cx="54.4" cy="52" r="0.9" fill="#FFFFFF" opacity="0.8" />
             </>
           )}
 
           {/* Cute subtle mouth when speaking or happy */}
           {currentExpr === "talking" && (
             <path
-              d="M 46 62 Q 50 67 54 62"
-              fill="#0F172A"
+              d="M 47 62 Q 50 66 53 62"
+              fill="none"
               stroke="#0F172A"
-              strokeWidth="2"
+              strokeWidth="2.2"
               strokeLinecap="round"
               className="animate-pulse"
             />
@@ -402,25 +404,25 @@ export function CuteMentorFace({
             {/* White outer border circle */}
             <circle
               cx="80"
-              cy="79"
-              r="11.5"
+              cy="78"
+              r="12"
               fill="#FFFFFF"
               filter={`url(#rim-shadow-${uniqueId})`}
             />
             {/* Vibrant Emerald Green Status Circle (#00C950) */}
             <circle
               cx="80"
-              cy="79"
-              r="8.5"
+              cy="78"
+              r="8.8"
               fill="#00C950"
             />
             {/* Subtle inner gloss highlight on badge */}
             <circle
               cx="78.2"
-              cy="77.2"
-              r="2"
+              cy="76.2"
+              r="2.2"
               fill="#FFFFFF"
-              opacity="0.55"
+              opacity="0.65"
             />
           </g>
         )}

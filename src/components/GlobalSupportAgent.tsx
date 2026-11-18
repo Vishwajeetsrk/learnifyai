@@ -109,6 +109,12 @@ export function GlobalSupportAgent() {
   const chatFn = useServerFn(supportChat);
   const [showIntro, setShowIntro] = useState(true);
   const dragControls = useDragControls();
+  const [minimized, setMinimized] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("learnify_support_minimized") === "true";
+    }
+    return false;
+  });
 
   const userContext = useMemo(() => {
     if (!user) return "Anonymous Visitor";
@@ -170,12 +176,13 @@ export function GlobalSupportAgent() {
   const isCareerRoute = path.startsWith("/career-studio") || path.startsWith("/resume-builder") || path.startsWith("/portfolio-builder");
   const isCourseRoute = path.startsWith("/courses/") || path.startsWith("/course/");
   const isLeft = isStudioRoute; // Studio keeps left, admin stays right to avoid blocking sidebar
-  const [minimized, setMinimized] = useState(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem("learnify_support_minimized") === "true";
-    }
-    return false;
-  });
+
+  const clientPath = typeof window !== "undefined" ? window.location.pathname : path;
+  const isCoachingRoute =
+    path.startsWith("/coaching") ||
+    path.startsWith("/coaches") ||
+    clientPath.includes("coaching") ||
+    clientPath.includes("coaches");
 
   const toggleMinimize = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -186,6 +193,7 @@ export function GlobalSupportAgent() {
     });
   };
 
+  if (isCoachingRoute) return null;
   if (!user || !user.email) return null;
 
   // When minimized, show a tiny unobtrusive floating pill

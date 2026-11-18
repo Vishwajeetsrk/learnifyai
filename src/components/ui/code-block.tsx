@@ -2,7 +2,6 @@
 
 import { cn } from "@/lib/utils";
 import React, { useEffect, useState } from "react";
-import { codeToHtml } from "shiki";
 import { Button } from "@/components/ui/button";
 import { Check, Copy } from "lucide-react";
 import { toast } from "sonner";
@@ -53,17 +52,16 @@ export function CodeBlockCode({
 
       try {
         const langToUse = ["diagram", "ascii", "txt"].includes(language.toLowerCase())
-          ? "text"
-          : language;
-        const html = await codeToHtml(code, {
-          lang: langToUse,
-          theme: theme || "github-dark",
-        });
+          ? "plaintext"
+          : language.toLowerCase();
+        const { default: hljs } = await import("highlight.js");
+        const validLang = hljs.getLanguage(langToUse) ? langToUse : "plaintext";
+        const result = hljs.highlight(code, { language: validLang, ignoreIllegals: true });
         if (!cancelled) {
-          setHighlightedHtml(html);
+          setHighlightedHtml(`<pre class="hljs"><code>${result.value}</code></pre>`);
         }
       } catch (err) {
-        // Fallback gracefully if language not supported in shiki
+        // Fallback gracefully if language not supported
         if (!cancelled) {
           setHighlightedHtml(null);
         }

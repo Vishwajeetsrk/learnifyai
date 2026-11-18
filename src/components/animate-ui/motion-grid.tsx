@@ -10,7 +10,7 @@ import {
   RotatingText,
   RotatingTextContainer,
 } from "@animate-ui/react/primitives/texts/rotating"
-import { motion } from "motion/react"
+import { motion } from "framer-motion"
 
 export {
   MotionGrid,

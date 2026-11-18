@@ -1,7 +1,6 @@
-import { useMemo, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 
 import type { NeuformIsolatedEffectProps } from "./NeuformIsolatedEffects";
-import source from "./sources/button-index.html?raw";
 
 export const SELECTED_BUTTON_STUDIES = {
   "glassy-split": { index: 2, title: "Glassy Split", light: "#0e1014", dark: "#0e1014" },
@@ -19,7 +18,7 @@ export const SELECTED_BUTTON_STUDIES = {
 
 export type SelectedButtonStudyVariant = keyof typeof SELECTED_BUTTON_STUDIES;
 
-function focusedSource(index: number, mode: "light" | "dark", background: string) {
+function focusedSource(rawSource: string, index: number, mode: "light" | "dark", background: string) {
   const style = `<style data-threeui-study-focus>
     html, body, body > main, .button-list, .button-row[data-index="${index}"],
     .button-row[data-index="${index}"] .stage-frame,
@@ -94,7 +93,7 @@ function focusedSource(index: number, mode: "light" | "dark", background: string
       } catch (e) {}
     })();
   </script>`;
-  return source.replace(/<\/head>/i, `${style}</head>`).replace(/<\/body>/i, `${script}</body>`);
+  return rawSource.replace(/<\/head>/i, `${style}</head>`).replace(/<\/body>/i, `${script}</body>`);
 }
 
 export function SelectedButtonStudies({
@@ -116,10 +115,21 @@ export function SelectedButtonStudies({
   const definition = SELECTED_BUTTON_STUDIES[variant];
   const selectedMode = mode === "dark" ? "dark" : "light";
   const background = definition[selectedMode];
-  const document = useMemo(
-    () => focusedSource(definition.index, selectedMode, background),
-    [definition.index, selectedMode, background],
-  );
+  const [docSource, setDocSource] = useState<string>("");
+
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      const { default: raw } = await import("./sources/button-index.html?raw");
+      if (!cancelled) {
+        setDocSource(focusedSource(raw, definition.index, selectedMode, background));
+      }
+    }
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [definition.index, selectedMode, background]);
 
   useEffect(() => {
     const frame = frameRef.current;
@@ -159,7 +169,7 @@ export function SelectedButtonStudies({
       className={className}
       data-variant={variant}
       title={`${definition.title} button study`}
-      srcDoc={document}
+      srcDoc={docSource}
       sandbox="allow-scripts"
       loading="eager"
       onLoad={handleFrameLoad}

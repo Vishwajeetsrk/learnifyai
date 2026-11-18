@@ -35,6 +35,8 @@ export default defineConfig({
       alias: {
         "@designcodeio/threeui/style.css": path.resolve(__dirname, "src/shaders/threeui.css"),
         "@designcodeio/threeui": path.resolve(__dirname, "src/shaders/threeui-entry.ts"),
+        "motion/react": "framer-motion",
+        "motion": "framer-motion",
       },
     },
     css: {
@@ -45,9 +47,32 @@ export default defineConfig({
     optimizeDeps: {
       exclude: ["nodemailer"],
     },
-    // Mark nodemailer as external for SSR so it's never evaluated in browser
+    // Mark heavy browser-only tools and nodemailer as external for SSR
     ssr: {
-      external: ["nodemailer"],
+      external: [
+        "nodemailer",
+        "monaco-editor",
+        "@monaco-editor/react",
+        "xlsx",
+        "exceljs",
+        "sql.js",
+        "@codesandbox/sandpack-react",
+        "@codesandbox/sandpack-themes",
+        "jspdf",
+        "jspdf-autotable",
+        "html2canvas",
+        "html2canvas-pro",
+        "html-to-image",
+        "pdfjs-dist",
+        "pdf-lib",
+        "canvas-confetti",
+        "konva",
+        "react-konva",
+        "three",
+        "@react-three/fiber",
+        "@react-three/drei",
+        "@xyflow/react",
+      ],
     },
     build: {
       sourcemap: false,

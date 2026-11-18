@@ -1,23 +1,11 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 
-import threeDPaperSource from "./sources/3d-paper.html?raw";
-import certificateSource from "./sources/3d-paper-certificate.html?raw";
-import japaneseSource from "./sources/3d-paper-japanese.html?raw";
-import siteOfTheYearSource from "./sources/3d-paper-site-of-the-year.html?raw";
-
 export type ThreeDPaperVariant = "original" | "site-of-the-year" | "japanese" | "certificate";
 
 export type ThreeDPaperProps = {
   className?: string;
   style?: CSSProperties;
   variant?: ThreeDPaperVariant;
-};
-
-const sources: Record<ThreeDPaperVariant, string> = {
-  original: threeDPaperSource,
-  "site-of-the-year": siteOfTheYearSource,
-  japanese: japaneseSource,
-  certificate: certificateSource,
 };
 
 const titles: Record<ThreeDPaperVariant, string> = {
@@ -34,6 +22,7 @@ export function ThreeDPaper({ className = "", style, variant = "original" }: Thr
   ));
   const [hostVisible, setHostVisible] = useState(true);
   const [ready, setReady] = useState(false);
+  const [sourceHtml, setSourceHtml] = useState<string>("");
 
   useEffect(() => {
     const host = hostRef.current;
@@ -54,8 +43,32 @@ export function ThreeDPaper({ className = "", style, variant = "original" }: Thr
 
   const mounted = hostVisible && documentVisible;
 
+  // Lazily load raw HTML shader string only when mounted in browser (keeps SSR bundle lightweight)
   useEffect(() => {
+    if (!mounted) return;
     setReady(false);
+    let cancelled = false;
+
+    async function loadSource() {
+      let raw = "";
+      if (variant === "certificate") {
+        raw = (await import("./sources/3d-paper-certificate.html?raw")).default;
+      } else if (variant === "japanese") {
+        raw = (await import("./sources/3d-paper-japanese.html?raw")).default;
+      } else if (variant === "site-of-the-year") {
+        raw = (await import("./sources/3d-paper-site-of-the-year.html?raw")).default;
+      } else {
+        raw = (await import("./sources/3d-paper.html?raw")).default;
+      }
+      if (!cancelled) {
+        setSourceHtml(raw);
+      }
+    }
+    loadSource();
+
+    return () => {
+      cancelled = true;
+    };
   }, [mounted, variant]);
 
   return (
@@ -73,10 +86,10 @@ export function ThreeDPaper({ className = "", style, variant = "original" }: Thr
         ...style,
       }}
     >
-      {mounted ? (
+      {mounted && sourceHtml ? (
         <iframe
           title={titles[variant]}
-          srcDoc={sources[variant]}
+          srcDoc={sourceHtml}
           sandbox="allow-scripts"
           loading="eager"
           onLoad={() => setReady(true)}

@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { Link as RouterLink } from "@tanstack/react-router";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, motion } from "framer-motion";
 import { Check, ChevronDown, Languages, Menu, X } from "lucide-react";
 import {
   FaXTwitter, // X
