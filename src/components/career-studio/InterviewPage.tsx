@@ -120,7 +120,7 @@ export const HUMAN_INTERVIEWERS: HumanInterviewer[] = [
     gender: "female",
     bio: "Evaluates architectural trade-offs, system scalability, and core algorithmic precision.",
     badge: "Staff Architect",
-    accentColor: "from-indigo-500 to-purple-600",
+    accentColor: "from-[#347A3D] to-emerald-700",
   },
   {
     id: "vikram",
@@ -131,7 +131,7 @@ export const HUMAN_INTERVIEWERS: HumanInterviewer[] = [
     gender: "male",
     bio: "Focuses on high-scale backend design, production resilience, and leadership maturity.",
     badge: "Director",
-    accentColor: "from-blue-500 to-indigo-600",
+    accentColor: "from-emerald-600 to-[#174422]",
   },
   {
     id: "anjali",
@@ -167,13 +167,12 @@ function AudioEqualizerSpectrum({
   active: boolean;
   level?: number;
   barCount?: number;
-  color?: "emerald" | "indigo" | "rose" | "amber";
+  color?: "emerald" | "rose" | "amber";
 }) {
   const bars = useMemo(() => Array.from({ length: barCount }), [barCount]);
 
   const colorMap = {
     emerald: "from-emerald-400 via-teal-300 to-emerald-500",
-    indigo: "from-indigo-400 via-violet-300 to-indigo-500",
     rose: "from-rose-400 via-pink-300 to-rose-500",
     amber: "from-amber-400 via-yellow-300 to-amber-500",
   };
@@ -241,7 +240,7 @@ function HumanInterviewerDisplay({
       <div
         className={cn(
           "absolute -top-24 -left-24 w-64 h-64 rounded-full blur-3xl opacity-20 pointer-events-none transition-all duration-700",
-          aiSpeaking ? "bg-emerald-500 opacity-30" : evaluating ? "bg-amber-500 opacity-25" : "bg-indigo-600",
+          aiSpeaking ? "bg-emerald-500 opacity-30" : evaluating ? "bg-amber-500 opacity-25" : "bg-emerald-600",
         )}
       />
 
@@ -257,7 +256,7 @@ function HumanInterviewerDisplay({
                   : evaluating
                     ? "bg-amber-400"
                     : isRecording
-                      ? "bg-indigo-400"
+                      ? "bg-emerald-400"
                       : "bg-slate-400",
               )}
             />
@@ -269,7 +268,7 @@ function HumanInterviewerDisplay({
                   : evaluating
                     ? "bg-amber-500"
                     : isRecording
-                      ? "bg-indigo-500"
+                      ? "bg-emerald-500"
                       : "bg-slate-400",
               )}
             />
@@ -310,7 +309,7 @@ function HumanInterviewerDisplay({
                 : evaluating
                   ? "border-amber-500/50 bg-amber-500/15 text-amber-300"
                   : isRecording
-                    ? "border-indigo-500/50 bg-indigo-500/15 text-indigo-300"
+                    ? "border-emerald-500/50 bg-emerald-500/15 text-emerald-300"
                     : "border-slate-700 bg-slate-900/80 text-slate-300",
             )}
           >
@@ -338,7 +337,7 @@ function HumanInterviewerDisplay({
                 : evaluating
                   ? "border-amber-400/80 ring-2 ring-amber-500/20"
                   : isRecording
-                    ? "border-indigo-400/80 ring-2 ring-indigo-500/20"
+                    ? "border-emerald-400/80 ring-2 ring-emerald-500/20"
                     : "border-slate-700/80 ring-1 ring-slate-800",
             )}
           >
@@ -367,7 +366,7 @@ function HumanInterviewerDisplay({
             <span
               className={cn(
                 "w-1.5 h-1.5 rounded-full",
-                aiSpeaking ? "bg-emerald-400 animate-pulse" : "bg-indigo-400",
+                aiSpeaking ? "bg-emerald-400 animate-pulse" : "bg-emerald-400",
               )}
             />
             <span className="tracking-tight text-white font-semibold">Verified AI Lead</span>
@@ -380,7 +379,7 @@ function HumanInterviewerDisplay({
             active={aiSpeaking}
             level={aiSpeaking ? 0.85 : 0.2}
             barCount={16}
-            color={aiSpeaking ? "emerald" : "indigo"}
+            color="emerald"
           />
         </div>
 
@@ -406,8 +405,8 @@ function HumanInterviewerDisplay({
               Interviewer is presenting the question...
             </span>
           ) : isRecording ? (
-            <span className="text-indigo-400 flex items-center justify-center gap-1.5 font-medium">
-              <span className="h-1.5 w-1.5 rounded-full bg-indigo-400 animate-ping" />
+            <span className="text-emerald-400 flex items-center justify-center gap-1.5 font-medium">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-ping" />
               Listening to candidate response...
             </span>
           ) : (
@@ -467,14 +466,14 @@ function CandidateStudioDisplay({
           <span
             className={cn(
               "w-2 h-2 rounded-full",
-              cameraActive ? "bg-emerald-500 animate-pulse" : "bg-indigo-400",
+              cameraActive ? "bg-emerald-500 animate-pulse" : "bg-emerald-400",
             )}
           />
           <span className="font-display tracking-tight text-white font-bold">
             {cameraActive ? "Live Webcam (HD)" : "Studio Candidate Avatar"}
           </span>
           {!cameraActive && (
-            <Badge className="bg-indigo-500/20 text-indigo-300 border-indigo-500/30 text-[9px] px-1.5 py-0 font-medium ml-1">
+            <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30 text-[9px] px-1.5 py-0 font-medium ml-1">
               Zero Camera Needed
             </Badge>
           )}
@@ -557,22 +556,22 @@ function CandidateStudioDisplay({
           /* Studio Candidate Hologram Avatar */
           <div className="w-full h-full flex flex-col items-center justify-center p-4 relative overflow-hidden">
             {/* Cinematic Geometric Mesh Background */}
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-900/20 via-slate-950/60 to-black pointer-events-none" />
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-emerald-950/30 via-slate-950/60 to-black pointer-events-none" />
 
             {/* Hologram Pulse Rings */}
             <div className="relative mb-2">
               <div
                 className={cn(
-                  "w-24 h-24 sm:w-28 sm:h-28 rounded-full flex flex-col items-center justify-center border-2 transition-all duration-300 shadow-2xl bg-gradient-to-br from-slate-900 via-indigo-950/40 to-slate-900",
+                  "w-24 h-24 sm:w-28 sm:h-28 rounded-full flex flex-col items-center justify-center border-2 transition-all duration-300 shadow-2xl bg-gradient-to-br from-slate-900 via-emerald-950/40 to-slate-900",
                   isRecording
                     ? "border-rose-500 ring-4 ring-rose-500/20 scale-105"
                     : micActive && audioLevel > 0.1
                       ? "border-emerald-400 ring-4 ring-emerald-500/20 scale-102"
-                      : "border-indigo-500/60 ring-1 ring-indigo-500/20",
+                      : "border-emerald-500/60 ring-1 ring-emerald-500/20",
                 )}
               >
-                <div className="w-16 h-16 rounded-full bg-indigo-600/20 border border-indigo-400/30 flex items-center justify-center text-indigo-200">
-                  <UserCheck className="h-8 w-8 text-indigo-400" />
+                <div className="w-16 h-16 rounded-full bg-emerald-600/20 border border-emerald-400/30 flex items-center justify-center text-emerald-200">
+                  <UserCheck className="h-8 w-8 text-emerald-400" />
                 </div>
               </div>
 
@@ -597,9 +596,9 @@ function CandidateStudioDisplay({
               <button
                 type="button"
                 onClick={onToggleCamera}
-                className="mt-2 text-[10px] text-indigo-300 hover:text-white bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 px-3 py-1 rounded-full inline-flex items-center gap-1.5 transition-all cursor-pointer shadow-sm"
+                className="mt-2 text-[10px] text-emerald-300 hover:text-white bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 px-3 py-1 rounded-full inline-flex items-center gap-1.5 transition-all cursor-pointer shadow-sm"
               >
-                <Camera className="h-3 w-3 text-indigo-400" />
+                <Camera className="h-3 w-3 text-emerald-400" />
                 <span>Enable Live Webcam</span>
               </button>
             </div>
@@ -610,7 +609,7 @@ function CandidateStudioDisplay({
                 active={isRecording || (micActive && audioLevel > 0.05)}
                 level={isRecording ? Math.max(0.4, audioLevel) : audioLevel}
                 barCount={20}
-                color={isRecording ? "rose" : "indigo"}
+                color={isRecording ? "rose" : "emerald"}
               />
             </div>
           </div>
@@ -655,7 +654,7 @@ function CandidateStudioDisplay({
               "h-8 px-3 text-xs font-semibold gap-1.5 rounded-xl transition-all cursor-pointer border",
               cameraActive
                 ? "bg-slate-900/90 hover:bg-slate-800 border-slate-700/80 text-slate-100 shadow-sm"
-                : "bg-indigo-500/15 hover:bg-indigo-500/25 border-indigo-500/40 text-indigo-300",
+                : "bg-emerald-500/15 hover:bg-emerald-500/25 border-emerald-500/40 text-emerald-300",
             )}
             title={cameraActive ? "Switch to Studio Avatar" : "Switch to Webcam"}
           >
@@ -666,7 +665,7 @@ function CandidateStudioDisplay({
               </>
             ) : (
               <>
-                <VideoOff className="h-3.5 w-3.5 text-indigo-400" />
+                <VideoOff className="h-3.5 w-3.5 text-emerald-400" />
                 <span>Studio Avatar</span>
               </>
             )}
@@ -681,7 +680,7 @@ function CandidateStudioDisplay({
             "h-8 text-xs font-bold rounded-xl px-3.5 cursor-pointer shadow-md transition-all",
             isRecording
               ? "bg-rose-600 hover:bg-rose-700 text-white animate-pulse"
-              : "bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white",
+              : "bg-gradient-to-r from-[#347A3D] via-emerald-600 to-[#245F30] hover:from-emerald-500 hover:to-[#347A3D] text-white shadow-emerald-950/40",
           )}
           onClick={onToggleVoiceRecording}
         >
@@ -742,7 +741,7 @@ function DeviceTroubleshooterModal({
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-indigo-500/15 border border-indigo-500/30 flex items-center justify-center text-indigo-400 shrink-0">
+            <div className="w-10 h-10 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
               <SlidersHorizontal className="h-5 w-5" />
             </div>
             <div>
@@ -766,7 +765,7 @@ function DeviceTroubleshooterModal({
             className={cn(
               "py-1.5 px-3 rounded-lg font-semibold transition-all cursor-pointer",
               activeTab === "options"
-                ? "bg-indigo-600 text-white shadow-sm"
+                ? "bg-[#347A3D] text-white shadow-sm"
                 : "text-slate-400 hover:text-slate-200",
             )}
           >
@@ -778,7 +777,7 @@ function DeviceTroubleshooterModal({
             className={cn(
               "py-1.5 px-3 rounded-lg font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5",
               activeTab === "browser-guide"
-                ? "bg-indigo-600 text-white shadow-sm"
+                ? "bg-[#347A3D] text-white shadow-sm"
                 : "text-slate-400 hover:text-slate-200",
             )}
           >
@@ -789,10 +788,10 @@ function DeviceTroubleshooterModal({
         {activeTab === "options" ? (
           <div className="space-y-4">
             {/* Studio Avatar Highlight Card (Recommended) */}
-            <div className="p-4 rounded-2xl bg-gradient-to-br from-indigo-950/60 via-slate-900 to-slate-900 border border-indigo-500/40 relative overflow-hidden group">
+            <div className="p-4 rounded-2xl bg-gradient-to-br from-emerald-950/50 via-slate-900 to-slate-900 border border-emerald-500/40 relative overflow-hidden group">
               <div className="flex items-start gap-3">
-                <div className="w-9 h-9 rounded-xl bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center text-indigo-300 shrink-0 mt-0.5">
-                  <Sparkles className="h-5 w-5 text-indigo-400" />
+                <div className="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center text-emerald-300 shrink-0 mt-0.5">
+                  <Sparkles className="h-5 w-5 text-emerald-400" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
@@ -812,7 +811,7 @@ function DeviceTroubleshooterModal({
                   onUseStudioMode(rememberChoice);
                   onClose();
                 }}
-                className="w-full mt-3.5 bg-gradient-to-r from-indigo-600 via-indigo-500 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold h-10 text-xs sm:text-sm rounded-xl shadow-lg shadow-indigo-950/50 cursor-pointer"
+                className="w-full mt-3.5 bg-gradient-to-r from-[#347A3D] via-emerald-600 to-[#245F30] hover:from-emerald-500 hover:to-[#347A3D] text-white font-bold h-10 text-xs sm:text-sm rounded-xl shadow-lg shadow-emerald-950/50 cursor-pointer"
               >
                 <Sparkles className="h-4 w-4 mr-1.5" /> Continue in Studio Avatar Mode (No Camera Needed)
               </Button>
@@ -822,7 +821,7 @@ function DeviceTroubleshooterModal({
             <div className="space-y-2">
               <div className="flex items-center justify-between p-3 rounded-2xl bg-slate-800/60 border border-slate-700/60 text-xs">
                 <div className="flex items-center gap-2.5">
-                  <Video className="h-4 w-4 text-indigo-400" />
+                  <Video className="h-4 w-4 text-emerald-400" />
                   <div>
                     <p className="font-semibold text-slate-200">Webcam Hardware</p>
                     <p className="text-[11px] text-slate-400">
@@ -902,7 +901,7 @@ function DeviceTroubleshooterModal({
                 type="checkbox"
                 checked={rememberChoice}
                 onChange={(e) => setRememberChoice(e.target.checked)}
-                className="rounded border-slate-700 bg-slate-800 text-indigo-600 focus:ring-indigo-500"
+                className="rounded border-slate-700 bg-slate-800 text-[#347A3D] focus:ring-emerald-500"
               />
               <span>Remember Studio Avatar Mode for future sessions</span>
             </label>
@@ -910,8 +909,8 @@ function DeviceTroubleshooterModal({
         ) : (
           /* Browser Guide Tab */
           <div className="space-y-3.5 text-xs">
-            <div className="p-3.5 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-200 space-y-2">
-              <p className="font-bold flex items-center gap-1.5 text-indigo-300 text-sm">
+            <div className="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-200 space-y-2">
+              <p className="font-bold flex items-center gap-1.5 text-emerald-300 text-sm">
                 <Info className="h-4 w-4" /> How to allow browser access:
               </p>
               <div className="space-y-2 text-[11px] text-slate-300">
@@ -947,7 +946,7 @@ function DeviceTroubleshooterModal({
                 onClick={() => {
                   onRetryDevices(true);
                 }}
-                className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold h-9 text-xs rounded-xl cursor-pointer"
+                className="flex-1 bg-[#347A3D] hover:bg-emerald-700 text-white font-bold h-9 text-xs rounded-xl cursor-pointer shadow-md shadow-emerald-950/40"
               >
                 <RefreshCw className="h-3.5 w-3.5 mr-1.5" /> Re-detect Devices
               </Button>
@@ -1879,9 +1878,9 @@ ${scores.map((sc, i) => `Q${i + 1}: ${sc}/100`).join("\n")}
   const mainContent = (
     <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
       {/* Studio Header Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-3xl bg-gradient-to-r from-slate-900 via-indigo-950/40 to-slate-900 border border-slate-800 shadow-xl backdrop-blur-xl">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-3xl bg-gradient-to-r from-slate-900 via-emerald-950/40 to-slate-900 border border-emerald-900/40 shadow-xl backdrop-blur-xl">
         <div className="flex items-center gap-3.5">
-          <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-indigo-500 via-violet-600 to-purple-700 grid place-items-center shadow-lg shadow-indigo-950/50">
+          <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-[#347A3D] via-emerald-600 to-[#174422] grid place-items-center shadow-lg shadow-emerald-950/50">
             <Briefcase className="h-6 w-6 text-white" />
           </div>
           <div>
@@ -1889,7 +1888,7 @@ ${scores.map((sc, i) => `Q${i + 1}: ${sc}/100`).join("\n")}
               <h1 className="text-2xl sm:text-3xl font-display font-bold tracking-tight text-white">
                 Interview Prep Studio
               </h1>
-              <Badge className="bg-indigo-500/20 text-indigo-300 border-indigo-500/30 text-[10px] font-semibold">
+              <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30 text-[10px] font-semibold">
                 AI 4.0 Pro
               </Badge>
             </div>
@@ -1907,7 +1906,7 @@ ${scores.map((sc, i) => `Q${i + 1}: ${sc}/100`).join("\n")}
               className="h-8 text-xs font-semibold gap-1.5 border-slate-700 bg-slate-900/80 text-slate-300 hover:bg-slate-800"
               onClick={() => setShowTroubleshooter(true)}
             >
-              <SlidersHorizontal className="h-3.5 w-3.5 text-indigo-400" />
+              <SlidersHorizontal className="h-3.5 w-3.5 text-emerald-400" />
               <span>Devices</span>
             </Button>
 
@@ -1931,10 +1930,10 @@ ${scores.map((sc, i) => `Q${i + 1}: ${sc}/100`).join("\n")}
           <div className="rounded-3xl border border-slate-800/80 bg-slate-900/60 p-6 space-y-4 shadow-xl backdrop-blur-xl">
             <div className="flex items-center justify-between">
               <h2 className="font-display font-semibold text-white flex items-center gap-2 text-base">
-                <Briefcase className="h-4 w-4 text-indigo-400" /> 1. Select Target Job Role
+                <Briefcase className="h-4 w-4 text-emerald-400" /> 1. Select Target Job Role
               </h2>
               {role && (
-                <span className="text-xs font-medium text-indigo-300 bg-indigo-500/10 px-2.5 py-0.5 rounded-full border border-indigo-500/20">
+                <span className="text-xs font-medium text-emerald-300 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
                   Selected: {JOB_ROLES.find((r) => r.id === role)?.label || customRole || role}
                 </span>
               )}
@@ -1954,14 +1953,14 @@ ${scores.map((sc, i) => `Q${i + 1}: ${sc}/100`).join("\n")}
                     className={cn(
                       "p-4 rounded-2xl border text-left transition-all cursor-pointer relative group",
                       isSelected
-                        ? "border-indigo-500 bg-indigo-500/10 shadow-lg shadow-indigo-950/30 ring-2 ring-indigo-500/50"
+                        ? "border-emerald-500 bg-emerald-500/10 shadow-lg shadow-emerald-950/30 ring-2 ring-emerald-500/50"
                         : "border-slate-800 bg-slate-900/40 hover:border-slate-700 hover:bg-slate-800/50",
                     )}
                   >
-                    <Icon className={cn("h-6 w-6 mb-2.5 transition-colors", isSelected ? "text-indigo-400" : "text-slate-400 group-hover:text-slate-200")} />
+                    <Icon className={cn("h-6 w-6 mb-2.5 transition-colors", isSelected ? "text-emerald-400" : "text-slate-400 group-hover:text-slate-200")} />
                     <span className="text-xs sm:text-sm font-bold block truncate text-slate-100">{r.label}</span>
                     {isSelected && (
-                      <span className="absolute top-3 right-3 w-2 h-2 rounded-full bg-indigo-400 animate-pulse" />
+                      <span className="absolute top-3 right-3 w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                     )}
                   </button>
                 );
@@ -1979,7 +1978,7 @@ ${scores.map((sc, i) => `Q${i + 1}: ${sc}/100`).join("\n")}
                   setCustomRole(e.target.value);
                   setRole(e.target.value);
                 }}
-                className="h-10 text-xs sm:text-sm font-semibold rounded-xl bg-slate-950/80 border-slate-700/80 focus-visible:ring-indigo-500"
+                className="h-10 text-xs sm:text-sm font-semibold rounded-xl bg-slate-950/80 border-slate-700/80 focus-visible:ring-emerald-500"
               />
             </div>
           </div>
@@ -1987,7 +1986,7 @@ ${scores.map((sc, i) => `Q${i + 1}: ${sc}/100`).join("\n")}
           {/* Select Mode */}
           <div className="rounded-3xl border border-slate-800/80 bg-slate-900/60 p-6 space-y-4 shadow-xl backdrop-blur-xl">
             <h2 className="font-display font-semibold text-white flex items-center gap-2 text-base">
-              <MessageSquare className="h-4 w-4 text-indigo-400" /> 2. Select Interview Mode
+              <MessageSquare className="h-4 w-4 text-emerald-400" /> 2. Select Interview Mode
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {MODES.map((m) => {
@@ -2000,14 +1999,14 @@ ${scores.map((sc, i) => `Q${i + 1}: ${sc}/100`).join("\n")}
                     className={cn(
                       "p-4 rounded-2xl border text-center transition-all cursor-pointer",
                       isSelected
-                        ? "border-indigo-500 bg-indigo-500/10 shadow-lg shadow-indigo-950/30 ring-2 ring-indigo-500/50"
+                        ? "border-emerald-500 bg-emerald-500/10 shadow-lg shadow-emerald-950/30 ring-2 ring-emerald-500/50"
                         : "border-slate-800 bg-slate-900/40 hover:border-slate-700 hover:bg-slate-800/50",
                     )}
                   >
                     <Icon
                       className={cn(
                         "h-6 w-6 mx-auto mb-2 transition-colors",
-                        isSelected ? "text-indigo-400" : "text-slate-400",
+                        isSelected ? "text-emerald-400" : "text-slate-400",
                       )}
                     />
                     <span className="text-sm font-bold block text-slate-100">{m.label}</span>
@@ -2022,7 +2021,7 @@ ${scores.map((sc, i) => `Q${i + 1}: ${sc}/100`).join("\n")}
           <div className="rounded-3xl border border-slate-800/80 bg-slate-900/60 p-6 space-y-4 shadow-xl backdrop-blur-xl">
             <div>
               <h2 className="font-display font-semibold text-white flex items-center gap-2 text-base">
-                <Target className="h-4 w-4 text-indigo-400" /> 3. Select Human AI Interviewer
+                <Target className="h-4 w-4 text-emerald-400" /> 3. Select Human AI Interviewer
               </h2>
               <p className="text-xs text-slate-400 mt-0.5">
                 Choose an expert interviewer tailored to your target industry and technical depth.
@@ -2040,7 +2039,7 @@ ${scores.map((sc, i) => `Q${i + 1}: ${sc}/100`).join("\n")}
                     className={cn(
                       "p-3.5 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between relative group",
                       isSelected
-                        ? "border-indigo-500 bg-indigo-500/10 shadow-lg shadow-indigo-950/30 ring-2 ring-indigo-500/50"
+                        ? "border-emerald-500 bg-emerald-500/10 shadow-lg shadow-emerald-950/30 ring-2 ring-emerald-500/50"
                         : "border-slate-800 bg-slate-900/40 hover:border-slate-700 hover:bg-slate-800/50",
                     )}
                   >
@@ -2059,7 +2058,7 @@ ${scores.map((sc, i) => `Q${i + 1}: ${sc}/100`).join("\n")}
                         <p className="text-sm font-bold truncate text-slate-100">
                           {interviewer.name}
                         </p>
-                        <p className="text-[11px] text-indigo-400 font-semibold truncate">
+                        <p className="text-[11px] text-emerald-400 font-semibold truncate">
                           {interviewer.company}
                         </p>
                       </div>
@@ -2072,7 +2071,7 @@ ${scores.map((sc, i) => `Q${i + 1}: ${sc}/100`).join("\n")}
                     <div className="flex items-center justify-between pt-2 border-t border-slate-800 text-[10px]">
                       <span className="font-semibold text-slate-400">{interviewer.badge}</span>
                       {isSelected ? (
-                        <span className="text-indigo-400 font-bold flex items-center gap-1">
+                        <span className="text-emerald-400 font-bold flex items-center gap-1">
                           <Check className="h-3 w-3" /> Selected
                         </span>
                       ) : (
@@ -2090,7 +2089,7 @@ ${scores.map((sc, i) => `Q${i + 1}: ${sc}/100`).join("\n")}
           {/* Difficulty */}
           <div className="rounded-3xl border border-slate-800/80 bg-slate-900/60 p-6 shadow-xl backdrop-blur-xl">
             <h2 className="font-display font-semibold text-white mb-4 flex items-center gap-2 text-base">
-              <Award className="h-4 w-4 text-indigo-400" /> 4. Difficulty Level
+              <Award className="h-4 w-4 text-emerald-400" /> 4. Difficulty Level
             </h2>
             <div className="flex flex-wrap gap-3">
               {DIFFICULTIES.map((d) => (
@@ -2100,7 +2099,7 @@ ${scores.map((sc, i) => `Q${i + 1}: ${sc}/100`).join("\n")}
                   className={cn(
                     "px-6 py-2.5 rounded-xl border font-semibold text-xs transition-all cursor-pointer",
                     difficulty === d.id
-                      ? "border-indigo-500 bg-indigo-500/15 shadow-md text-white ring-2 ring-indigo-500/40"
+                      ? "border-emerald-500 bg-emerald-500/15 shadow-md text-white ring-2 ring-emerald-500/40"
                       : "border-slate-800 bg-slate-900/40 text-slate-400 hover:border-slate-700 hover:text-slate-200",
                   )}
                 >
@@ -2114,7 +2113,7 @@ ${scores.map((sc, i) => `Q${i + 1}: ${sc}/100`).join("\n")}
             size="lg"
             onClick={handleStart}
             disabled={!role}
-            className="w-full sm:w-auto h-12 px-8 font-display font-bold text-base rounded-2xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white shadow-xl shadow-indigo-950/50 cursor-pointer"
+            className="w-full sm:w-auto h-12 px-8 font-display font-bold text-base rounded-2xl bg-gradient-to-r from-[#347A3D] via-emerald-600 to-[#245F30] hover:from-emerald-500 hover:to-[#347A3D] text-white shadow-xl shadow-emerald-950/50 cursor-pointer"
           >
             Start Practice Interview <ChevronRight className="h-5 w-5 ml-1.5" />
           </Button>
@@ -2128,7 +2127,7 @@ ${scores.map((sc, i) => `Q${i + 1}: ${sc}/100`).join("\n")}
           <div className="flex items-center gap-3 bg-slate-900/80 border border-slate-800/80 p-3 rounded-2xl backdrop-blur-md">
             <div className="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-indigo-500 to-emerald-400 rounded-full transition-all duration-500"
+                className="h-full bg-gradient-to-r from-[#347A3D] to-emerald-400 rounded-full transition-all duration-500"
                 style={{ width: `${((questionIndex + 1) / totalQuestions) * 100}%` }}
               />
             </div>
@@ -2140,7 +2139,7 @@ ${scores.map((sc, i) => `Q${i + 1}: ${sc}/100`).join("\n")}
           {loading ? (
             <div className="flex flex-col items-center justify-center py-24 rounded-3xl border border-slate-800 bg-slate-900/40">
               <div className="relative mb-4">
-                <Loader2 className="h-10 w-10 animate-spin text-indigo-400" />
+                <Loader2 className="h-10 w-10 animate-spin text-emerald-400" />
                 <Sparkles className="h-4 w-4 text-emerald-400 absolute -top-1 -right-1 animate-pulse" />
               </div>
               <p className="text-sm font-semibold text-slate-200">
@@ -2186,7 +2185,7 @@ ${scores.map((sc, i) => `Q${i + 1}: ${sc}/100`).join("\n")}
               <div className="rounded-3xl border border-slate-800/80 bg-slate-900/70 p-6 shadow-xl backdrop-blur-xl">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="text-xs capitalize border-indigo-500/40 bg-indigo-500/10 text-indigo-300 font-bold">
+                    <Badge variant="outline" className="text-xs capitalize border-emerald-500/40 bg-emerald-500/10 text-emerald-300 font-bold">
                       {currentQuestion.type || "Technical"}
                     </Badge>
                     <Badge variant="outline" className="text-xs capitalize border-slate-700 bg-slate-800/60 text-slate-300">
@@ -2237,7 +2236,7 @@ ${scores.map((sc, i) => `Q${i + 1}: ${sc}/100`).join("\n")}
                   {/* STAR Method Insertion Helpers */}
                   <div className="flex items-center justify-between flex-wrap gap-2 text-xs">
                     <div className="flex items-center gap-1.5 text-slate-400">
-                      <Sparkles className="h-3.5 w-3.5 text-indigo-400" />
+                      <Sparkles className="h-3.5 w-3.5 text-emerald-400" />
                       <span className="font-semibold text-slate-300">STAR Structure:</span>
                       <button
                         type="button"
@@ -2303,7 +2302,7 @@ ${scores.map((sc, i) => `Q${i + 1}: ${sc}/100`).join("\n")}
                           : "Type your structured answer here, or click 'Voice Answer' to dictate your speech in real time..."
                       }
                       rows={6}
-                      className="resize-none text-xs sm:text-sm bg-slate-950/80 border-slate-700/80 text-slate-100 placeholder:text-slate-500 focus-visible:ring-indigo-500 rounded-2xl"
+                      className="resize-none text-xs sm:text-sm bg-slate-950/80 border-slate-700/80 text-slate-100 placeholder:text-slate-500 focus-visible:ring-emerald-500 rounded-2xl"
                     />
                     <div className="flex items-center justify-between px-1 text-[11px] text-slate-500 font-mono">
                       <span>Shortcut: <b>Ctrl + Enter</b> to submit</span>
@@ -2319,7 +2318,7 @@ ${scores.map((sc, i) => `Q${i + 1}: ${sc}/100`).join("\n")}
                   <Button
                     onClick={handleSubmitAnswer}
                     disabled={!userAnswer.trim() || evaluating}
-                    className="w-full h-11 font-display font-bold text-sm rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white shadow-lg shadow-indigo-950/50 cursor-pointer"
+                    className="w-full h-11 font-display font-bold text-sm rounded-xl bg-gradient-to-r from-[#347A3D] via-emerald-600 to-[#245F30] hover:from-emerald-500 hover:to-[#347A3D] text-white shadow-lg shadow-emerald-950/50 cursor-pointer"
                   >
                     {evaluating ? (
                       <>
@@ -2353,7 +2352,7 @@ ${scores.map((sc, i) => `Q${i + 1}: ${sc}/100`).join("\n")}
                             evaluation.score >= 80
                               ? "text-emerald-400"
                               : evaluation.score >= 60
-                                ? "text-indigo-400"
+                                ? "text-emerald-300"
                                 : evaluation.score >= 40
                                   ? "text-amber-400"
                                   : "text-rose-400",
@@ -2407,7 +2406,7 @@ ${scores.map((sc, i) => `Q${i + 1}: ${sc}/100`).join("\n")}
                   {evaluation.modelAnswer && (
                     <div className="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-2">
                       <div className="flex items-center justify-between">
-                        <p className="text-xs font-bold text-indigo-300 flex items-center gap-1.5">
+                        <p className="text-xs font-bold text-emerald-300 flex items-center gap-1.5">
                           <Sparkles className="h-3.5 w-3.5" /> Model Architect Answer:
                         </p>
                         <Button
@@ -2428,7 +2427,7 @@ ${scores.map((sc, i) => `Q${i + 1}: ${sc}/100`).join("\n")}
 
                   <Button
                     onClick={handleNextQuestion}
-                    className="w-full h-11 font-display font-bold text-sm rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-lg cursor-pointer"
+                    className="w-full h-11 font-display font-bold text-sm rounded-xl bg-gradient-to-r from-[#347A3D] via-emerald-600 to-[#245F30] hover:from-emerald-500 hover:to-[#347A3D] text-white shadow-lg cursor-pointer"
                   >
                     {questionIndex + 1 >= totalQuestions ? "See Final Scorecard" : "Advance to Next Question"}{" "}
                     <ChevronRight className="h-4 w-4 ml-1.5" />
@@ -2444,7 +2443,7 @@ ${scores.map((sc, i) => `Q${i + 1}: ${sc}/100`).join("\n")}
       {step === "results" && (
         <div className="space-y-6 animate-in fade-in">
           <div className="rounded-3xl border border-slate-800 bg-slate-900/80 p-8 text-center shadow-2xl backdrop-blur-xl">
-            <div className="w-16 h-16 rounded-3xl bg-indigo-500/15 border border-indigo-500/30 flex items-center justify-center text-indigo-400 mx-auto mb-4 shadow-lg shadow-indigo-950/50">
+            <div className="w-16 h-16 rounded-3xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mx-auto mb-4 shadow-lg shadow-emerald-950/50">
               <Award className="h-8 w-8" />
             </div>
             <h2 className="text-2xl sm:text-3xl font-display font-bold text-white mb-2">
@@ -2456,7 +2455,7 @@ ${scores.map((sc, i) => `Q${i + 1}: ${sc}/100`).join("\n")}
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-md mx-auto mb-8">
               <div className="p-4 rounded-2xl bg-slate-800/60 border border-slate-700/60">
-                <p className="text-3xl font-display font-black text-indigo-400">{avgScore}</p>
+                <p className="text-3xl font-display font-black text-emerald-400">{avgScore}</p>
                 <p className="text-xs text-slate-400 mt-1 font-semibold">Average Match</p>
               </div>
               <div className="p-4 rounded-2xl bg-slate-800/60 border border-slate-700/60">
@@ -2470,7 +2469,7 @@ ${scores.map((sc, i) => `Q${i + 1}: ${sc}/100`).join("\n")}
                     avgScore >= 80
                       ? "text-emerald-400"
                       : avgScore >= 60
-                        ? "text-indigo-400"
+                        ? "text-emerald-300"
                         : avgScore >= 40
                           ? "text-amber-400"
                           : "text-rose-400",
@@ -2485,13 +2484,13 @@ ${scores.map((sc, i) => `Q${i + 1}: ${sc}/100`).join("\n")}
             <div className="flex flex-wrap items-center justify-center gap-2.5 mb-8">
               <Button
                 onClick={downloadInterviewPdf}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs gap-1.5 rounded-full px-4"
+                className="bg-[#347A3D] hover:bg-emerald-700 text-white font-bold text-xs gap-1.5 rounded-full px-4"
               >
                 <FileDown className="h-4 w-4" /> Download PDF Report
               </Button>
               <Button
                 onClick={downloadInterviewWord}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs gap-1.5 rounded-full px-4"
+                className="bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs gap-1.5 rounded-full px-4"
               >
                 <FileText className="h-4 w-4" /> Word (.docx)
               </Button>
@@ -2525,7 +2524,7 @@ ${scores.map((sc, i) => `Q${i + 1}: ${sc}/100`).join("\n")}
                         score >= 80
                           ? "bg-emerald-500"
                           : score >= 60
-                            ? "bg-indigo-500"
+                            ? "bg-emerald-600"
                             : score >= 40
                               ? "bg-amber-500"
                               : "bg-rose-500",

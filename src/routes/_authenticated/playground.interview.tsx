@@ -61,9 +61,9 @@ function InterviewPage() {
     <AppShell>
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Navigation Switcher Banner */}
-        <div className="mb-6 p-4 rounded-2xl border border-indigo-500/20 bg-indigo-500/5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-sm">
+        <div className="mb-6 p-4 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-sm">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
               <Award className="h-5 w-5" />
             </div>
             <div>
@@ -78,7 +78,7 @@ function InterviewPage() {
           <Button
             size="sm"
             variant="outline"
-            className="text-xs border-indigo-500/30 text-indigo-400 hover:bg-indigo-500/10 shrink-0 cursor-pointer"
+            className="text-xs border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10 shrink-0 cursor-pointer"
             onClick={() => (window.location.href = "/career-studio?tab=interview")}
           >
             Go to AI Mock Interview <ChevronRight className="h-3.5 w-3.5 ml-1" />
