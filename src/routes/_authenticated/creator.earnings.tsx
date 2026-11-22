@@ -207,7 +207,7 @@ function CreatorEarningsPage() {
       });
 
       confetti({ particleCount: 60, spread: 70, origin: { y: 0.7 } });
-      toast.success("Cashfree Payout dispatched successfully!");
+      toast.success("Creator Payout dispatched successfully!");
 
       qc.invalidateQueries({ queryKey: ["creator-earnings-tx"] });
       qc.invalidateQueries({ queryKey: ["wallet-tx"] });
@@ -343,7 +343,7 @@ function CreatorEarningsPage() {
         </div>
       </div>
 
-      {/* ── Cashfree Payout Verification Modal ── */}
+      {/* ── Secure Payout Verification Modal ── */}
       <Dialog open={withdrawModalOpen} onOpenChange={setWithdrawModalOpen}>
         <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
@@ -354,7 +354,7 @@ function CreatorEarningsPage() {
               <div>
                 <DialogTitle className="font-display text-base">Creator Payout Verification</DialogTitle>
                 <DialogDescription className="text-xs">
-                  Instant transfer via Cashfree Payouts &amp; Razorpay IMPS
+                  Direct transfer via IMPS / UPI &amp; Razorpay Payouts
                 </DialogDescription>
               </div>
             </div>
@@ -613,7 +613,7 @@ function CreatorEarningsPage() {
               {/* Security and SLA notice */}
               <div className="flex items-center gap-2 text-[11px] text-muted-foreground pt-1">
                 <ShieldCheck className="h-4 w-4 text-emerald-500 shrink-0" />
-                <span>256-bit Encrypted Payout &bull; RBI &amp; Cashfree Compliant</span>
+                <span>256-bit Encrypted Payout &bull; RBI &amp; NPCI Compliant</span>
               </div>
 
               <DialogFooter className="gap-2 sm:gap-0 pt-2">

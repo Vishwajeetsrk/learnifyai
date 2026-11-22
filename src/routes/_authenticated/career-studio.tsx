@@ -18,6 +18,12 @@ const CareerRoadmapPage = React.lazy(() =>
 const PortfolioBuilderPage = React.lazy(() =>
   import("@/components/career-studio/PortfolioBuilderPage").then((m) => ({ default: m.PortfolioBuilderPage })),
 );
+const CareerOsOverview = React.lazy(() =>
+  import("@/components/career-studio/CareerOsOverview").then((m) => ({ default: m.CareerOsOverview })),
+);
+const AiMentorMessenger = React.lazy(() =>
+  import("@/components/coaches/AiMentorMessenger").then((m) => ({ default: m.AiMentorMessenger })),
+);
 const AgentHub = React.lazy(() =>
   import("@/components/agents/AgentHub").then((m) => ({ default: m.AgentHub })),
 );
@@ -38,6 +44,8 @@ import {
   TrendingUp,
   Briefcase as BriefcaseIcon,
   Target,
+  LayoutDashboard,
+  Video,
   CheckCircle2,
   Plus,
   Trash2,
@@ -136,20 +144,19 @@ export const Route = createFileRoute("/_authenticated/career-studio")({
 });
 
 const TABS = [
+  { id: "overview", label: "Overview", icon: LayoutDashboard },
+  { id: "agents", label: "AI Career Coach", icon: Sparkles },
+  { id: "skillgap", label: "Skill Gap", icon: Target },
+  { id: "guides", label: "Roadmaps", icon: BookOpen },
+  { id: "job-board", label: "Jobs", icon: Briefcase },
   { id: "resume", label: "Resume Builder", icon: FileText },
-  { id: "ats", label: "ATS Checker", icon: BarChart3 },
-  { id: "interview", label: "Interview Prep", icon: Briefcase },
-  { id: "roadmap", label: "Career Roadmap", icon: Map },
-  { id: "portfolio", label: "Portfolio Builder", icon: FolderOpen },
+  { id: "interview", label: "Interview Studio", icon: Video },
   { id: "linkedin", label: "LinkedIn Optimizer", icon: Share2 },
+  { id: "coaching", label: "1:1 Coaching", icon: Compass },
+  { id: "ats", label: "ATS Scanner", icon: BarChart3 },
+  { id: "portfolio", label: "Portfolio Builder", icon: FolderOpen },
+  { id: "roadmap", label: "Custom Roadmap", icon: Map },
   { id: "analytics", label: "Career Analytics", icon: TrendingUp },
-  { id: "internships", label: "Internship Tracker", icon: BriefcaseIcon },
-  { id: "skillgap", label: "Skill Gap Analysis", icon: Target },
-  { id: "ikigai", label: "Career Finder", icon: Compass },
-  { id: "job-board", label: "Job Board Sync", icon: Globe },
-  { id: "github-audit", label: "GitHub Auditor", icon: Github },
-  { id: "guides", label: "Skill Roadmaps", icon: BookOpen },
-  { id: "agents", label: "AI Agents", icon: Sparkles },
 ];
 
 function CareerStudioHub() {
@@ -162,7 +169,7 @@ function CareerStudioHub() {
       const saved = localStorage.getItem("learnify_career_studio_active_tab");
       if (saved && TABS.some((t) => t.id === saved)) return saved;
     }
-    return "resume";
+    return "overview";
   });
   const [menuOpen, setMenuOpen] = useState(false);
   const [visitedTabs, setVisitedTabs] = useState<Set<string>>(() => new Set([activeTab]));
@@ -319,6 +326,8 @@ function CareerStudioHub() {
               tabId={t.id}
               isActive={activeTab === t.id}
               username={username}
+              user={user}
+              onSelectTab={switchTab}
             />
           );
         })}
@@ -327,8 +336,45 @@ function CareerStudioHub() {
   );
 }
 
-function renderSpecificModule(tabId: string, username: string) {
+function renderSpecificModule(
+  tabId: string,
+  username: string,
+  user?: any,
+  onSelectTab?: (t: string) => void,
+) {
   switch (tabId) {
+    case "overview":
+      return (
+        <CareerOsOverview
+          userName={user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Engineer"}
+          onSelectTab={onSelectTab || (() => {})}
+        />
+      );
+    case "agents":
+      return (
+        <AiMentorMessenger
+          user={user}
+          onOpenBookingModal={() => onSelectTab && onSelectTab("coaching")}
+        />
+      );
+    case "coaching":
+      return (
+        <div className="py-8 text-center space-y-4 max-w-md mx-auto">
+          <div className="p-3.5 bg-emerald-500/10 text-[#347A3D] rounded-2xl w-14 h-14 mx-auto flex items-center justify-center">
+            <Compass className="h-7 w-7" />
+          </div>
+          <h3 className="font-bold text-lg">1:1 Executive Coaching</h3>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            Direct 1-on-1 mentorship with Staff & Principal Engineers. Book verified video sessions, mock interviews, and system architecture reviews.
+          </p>
+          <a
+            href="/coaching"
+            className="inline-flex items-center justify-center gap-2 px-6 h-11 rounded-xl bg-[#347A3D] hover:bg-[#245F30] text-white font-semibold text-sm transition shadow-sm"
+          >
+            Launch Coaching Studio <ArrowRight className="h-4 w-4" />
+          </a>
+        </div>
+      );
     case "resume":
       return <ResumeBuilderPage embedded />;
     case "ats":
@@ -355,8 +401,6 @@ function renderSpecificModule(tabId: string, username: string) {
       return <GitHubAuditorView defaultUsername={username} />;
     case "guides":
       return <GuidesDocsView />;
-    case "agents":
-      return <AgentHub />;
     default:
       return null;
   }
@@ -367,10 +411,14 @@ const TabPanel = React.memo(
     tabId,
     isActive,
     username,
+    user,
+    onSelectTab,
   }: {
     tabId: string;
     isActive: boolean;
     username: string;
+    user?: any;
+    onSelectTab?: (t: string) => void;
   }) {
     return (
       <div
@@ -381,7 +429,7 @@ const TabPanel = React.memo(
         aria-hidden={!isActive}
       >
         <React.Suspense fallback={<CareerStudioModuleSkeleton />}>
-          {renderSpecificModule(tabId, username)}
+          {renderSpecificModule(tabId, username, user, onSelectTab)}
         </React.Suspense>
       </div>
     );

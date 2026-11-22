@@ -184,8 +184,13 @@ export const getPublicProfile = createServerFn({ method: "GET" })
       supabaseAdmin.from("user_roles").select("role").eq("user_id", id),
     ]);
 
+    const sanitizedProfile = {
+      ...profileData,
+      email: isOwner || profileData.ui_prefs?.show_email === true ? profileData.email : null,
+    };
+
     return {
-      profile: profileData,
+      profile: sanitizedProfile,
       is_private: false,
       subscribers: subRes.count ?? 0,
       likes: likesRes.count ?? 0,

@@ -814,7 +814,7 @@ ${customSkillsSummary ? `\nSkill Engine Knowledge Base:\n${customSkillsSummary}`
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="text-sm font-bold font-display text-foreground">Direct Messenger</span>
-                <Badge variant="outline" className="text-[10px] font-bold py-0 px-1.5 bg-primary/10 text-primary border-primary/20">
+                <Badge variant="outline" className="text-[10px] font-bold py-0 px-1.5 bg-emerald-500/10 text-[#347A3D] dark:text-emerald-400 border-emerald-500/20">
                   v2.0
                 </Badge>
               </div>
@@ -828,7 +828,7 @@ ${customSkillsSummary ? `\nSkill Engine Knowledge Base:\n${customSkillsSummary}`
                       : "text-muted-foreground hover:text-foreground"
                   )}
                 >
-                  <Bot className="w-3 h-3 text-primary" />
+                  <Bot className="w-3 h-3 text-[#347A3D] dark:text-emerald-400" />
                   <span>AI Mentors</span>
                 </button>
                 <button
@@ -870,9 +870,9 @@ ${customSkillsSummary ? `\nSkill Engine Knowledge Base:\n${customSkillsSummary}`
                     key={cat.id}
                     onClick={() => setCategoryFilter(cat.id)}
                     className={cn(
-                      "px-2.5 py-1 rounded-full text-[11px] font-medium shrink-0 transition-all",
+                      "px-2.5 py-1 rounded-full text-[11px] font-medium shrink-0 transition-all cursor-pointer",
                       categoryFilter === cat.id
-                        ? "bg-primary text-primary-foreground font-semibold"
+                        ? "bg-[#347A3D] text-white font-semibold shadow-xs"
                         : "bg-card hover:bg-muted text-muted-foreground border border-border/60"
                     )}
                   >
@@ -904,7 +904,7 @@ ${customSkillsSummary ? `\nSkill Engine Knowledge Base:\n${customSkillsSummary}`
                       className={cn(
                         "w-full p-2.5 rounded-2xl text-left transition-all flex items-center gap-3 cursor-pointer group relative border",
                         isSelected
-                          ? "bg-primary/10 border-primary/40 shadow-xs ring-1 ring-primary/20"
+                          ? "bg-emerald-500/10 border-emerald-500/40 shadow-xs ring-1 ring-emerald-500/20 text-foreground"
                           : "hover:bg-muted/50 border-transparent"
                       )}
                     >
@@ -1029,10 +1029,10 @@ ${customSkillsSummary ? `\nSkill Engine Knowledge Base:\n${customSkillsSummary}`
 
                     <div className="min-w-0 flex-1 flex flex-col justify-center overflow-hidden">
                       <div className="flex items-center gap-1.5 flex-nowrap min-w-0">
-                        <h3 className="font-bold text-sm text-foreground truncate group-hover:text-primary transition-colors min-w-0">
+                        <h3 className="font-bold text-sm text-foreground truncate group-hover:text-[#347A3D] transition-colors min-w-0">
                           {mentorConfig.customName || selectedMentor.name}
                         </h3>
-                        <Badge variant="outline" className="hidden xl:inline-flex text-[10px] py-0 px-1.5 font-bold border-primary/30 text-primary shrink-0">
+                        <Badge variant="outline" className="hidden xl:inline-flex text-[10px] py-0 px-1.5 font-bold border-emerald-500/30 text-[#347A3D] dark:text-emerald-400 shrink-0">
                           {selectedMentor.badge}
                         </Badge>
                         <span className="hidden md:inline-flex items-center gap-1 text-[10px] text-emerald-500 font-semibold font-mono shrink-0">
@@ -1111,7 +1111,7 @@ ${customSkillsSummary ? `\nSkill Engine Knowledge Base:\n${customSkillsSummary}`
                     variant="outline"
                     size="sm"
                     onClick={() => setUpgradeDialogOpen(true)}
-                    className="h-8 text-xs font-semibold gap-1 sm:gap-1.5 rounded-xl border-primary/30 text-primary hover:bg-primary/10 px-2 sm:px-2.5 cursor-pointer shrink-0"
+                    className="h-8 text-xs font-semibold gap-1 sm:gap-1.5 rounded-xl border-emerald-500/30 text-[#347A3D] dark:text-emerald-400 hover:bg-emerald-500/10 px-2 sm:px-2.5 cursor-pointer shrink-0"
                     title="Customize Memory & Skills (Gmail, Docs, Sheets, Slides)"
                   >
                     <Sliders className="w-3.5 h-3.5" />
@@ -1216,7 +1216,7 @@ ${customSkillsSummary ? `\nSkill Engine Knowledge Base:\n${customSkillsSummary}`
                           className={cn(
                             "rounded-2xl px-4 py-3 text-xs sm:text-sm leading-relaxed relative shadow-xs transition-all",
                             isUser
-                              ? "bg-primary text-primary-foreground rounded-tr-xs"
+                              ? "bg-[#347A3D] text-white rounded-tr-xs shadow-xs"
                               : "bg-card border border-border/80 text-foreground rounded-tl-xs"
                           )}
                         >
@@ -1570,7 +1570,7 @@ ${customSkillsSummary ? `\nSkill Engine Knowledge Base:\n${customSkillsSummary}`
                   <Button
                     onClick={() => handleSendMessage()}
                     disabled={!inputMessage.trim() && attachments.length === 0}
-                    className="h-10 px-4 rounded-2xl gap-1.5 font-semibold text-xs shrink-0 shadow-md"
+                    className="h-10 px-4 rounded-2xl gap-1.5 font-semibold text-xs shrink-0 shadow-md bg-[#347A3D] hover:bg-[#245F30] text-white"
                   >
                     <Send className="w-4 h-4" />
                   </Button>

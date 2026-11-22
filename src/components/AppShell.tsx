@@ -257,7 +257,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   );
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="min-h-[100dvh] bg-background flex">
       {/* Desktop sidebar */}
       <aside className="hidden md:flex w-60 shrink-0 flex-col border-r bg-card/40 backdrop-blur">
         <Link to="/" className="flex items-center px-5 h-16 border-b" aria-label="Learnify AI">
@@ -290,8 +290,8 @@ export function AppShell({ children }: { children: ReactNode }) {
       </Sheet>
 
       {/* Mobile top bar */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-40 h-12 bg-card/80 backdrop-blur-lg border-b flex items-center px-3 gap-2">
-        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setMobileOpen(true)}>
+      <div className="md:hidden fixed top-0 left-0 right-0 z-40 h-13 bg-card/90 backdrop-blur-lg border-b flex items-center px-3 gap-2.5">
+        <Button variant="ghost" size="icon" className="h-9 w-9 -ml-1 text-foreground" onClick={() => setMobileOpen(true)} aria-label="Open menu">
           <Menu className="h-5 w-5" />
         </Button>
         <Link to="/" className="flex items-center" aria-label="Learnify AI">
@@ -300,35 +300,38 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="flex-1" />
         <HarkNotificationBell />
         {(cartCount.data ?? 0 > 0) ? (
-          <Link to="/cart" className="relative">
+          <Link to="/cart" className="relative p-1" aria-label="Shopping Cart">
             <ShoppingCart className="h-5 w-5 text-muted-foreground" />
-            <span className="absolute -top-1.5 -right-1.5 text-[9px] bg-primary text-primary-foreground rounded-full min-w-[16px] h-4 flex items-center justify-center font-semibold">
+            <span className="absolute -top-0.5 -right-0.5 text-[9px] bg-primary text-primary-foreground rounded-full min-w-[16px] h-4 flex items-center justify-center font-semibold">
               {cartCount.data}
             </span>
           </Link>
         ) : null}
+        <div className="shrink-0 ml-1">
+          <UserAvatarMenu size="sm" />
+        </div>
       </div>
 
       {/* Main content */}
-      <main className="flex-1 min-w-0 pt-12 pb-20 md:pt-0 md:pb-0">{children}</main>
+      <main className="flex-1 min-w-0 pt-13 pb-20 md:pt-0 md:pb-0">{children}</main>
 
       {/* Mobile bottom nav */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-card/90 backdrop-blur-lg border-t safe-area-bottom">
-        <div className="flex items-center justify-around h-14 px-1">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-card/95 backdrop-blur-xl border-t border-border/80 safe-area-bottom shadow-lg">
+        <div className="flex items-center justify-around h-15 px-1">
           {MOBILE_BOTTOM_NAV.map((item) => {
-            const active = path === item.to || path.startsWith(item.to + "/");
+            const active = path === item.to || (item.to !== "/dashboard" && path.startsWith(item.to));
             const Icon = item.icon;
             return (
               <Link
                 key={item.to}
                 to={item.to}
                 className={cn(
-                  "flex flex-col items-center justify-center gap-0.5 w-14 py-1 rounded-xl transition-all",
-                  active ? "text-primary" : "text-muted-foreground active:text-foreground",
+                  "flex flex-col items-center justify-center gap-1 w-14 py-1 rounded-xl transition-all select-none min-h-[44px]",
+                  active ? "text-primary font-bold" : "text-muted-foreground active:text-foreground",
                 )}
               >
                 <Icon className="h-5 w-5" strokeWidth={active ? 2.5 : 2} />
-                <span className="text-[10px] font-medium leading-none">{item.label}</span>
+                <span className="text-[10px] tracking-tight leading-none">{item.label}</span>
               </Link>
             );
           })}
