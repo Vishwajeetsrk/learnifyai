@@ -42,6 +42,7 @@ import {
   CheckCircle,
   Sparkles,
   Printer,
+  QrCode,
 } from "lucide-react";
 import { PlatformTreasuryBento } from "@/components/ui/platform-treasury-bento";
 import {
@@ -1137,7 +1138,7 @@ function BillingOSPage() {
 
             {/* Thermal & GST Tax Invoice Preview & Print Modal */}
             <Dialog open={!!previewInvoice} onOpenChange={(open) => !open && setPreviewInvoice(null)}>
-              <DialogContent className="max-w-xl p-6 flex flex-col items-center max-h-[90vh] overflow-y-auto bg-card border-border shadow-2xl rounded-2xl">
+              <DialogContent className="max-w-2xl p-6 flex flex-col items-center max-h-[92vh] overflow-y-auto bg-card border-border shadow-2xl rounded-2xl">
                 <DialogHeader className="text-center w-full pb-2 border-b border-border/60">
                   <div className="flex items-center justify-between">
                     <DialogTitle className="text-base font-bold flex items-center gap-2">
@@ -1177,106 +1178,242 @@ function BillingOSPage() {
                   </DialogDescription>
                 </DialogHeader>
 
-                {previewInvoice && invoicePreviewMode === "tax" && (
-                  <div className="my-3 w-full bg-background border border-border/80 rounded-xl p-6 text-foreground font-sans text-xs space-y-4 shadow-sm">
-                    {/* Header: Company & Tax Details */}
-                    <div className="flex justify-between items-start border-b border-border/60 pb-4">
-                      <div>
-                        <h3 className="font-display font-extrabold text-base tracking-tight text-foreground">
-                          LEARNIFY EDTECH PRIVATE LIMITED
-                        </h3>
-                        <p className="text-[11px] text-muted-foreground mt-0.5">
-                          Registered Office: Level 4, Prestige Tech Park, Bangalore 560103, KA, India
-                        </p>
-                        <p className="text-[11px] font-mono text-muted-foreground mt-0.5">
-                          GSTIN: <span className="font-bold text-foreground">29XXXXX1234X1Z5</span> · PAN: <span className="font-bold text-foreground">AABCL1234K</span>
-                        </p>
-                        <p className="text-[11px] font-mono text-muted-foreground">
-                          Place of Supply: <span className="font-semibold text-foreground">Karnataka (State Code: 29)</span>
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-extrabold tracking-wider bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 uppercase">
-                          {previewInvoice.status || "PAID"}
+                {previewInvoice && invoicePreviewMode === "tax" && (() => {
+                  const total = Number(previewInvoice.total_inr || previewInvoice.amount_inr || 0);
+                  const taxableVal = +(total / 1.18).toFixed(2);
+                  const cgst = +((total - taxableVal) / 2).toFixed(2);
+                  const sgst = +(total - taxableVal - cgst).toFixed(2);
+                  const invoiceNum = previewInvoice.invoice_number || previewInvoice.id;
+                  const companyName = billingSettings.data?.company_name || "Learnify AI";
+                  const legalName = billingSettings.data?.legal_name || "Learnify EdTech Pvt. Ltd.";
+                  const gstin = billingSettings.data?.gstin || "29XXXXX1234X1Z5";
+                  const pan = billingSettings.data?.pan || "AABCL1234K";
+                  const address = billingSettings.data?.address || "Innovation Hub, Bangalore, Karnataka, 560102, India";
+                  const supportEmail = billingSettings.data?.support_email || "vishwajeetsrk@gmail.com";
+
+                  return (
+                    <div className="my-3 w-full bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 border border-border/80 rounded-2xl p-6 sm:p-8 font-sans text-xs space-y-5 shadow-md relative overflow-hidden">
+                      {/* Watermark Label */}
+                      <div
+                        className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden"
+                        style={{ opacity: 0.04 }}
+                      >
+                        <span className="text-[100px] font-black tracking-widest text-emerald-500 rotate-12">
+                          PAID
                         </span>
-                        <div className="font-mono text-xs font-bold text-foreground mt-1.5">
-                          #{previewInvoice.invoice_number || previewInvoice.id}
+                      </div>
+
+                      {/* Header Layout: Logo, Brand & Tax Invoice */}
+                      <div className="flex justify-between items-start border-b border-border/60 pb-4 relative z-10">
+                        <div className="flex items-center gap-3">
+                          <img
+                            src="/logo.png"
+                            alt="Logo"
+                            className="h-10 w-auto max-w-[130px] object-contain"
+                            onError={(e) => {
+                              (e.target as HTMLElement).style.display = "none";
+                            }}
+                          />
+                          <div>
+                            <h3 className="font-display font-extrabold text-base tracking-tight text-foreground uppercase">
+                              {companyName}
+                            </h3>
+                            <p className="text-[11px] text-muted-foreground mt-0.5 font-medium">
+                              {legalName}
+                            </p>
+                            <p className="text-[10px] font-mono text-muted-foreground mt-0.5">
+                              GSTIN: <span className="font-bold text-foreground">{gstin}</span> · PAN: <span className="font-bold text-foreground">{pan}</span>
+                            </p>
+                          </div>
                         </div>
-                        <div className="text-[10px] text-muted-foreground mt-0.5">
-                          Date: {previewInvoice.created_at ? format(new Date(previewInvoice.created_at), "dd MMM yyyy") : "—"}
-                        </div>
-                      </div>
-                    </div>
 
-                    {/* Billed To Customer */}
-                    <div className="grid grid-cols-2 gap-4 bg-muted/30 p-3 rounded-lg border border-border/50">
-                      <div>
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Billed To (Customer):</span>
-                        <p className="font-bold text-foreground text-xs mt-0.5">
-                          {previewInvoice.user?.full_name || previewInvoice.user?.email || "Valued Subscriber"}
-                        </p>
-                        <p className="text-muted-foreground text-[11px]">
-                          {previewInvoice.user?.email || "customer@learnifyai.com"}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Service SAC / HSN:</span>
-                        <p className="font-mono font-bold text-foreground text-xs mt-0.5">998431</p>
-                        <p className="text-muted-foreground text-[11px]">Online Training & EdTech Services</p>
-                      </div>
-                    </div>
-
-                    {/* Line Items Table */}
-                    <div className="border border-border/60 rounded-lg overflow-hidden">
-                      <table className="w-full text-left border-collapse text-xs">
-                        <thead className="bg-muted/60 text-muted-foreground font-semibold text-[11px]">
-                          <tr>
-                            <th className="p-2.5">Item Description</th>
-                            <th className="p-2.5 text-center">SAC</th>
-                            <th className="p-2.5 text-right">Taxable Value</th>
-                            <th className="p-2.5 text-right">CGST (9%)</th>
-                            <th className="p-2.5 text-right">SGST (9%)</th>
-                            <th className="p-2.5 text-right">Total (INR)</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-border/40">
-                          <tr>
-                            <td className="p-2.5 font-medium">
-                              {previewInvoice.description || "Learnify AI Pro Platform Subscription"}
-                            </td>
-                            <td className="p-2.5 text-center font-mono text-[11px]">998431</td>
-                            <td className="p-2.5 text-right font-mono">
-                              ₹{(Number(previewInvoice.total_inr || 0) / 1.18).toFixed(2)}
-                            </td>
-                            <td className="p-2.5 text-right font-mono text-muted-foreground">
-                              ₹{(Number(previewInvoice.total_inr || 0) * 0.09 / 1.18).toFixed(2)}
-                            </td>
-                            <td className="p-2.5 text-right font-mono text-muted-foreground">
-                              ₹{(Number(previewInvoice.total_inr || 0) * 0.09 / 1.18).toFixed(2)}
-                            </td>
-                            <td className="p-2.5 text-right font-mono font-bold text-foreground">
-                              {inr(Number(previewInvoice.total_inr) || 0)}
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-
-                    {/* Summary Totals & Digital Stamp */}
-                    <div className="flex justify-between items-center pt-2">
-                      <div className="text-[10px] text-muted-foreground font-mono">
-                        <div>Reverse Charge: Applicable (No)</div>
-                        <div className="text-emerald-500 font-semibold mt-0.5">✓ Digitally Signed & System Verified</div>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-xs text-muted-foreground">Total Invoice Value (Incl. 18% GST)</div>
-                        <div className="font-display font-extrabold text-xl text-primary">
-                          {inr(Number(previewInvoice.total_inr) || 0)}
+                        <div className="text-right">
+                          <span className="inline-block px-3 py-1 rounded-full text-[10px] font-extrabold tracking-wider bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 uppercase">
+                            OFFICIAL TAX INVOICE
+                          </span>
+                          <div className="font-mono text-xs font-bold text-foreground mt-2">
+                            #{invoiceNum}
+                          </div>
+                          <div className="text-[10px] text-muted-foreground mt-0.5">
+                            Date: {previewInvoice.created_at ? format(new Date(previewInvoice.created_at), "dd MMM yyyy") : "—"}
+                          </div>
                         </div>
                       </div>
+
+                      {/* Info Row: Date, Status, Place of Supply */}
+                      <div className="grid grid-cols-3 gap-3 text-[11px] bg-muted/40 p-3 rounded-xl border border-border/50 relative z-10">
+                        <div>
+                          <span className="text-[9px] uppercase font-bold text-muted-foreground block">Invoice Date</span>
+                          <strong className="text-foreground mt-0.5 block">
+                            {previewInvoice.created_at ? format(new Date(previewInvoice.created_at), "dd MMM yyyy") : "—"}
+                          </strong>
+                        </div>
+                        <div>
+                          <span className="text-[9px] uppercase font-bold text-muted-foreground block">Payment Status</span>
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-500/10 text-emerald-600 mt-0.5">
+                            {(previewInvoice.status || "PAID").toUpperCase()}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-[9px] uppercase font-bold text-muted-foreground block">Place of Supply</span>
+                          <strong className="text-foreground mt-0.5 block">Karnataka (State Code: 29)</strong>
+                        </div>
+                      </div>
+
+                      {/* Billed From & Billed To Grid */}
+                      <div className="grid grid-cols-2 gap-6 text-[11px] relative z-10">
+                        <div className="space-y-1">
+                          <span className="text-[9px] font-bold text-muted-foreground tracking-wider uppercase block">
+                            From
+                          </span>
+                          <strong className="block text-xs">{companyName}</strong>
+                          <p className="text-[10px] text-muted-foreground leading-relaxed whitespace-pre-line">
+                            {address}
+                          </p>
+                          <span className="text-[10px] text-muted-foreground block mt-1">
+                            GSTIN: <strong>{gstin}</strong>
+                          </span>
+                          <span className="text-[10px] text-muted-foreground block">
+                            Support: {supportEmail}
+                          </span>
+                        </div>
+
+                        <div className="space-y-1">
+                          <span className="text-[9px] font-bold text-muted-foreground tracking-wider uppercase block">
+                            Bill To (Customer)
+                          </span>
+                          <strong className="block text-xs">
+                            {previewInvoice.user?.full_name || previewInvoice.customer_name || "Valued Subscriber"}
+                          </strong>
+                          <p className="text-[10px] text-muted-foreground leading-relaxed">
+                            {previewInvoice.user?.email || "customer@learnifyai.com"}
+                            <br />
+                            {previewInvoice.customer_address || "H.No. 405, Sector 4, HSR Layout, Bangalore, Karnataka, 560102"}
+                          </p>
+                          <span className="text-[10px] text-muted-foreground block mt-1">
+                            Place of Supply: State Code 29 (KA) · HSN/SAC: 998431
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Line Items Table */}
+                      <div className="border border-border/70 rounded-xl overflow-hidden relative z-10">
+                        <table className="w-full text-left border-collapse text-xs">
+                          <thead className="bg-muted/70 text-muted-foreground font-semibold text-[10px] uppercase tracking-wider">
+                            <tr>
+                              <th className="p-2.5">Item Description</th>
+                              <th className="p-2.5 text-center">SAC</th>
+                              <th className="p-2.5 text-right">Taxable Value</th>
+                              <th className="p-2.5 text-right">CGST (9%)</th>
+                              <th className="p-2.5 text-right">SGST (9%)</th>
+                              <th className="p-2.5 text-right">Total (INR)</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-border/50">
+                            <tr>
+                              <td className="p-2.5 font-medium">
+                                {previewInvoice.description || "Learnify AI Pro Platform Subscription"}
+                              </td>
+                              <td className="p-2.5 text-center font-mono text-[11px]">998431</td>
+                              <td className="p-2.5 text-right font-mono">
+                                INR {taxableVal.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                              </td>
+                              <td className="p-2.5 text-right font-mono text-muted-foreground">
+                                INR {cgst.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                              </td>
+                              <td className="p-2.5 text-right font-mono text-muted-foreground">
+                                INR {sgst.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                              </td>
+                              <td className="p-2.5 text-right font-mono font-bold text-foreground">
+                                INR {total.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+
+                      {/* Breakdown & Payment Details */}
+                      <div className="flex justify-between items-start text-[11px] border-t border-border/60 pt-4 relative z-10">
+                        <div className="space-y-1">
+                          <span className="text-[9px] font-bold text-muted-foreground tracking-wider uppercase block">
+                            Payment Details
+                          </span>
+                          <p className="text-[10px] text-muted-foreground leading-relaxed">
+                            Gateway: <strong>{previewInvoice.cashfree_order_id ? "Cashfree Payments" : "Razorpay"}</strong>
+                            <br />
+                            Transaction ID: <strong>{previewInvoice.cashfree_order_id || previewInvoice.razorpay_payment_id || previewInvoice.id}</strong>
+                            <br />
+                            Method: <strong>{previewInvoice.payment_method || "UPI (Instant)"}</strong>
+                          </p>
+                          <div className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold mt-1">
+                            ✓ Reverse Charge: Applicable (No) · Digitally Signed
+                          </div>
+                        </div>
+
+                        <div className="w-52 text-right space-y-1.5">
+                          <div className="flex justify-between text-muted-foreground text-[10px]">
+                            <span>Subtotal (Taxable):</span>
+                            <span>INR {taxableVal.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+                          </div>
+                          <div className="flex justify-between text-muted-foreground text-[10px]">
+                            <span>CGST @ 9%:</span>
+                            <span>INR {cgst.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+                          </div>
+                          <div className="flex justify-between text-muted-foreground text-[10px]">
+                            <span>SGST @ 9%:</span>
+                            <span>INR {sgst.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+                          </div>
+                          <div
+                            className="flex justify-between font-bold text-xs p-2 rounded-lg mt-1 text-white shadow-xs"
+                            style={{ backgroundColor: "#347A3D" }}
+                          >
+                            <span>TOTAL PAID:</span>
+                            <span>INR {total.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Footer: QR Code & Signature */}
+                      <div className="grid grid-cols-2 gap-4 items-end text-[10px] border-t border-border/60 pt-4 relative z-10">
+                        <div className="flex items-center gap-2">
+                          <div className="w-14 h-14 border rounded-lg p-1 bg-white flex items-center justify-center shrink-0 shadow-xs">
+                            <QrCode className="w-full h-full text-slate-800" />
+                          </div>
+                          <div>
+                            <strong className="block text-[8px] uppercase tracking-wider text-muted-foreground">
+                              Scan to Verify
+                            </strong>
+                            <span className="text-[8px] text-muted-foreground block leading-tight mt-0.5">
+                              Tamper-proof GST validation on www.learnifyai.in.
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="text-right space-y-1">
+                          <div className="h-9 flex justify-end">
+                            <img
+                              src="/vishwajeet fake sign.png"
+                              alt="Signature"
+                              className="h-full object-contain max-w-[120px]"
+                              onError={(e) => {
+                                (e.target as HTMLElement).style.display = "none";
+                              }}
+                            />
+                          </div>
+                          <span className="text-[9px] font-bold text-muted-foreground block">
+                            Authorized Signatory · Learnify AI
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Bottom Brand Ribbon */}
+                      <div
+                        className="absolute bottom-0 left-0 right-0 h-1.5"
+                        style={{ backgroundColor: "#347A3D" }}
+                      />
                     </div>
-                  </div>
-                )}
+                  );
+                })()}
 
                 {previewInvoice && invoicePreviewMode === "thermal" && (
                   <div className="my-2 w-full flex justify-center">

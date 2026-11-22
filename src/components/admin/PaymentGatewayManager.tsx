@@ -39,6 +39,42 @@ type Gateway = "razorpay" | "cashfree";
 const RAZORPAY_DOCS = "https://razorpay.com/docs/payment-gateway/dashboard-guide/settings/api-keys/";
 const CASHFREE_DOCS = "https://docs.cashfree.com/docs/api-keys";
 
+/** Official Razorpay Brand Emblem SVG */
+function RazorpayBrandIcon({ className = "w-6 h-6" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="24" height="24" rx="6" fill="#0C2340" />
+      <path
+        d="M17.4 4.5L8.9 10.1l-.8 3.1 4.7-3.1-2.4 8.9h4.1l4.9-14.5z"
+        fill="#3395FF"
+      />
+      <path
+        d="M2.5 21.5l3.8-14.3 4.8-3.1-2.4 8.8 4.7-3.1-3.8 14.3-2.3-2.6H2.5z"
+        fill="#0284C7"
+      />
+    </svg>
+  );
+}
+
+/** Official Cashfree Brand Emblem SVG */
+function CashfreeBrandIcon({ className = "w-6 h-6" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="24" height="24" rx="6" fill="#0A0E2A" />
+      <circle cx="8.5" cy="8.5" r="4" fill="#00D285" />
+      <circle cx="15.5" cy="15.5" r="4" fill="#FFB800" />
+      <path
+        d="M8.5 12.5C10.7091 12.5 12.5 10.7091 12.5 8.5C12.5 9.8 13.2 11 14.2 11.8C13.4 12.6 12.6 13.4 11.8 14.2C11 13.2 9.8 12.5 8.5 12.5Z"
+        fill="#00E5FF"
+      />
+      <path
+        d="M15.5 11.5C13.2909 11.5 11.5 13.2909 11.5 15.5C11.5 14.2 10.8 13 9.8 12.2C10.6 11.4 11.4 10.6 12.2 9.8C13 10.8 14.2 11.5 15.5 11.5Z"
+        fill="#FFD000"
+      />
+    </svg>
+  );
+}
+
 /* ─── Component ─────────────────────────────────────────────────────────────── */
 
 export function PaymentGatewayManager() {
@@ -220,8 +256,8 @@ export function PaymentGatewayManager() {
             tagline="Primary · Default Gateway"
             description="UPI, Cards, Net Banking, EMI. Seamless Indian payment experience."
             badge="PRIMARY"
-            badgeClass="bg-indigo-500/15 text-indigo-400 border-indigo-500/30"
-            icon="🔵"
+            badgeClass="bg-blue-500/15 text-blue-600 dark:text-blue-400 border-blue-500/30"
+            icon={<RazorpayBrandIcon className="w-5 h-5 rounded" />}
           />
           {/* Cashfree Option */}
           <GatewayCard
@@ -231,8 +267,8 @@ export function PaymentGatewayManager() {
             tagline="Optional · Admin-Configurable"
             description="UPI, Cards, eNACH, EMI. Enable only when App ID & Secret are set."
             badge="OPTIONAL"
-            badgeClass="bg-amber-500/15 text-amber-400 border-amber-500/30"
-            icon="🟡"
+            badgeClass="bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30"
+            icon={<CashfreeBrandIcon className="w-5 h-5 rounded" />}
           />
         </div>
 
@@ -447,14 +483,14 @@ function GatewayCard({
   description: string;
   badge: string;
   badgeClass: string;
-  icon: string;
+  icon: React.ReactNode;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
       className={cn(
-        "relative text-left w-full rounded-xl border p-4 space-y-2 transition-all duration-200",
+        "relative text-left w-full rounded-xl border p-4 space-y-2 transition-all duration-200 cursor-pointer",
         "hover:border-primary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         selected
           ? "border-primary bg-primary/5 shadow-sm shadow-primary/10"
@@ -464,8 +500,10 @@ function GatewayCard({
       {selected && (
         <div className="absolute top-3 right-3 h-2 w-2 rounded-full bg-primary animate-pulse" />
       )}
-      <div className="flex items-center gap-2">
-        <span className="text-lg">{icon}</span>
+      <div className="flex items-center gap-2.5">
+        <div className="w-7 h-7 rounded-lg overflow-hidden shrink-0 flex items-center justify-center shadow-xs">
+          {icon}
+        </div>
         <span className="text-sm font-bold text-foreground">{name}</span>
         <Badge className={cn("text-[10px] font-semibold ml-auto", badgeClass)}>{badge}</Badge>
       </div>

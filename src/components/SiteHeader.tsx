@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -6,6 +6,7 @@ import { UserAvatarMenu } from "@/components/UserAvatarMenu";
 import { HarkNotificationBell } from "@/components/notice/HarkNotificationBell";
 import { useAuth } from "@/hooks/use-auth";
 import { usePublicMenu } from "@/hooks/use-wcms-public";
+import { cn } from "@/lib/utils";
 import {
   Loader2,
   Menu as LucideMenu,
@@ -69,6 +70,7 @@ export function SiteHeader() {
   const { data: menuItems = [], isLoading: menuLoading } = usePublicMenu("main");
   const { data: siteSettings } = useSiteSettings();
   const { t, ready } = useTranslation();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   useEffect(() => {
     initAutomaticLocale();
@@ -152,19 +154,35 @@ export function SiteHeader() {
                 {navItems.map((item: any) => {
                   const key = item.id || item.label;
                   const isHovered = hoveredNav === key;
+                  const isActive =
+                    item.url === "/"
+                      ? pathname === "/"
+                      : pathname === item.url || (item.url !== "/" && pathname.startsWith(item.url));
                   return (
                     <Link
                       key={key}
                       to={item.url || "/"}
                       preload="intent"
                       onMouseEnter={() => setHoveredNav(key)}
-                      className="relative px-3.5 py-1.5 rounded-full text-xs lg:text-sm font-medium transition-colors text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5 z-10"
+                      className={cn(
+                        "relative px-3.5 py-1.5 rounded-full text-xs lg:text-sm font-medium transition-colors inline-flex items-center gap-1.5 z-10",
+                        isActive
+                          ? "text-foreground font-semibold"
+                          : "text-muted-foreground hover:text-foreground",
+                      )}
                     >
                       {isHovered && (
                         <motion.div
-                          layoutId="navbar-pill"
+                          layoutId="navbar-pill-hover"
                           transition={{ type: "spring", bounce: 0.2, duration: 0.35 }}
                           className="absolute inset-0 rounded-full bg-background/90 dark:bg-white/10 shadow-xs border border-border/70 -z-10"
+                        />
+                      )}
+                      {!isHovered && isActive && (
+                        <motion.div
+                          layoutId="navbar-pill-active"
+                          transition={{ type: "spring", bounce: 0.2, duration: 0.35 }}
+                          className="absolute inset-0 rounded-full bg-primary/10 border border-primary/25 -z-10"
                         />
                       )}
                       <span>{item.label}</span>

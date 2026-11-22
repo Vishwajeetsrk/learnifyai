@@ -117,12 +117,7 @@ import {
   adminCreateUser,
 } from "@/lib/admin-users.functions";
 import { DemandForecastWidget } from "@/components/DemandForecastWidget";
-import {
-  adminListEmailTemplates,
-  adminGetEmailTemplate,
-  adminSaveEmailTemplate,
-  adminSendTestEmail,
-} from "@/lib/welcome-email.functions";
+import { EmailTemplatesManager } from "@/components/admin/EmailTemplatesManager";
 import { getCoupons } from "@/lib/billing.functions";
 
 const APP_ROLES = [
@@ -1256,7 +1251,7 @@ function AdminOverview() {
                 className="justify-start h-8 px-2 text-xs w-full cursor-pointer hover:bg-muted"
                 onClick={() => setShowEmailTemplates(true)}
               >
-                <Mail className="h-3.5 w-3.5 mr-2 text-blue-500" /> Email Templates
+                <Mail className="h-3.5 w-3.5 mr-2 text-emerald-500" /> Email Templates &amp; Outreach
               </Button>
             </div>
           </div>
@@ -2419,22 +2414,11 @@ function AdminOverview() {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Email Templates Dialog */}
+      {/* Email Templates & Marketing Broadcast Dialog */}
       {showEmailTemplates && (
         <Dialog open={showEmailTemplates} onOpenChange={setShowEmailTemplates}>
-          <DialogContent className="max-w-5xl h-[90vh] flex flex-col p-0 gap-0">
-            <DialogHeader className="px-6 py-4 border-b shrink-0">
-              <DialogTitle className="flex items-center gap-2">
-                <Mail className="h-5 w-5 text-primary" />
-                Email Templates
-              </DialogTitle>
-              <DialogDescription>
-                Edit platform email templates. Changes apply immediately to all future emails.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="flex-1 overflow-hidden">
-              <EmailTemplatesPanel />
-            </div>
+          <DialogContent className="max-w-6xl h-[92vh] flex flex-col p-0 gap-0 overflow-hidden">
+            <EmailTemplatesManager />
           </DialogContent>
         </Dialog>
       )}
@@ -3034,217 +3018,3 @@ function formatDest(w: WithdrawalRow): string {
   return "";
 }
 
-// ─── Email Templates Panel ────────────────────────────────────────────────────
-function EmailTemplatesPanel() {
-  const listFn = useServerFn(adminListEmailTemplates);
-  const getFn = useServerFn(adminGetEmailTemplate);
-  const saveFn = useServerFn(adminSaveEmailTemplate);
-  const testFn = useServerFn(adminSendTestEmail);
-
-  type TemplateRow = {
-    id: string;
-    name: string;
-    subject: string;
-    description: string | null;
-    variables: string[] | null;
-    updated_at: string;
-  };
-  const [templates, setTemplates] = useState<TemplateRow[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selected, setSelected] = useState<string | null>(null);
-  const [editSubject, setEditSubject] = useState("");
-  const [editHtml, setEditHtml] = useState("");
-  const [editName, setEditName] = useState("");
-  const [testEmail, setTestEmail] = useState("");
-  const [saving, setSaving] = useState(false);
-  const [testing, setTesting] = useState(false);
-  const [preview, setPreview] = useState(false);
-
-  useEffect(() => {
-    listFn({})
-      .then((data: any) => {
-        setTemplates((data ?? []) as TemplateRow[]);
-        setLoading(false);
-        if (data?.length) selectTemplate(data[0].id);
-      })
-      .catch(() => setLoading(false));
-  }, []);
-
-  async function selectTemplate(id: string) {
-    setSelected(id);
-    setPreview(false);
-    const tpl = (await getFn({ data: { id } })) as any;
-    if (tpl) {
-      setEditName(tpl.name);
-      setEditSubject(tpl.subject);
-      setEditHtml(tpl.html_body);
-    }
-  }
-
-  async function handleSave() {
-    if (!selected) return;
-    setSaving(true);
-    try {
-      await saveFn({
-        data: { id: selected, name: editName, subject: editSubject, html_body: editHtml },
-      });
-      toast.success("Template saved!");
-      const updated = (await listFn({})) as any;
-      setTemplates((updated ?? []) as TemplateRow[]);
-    } catch (e: any) {
-      toast.error(e?.message ?? "Save failed");
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  async function handleTest() {
-    if (!selected || !testEmail) return;
-    setTesting(true);
-    try {
-      const res = await testFn({ data: { templateId: selected, to: testEmail } });
-      toast.success(`Test email sent via ${res.provider}!`);
-    } catch (e: any) {
-      toast.error(e?.message ?? "Send failed");
-    } finally {
-      setTesting(false);
-    }
-  }
-
-  if (loading)
-    return (
-      <div className="flex items-center justify-center h-full">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-
-  return (
-    <div className="flex h-full">
-      {/* Sidebar: template list */}
-      <div className="w-56 shrink-0 border-r overflow-y-auto">
-        {templates.map((tpl) => (
-          <button
-            key={tpl.id}
-            onClick={() => selectTemplate(tpl.id)}
-            className={cn(
-              "w-full text-left px-4 py-3 border-b text-sm transition-colors hover:bg-muted/50",
-              selected === tpl.id &&
-                "bg-primary/10 text-primary font-medium border-l-2 border-l-primary",
-            )}
-          >
-            <div className="font-medium truncate">{tpl.name}</div>
-            <div className="text-xs text-muted-foreground mt-0.5 truncate">{tpl.id}</div>
-          </button>
-        ))}
-      </div>
-
-      {/* Editor area */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {selected ? (
-          <>
-            {/* Toolbar */}
-            <div className="flex items-center gap-2 px-4 py-3 border-b shrink-0 flex-wrap">
-              <div className="flex items-center gap-2 flex-1 min-w-0">
-                <Mail className="h-4 w-4 text-muted-foreground shrink-0" />
-                <span className="text-sm font-medium truncate">{editName}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Button
-                  size="sm"
-                  variant={preview ? "default" : "outline"}
-                  onClick={() => setPreview((v) => !v)}
-                >
-                  <Eye className="h-4 w-4" />
-                  {preview ? "Edit" : "Preview"}
-                </Button>
-                <div className="flex items-center gap-1.5">
-                  <Input
-                    placeholder="test@email.com"
-                    value={testEmail}
-                    onChange={(e) => setTestEmail(e.target.value)}
-                    className="h-8 text-xs w-40"
-                    type="email"
-                  />
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={handleTest}
-                    disabled={testing || !testEmail}
-                  >
-                    {testing ? (
-                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                    ) : (
-                      <Send className="h-3.5 w-3.5" />
-                    )}
-                    Send Test
-                  </Button>
-                </div>
-                <Button size="sm" onClick={handleSave} disabled={saving}>
-                  {saving ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Save className="h-4 w-4" />
-                  )}
-                  Save
-                </Button>
-              </div>
-            </div>
-
-            {/* Subject */}
-            <div className="px-4 py-3 border-b shrink-0">
-              <Label className="text-xs text-muted-foreground mb-1 block">Subject line</Label>
-              <Input
-                value={editSubject}
-                onChange={(e) => setEditSubject(e.target.value)}
-                className="font-mono text-sm"
-                placeholder="Email subject..."
-              />
-            </div>
-
-            {/* HTML Editor or Preview */}
-            <div className="flex-1 overflow-auto">
-              {preview ? (
-                <div className="w-full h-full">
-                  <iframe
-                    srcDoc={editHtml}
-                    title="Email Preview"
-                    className="w-full h-full border-0"
-                    sandbox="allow-same-origin"
-                  />
-                </div>
-              ) : (
-                <Textarea
-                  value={editHtml}
-                  onChange={(e) => setEditHtml(e.target.value)}
-                  className="h-full w-full resize-none rounded-none border-0 font-mono text-xs p-4 focus-visible:ring-0"
-                  placeholder="HTML email body..."
-                />
-              )}
-            </div>
-
-            {/* Variables hint */}
-            {!preview && (
-              <div className="px-4 py-2 border-t bg-muted/30 shrink-0">
-                <p className="text-xs text-muted-foreground">
-                  <span className="font-medium">Variables:</span> Use{" "}
-                  {(templates.find((t) => t.id === selected)?.variables ?? []).map((v) => (
-                    <code
-                      key={v}
-                      className="text-xs bg-primary/10 text-primary px-1 py-0.5 rounded mx-0.5"
-                    >
-                      {"{{" + v + "}}"}
-                    </code>
-                  ))}
-                </p>
-              </div>
-            )}
-          </>
-        ) : (
-          <div className="flex items-center justify-center h-full text-muted-foreground">
-            Select a template to edit
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
