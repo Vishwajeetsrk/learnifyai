@@ -2,7 +2,7 @@
 
 <img src="src/assets/learnify-logo.png" alt="Learnify AI Logo" width="180" style="margin-bottom: 12px; filter: drop-shadow(0 4px 12px rgba(99, 102, 241, 0.25));" />
 
-# Learnify AI 6.9.0
+# Learnify AI 6.10.0
 
 **The AI-Native Learning & Career Operating System**
 
@@ -23,6 +23,14 @@
 ## 🎯 What is Learnify AI?
 
 Learnify AI is a **full-stack, AI-powered learning and career growth platform** that integrates intelligent tutoring, 11-in-1 career studio tools, autonomous AI agents, gamification, and creator economy tools into one seamless experience.
+
+### 🌟 What's New in Learnify AI 6.10.0
+* 🧾 **Invoice PDF Glyph & Design Fix**: Resolved corrupt Rupee glyphs (`₹` rendering as `¹` due to standard PDF WinAnsi encoding) across all generated tax invoices by standardizing to `INR` and widening highlight borders to prevent decimal clipping.
+* 🎨 **Fully Editable Invoice Designer Canvas**: Added an interactive "Data & Sample" configuration tab allowing admins to dynamically customize sample line items, unit prices, quantities, customer details, HSN/SAC codes (998431), place of supply (State Code 29 KA), and payment gateways with live 1:1 canvas synchronization and matching Test PDF export.
+* 🎬 **Product Updates Walkthrough & Custom Video Player (`/updates`)**: Integrated the platform walkthrough video (`/videos/video-update-software.mp4`) as release `v4.4`. Engineered a custom glassmorphism `UpdateVideoPlayer` with scrub bar, duration formatting, volume toggles, speed controls (1x to 2x), and fullscreen mode.
+* 🛠️ **Full Admin Content Management for Updates**: Built an interactive `AdminUpdatesManager` modal enabling administrators to add, edit, reorder, delete, and toggle draft/published status of updates directly from the UI with persistent state.
+* 🛡️ **Zod Enum Validation Fix for User Roles**: Extended application role schemas across backend functions and authentication hooks to include `"issuer"` and `"coach"`, preventing schema rejection during credential or role updates.
+* 👥 **Admin Dashboard Active Students View & Filtering**: Fixed the Active Students KPI card to accurately count active learners from `user_roles` and `profiles` instead of legacy enrollments alone. Added interactive 1-click KPI drilldown and multi-role filter pills ("Active Students", "Creators", "Admins", "Issuers", "Disabled") to the Users Command Center.
 
 ### 🌟 What's New in Learnify AI 6.9.0
 * 🔥 **Hardened Daily Streak & XP Gamification Engine**: Added timezone-aware daily check-in calculation (`Intl.DateTimeFormat` with Indian Standard Time / client timezone), preventing midnight UTC offset streak drops. Integrated automated streak freeze protection (`streak_freeze`), milestone bonus grants (+50 XP at 7d, +100 XP at 14d, +250 XP at 30d, +1000 XP at 100d), and synchronized dashboard progress.

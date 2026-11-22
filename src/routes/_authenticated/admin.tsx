@@ -125,7 +125,14 @@ import {
 } from "@/lib/welcome-email.functions";
 import { getCoupons } from "@/lib/billing.functions";
 
-const APP_ROLES = ["super_admin", "admin", "creator", "student"] as const;
+const APP_ROLES = [
+  "super_admin",
+  "admin",
+  "creator",
+  "student",
+  "issuer",
+  "coach",
+] as const;
 type AppRole = (typeof APP_ROLES)[number];
 
 // Activity SVG icon (placed after all imports to avoid bundle initialization crash)
@@ -252,9 +259,27 @@ function AdminOverview() {
     enabled: isAdmin && typeof window !== "undefined",
     queryKey: ["admin", "active-students-count"],
     queryFn: async () => {
-      const { count, error } = await supabase
+      // 1. Count distinct students with explicit student role
+      const { data: studentRoles, error: rolesError } = await supabase
+        .from("user_roles")
+        .select("user_id")
+        .eq("role", "student");
+
+      if (!rolesError && studentRoles && studentRoles.length > 0) {
+        const distinct = new Set(studentRoles.map((r) => r.user_id));
+        return distinct.size;
+      }
+
+      // 2. Count enrollments if present
+      const { count: enrollmentsCount } = await supabase
         .from("enrollments")
         .select("user_id", { count: "exact", head: true });
+      if (enrollmentsCount && enrollmentsCount > 0) return enrollmentsCount;
+
+      // 3. Fallback to total registered learners from profiles
+      const { count, error } = await supabase
+        .from("profiles")
+        .select("id", { count: "exact", head: true });
       if (error) throw error;
       return count ?? 0;
     },
@@ -323,6 +348,36 @@ function AdminOverview() {
   });
 
   const userMap = new Map<string, any>((usersQuery.data?.rows ?? []).map((u: any) => [u.id, u]));
+
+  const [userRoleFilter, setUserRoleFilter] = useState<string>("all");
+  const [userSearchQuery, setUserSearchQuery] = useState<string>("");
+
+  const filteredUsers = useMemo(() => {
+    const rows = (usersQuery.data?.rows ?? []) as any[];
+    return rows.filter((u: any) => {
+      const q = userSearchQuery.trim().toLowerCase();
+      const matchesSearch =
+        !q ||
+        (u.full_name ?? "").toLowerCase().includes(q) ||
+        (u.email ?? "").toLowerCase().includes(q) ||
+        (u.id ?? "").toLowerCase().includes(q);
+
+      if (!matchesSearch) return false;
+
+      if (userRoleFilter === "all") return true;
+      if (userRoleFilter === "disabled") return Boolean(u.disabled);
+      if (userRoleFilter === "student") {
+        return (
+          !u.disabled &&
+          ((u.roles || []).includes("student") ||
+            ((u.roles || []).length === 0 &&
+              !(u.roles || []).includes("super_admin") &&
+              !(u.roles || []).includes("admin")))
+        );
+      }
+      return (u.roles || []).includes(userRoleFilter);
+    });
+  }, [usersQuery.data?.rows, userRoleFilter, userSearchQuery]);
 
   // Cohorts
   const adminCohortsQuery = useQuery({
@@ -1070,6 +1125,12 @@ function AdminOverview() {
         : (activeStudentsQuery.data ?? 0).toLocaleString("en-IN"),
       icon: Users,
       tint: "from-primary/30 to-primary/0",
+      description: "Click to view active student learners in the users table",
+      onClick: () => {
+        setUserRoleFilter("student");
+        const el = document.getElementById("admin-users-section");
+        el?.scrollIntoView({ behavior: "smooth" });
+      },
     },
     {
       label: "Courses Created",
@@ -1350,15 +1411,31 @@ function AdminOverview() {
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
-          {stats.map((s) => (
+          {stats.map((s: any) => (
             <div
               key={s.label}
-              className="relative overflow-hidden rounded-xl border bg-card p-5 shadow-card"
+              onClick={s.onClick}
+              className={cn(
+                "relative overflow-hidden rounded-xl border bg-card p-5 shadow-card transition-all",
+                s.onClick &&
+                  "cursor-pointer hover:border-primary/60 hover:shadow-lg active:scale-[0.99]"
+              )}
+              title={s.description || s.label}
             >
               <div
                 className={`absolute -top-12 -right-12 h-32 w-32 rounded-full bg-gradient-to-br ${s.tint} blur-2xl`}
               />
-              <s.icon className="h-5 w-5 text-primary relative" />
+              <div className="flex items-center justify-between relative">
+                <s.icon className="h-5 w-5 text-primary" />
+                {s.onClick && (
+                  <Badge
+                    variant="outline"
+                    className="text-[9px] px-1.5 py-0 border-primary/30 text-primary bg-primary/5 font-semibold"
+                  >
+                    Filter View
+                  </Badge>
+                )}
+              </div>
               <div className="mt-3 text-xl md:text-2xl font-display font-semibold relative">
                 {s.value}
               </div>
@@ -1875,18 +1952,64 @@ function AdminOverview() {
         </div>
 
         {/* Users management */}
-        <div className="mt-8 rounded-2xl border bg-card shadow-card overflow-hidden">
-          <div className="px-6 py-4 border-b flex items-start justify-between gap-3">
+        <div
+          id="admin-users-section"
+          className="mt-8 rounded-2xl border bg-card shadow-card overflow-hidden scroll-mt-20"
+        >
+          <div className="px-6 py-4 border-b flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <h2 className="font-display text-lg font-semibold">Users</h2>
-              <p className="text-xs text-muted-foreground">
-                {usersQuery.data?.total ?? 0} total · manage profile, roles, password, status
+              <div className="flex items-center gap-2">
+                <h2 className="font-display text-lg font-semibold">Users & Learners</h2>
+                <Badge variant="outline" className="text-xs font-mono">
+                  {filteredUsers.length} shown of {usersQuery.data?.total ?? 0}
+                </Badge>
+              </div>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Manage student profiles, active enrollments, user roles, passwords, and AI credit balances.
               </p>
             </div>
-            <Button size="sm" onClick={() => setCreating(true)} className="gap-1.5">
-              <UserPlus className="h-4 w-4" /> Add user
-            </Button>
+
+            <div className="flex items-center gap-2 flex-wrap">
+              <Input
+                type="text"
+                placeholder="Search name or email..."
+                value={userSearchQuery}
+                onChange={(e) => setUserSearchQuery(e.target.value)}
+                className="h-8 text-xs w-48 sm:w-56"
+              />
+              <Button size="sm" onClick={() => setCreating(true)} className="h-8 gap-1.5 text-xs">
+                <UserPlus className="h-3.5 w-3.5" /> Add user
+              </Button>
+            </div>
           </div>
+
+          {/* Role Filter Pills */}
+          <div className="px-6 py-2.5 bg-muted/20 border-b flex items-center gap-1.5 overflow-x-auto text-xs">
+            <span className="text-muted-foreground text-[11px] font-medium mr-1 shrink-0">Filter:</span>
+            {[
+              { id: "all", label: `All Users (${usersQuery.data?.total ?? 0})` },
+              { id: "student", label: `Active Students (${activeStudentsQuery.data ?? 0})` },
+              { id: "creator", label: "Creators" },
+              { id: "admin", label: "Admins" },
+              { id: "issuer", label: "Issuers" },
+              { id: "disabled", label: "Disabled" },
+            ].map((f) => (
+              <button
+                key={f.id}
+                type="button"
+                onClick={() => setUserRoleFilter(f.id)}
+                className={cn(
+                  "px-2.5 py-1 rounded-lg text-xs font-medium cursor-pointer transition shrink-0",
+                  userRoleFilter === f.id
+                    ? "bg-primary text-primary-foreground font-semibold shadow-xs"
+                    : "bg-background/80 hover:bg-accent text-muted-foreground border border-border/60"
+                )}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+
           {usersQuery.isLoading ? (
             <div className="p-10 grid place-items-center">
               <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
@@ -1910,32 +2033,39 @@ function AdminOverview() {
                   </tr>
                 </thead>
                 <tbody>
-                  {(usersQuery.data?.rows ?? []).map((u) => {
-                    const isMe = u.id === user?.id;
-                    return (
-                      <tr
-                        key={u.id}
-                        className={cn("border-t hover:bg-accent/30", u.disabled && "opacity-60")}
-                      >
-                        <td className="px-4 md:px-6 py-3 font-medium">{u.full_name ?? "—"}</td>
-                        <td className="px-4 md:px-6 py-3 text-muted-foreground">{u.email}</td>
-                        <td className="px-4 md:px-6 py-3">
-                          <div className="flex flex-wrap gap-1">
-                            {u.roles.length === 0 ? (
-                              <span className="text-xs text-muted-foreground">—</span>
-                            ) : (
-                              u.roles.map((r) => (
-                                <Badge
-                                  key={r}
-                                  variant={r === "super_admin" ? "default" : "secondary"}
-                                  className="text-[10px]"
-                                >
-                                  {r}
-                                </Badge>
-                              ))
-                            )}
-                          </div>
-                        </td>
+                  {filteredUsers.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="text-center py-10 text-muted-foreground text-xs">
+                        No users found matching the selected filter ({userRoleFilter}).
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredUsers.map((u: any) => {
+                      const isMe = u.id === user?.id;
+                      return (
+                        <tr
+                          key={u.id}
+                          className={cn("border-t hover:bg-accent/30", u.disabled && "opacity-60")}
+                        >
+                          <td className="px-4 md:px-6 py-3 font-medium">{u.full_name ?? "—"}</td>
+                          <td className="px-4 md:px-6 py-3 text-muted-foreground">{u.email}</td>
+                          <td className="px-4 md:px-6 py-3">
+                            <div className="flex flex-wrap gap-1">
+                              {(u.roles || []).length === 0 ? (
+                                <span className="text-xs text-muted-foreground">—</span>
+                              ) : (
+                                (u.roles || []).map((r: string) => (
+                                  <Badge
+                                    key={r}
+                                    variant={r === "super_admin" ? "default" : "secondary"}
+                                    className="text-[10px]"
+                                  >
+                                    {r}
+                                  </Badge>
+                                ))
+                              )}
+                            </div>
+                          </td>
                         <td className="px-4 md:px-6 py-3">
                           <button
                             type="button"
@@ -2002,8 +2132,9 @@ function AdminOverview() {
                         </td>
                       </tr>
                     );
-                  })}
-                </tbody>
+                  })
+                )}
+              </tbody>
               </table>
             </div>
           )}

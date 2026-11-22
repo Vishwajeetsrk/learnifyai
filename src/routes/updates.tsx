@@ -17,6 +17,8 @@ import {
   Check,
   ChevronRight,
   ExternalLink,
+  ShieldCheck,
+  Settings,
 } from "lucide-react";
 import { toast } from "sonner";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -27,6 +29,9 @@ import { Input } from "@/components/ui/input";
 import { getProductUpdates, ProductUpdate } from "@/lib/updatesStore";
 import { CuteMentorFace } from "@/components/coaches/CuteMentorFace";
 import { MENTORS } from "@/components/coaches/mentorData";
+import { useAuth } from "@/hooks/use-auth";
+import { UpdateVideoPlayer } from "@/components/updates/UpdateVideoPlayer";
+import { AdminUpdatesManager } from "@/components/updates/AdminUpdatesManager";
 
 export const Route = createFileRoute("/updates")({
   head: () => ({
@@ -48,11 +53,13 @@ export const Route = createFileRoute("/updates")({
 });
 
 function UpdatesPage() {
+  const { isAdmin } = useAuth();
   const [updates, setUpdates] = useState<ProductUpdate[]>([]);
   const [playingVideoId, setPlayingVideoId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedBadge, setSelectedBadge] = useState<string>("All");
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [adminManagerOpen, setAdminManagerOpen] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
@@ -189,6 +196,25 @@ function UpdatesPage() {
                 ))}
               </div>
             </motion.div>
+
+            {/* Admin Content Manager Quick Access */}
+            {isAdmin && (
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.35 }}
+                className="pt-3 flex justify-center"
+              >
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setAdminManagerOpen(true)}
+                  className="h-8 text-xs border-emerald-500/40 text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 gap-1.5 shadow-xs cursor-pointer font-medium"
+                >
+                  <ShieldCheck className="h-3.5 w-3.5" /> Admin: Manage Updates & Changelog
+                </Button>
+              </motion.div>
+            )}
           </div>
         </section>
 
@@ -314,43 +340,21 @@ function UpdatesPage() {
 
                               {isVideoPlaying && (
                                 <div className="w-full mt-4 rounded-xl overflow-hidden border border-white/10 shadow-2xl">
-                                  <video
+                                  <UpdateVideoPlayer
                                     src={item.mediaUrl}
-                                    controls
-                                    autoPlay
-                                    muted
-                                    loop
-                                    playsInline
-                                    className="w-full aspect-video object-cover"
+                                    title={item.title}
+                                    autoPlayOnMount={true}
                                   />
                                 </div>
                               )}
                             </div>
                           </div>
                         ) : item.mediaType === "video" ? (
-                          <div className="relative aspect-video bg-black flex items-center justify-center overflow-hidden">
-                            <video
-                              src={item.mediaUrl}
-                              controls={isVideoPlaying}
-                              autoPlay={isVideoPlaying}
-                              muted
-                              loop
-                              playsInline
-                              className="w-full h-full object-cover"
-                            />
-                            {!isVideoPlaying && (
-                              <button
-                                type="button"
-                                onClick={() => setPlayingVideoId(item.id)}
-                                className="absolute inset-0 bg-black/40 hover:bg-black/30 backdrop-blur-[2px] flex items-center justify-center transition-all cursor-pointer group-hover:scale-105"
-                                title="Play Video Update"
-                              >
-                                <div className="w-14 h-14 rounded-full bg-white/95 hover:bg-white text-slate-950 flex items-center justify-center shadow-2xl transition">
-                                  <Play className="h-6 w-6 fill-slate-950 ml-1" />
-                                </div>
-                              </button>
-                            )}
-                          </div>
+                          <UpdateVideoPlayer
+                            src={item.mediaUrl}
+                            title={item.title}
+                            className="w-full"
+                          />
                         ) : (
                           <div className="relative aspect-video overflow-hidden">
                             <img
@@ -387,6 +391,13 @@ function UpdatesPage() {
             </div>
           )}
         </section>
+
+        {/* Admin Updates Content Manager Modal */}
+        <AdminUpdatesManager
+          open={adminManagerOpen}
+          onOpenChange={setAdminManagerOpen}
+          onSaved={() => setUpdates(getProductUpdates().filter((u) => u.isPublished))}
+        />
       </main>
 
       <SiteFooter />

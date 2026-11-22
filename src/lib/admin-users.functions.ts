@@ -217,8 +217,15 @@ export const adminDeleteUser = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-const APP_ROLES = ["super_admin", "admin", "creator", "student"] as const;
-const appRoleSchema = z.enum(APP_ROLES);
+export const APP_ROLES = [
+  "super_admin",
+  "admin",
+  "creator",
+  "student",
+  "issuer",
+  "coach",
+] as const;
+export const appRoleSchema = z.enum(APP_ROLES);
 
 export const adminSetUserRoles = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -226,7 +233,7 @@ export const adminSetUserRoles = createServerFn({ method: "POST" })
     z
       .object({
         userId: z.string().uuid(),
-        roles: z.array(appRoleSchema).max(4),
+        roles: z.array(appRoleSchema).max(10),
       })
       .parse(d),
   )
@@ -251,7 +258,7 @@ export const adminSetUserRoles = createServerFn({ method: "POST" })
 
     if (unique.length > 0) {
       const rows = unique.map((role) => ({ user_id: data.userId, role }));
-      const { error: insErr } = await supabaseAdmin.from("user_roles").insert(rows);
+      const { error: insErr } = await supabaseAdmin.from("user_roles").insert(rows as any);
       if (insErr) throw new Error(insErr.message);
     }
     return { ok: true, roles: unique };
@@ -265,7 +272,7 @@ export const adminCreateUser = createServerFn({ method: "POST" })
         email: z.string().email().max(255),
         password: z.string().min(8).max(128),
         fullName: z.string().trim().min(1).max(120),
-        roles: z.array(appRoleSchema).min(1).max(4),
+        roles: z.array(appRoleSchema).min(1).max(10),
       })
       .parse(d),
   )
@@ -287,7 +294,7 @@ export const adminCreateUser = createServerFn({ method: "POST" })
     const unique = Array.from(new Set(data.roles));
     const { error: roleErr } = await supabaseAdmin
       .from("user_roles")
-      .insert(unique.map((role) => ({ user_id: newUserId, role })));
+      .insert(unique.map((role) => ({ user_id: newUserId, role })) as any);
     if (roleErr) throw new Error(roleErr.message);
 
     await supabaseAdmin

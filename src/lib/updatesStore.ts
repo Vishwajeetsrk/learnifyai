@@ -19,6 +19,26 @@ export interface ProductUpdate {
 
 export const DEFAULT_PRODUCT_UPDATES: ProductUpdate[] = [
   {
+    id: "update-v4-4",
+    version: "v4.4",
+    releaseDate: "Nov 22, 2026",
+    title: "Learnify AI 4.4 — Next-Gen AI Learning & Career Ecosystem (Full Platform & Software Walkthrough)",
+    summary: "Complete platform walkthrough showcasing our interactive code runner, high-fidelity AI interview studio, GST-compliant invoicing engine, and real-time career advancement OS.",
+    mediaType: "video",
+    mediaUrl: "/videos/video-update-software.mp4",
+    badge: "Latest Release",
+    bulletPoints: [
+      "Full website & software architecture walkthrough featuring the AI-powered learning playground",
+      "Interactive Interview Prep Studio with realistic AI interviewers, speech recognition & instant scoring",
+      "Official GST Tax Invoice Designer (18% GST · SAC 998431) with real-time PDF canvas preview and tamper-proof verification",
+      "Admin Command Center with live student tracking, AI credit management, and audit logs",
+      "Daily streak check-in system with dynamic XP rewards and career milestone progress",
+      "Seamless Cashfree payments integration with instant tax invoice generation",
+    ],
+    isPublished: true,
+    order: 0,
+  },
+  {
     id: "update-v4-3",
     version: "v4.3",
     releaseDate: "Nov 17, 2026",
@@ -106,7 +126,18 @@ export function getProductUpdates(): ProductUpdate[] {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return DEFAULT_PRODUCT_UPDATES;
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) && parsed.length > 0 ? parsed : DEFAULT_PRODUCT_UPDATES;
+    if (!Array.isArray(parsed) || parsed.length === 0) return DEFAULT_PRODUCT_UPDATES;
+
+    // Ensure newly added default updates are automatically merged in
+    const existingIds = new Set(parsed.map((p: any) => p.id));
+    const missing = DEFAULT_PRODUCT_UPDATES.filter((d) => !existingIds.has(d.id));
+    if (missing.length > 0) {
+      const merged = [...missing, ...parsed].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+      return merged;
+    }
+
+    return parsed.sort((a: any, b: any) => (a.order ?? 0) - (b.order ?? 0));
   } catch {
     return DEFAULT_PRODUCT_UPDATES;
   }

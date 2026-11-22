@@ -55,6 +55,17 @@ const DEFAULT_INVOICE_SETTINGS: Record<string, string> = {
     "Auto-approved refunds are processed within 5-7 working days via Cashfree.",
   invoice_template: "luxury",
   invoice_qr_enabled: "true",
+  invoice_sample_item_name: "Premium SaaS Accelerator Program (Course Access)",
+  invoice_sample_item_qty: "1",
+  invoice_sample_item_price: "4999.00",
+  invoice_sample_customer_name: "Priya Sharma (Sample Learner)",
+  invoice_sample_customer_email: "priya.sharma@example.com",
+  invoice_sample_customer_phone: "+91 98765 43210",
+  invoice_sample_customer_address: "H.No. 405, Sector 4, HSR Layout, Bangalore, Karnataka, 560102",
+  invoice_sample_place_of_supply: "Karnataka (Code: 29)",
+  invoice_sample_gateway: "Cashfree Payments",
+  invoice_sample_method: "UPI (GPay)",
+  invoice_sample_tx_id: "TXN_CF_881923",
 };
 
 export default function InvoiceDesigner() {
@@ -535,13 +546,12 @@ export default function InvoiceDesigner() {
           </div>
 
           <div
-            className={`w-full border rounded-2xl p-8 shadow-2xl transition-all duration-300 font-sans aspect-[1/1.4] overflow-hidden relative ${
-              templateStyle === "dark"
+            className={`w-full border rounded-2xl p-8 shadow-2xl transition-all duration-300 font-sans aspect-[1/1.4] overflow-hidden relative ${templateStyle === "dark"
                 ? "bg-slate-900 text-slate-100 border-slate-700"
                 : templateStyle === "luxury"
                   ? "bg-[#faf9f6] text-[#0f1b3d] border-[#d4af37]/60"
                   : "bg-white text-slate-800 border-border/80"
-            }`}
+              }`}
           >
             {/* Watermark Label */}
             {settings.invoice_watermark && (

@@ -379,7 +379,7 @@ export async function downloadInvoicePdf(
       const rate = item.amount || item.unit_price || inv.amount_inr || 0;
       const desc = item.description || item.name || "Charge";
       const amount = Number(rate) * qty;
-      return [desc, qty.toString(), `₹${Number(rate).toFixed(2)}`, `₹${amount.toFixed(2)}`];
+      return [desc, qty.toString(), `INR ${Number(rate).toFixed(2)}`, `INR ${amount.toFixed(2)}`];
     });
   } else {
     const p = Number(inv.amount_inr || inv.total_inr || 0);
@@ -387,8 +387,8 @@ export async function downloadInvoicePdf(
       [
         "Subscription Plan Access / Renewal",
         "1",
-        `₹${p.toFixed(2)}`,
-        `₹${Number(inv.total_inr || p).toFixed(2)}`,
+        `INR ${p.toFixed(2)}`,
+        `INR ${Number(inv.total_inr || p).toFixed(2)}`,
       ],
     ];
   }
@@ -423,13 +423,13 @@ export async function downloadInvoicePdf(
       fontStyle: "bold",
       fontSize: 8.5,
     },
-    head: [["#", "Description", "Qty", "Rate (₹)", "Amount (₹)"]],
+    head: [["#", "Description", "Qty", "Rate (INR)", "Amount (INR)"]],
     body: tableBody.map((row, i) => [(i + 1).toString(), row[0], row[1], row[2], row[3]]),
     foot: [
-      ...(tax > 0 ? [["", "Subtotal", "", "", `₹${subtotal.toFixed(2)}`]] : []),
-      ...(tax > 0 ? [["", "CGST @ 9% (SAC 998431 - Online Education)", "", "", `₹${cgst.toFixed(2)}`]] : []),
-      ...(tax > 0 ? [["", "SGST @ 9% (SAC 998431 - Online Education)", "", "", `₹${sgst.toFixed(2)}`]] : []),
-      ["", "TOTAL AMOUNT PAID", "", "", `₹${Number(inv.total_inr).toFixed(2)}`],
+      ...(tax > 0 ? [["", "Subtotal", "", "", `INR ${subtotal.toFixed(2)}`]] : []),
+      ...(tax > 0 ? [["", "CGST @ 9% (SAC 998431 - Online Education)", "", "", `INR ${cgst.toFixed(2)}`]] : []),
+      ...(tax > 0 ? [["", "SGST @ 9% (SAC 998431 - Online Education)", "", "", `INR ${sgst.toFixed(2)}`]] : []),
+      ["", "TOTAL AMOUNT PAID", "", "", `INR ${Number(inv.total_inr).toFixed(2)}`],
     ],
     columnStyles: {
       0: { cellWidth: 8, halign: "center" },
@@ -445,15 +445,15 @@ export async function downloadInvoicePdf(
   let finalY = Number(lastTable?.finalY ?? 200);
 
   doc.setFillColor(primary[0], primary[1], primary[2]);
-  drawRoundedRect(doc, pageW - margin - 55, finalY + 4, 55, 12, 2.5, "F");
+  drawRoundedRect(doc, pageW - margin - 65, finalY + 4, 65, 13, 2.5, "F");
   doc.setFont("helvetica", "normal");
   doc.setFontSize(7);
   doc.setTextColor(220, 220, 255);
-  doc.text("TOTAL PAID", pageW - margin - 4, finalY + 8.5, { align: "right" });
+  doc.text("TOTAL PAID", pageW - margin - 6, finalY + 8.5, { align: "right" });
   doc.setFont("helvetica", "bold");
   doc.setFontSize(10);
   doc.setTextColor(255, 255, 255);
-  doc.text(`₹${Number(inv.total_inr).toFixed(2)}`, pageW - margin - 4, finalY + 13.5, {
+  doc.text(`INR ${Number(inv.total_inr).toFixed(2)}`, pageW - margin - 6, finalY + 13.5, {
     align: "right",
   });
 
