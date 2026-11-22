@@ -137,10 +137,10 @@ export const adminSendMarketingCampaign = createServerFn({ method: "POST" })
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 620px; margin: 0 auto; padding: 24px; background: #f8fafc;">
   <div style="background: white; border-radius: 16px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
     <!-- Brand Header -->
-    <div style="background: linear-gradient(135deg, #174422 0%, #245F30 50%, #347A3D 100%); padding: 28px 24px; text-align: center; color: white;">
-      <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.2em; font-weight: 700; color: #a7f3d0; margin-bottom: 6px;">Special Member Announcement</div>
+    <div style="background: linear-gradient(135deg, #0A1128 0%, #1D4ED8 60%, #00A6FB 100%); padding: 28px 24px; text-align: center; color: white;">
+      <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.2em; font-weight: 700; color: #a5f3fc; margin-bottom: 6px;">Special Member Announcement</div>
       <h1 style="margin: 0; font-size: 26px; font-weight: 800; letter-spacing: -0.02em;">${data.headline}</h1>
-      <div style="display: inline-block; background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.3); border-radius: 30px; padding: 6px 16px; margin-top: 14px; font-size: 13px; font-weight: 700; letter-spacing: 0.05em;">
+      <div style="display: inline-block; background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.3); border-radius: 30px; padding: 6px 16px; margin-top: 14px; font-size: 13px; font-weight: 700; letter-spacing: 0.05em; color: #ffffff;">
         ${data.offerHighlight}
       </div>
     </div>
@@ -167,10 +167,10 @@ export const adminSendMarketingCampaign = createServerFn({ method: "POST" })
 
       <!-- Action Button CTA -->
       <div style="text-align: center; margin: 32px 0 24px;">
-        <a href="${data.ctaUrl}" style="display: inline-block; background: #347A3D; color: white; padding: 14px 32px; border-radius: 12px; font-size: 15px; font-weight: 700; text-decoration: none; box-shadow: 0 4px 10px rgba(52,122,61,0.25);">
+        <a href="${data.ctaUrl}" style="display: inline-block; background: #1D4ED8; color: white; padding: 14px 32px; border-radius: 12px; font-size: 15px; font-weight: 700; text-decoration: none; box-shadow: 0 4px 14px rgba(29, 78, 216, 0.35);">
           ${data.ctaText} &rarr;
         </a>
-        <div style="font-size: 11px; color: #94a3b8; margin-top: 8px;">Instant activation &bull; 1-click cancel anytime &bull; 100% Secure via Razorpay</div>
+        <div style="font-size: 11px; color: #94a3b8; margin-top: 8px;">Instant activation &bull; 1-click cancel anytime &bull; 100% Secure via Cashfree &amp; Razorpay</div>
       </div>
     </div>
 

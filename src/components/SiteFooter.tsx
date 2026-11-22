@@ -4,6 +4,7 @@ import { usePublicMenu } from "@/hooks/use-wcms-public";
 import { useTheme } from "@/hooks/use-theme";
 import { cn } from "@/lib/utils";
 import learnifyLogoLight from "@/assets/learnify-logo-light.png";
+import learnifyLogoDark from "@/assets/learnify-logo-dark.png";
 import {
   DoodleCrewFooter,
   FooterColumn,
@@ -215,7 +216,7 @@ export function SiteFooter() {
       <DoodleCrewFooter
         wordmark="LEARNIFY"
         brand="Learnify AI"
-        logoUrl={learnifyLogoLight}
+        logoUrl={isDark ? learnifyLogoDark : learnifyLogoLight}
         showBrandText={false}
         blurb="Learn smarter. Grow faster. The AI-native learning & career operating system for developers, AI engineers, and modern creators."
         extraBrandContent={extraBrandContent}

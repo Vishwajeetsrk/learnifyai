@@ -1014,15 +1014,15 @@ export function EmailTemplatesManager() {
                   </div>
                 </div>
 
-                {/* Brand Banner with official Green Palette */}
-                <div className="bg-gradient-to-br from-[#174422] via-[#245F30] to-[#347A3D] text-white p-6 text-center space-y-2.5">
+                {/* Brand Banner with authentic Learnify AI Palette */}
+                <div className="bg-gradient-to-br from-[#0A1128] via-[#1D4ED8] to-[#00A6FB] text-white p-6 text-center space-y-2.5">
                   <img
                     src="/logo.png"
                     alt="Learnify AI"
                     className="h-8 mx-auto object-contain drop-shadow"
                   />
                   {campaignOfferPill && (
-                    <div className="inline-block px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-[10px] font-bold tracking-widest text-emerald-200 uppercase border border-white/20">
+                    <div className="inline-block px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-[10px] font-bold tracking-widest text-cyan-200 uppercase border border-white/20">
                       {campaignOfferPill}
                     </div>
                   )}
@@ -1045,7 +1045,7 @@ export function EmailTemplatesManager() {
                   {attachments.length > 0 && (
                     <div className="p-2.5 rounded-lg border border-slate-200 bg-slate-50 flex items-center justify-between text-[11px]">
                       <div className="flex items-center gap-2 min-w-0">
-                        <FileText className="w-4 h-4 text-emerald-600 shrink-0" />
+                        <FileText className="w-4 h-4 text-blue-600 shrink-0" />
                         <span className="font-medium text-slate-800 truncate">
                           {attachments[0].name}
                         </span>
@@ -1062,7 +1062,7 @@ export function EmailTemplatesManager() {
                       href={campaignCtaUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-block px-6 py-2.5 rounded-full bg-[#347A3D] hover:bg-[#245F30] text-white font-bold text-xs shadow-md transition-colors"
+                      className="inline-block px-6 py-2.5 rounded-full bg-[#1D4ED8] hover:bg-[#1e40af] text-white font-bold text-xs shadow-md transition-colors"
                     >
                       {campaignCtaText || "Claim Exclusive Offer"} →
                     </a>
@@ -1123,23 +1123,23 @@ export function EmailTemplatesManager() {
             {/* Brand Color Tokens Palette */}
             <div className="space-y-2">
               <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                Signature Brand Color Palette
+                Official Learnify AI Brand Color Palette
               </span>
               <div className="grid grid-cols-4 gap-2">
-                <div className="p-2.5 rounded-lg border border-border bg-[#347A3D] text-white">
-                  <div className="text-[11px] font-bold">Primary Green</div>
-                  <div className="text-[10px] font-mono">#347A3D</div>
+                <div className="p-2.5 rounded-lg border border-border bg-[#0A1128] text-white">
+                  <div className="text-[11px] font-bold">Midnight Navy</div>
+                  <div className="text-[10px] font-mono">#0A1128</div>
                 </div>
-                <div className="p-2.5 rounded-lg border border-border bg-[#245F30] text-white">
-                  <div className="text-[11px] font-bold">Dark Green</div>
-                  <div className="text-[10px] font-mono">#245F30</div>
+                <div className="p-2.5 rounded-lg border border-border bg-[#1D4ED8] text-white">
+                  <div className="text-[11px] font-bold">Electric Blue</div>
+                  <div className="text-[10px] font-mono">#1D4ED8</div>
                 </div>
-                <div className="p-2.5 rounded-lg border border-border bg-[#174422] text-white">
-                  <div className="text-[11px] font-bold">Deep Green</div>
-                  <div className="text-[10px] font-mono">#174422</div>
+                <div className="p-2.5 rounded-lg border border-border bg-[#00A6FB] text-white">
+                  <div className="text-[11px] font-bold">Cyan Glow</div>
+                  <div className="text-[10px] font-mono">#00A6FB</div>
                 </div>
                 <div className="p-2.5 rounded-lg border border-border bg-[#FF8A45] text-white">
-                  <div className="text-[11px] font-bold">Accent Orange</div>
+                  <div className="text-[11px] font-bold">Accent Coral</div>
                   <div className="text-[10px] font-mono">#FF8A45</div>
                 </div>
               </div>
