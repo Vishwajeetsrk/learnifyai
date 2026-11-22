@@ -75,8 +75,8 @@ function AboutPage() {
       learners: CANONICAL_BENCHMARKS.learners,
       courses: CANONICAL_BENCHMARKS.coursesShipped,
       creators: CANONICAL_BENCHMARKS.creators,
-      enrollments: 25000,
-      certificates: 18000,
+      enrollments: 120,
+      certificates: 45,
       countries: CANONICAL_BENCHMARKS.countries,
     },
     refetchInterval: 15_000,
@@ -86,8 +86,8 @@ function AboutPage() {
     {
       value: data?.learners ?? CANONICAL_BENCHMARKS.learners,
       suffix: "+",
-      label: "Active learners",
-      compact: true,
+      label: "Registered Foundation Engineers",
+      compact: false,
       icon: Users,
       color: "text-blue-500",
       bgGlow: "from-blue-500/10 to-indigo-500/5",
@@ -95,18 +95,18 @@ function AboutPage() {
     {
       value: data?.courses ?? CANONICAL_BENCHMARKS.coursesShipped,
       suffix: "+",
-      label: "Courses shipped",
-      compact: true,
+      label: "Engineering Roadmaps & Projects",
+      compact: false,
       icon: BookOpen,
       color: "text-cyan-500",
       bgGlow: "from-cyan-500/10 to-blue-500/5",
     },
     {
-      value: data?.countries ?? CANONICAL_BENCHMARKS.countries,
+      value: data?.creators ?? CANONICAL_BENCHMARKS.creators,
       suffix: "+",
-      label: "Countries",
+      label: "Tech Mentors & Industry Leads",
       compact: false,
-      icon: Globe,
+      icon: Award,
       color: "text-emerald-500",
       bgGlow: "from-emerald-500/10 to-teal-500/5",
     },
@@ -224,11 +224,11 @@ function AboutPage() {
         <Reveal>
           <div className="relative rounded-3xl border border-border/70 bg-gradient-to-b from-card/80 to-card/40 backdrop-blur-xl p-8 md:p-10 shadow-lg">
             <div className="text-center max-w-xl mx-auto mb-10">
-              <span className="text-xs font-mono uppercase tracking-[0.2em] text-primary">
-                Global Scale & Proven Traction
+              <span className="text-xs font-mono uppercase tracking-[0.2em] text-[#347A3D] dark:text-emerald-400 font-bold">
+                Foundation Cohort & Early Adopter Traction
               </span>
               <h3 className="font-display text-2xl md:text-3xl font-semibold tracking-tight mt-1">
-                Empowering learners across every continent
+                Empowering the first cohort of foundation engineers
               </h3>
             </div>
 

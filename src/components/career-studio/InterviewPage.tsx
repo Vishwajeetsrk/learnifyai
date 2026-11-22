@@ -1936,10 +1936,10 @@ ${scores.map((sc, i) => `Q${i + 1}: ${sc}/100`).join("\n")}
           <div className="rounded-3xl border border-slate-800/80 bg-slate-900/60 p-6 space-y-4 shadow-xl backdrop-blur-xl">
             <div className="flex items-center justify-between">
               <h2 className="font-display font-semibold text-white flex items-center gap-2 text-base">
-                <Briefcase className="h-4 w-4 text-emerald-400" /> 1. Select Target Job Role
+                <Briefcase className="h-4 w-4 text-[#347A3D] dark:text-emerald-400" /> 1. Select Target Job Role
               </h2>
               {role && (
-                <span className="text-xs font-medium text-emerald-300 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
+                <span className="text-xs font-medium text-[#347A3D] dark:text-emerald-300 bg-[#347A3D]/10 px-2.5 py-0.5 rounded-full border border-[#347A3D]/30">
                   Selected: {JOB_ROLES.find((r) => r.id === role)?.label || customRole || role}
                 </span>
               )}
@@ -1959,14 +1959,14 @@ ${scores.map((sc, i) => `Q${i + 1}: ${sc}/100`).join("\n")}
                     className={cn(
                       "p-4 rounded-2xl border text-left transition-all cursor-pointer relative group",
                       isSelected
-                        ? "border-emerald-500 bg-emerald-500/10 shadow-lg shadow-emerald-950/30 ring-2 ring-emerald-500/50"
+                        ? "border-[#347A3D] bg-[#347A3D]/15 shadow-lg shadow-emerald-950/40 ring-2 ring-[#347A3D]/60"
                         : "border-slate-800 bg-slate-900/40 hover:border-slate-700 hover:bg-slate-800/50",
                     )}
                   >
-                    <Icon className={cn("h-6 w-6 mb-2.5 transition-colors", isSelected ? "text-emerald-400" : "text-slate-400 group-hover:text-slate-200")} />
+                    <Icon className={cn("h-6 w-6 mb-2.5 transition-colors", isSelected ? "text-[#347A3D] dark:text-emerald-400" : "text-slate-400 group-hover:text-slate-200")} />
                     <span className="text-xs sm:text-sm font-bold block truncate text-slate-100">{r.label}</span>
                     {isSelected && (
-                      <span className="absolute top-3 right-3 w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                      <span className="absolute top-3 right-3 w-2 h-2 rounded-full bg-[#347A3D] animate-pulse" />
                     )}
                   </button>
                 );
@@ -1978,13 +1978,13 @@ ${scores.map((sc, i) => `Q${i + 1}: ${sc}/100`).join("\n")}
                 Or type ANY custom role for interview preparation:
               </label>
               <Input
-                placeholder="e.g. Cloud Solutions Architect, Blockchain Developer, Quant Analyst, AI Engineer..."
+                placeholder="e.g. Social Media Marketing, Cloud Solutions Architect, Blockchain Developer..."
                 value={customRole}
                 onChange={(e) => {
                   setCustomRole(e.target.value);
                   setRole(e.target.value);
                 }}
-                className="h-10 text-xs sm:text-sm font-semibold rounded-xl bg-slate-950/80 border-slate-700/80 focus-visible:ring-emerald-500"
+                className="h-10 text-xs sm:text-sm font-semibold rounded-xl bg-slate-950/80 border-slate-700/80 focus-visible:ring-[#347A3D]"
               />
             </div>
           </div>
@@ -1992,7 +1992,7 @@ ${scores.map((sc, i) => `Q${i + 1}: ${sc}/100`).join("\n")}
           {/* Select Mode */}
           <div className="rounded-3xl border border-slate-800/80 bg-slate-900/60 p-6 space-y-4 shadow-xl backdrop-blur-xl">
             <h2 className="font-display font-semibold text-white flex items-center gap-2 text-base">
-              <MessageSquare className="h-4 w-4 text-emerald-400" /> 2. Select Interview Mode
+              <MessageSquare className="h-4 w-4 text-[#347A3D] dark:text-emerald-400" /> 2. Select Interview Mode
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {MODES.map((m) => {
@@ -2005,14 +2005,14 @@ ${scores.map((sc, i) => `Q${i + 1}: ${sc}/100`).join("\n")}
                     className={cn(
                       "p-4 rounded-2xl border text-center transition-all cursor-pointer",
                       isSelected
-                        ? "border-emerald-500 bg-emerald-500/10 shadow-lg shadow-emerald-950/30 ring-2 ring-emerald-500/50"
+                        ? "border-[#347A3D] bg-[#347A3D]/15 shadow-lg shadow-emerald-950/40 ring-2 ring-[#347A3D]/60"
                         : "border-slate-800 bg-slate-900/40 hover:border-slate-700 hover:bg-slate-800/50",
                     )}
                   >
                     <Icon
                       className={cn(
                         "h-6 w-6 mx-auto mb-2 transition-colors",
-                        isSelected ? "text-emerald-400" : "text-slate-400",
+                        isSelected ? "text-[#347A3D] dark:text-emerald-400" : "text-slate-400",
                       )}
                     />
                     <span className="text-sm font-bold block text-slate-100">{m.label}</span>
@@ -2027,7 +2027,7 @@ ${scores.map((sc, i) => `Q${i + 1}: ${sc}/100`).join("\n")}
           <div className="rounded-3xl border border-slate-800/80 bg-slate-900/60 p-6 space-y-4 shadow-xl backdrop-blur-xl">
             <div>
               <h2 className="font-display font-semibold text-white flex items-center gap-2 text-base">
-                <Target className="h-4 w-4 text-emerald-400" /> 3. Select Human AI Interviewer
+                <Target className="h-4 w-4 text-[#347A3D] dark:text-emerald-400" /> 3. Select Human AI Interviewer
               </h2>
               <p className="text-xs text-slate-400 mt-0.5">
                 Choose an expert interviewer tailored to your target industry and technical depth.
@@ -2045,7 +2045,7 @@ ${scores.map((sc, i) => `Q${i + 1}: ${sc}/100`).join("\n")}
                     className={cn(
                       "p-3.5 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between relative group",
                       isSelected
-                        ? "border-emerald-500 bg-emerald-500/10 shadow-lg shadow-emerald-950/30 ring-2 ring-emerald-500/50"
+                        ? "border-[#347A3D] bg-[#347A3D]/15 shadow-lg shadow-emerald-950/40 ring-2 ring-[#347A3D]/60"
                         : "border-slate-800 bg-slate-900/40 hover:border-slate-700 hover:bg-slate-800/50",
                     )}
                   >
@@ -2064,7 +2064,7 @@ ${scores.map((sc, i) => `Q${i + 1}: ${sc}/100`).join("\n")}
                         <p className="text-sm font-bold truncate text-slate-100">
                           {interviewer.name}
                         </p>
-                        <p className="text-[11px] text-emerald-400 font-semibold truncate">
+                        <p className="text-[11px] text-[#347A3D] dark:text-emerald-400 font-semibold truncate">
                           {interviewer.company}
                         </p>
                       </div>
@@ -2077,7 +2077,7 @@ ${scores.map((sc, i) => `Q${i + 1}: ${sc}/100`).join("\n")}
                     <div className="flex items-center justify-between pt-2 border-t border-slate-800 text-[10px]">
                       <span className="font-semibold text-slate-400">{interviewer.badge}</span>
                       {isSelected ? (
-                        <span className="text-emerald-400 font-bold flex items-center gap-1">
+                        <span className="text-[#347A3D] dark:text-emerald-400 font-bold flex items-center gap-1">
                           <Check className="h-3 w-3" /> Selected
                         </span>
                       ) : (
@@ -2095,7 +2095,7 @@ ${scores.map((sc, i) => `Q${i + 1}: ${sc}/100`).join("\n")}
           {/* Difficulty */}
           <div className="rounded-3xl border border-slate-800/80 bg-slate-900/60 p-6 shadow-xl backdrop-blur-xl">
             <h2 className="font-display font-semibold text-white mb-4 flex items-center gap-2 text-base">
-              <Award className="h-4 w-4 text-emerald-400" /> 4. Difficulty Level
+              <Award className="h-4 w-4 text-[#347A3D] dark:text-emerald-400" /> 4. Difficulty Level
             </h2>
             <div className="flex flex-wrap gap-3">
               {DIFFICULTIES.map((d) => (
@@ -2105,7 +2105,7 @@ ${scores.map((sc, i) => `Q${i + 1}: ${sc}/100`).join("\n")}
                   className={cn(
                     "px-6 py-2.5 rounded-xl border font-semibold text-xs transition-all cursor-pointer",
                     difficulty === d.id
-                      ? "border-emerald-500 bg-emerald-500/15 shadow-md text-white ring-2 ring-emerald-500/40"
+                      ? "border-[#347A3D] bg-[#347A3D]/20 shadow-md text-white ring-2 ring-[#347A3D]/50"
                       : "border-slate-800 bg-slate-900/40 text-slate-400 hover:border-slate-700 hover:text-slate-200",
                   )}
                 >
@@ -2119,7 +2119,7 @@ ${scores.map((sc, i) => `Q${i + 1}: ${sc}/100`).join("\n")}
             size="lg"
             onClick={handleStart}
             disabled={!role}
-            className="w-full sm:w-auto h-12 px-8 font-display font-bold text-base rounded-2xl bg-gradient-to-r from-[#347A3D] via-emerald-600 to-[#245F30] hover:from-emerald-500 hover:to-[#347A3D] text-white shadow-xl shadow-emerald-950/50 cursor-pointer"
+            className="w-full sm:w-auto h-12 px-8 font-display font-bold text-base rounded-2xl bg-gradient-to-r from-[#347A3D] via-[#245F30] to-[#174422] hover:opacity-95 text-white shadow-xl shadow-emerald-950/50 cursor-pointer"
           >
             Start Practice Interview <ChevronRight className="h-5 w-5 ml-1.5" />
           </Button>

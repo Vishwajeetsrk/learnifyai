@@ -11,7 +11,6 @@ import { CompetitorComparison } from "@/components/interactive/CompetitorCompari
 import { StudentJourney } from "@/components/interactive/StudentJourney";
 import { MagnificationDock } from "@/components/interactive/MagnificationDock";
 import { PricingComparisonTable } from "@/components/interactive/PricingComparisonTable";
-import { SavingsCalculator } from "@/components/interactive/SavingsCalculator";
 import { usePublicSection } from "@/hooks/use-wcms-public";
 import { useSiteSettings } from "@/hooks/use-site-settings";
 import {
@@ -600,22 +599,26 @@ function PricingPage() {
           ai_credits_monthly: Number(p.ai_credits_monthly || 0),
           price_label: (p.price_label || "").replace(/\/mo(nth)?$/i, ""),
         })) as Plan[];
-        return DEFAULT_TIERS.map((def) => {
-          const match = dbPlans.find((db) => db.name.toLowerCase() === def.name.toLowerCase());
-          return match
-            ? {
-              ...def,
-              ...match,
-              id: match.id,
-              price_label: match.price_label || def.price_label,
-              price_inr: typeof match.price_inr === "number" ? match.price_inr : def.price_inr,
+        if (dbPlans && dbPlans.length > 0) {
+          // Filter out plans where active === false or is_hidden === true (admin can hide/unhide any plan)
+          const activeDbPlans = dbPlans.filter((p: any) => p.active !== false && p.is_hidden !== true);
+          return activeDbPlans.map((p) => {
+            const def = DEFAULT_TIERS.find((d) => d.name.toLowerCase() === p.name.toLowerCase());
+            return {
+              ...(def || {}),
+              ...p,
+              id: p.id,
+              name: p.name,
+              price_label: p.price_label || (p.price_inr <= 0 ? "Free" : `₹${p.price_inr}`),
+              price_inr: typeof p.price_inr === "number" ? p.price_inr : (def?.price_inr ?? 0),
               yearly_price:
-                typeof match.yearly_price === "number" ? match.yearly_price : def.yearly_price,
-              interval: match.interval || def.interval,
-              features: def.features,
-            }
-            : def;
-        });
+                typeof p.yearly_price === "number" ? p.yearly_price : (def?.yearly_price ?? Math.round((p.price_inr || 0) * 10)),
+              interval: p.interval || def?.interval || null,
+              features: Array.isArray(p.features) && p.features.length > 0 ? p.features : (def?.features || []),
+            };
+          });
+        }
+        return DEFAULT_TIERS;
       } finally {
         clearTimeout(timeout);
       }
@@ -630,10 +633,12 @@ function PricingPage() {
   const receiptPlans: ReceiptPlan[] = useMemo(() => {
     return (tiers || DEFAULT_TIERS)
       .filter(
-        (t) =>
+        (t: any) =>
           !t.is_custom_pricing &&
-          t.price_label.toLowerCase() !== "custom" &&
-          t.name.toLowerCase() !== "enterprise"
+          t.price_label?.toLowerCase() !== "custom" &&
+          t.name.toLowerCase() !== "enterprise" &&
+          t.active !== false &&
+          t.is_hidden !== true
       )
       .map((t) => {
         const isFree = t.price_inr <= 0;
@@ -974,11 +979,6 @@ function PricingPage() {
         {/* ========== ROI SAVINGS ========== */}
         <ROISavingsSection />
 
-        {/* ========== BUILD YOUR PLAN ========== */}
-        <section id="build-your-plan" className="container mx-auto px-6 py-12 max-w-6xl">
-          <SavingsCalculator />
-        </section>
-
         {/* ========== COMPETITOR COMPARISON (INSTANT FIX: BEFORE WHY LEARNERS UPGRADE) ========== */}
         <CompetitorComparison />
 
@@ -1057,61 +1057,6 @@ function PricingPage() {
           </div>
         </section>
 
-        {/* ========== BILLING TOGGLE ========== */}
-        <section className="container mx-auto px-6 pt-8 pb-4 max-w-5xl">
-          <div className="flex justify-center">
-            <div className="inline-flex items-center gap-1 bg-muted/50 rounded-full p-1.5">
-              <button
-                onClick={() => setBillingCycle("monthly")}
-                className={`px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${billingCycle === "monthly"
-                    ? "bg-background text-foreground shadow-md"
-                    : "text-muted-foreground hover:text-foreground"
-                  }`}
-              >
-                Monthly
-              </button>
-              <button
-                onClick={() => setBillingCycle("yearly")}
-                className={`px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 relative ${billingCycle === "yearly"
-                    ? "bg-background text-foreground shadow-md"
-                    : "text-muted-foreground hover:text-foreground"
-                  }`}
-              >
-                Yearly
-                <span className="ml-1.5 text-[10px] font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 px-1.5 py-0.5 rounded-full">
-                  Save {calculatedSavingsPct}%
-                </span>
-              </button>
-            </div>
-          </div>
-        </section>
-
-        {/* ========== COUPON INPUT ========== */}
-        <section className="container mx-auto px-6 pb-4 max-w-lg">
-          <div className="flex items-center gap-2">
-            <div className="relative flex-1">
-              <Tag className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <input
-                type="text"
-                value={couponCode}
-                onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                placeholder="Have a coupon code?"
-                className="w-full h-10 pl-9 pr-4 rounded-xl border bg-card text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition"
-              />
-            </div>
-            {couponCode && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-10 text-xs shrink-0"
-                onClick={() => setCouponCode("")}
-              >
-                Clear
-              </Button>
-            )}
-          </div>
-        </section>
-
         {/* ========== PRICING CARDS ========== */}
         <section className="container mx-auto px-6 py-10 max-w-6xl">
           {isLoading && (!Array.isArray(tiers) || (tiers as Plan[]).length === 0) ? (
@@ -1138,13 +1083,40 @@ function PricingPage() {
             <p className="text-center text-muted-foreground py-12">Pricing coming soon.</p>
           ) : (
             <>
-              <div className="max-w-2xl mx-auto mb-8 w-full text-center">
+              {/* Contextual Legal Agreement */}
+              <div className="max-w-2xl mx-auto mb-6 w-full text-center">
                 <ContextualLegalNotice
                   context="checkout"
                   requireExplicitAcceptance
                   checked={legalAccepted}
                   onAccepted={(val) => setLegalAccepted(val ?? true)}
                 />
+              </div>
+
+              {/* Coupon Code Input */}
+              <div className="max-w-md mx-auto mb-8">
+                <div className="flex items-center gap-2">
+                  <div className="relative flex-1">
+                    <Tag className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <input
+                      type="text"
+                      value={couponCode}
+                      onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                      placeholder="Have a coupon code?"
+                      className="w-full h-10 pl-9 pr-4 rounded-xl border bg-card text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#347A3D]/30 focus:border-[#347A3D] transition"
+                    />
+                  </div>
+                  {couponCode && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-10 text-xs shrink-0"
+                      onClick={() => setCouponCode("")}
+                    >
+                      Clear
+                    </Button>
+                  )}
+                </div>
               </div>
 
               {/* Thermal Receipt Ledger Primary Presentation */}
@@ -1169,6 +1141,7 @@ function PricingPage() {
                     currency="INR"
                     locale="en-IN"
                     monthsFree={2}
+                    periodLabels={["Monthly", `Yearly (${calculatedSavingsPct}% Off)`]}
                     merchant="LEARNIFY EDTECH PVT LTD"
                     merchantNote="SAC 998431 · 18% GST INCLUDED · TAX INVOICE"
                     orderPrefix="PLAN"

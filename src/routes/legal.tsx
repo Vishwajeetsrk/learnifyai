@@ -207,7 +207,6 @@ function LegalCenterPage() {
             <div className="lg:col-span-4 space-y-2">
               <h2 className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-3 mb-2 flex items-center justify-between">
                 <span>Published Policies ({filteredDocs.length})</span>
-                {isAdmin && <span className="text-[10px] text-primary lowercase">(Admin view)</span>}
               </h2>
               <div className="space-y-1">
                 {filteredDocs.map((docItem) => {

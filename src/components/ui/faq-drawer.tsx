@@ -368,7 +368,7 @@ const CSS = `
   --tui-sh: 0 0 0;
   --tui-sh-a: 0.65;
   --tui-grain: 0.35;
-  --tui-focus: #38bdf8;
+  --tui-focus: #347A3D;
   --fq-drop: rgb(0 0 0 / 0.65);
 }
 
@@ -391,7 +391,7 @@ const CSS = `
   font: 700 11px/1.2 var(--fq-sans);
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--tui-ink-2);
+  color: #347A3D;
 }
 .fq-title {
   font: 700 clamp(30px, 3.6cqi, 48px)/1.05 var(--fq-sans);
@@ -569,17 +569,20 @@ const CSS = `
   padding: 0 22px;
   border-radius: 10px;
   font: 700 14px/1 var(--fq-sans);
-  color: var(--tui-cap-ink);
+  color: #ffffff;
   text-decoration: none;
   background:
-    radial-gradient(120% 90% at 50% 0%, rgb(255 255 255 / 0.1), transparent 60%),
-    linear-gradient(var(--tui-cap-hi), var(--tui-cap));
+    radial-gradient(120% 90% at 50% 0%, rgb(255 255 255 / 0.15), transparent 60%),
+    linear-gradient(135deg, #347A3D, #245F30);
   box-shadow:
-    inset 0 1px 0 var(--tui-cap-hl),
-    0 3px 0 var(--tui-cap-skirt),
-    0 4px 2px rgb(var(--tui-sh) / calc(var(--tui-sh-a) * 1.4)),
-    0 9px 14px -6px rgb(var(--tui-sh) / var(--tui-sh-a));
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    0 3px 0 #174422,
+    0 4px 6px rgba(23, 68, 34, 0.3),
+    0 9px 14px -6px rgba(23, 68, 34, 0.4);
   transition: transform 70ms var(--tui-ease), box-shadow 70ms var(--tui-ease);
+}
+.fq-key:hover {
+  background: linear-gradient(135deg, #3d8f47, #245F30);
 }
 .fq-key:active { transform: translateY(3px); box-shadow: var(--tui-pressed); }
 .fq-key:focus-visible { outline: 2px solid var(--tui-focus); outline-offset: 3px; }

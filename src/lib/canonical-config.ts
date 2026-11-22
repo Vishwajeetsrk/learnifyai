@@ -41,18 +41,19 @@ export const CANONICAL_BRAND = {
 } as const;
 
 export const CANONICAL_BENCHMARKS = {
-  learners: 120000,
-  learnersLabel: "120K+",
-  creators: 4200,
-  creatorsLabel: "4,200+",
-  coursesShipped: 3400,
-  coursesLabel: "3,400+",
-  countries: 42,
-  countriesLabel: "42+",
+  learners: 55,
+  learnersLabel: "55+",
+  foundationEngineersLabel: "55+ Foundation Engineers",
+  creators: 12,
+  creatorsLabel: "12+",
+  coursesShipped: 50,
+  coursesLabel: "50+",
+  countries: 1,
+  countriesLabel: "India & Global Remote",
   rating: 4.9,
-  satisfactionRate: "96%",
-  aiSessions: 18000000,
-  aiSessionsLabel: "18M+",
+  satisfactionRate: "98%",
+  aiSessions: 1200,
+  aiSessionsLabel: "1.2K+",
 } as const;
 
 export const CANONICAL_PLANS: Record<string, CanonicalPlan> = {

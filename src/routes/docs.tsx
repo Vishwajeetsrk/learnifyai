@@ -472,21 +472,22 @@ function DocsPage() {
                 <FeatureCard
                   icon={<SparkIcon />}
                   title="AI Tutor & Credits System"
-                  description="Learnify AI provides context-aware AI tutoring for all courses. Free tier accounts receive 500 free AI credits every month. Pro tier accounts receive 10,000 AI credits/mo."
+                  description="Learnify AI provides context-aware AI tutoring for all courses. Free tier accounts receive 100 free AI credits every month. Pro tier accounts receive 1,000 AI credits/mo with automated balance replenishment."
                   points={[
-                    "1 AI Tutor Question = 5 Credits",
-                    "1 Resume Generation = 50 Credits",
-                    "1 Mock Interview Session = 100 Credits",
+                    "1 AI Tutor Question = 1 Credit",
+                    "1 Resume Generation & ATS Audit = 10 Credits",
+                    "1 Mock Interview Simulation = 20 Credits",
+                    "Daily Streak Check-in = +10 XP & Streak Multiplier",
                   ]}
-                  accentClass="text-indigo-500"
-                  bgClass="from-indigo-500/5 to-indigo-500/10"
+                  accentClass="text-emerald-500"
+                  bgClass="from-emerald-500/5 to-emerald-500/10"
                 >
-                  <div className="mt-3.5 pt-3 border-t border-indigo-500/15 flex flex-wrap gap-2">
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-500/10 text-indigo-400 text-[11px] font-bold border border-indigo-500/20">
-                      <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" /> Free Tier: 500 Credits/mo
+                  <div className="mt-3.5 pt-3 border-t border-emerald-500/15 flex flex-wrap gap-2">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/10 text-[#347A3D] dark:text-emerald-400 text-[11px] font-bold border border-emerald-500/20">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Free Tier: 100 Credits/mo
                     </span>
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-400 text-[11px] font-bold border border-emerald-500/20">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Pro Tier: 10,000 Credits/mo
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-primary/10 text-primary text-[11px] font-bold border border-primary/20">
+                      <span className="w-1.5 h-1.5 rounded-full bg-primary" /> Pro Tier: 1,000 Credits/mo
                     </span>
                   </div>
                 </FeatureCard>

@@ -32,6 +32,11 @@ import {
   Type,
   SmilePlus,
   ChevronDown,
+  Highlighter,
+  Strikethrough,
+  Code,
+  Quote,
+  Sparkles,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { CommunityChat } from "@/components/CommunityChat";
@@ -51,12 +56,19 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { logDailyUsage } from "@/lib/onboarding.functions";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
 import UnderlineExt from "@tiptap/extension-underline";
+import Highlight from "@tiptap/extension-highlight";
 import { TextStyle, FontFamily } from "@tiptap/extension-text-style";
 import Color from "@tiptap/extension-color";
 import TextAlign from "@tiptap/extension-text-align";
@@ -81,8 +93,10 @@ export default function CommunityPage() {
   const [editContent, setEditContent] = useState("");
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
   const [editCommentText, setEditCommentText] = useState("");
+  const [likedByPost, setLikedByPost] = useState<any | null>(null);
 
   const [colorOpen, setColorOpen] = useState(false);
+  const [highlightOpen, setHighlightOpen] = useState(false);
   const [emojiOpen, setEmojiOpen] = useState(false);
   const [headingOpen, setHeadingOpen] = useState(false);
   const [listOpen, setListOpen] = useState(false);
@@ -93,8 +107,10 @@ export default function CommunityPage() {
       StarterKit.configure({
         orderedList: {},
         bulletList: {},
-        underline: false,
+        codeBlock: {},
+        blockquote: {},
       }),
+      Highlight.configure({ multicolor: true }),
       UnderlineExt,
       TextStyle,
       Color,
@@ -135,8 +151,8 @@ export default function CommunityPage() {
             `
             *,
             author:profiles!posts_author_id_fkey (id, full_name, avatar_url),
-            likes:post_likes(id, user_id, user:user_id(id, full_name, avatar_url)),
-            comments:post_comments(id, content, author_id, created_at, author:author_id(id, full_name, avatar_url)),
+            likes:post_likes(id, user_id, user:profiles(id, full_name, avatar_url)),
+            comments:post_comments(id, content, author_id, created_at, author:profiles(id, full_name, avatar_url)),
             saves:post_saves(id, user_id)
           `,
           )
@@ -463,107 +479,152 @@ export default function CommunityPage() {
                 <div className="flex flex-wrap items-center gap-0.5 sm:gap-1">
                   <div className="flex items-center gap-0.5 pr-2 mr-1 border-r">
                     <button
+                      type="button"
                       onClick={() => editor?.chain().focus().toggleBold().run()}
-                      className={`p-2 min-h-[36px] min-w-[36px] rounded-lg transition-colors ${editor?.isActive("bold") ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
-                      title="Bold"
+                      className={`p-2 min-h-[36px] min-w-[36px] rounded-lg transition-colors ${editor?.isActive("bold") ? "bg-primary/10 text-primary font-bold" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
+                      title="Bold (Ctrl+B)"
                     >
                       <Bold className="h-4 w-4" />
                     </button>
                     <button
+                      type="button"
                       onClick={() => editor?.chain().focus().toggleItalic().run()}
                       className={`p-2 min-h-[36px] min-w-[36px] rounded-lg transition-colors ${editor?.isActive("italic") ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
-                      title="Italic"
+                      title="Italic (Ctrl+I)"
                     >
                       <Italic className="h-4 w-4" />
                     </button>
                     <button
+                      type="button"
                       onClick={() => editor?.chain().focus().toggleUnderline().run()}
                       className={`p-2 min-h-[36px] min-w-[36px] rounded-lg transition-colors ${editor?.isActive("underline") ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
-                      title="Underline"
+                      title="Underline (Ctrl+U)"
                     >
                       <Underline className="h-4 w-4" />
                     </button>
-                  </div>
-
-                  {/* Heading dropdown */}
-                  <div className="relative">
                     <button
-                      onClick={() => setHeadingOpen(!headingOpen)}
-                      className="p-1.5 rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground transition-colors flex items-center gap-0.5"
-                      title="Heading"
+                      type="button"
+                      onClick={() => editor?.chain().focus().toggleStrike().run()}
+                      className={`p-2 min-h-[36px] min-w-[36px] rounded-lg transition-colors ${editor?.isActive("strike") ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
+                      title="Strikethrough"
                     >
-                      <Heading1 className="h-4 w-4" />
-                      <ChevronDown className="h-3 w-3" />
+                      <Strikethrough className="h-4 w-4" />
                     </button>
-                    {headingOpen && (
-                      <div
-                        className="absolute top-full left-0 mt-1 z-50 w-36 rounded-lg border bg-popover shadow-lg p-1 space-y-0.5"
-                        onMouseLeave={() => setHeadingOpen(false)}
+
+                    {/* Text Highlighter */}
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={() => setHighlightOpen(!highlightOpen)}
+                        className={`p-2 min-h-[36px] min-w-[36px] rounded-lg transition-colors ${editor?.isActive("highlight") ? "bg-amber-500/20 text-amber-600 dark:text-amber-400 font-bold" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
+                        title="Text Highlighter"
                       >
-                        {[
-                          { level: 1, label: "Heading 1", icon: Heading1 },
-                          { level: 2, label: "Heading 2", icon: Heading2 },
-                          { level: 3, label: "Heading 3", icon: Heading3 },
-                          { level: 4, label: "Heading 4", icon: Heading4 },
-                        ].map((h) => (
+                        <Highlighter className="h-4 w-4" />
+                      </button>
+                      {highlightOpen && (
+                        <div
+                          className="absolute top-full left-0 mt-1 z-50 p-2 rounded-xl border bg-popover shadow-xl flex items-center gap-1.5"
+                          onMouseLeave={() => setHighlightOpen(false)}
+                        >
+                          {[
+                            { color: "#fef08a", label: "Yellow" },
+                            { color: "#a7f3d0", label: "Mint" },
+                            { color: "#bae6fd", label: "Sky" },
+                            { color: "#fed7aa", label: "Peach" },
+                            { color: "#fbcfe8", label: "Pink" },
+                          ].map((h) => (
+                            <button
+                              key={h.color}
+                              type="button"
+                              title={h.label}
+                              onClick={() => {
+                                editor?.chain().focus().toggleHighlight({ color: h.color }).run();
+                                setHighlightOpen(false);
+                              }}
+                              className="w-6 h-6 rounded-full border border-black/10 hover:scale-110 transition-transform shadow-xs cursor-pointer"
+                              style={{ backgroundColor: h.color }}
+                            />
+                          ))}
                           <button
-                            key={h.level}
+                            type="button"
+                            title="Remove Highlight"
                             onClick={() => {
-                              editor
-                                ?.chain()
-                                .focus()
-                                .toggleHeading({ level: h.level as any })
-                                .run();
-                              setHeadingOpen(false);
+                              editor?.chain().focus().unsetHighlight().run();
+                              setHighlightOpen(false);
                             }}
-                            className={`w-full flex items-center gap-2 px-2 py-1.5 rounded text-xs transition-colors ${editor?.isActive("heading", { level: h.level }) ? "bg-primary/10 text-primary" : "hover:bg-accent"}`}
+                            className="px-2 py-0.5 text-[10px] font-semibold text-muted-foreground hover:text-destructive transition-colors ml-1 border rounded cursor-pointer"
                           >
-                            <h.icon className="h-3.5 w-3.5" /> {h.label}
+                            Clear
                           </button>
-                        ))}
-                      </div>
-                    )}
+                        </div>
+                      )}
+                    </div>
                   </div>
 
-                  {/* List dropdown (bullet + ordered) */}
-                  <div className="relative">
-                    <button
-                      onClick={() => setListOpen(!listOpen)}
-                      className="p-1.5 rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground transition-colors flex items-center gap-0.5"
-                      title="List"
-                    >
-                      <List className="h-4 w-4" />
-                      <ChevronDown className="h-3 w-3" />
-                    </button>
-                    {listOpen && (
-                      <div
-                        className="absolute top-full left-0 mt-1 z-50 w-40 rounded-lg border bg-popover shadow-lg p-1 space-y-0.5"
-                        onMouseLeave={() => setListOpen(false)}
-                      >
-                        <button
-                          onClick={() => {
-                            editor?.chain().focus().toggleBulletList().run();
-                            setListOpen(false);
-                          }}
-                          className="w-full flex items-center gap-2 px-2 py-1.5 rounded text-xs hover:bg-accent"
-                        >
-                          <List className="h-3.5 w-3.5" /> Bullet list
-                        </button>
-                        <button
-                          onClick={() => {
-                            editor?.chain().focus().toggleOrderedList().run();
-                            setListOpen(false);
-                          }}
-                          className="w-full flex items-center gap-2 px-2 py-1.5 rounded text-xs hover:bg-accent"
-                        >
-                          <ListOrdered className="h-3.5 w-3.5" /> Numbered list
-                        </button>
-                      </div>
-                    )}
-                  </div>
-
+                  {/* Headings */}
                   <div className="flex items-center gap-0.5 pr-2 mr-1 border-r">
                     <button
+                      type="button"
+                      onClick={() => editor?.chain().focus().toggleHeading({ level: 1 }).run()}
+                      className={`p-2 min-h-[36px] min-w-[36px] rounded-lg transition-colors ${editor?.isActive("heading", { level: 1 }) ? "bg-primary/10 text-primary font-bold" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
+                      title="Heading 1"
+                    >
+                      <Heading1 className="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => editor?.chain().focus().toggleHeading({ level: 2 }).run()}
+                      className={`p-2 min-h-[36px] min-w-[36px] rounded-lg transition-colors ${editor?.isActive("heading", { level: 2 }) ? "bg-primary/10 text-primary font-bold" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
+                      title="Heading 2"
+                    >
+                      <Heading2 className="h-4 w-4" />
+                    </button>
+                  </div>
+
+                  {/* Lists: Ordered & Unordered */}
+                  <div className="flex items-center gap-0.5 pr-2 mr-1 border-r">
+                    <button
+                      type="button"
+                      onClick={() => editor?.chain().focus().toggleBulletList().run()}
+                      className={`p-2 min-h-[36px] min-w-[36px] rounded-lg transition-colors ${editor?.isActive("bulletList") ? "bg-primary/10 text-primary font-bold" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
+                      title="Bullet List (Unordered)"
+                    >
+                      <List className="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => editor?.chain().focus().toggleOrderedList().run()}
+                      className={`p-2 min-h-[36px] min-w-[36px] rounded-lg transition-colors ${editor?.isActive("orderedList") ? "bg-primary/10 text-primary font-bold" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
+                      title="Numbered List (Ordered)"
+                    >
+                      <ListOrdered className="h-4 w-4" />
+                    </button>
+                  </div>
+
+                  {/* Code & Quote */}
+                  <div className="flex items-center gap-0.5 pr-2 mr-1 border-r">
+                    <button
+                      type="button"
+                      onClick={() => editor?.chain().focus().toggleCodeBlock().run()}
+                      className={`p-2 min-h-[36px] min-w-[36px] rounded-lg transition-colors ${editor?.isActive("codeBlock") ? "bg-primary/10 text-primary font-bold" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
+                      title="Code Block"
+                    >
+                      <Code className="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => editor?.chain().focus().toggleBlockquote().run()}
+                      className={`p-2 min-h-[36px] min-w-[36px] rounded-lg transition-colors ${editor?.isActive("blockquote") ? "bg-primary/10 text-primary font-bold" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
+                      title="Blockquote"
+                    >
+                      <Quote className="h-4 w-4" />
+                    </button>
+                  </div>
+
+                  {/* Alignment */}
+                  <div className="flex items-center gap-0.5 pr-2 mr-1 border-r">
+                    <button
+                      type="button"
                       onClick={() => editor?.chain().focus().setTextAlign("left").run()}
                       className={`p-1.5 rounded-lg transition-colors ${editor?.isActive({ textAlign: "left" }) ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
                       title="Align Left"
@@ -571,6 +632,7 @@ export default function CommunityPage() {
                       <AlignLeft className="h-4 w-4" />
                     </button>
                     <button
+                      type="button"
                       onClick={() => editor?.chain().focus().setTextAlign("center").run()}
                       className={`p-1.5 rounded-lg transition-colors ${editor?.isActive({ textAlign: "center" }) ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
                       title="Align Center"
@@ -578,6 +640,7 @@ export default function CommunityPage() {
                       <AlignCenter className="h-4 w-4" />
                     </button>
                     <button
+                      type="button"
                       onClick={() => editor?.chain().focus().setTextAlign("right").run()}
                       className={`p-1.5 rounded-lg transition-colors ${editor?.isActive({ textAlign: "right" }) ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
                       title="Align Right"
@@ -589,6 +652,7 @@ export default function CommunityPage() {
                   {/* Color picker */}
                   <div className="relative">
                     <button
+                      type="button"
                       onClick={() => setColorOpen(!colorOpen)}
                       className={`p-1.5 rounded-lg transition-colors ${colorOpen ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
                       title="Text Color"
@@ -603,6 +667,7 @@ export default function CommunityPage() {
                         <div className="grid grid-cols-7 gap-1 mb-2">
                           {[
                             "#000000",
+                            "#347A3D",
                             "#ef4444",
                             "#f97316",
                             "#eab308",
@@ -625,11 +690,12 @@ export default function CommunityPage() {
                           ].map((c) => (
                             <button
                               key={c}
+                              type="button"
                               onClick={() => {
                                 editor?.chain().focus().setColor(c).run();
                                 setColorOpen(false);
                               }}
-                              className="h-8 w-8 rounded-full border shrink-0"
+                              className="h-8 w-8 rounded-full border shrink-0 cursor-pointer"
                               style={{ backgroundColor: c }}
                               title={c}
                             />
@@ -701,54 +767,74 @@ export default function CommunityPage() {
                     <option value="Comic Sans MS">Comic Sans</option>
                   </select>
 
-                  {/* Emoji picker - simplified */}
+                  {/* Emoji & Stickers Picker */}
                   <div className="relative">
                     <button
+                      type="button"
                       onClick={() => setEmojiOpen(!emojiOpen)}
                       className={`p-1.5 rounded-lg transition-colors ${emojiOpen ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
-                      title="Emoji"
+                      title="Emoji & Stickers"
                     >
                       <SmilePlus className="h-4 w-4" />
                     </button>
                     {emojiOpen && (
                       <div
-                        className="absolute top-full left-1/2 -translate-x-1/2 mt-1 z-50 p-2 rounded-lg border bg-popover shadow-lg w-64 max-w-[90vw]"
+                        className="absolute top-full left-1/2 -translate-x-1/2 mt-1 z-50 p-3 rounded-xl border bg-popover shadow-xl w-72 max-w-[90vw] space-y-3"
                         onMouseLeave={() => setEmojiOpen(false)}
                       >
-                        <p className="text-[10px] text-muted-foreground mb-2 px-1">
-                          Common emojis:
-                        </p>
-                        <div className="grid grid-cols-8 gap-0.5">
-                          {[
-                            "👍",
-                            "❤️",
-                            "🎉",
-                            "🔥",
-                            "⭐",
-                            "✅",
-                            "💯",
-                            "🚀",
-                            "💻",
-                            "📚",
-                            "🎯",
-                            "💡",
-                            "🙏",
-                            "👏",
-                            "✨",
-                            "🌟",
-                          ].map((e) => (
-                            <button
-                              key={e}
-                              type="button"
-                              onClick={() => {
-                                editor?.chain().focus().insertContent(e).run();
-                                setEmojiOpen(false);
-                              }}
-                              className="hover:bg-accent rounded p-1 text-lg leading-none"
-                            >
-                              {e}
-                            </button>
-                          ))}
+                        <div>
+                          <p className="text-[10px] font-semibold text-muted-foreground mb-1.5 uppercase tracking-wider">
+                            Reaction Stickers:
+                          </p>
+                          <div className="flex flex-wrap gap-1">
+                            {[
+                              { label: "🚀 Shipped", text: " 🚀 **[Shipped]** " },
+                              { label: "💡 Idea", text: " 💡 **[Idea]** " },
+                              { label: "🎉 Kudos", text: " 🎉 **[Kudos]** " },
+                              { label: "🔥 Trending", text: " 🔥 **[Trending]** " },
+                              { label: "💻 Code", text: " 💻 **[Code]** " },
+                              { label: "🧠 Deep Dive", text: " 🧠 **[Deep Dive]** " },
+                              { label: "🏆 Win", text: " 🏆 **[Milestone]** " },
+                              { label: "💯 100%", text: " 💯 **[100%]** " },
+                            ].map((s) => (
+                              <button
+                                key={s.label}
+                                type="button"
+                                onClick={() => {
+                                  editor?.chain().focus().insertContent(s.text).run();
+                                  setEmojiOpen(false);
+                                }}
+                                className="px-2 py-0.5 rounded-md text-[11px] font-medium bg-muted hover:bg-primary/10 hover:text-primary transition-colors cursor-pointer border border-border/50"
+                              >
+                                {s.label}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div>
+                          <p className="text-[10px] font-semibold text-muted-foreground mb-1.5 uppercase tracking-wider">
+                            Emojis:
+                          </p>
+                          <div className="grid grid-cols-8 gap-0.5">
+                            {[
+                              "👍", "❤️", "🎉", "🔥", "⭐", "✅", "💯", "🚀",
+                              "💻", "📚", "🎯", "💡", "🙏", "👏", "✨", "🌟",
+                              "🙌", "💪", "🎓", "🛠️", "⚡", "🤝", "👀", "💎",
+                            ].map((e) => (
+                              <button
+                                key={e}
+                                type="button"
+                                onClick={() => {
+                                  editor?.chain().focus().insertContent(e).run();
+                                  setEmojiOpen(false);
+                                }}
+                                className="hover:bg-accent rounded p-1 text-lg leading-none cursor-pointer text-center"
+                              >
+                                {e}
+                              </button>
+                            ))}
+                          </div>
                         </div>
                       </div>
                     )}
@@ -1001,25 +1087,42 @@ export default function CommunityPage() {
 
                 {!isPoll && (
                   <div className="flex items-center gap-6 pt-4 border-t border-border/50 text-muted-foreground mt-2">
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => toggleLike(post.id, isLiked)}
+                        aria-label={isLiked ? "Unlike post" : "Like post"}
+                        className={`p-1.5 rounded-lg hover:text-rose-500 hover:bg-rose-500/10 transition-colors group cursor-pointer ${isLiked ? "text-rose-500 font-medium" : ""}`}
+                      >
+                        <Heart
+                          className={`h-5 w-5 transition-transform group-hover:scale-110 ${isLiked ? "fill-current scale-110" : ""}`}
+                        />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if ((post.likes?.length || 0) > 0) {
+                            setLikedByPost(post);
+                          }
+                        }}
+                        className="text-xs sm:text-sm font-medium hover:underline text-muted-foreground hover:text-foreground cursor-pointer px-1 py-0.5 rounded"
+                        title="View who liked this post"
+                      >
+                        {post.likes?.length || 0} {post.likes?.length === 1 ? "like" : "likes"}
+                      </button>
+                    </div>
                     <button
-                      onClick={() => toggleLike(post.id, isLiked)}
-                      className={`flex items-center gap-1.5 hover:text-rose-500 transition-colors group ${isLiked ? "text-rose-500 font-medium" : ""}`}
-                    >
-                      <Heart
-                        className={`h-5 w-5 transition-transform group-hover:scale-110 ${isLiked ? "fill-current scale-110" : ""}`}
-                      />
-                      <span className="text-sm">{post.likes?.length || 0}</span>
-                    </button>
-                    <button
+                      type="button"
                       onClick={() => setExpandedPostId(expandedPostId === post.id ? null : post.id)}
-                      className="flex items-center gap-1.5 hover:text-indigo-500 transition-colors group"
+                      className="flex items-center gap-1.5 hover:text-indigo-500 transition-colors group cursor-pointer"
                     >
                       <MessageSquare className="h-5 w-5 transition-transform group-hover:scale-110" />
                       <span className="text-sm">{post.comments?.length || 0}</span>
                     </button>
                     <button
+                      type="button"
                       onClick={() => toggleSave(post.id, isSaved)}
-                      className={`flex items-center gap-1.5 ml-auto hover:text-amber-500 transition-colors group ${isSaved ? "text-amber-500 font-medium" : ""}`}
+                      className={`flex items-center gap-1.5 ml-auto hover:text-amber-500 transition-colors group cursor-pointer ${isSaved ? "text-amber-500 font-medium" : ""}`}
                     >
                       <Bookmark
                         className={`h-5 w-5 transition-transform group-hover:scale-110 ${isSaved ? "fill-current" : ""}`}
@@ -1167,6 +1270,56 @@ export default function CommunityPage() {
       <div className="mt-10">
         <CommunityChat />
       </div>
+
+      {/* Liked By Popup Dialog */}
+      {likedByPost && (
+        <Dialog open={!!likedByPost} onOpenChange={(open) => !open && setLikedByPost(null)}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-base font-semibold">
+                <Heart className="h-4 w-4 fill-rose-500 text-rose-500" />
+                Liked by ({likedByPost.likes?.length || 0})
+              </DialogTitle>
+            </DialogHeader>
+            <div className="max-h-72 overflow-y-auto space-y-3 pt-2 pr-1">
+              {(!likedByPost.likes || likedByPost.likes.length === 0) ? (
+                <p className="text-sm text-muted-foreground py-6 text-center">No likes on this post yet.</p>
+              ) : (
+                likedByPost.likes.map((likeItem: any, idx: number) => {
+                  const liker = likeItem.user;
+                  const likerName = liker?.full_name || "Community Member";
+                  return (
+                    <div
+                      key={likeItem.id || likeItem.user_id || idx}
+                      className="flex items-center justify-between gap-3 p-2 rounded-xl hover:bg-muted/50 transition-colors"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <Avatar className="h-9 w-9 border border-border/60 shrink-0">
+                          <AvatarImage src={liker?.avatar_url} />
+                          <AvatarFallback className="font-semibold text-xs bg-primary/10 text-primary">
+                            {likerName.charAt(0).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="min-w-0">
+                          <div className="text-sm font-semibold text-foreground truncate">
+                            {likerName}
+                          </div>
+                          <div className="text-[11px] text-muted-foreground truncate">
+                            Foundation Engineer
+                          </div>
+                        </div>
+                      </div>
+                      <Badge variant="outline" className="text-[10px] text-muted-foreground border-border/60 shrink-0">
+                        Learner
+                      </Badge>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }

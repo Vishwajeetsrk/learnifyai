@@ -278,38 +278,29 @@ export const claimDailyStreak = createServerFn({ method: "POST" })
     }
 
     const now = new Date();
+    const userTimezone = data?.timezone || "Asia/Kolkata";
     let todayStr: string;
     try {
-      if (data?.timezone) {
-        todayStr = new Intl.DateTimeFormat("en-CA", {
-          timeZone: data.timezone,
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit",
-        }).format(now);
-      } else if (data?.clientDate) {
-        todayStr = data.clientDate;
-      } else {
-        todayStr = now.toISOString().slice(0, 10);
-      }
+      todayStr = new Intl.DateTimeFormat("en-CA", {
+        timeZone: userTimezone,
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      }).format(now);
     } catch {
-      todayStr = now.toISOString().slice(0, 10);
+      todayStr = data?.clientDate || now.toISOString().slice(0, 10);
     }
 
-    // Check if user already claimed check-in today
-    const startOfToday = new Date(`${todayStr}T00:00:00.000Z`);
-    const endOfToday = new Date(`${todayStr}T23:59:59.999Z`);
-
-    const { data: existingLogs } = await supabaseAdmin
-      .from("xp_log")
-      .select("id, amount, created_at")
+    // 1. Check if user already claimed check-in for today in their timezone
+    const { data: todayUsage } = await supabaseAdmin
+      .from("onboarding_daily_usage")
+      .select("usage_date, xp_earned")
       .eq("user_id", userId)
-      .eq("source", "daily_checkin")
-      .gte("created_at", startOfToday.toISOString())
-      .lte("created_at", endOfToday.toISOString())
-      .limit(1);
+      .eq("usage_date", todayStr)
+      .contains("features_used", ["daily_streak_checkin"])
+      .maybeSingle();
 
-    if (existingLogs && existingLogs.length > 0) {
+    if (todayUsage) {
       return {
         success: true,
         alreadyClaimed: true,
@@ -322,40 +313,81 @@ export const claimDailyStreak = createServerFn({ method: "POST" })
       };
     }
 
-    // Check last check-in date
-    const { data: lastCheckinLog } = await supabaseAdmin
-      .from("xp_log")
-      .select("created_at")
+    // 2. Find the last check-in date
+    const { data: previousUsage } = await supabaseAdmin
+      .from("onboarding_daily_usage")
+      .select("usage_date")
       .eq("user_id", userId)
-      .eq("source", "daily_checkin")
-      .lt("created_at", startOfToday.toISOString())
-      .order("created_at", { ascending: false })
-      .limit(1);
+      .contains("features_used", ["daily_streak_checkin"])
+      .lt("usage_date", todayStr)
+      .order("usage_date", { ascending: false })
+      .limit(1)
+      .maybeSingle();
 
     let currentStreak = profile.current_streak ?? 0;
     let highestStreak = profile.highest_streak ?? 0;
 
-    let lastDateStr: string | null = null;
-    if (lastCheckinLog && lastCheckinLog.length > 0) {
-      lastDateStr = new Date(lastCheckinLog[0].created_at).toISOString().slice(0, 10);
-    } else if (profile.last_active_at) {
-      lastDateStr = new Date(profile.last_active_at).toISOString().slice(0, 10);
+    let lastDateStr: string | null = previousUsage?.usage_date ?? null;
+    if (!lastDateStr && profile.last_active_at) {
+      try {
+        lastDateStr = new Intl.DateTimeFormat("en-CA", {
+          timeZone: userTimezone,
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        }).format(new Date(profile.last_active_at));
+      } catch {
+        lastDateStr = new Date(profile.last_active_at).toISOString().slice(0, 10);
+      }
     }
 
     if (lastDateStr) {
-      const todayMs = new Date(`${todayStr}T00:00:00.000Z`).getTime();
-      const lastMs = new Date(`${lastDateStr}T00:00:00.000Z`).getTime();
+      const todayMs = Date.parse(`${todayStr}T00:00:00Z`);
+      const lastMs = Date.parse(`${lastDateStr}T00:00:00Z`);
       const dayDiff = Math.round((todayMs - lastMs) / 86400000);
 
       if (dayDiff === 1) {
-        currentStreak += 1;
-      } else if (dayDiff > 1) {
-        currentStreak = 1;
+        currentStreak = (profile.current_streak ?? 0) + 1;
       } else if (dayDiff === 0) {
-        currentStreak = Math.max(1, currentStreak);
+        return {
+          success: true,
+          alreadyClaimed: true,
+          streak: profile.current_streak ?? 1,
+          highestStreak: profile.highest_streak ?? 1,
+          xp: profile.xp ?? 0,
+          awardedXp: 0,
+          isMilestone: false,
+          milestoneBonus: 0,
+        };
+      } else if (dayDiff === 2) {
+        // Check for active streak freeze
+        try {
+          const { data: freeze } = await (supabaseAdmin as any)
+            .from("xp_purchases")
+            .select("id")
+            .eq("user_id", userId)
+            .eq("perk_id", "streak_freeze")
+            .eq("status", "active")
+            .limit(1)
+            .maybeSingle();
+
+          if (freeze) {
+            await (supabaseAdmin as any)
+              .from("xp_purchases")
+              .update({ status: "consumed", updated_at: now.toISOString() })
+              .eq("id", freeze.id);
+            currentStreak = (profile.current_streak ?? 0) + 1;
+          } else {
+            currentStreak = 1;
+          }
+        } catch {
+          currentStreak = 1;
+        }
+      } else {
+        currentStreak = 1;
       }
     } else {
-      currentStreak = 1;
+      currentStreak = Math.max(1, (profile.current_streak || 0) + 1);
     }
 
     if (currentStreak > highestStreak) {
@@ -472,26 +504,18 @@ export const getDailyStreakStatus = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const now = new Date();
+    const userTimezone = data?.timezone || "Asia/Kolkata";
     let todayStr: string;
     try {
-      if (data?.timezone) {
-        todayStr = new Intl.DateTimeFormat("en-CA", {
-          timeZone: data.timezone,
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit",
-        }).format(now);
-      } else if (data?.clientDate) {
-        todayStr = data.clientDate;
-      } else {
-        todayStr = now.toISOString().slice(0, 10);
-      }
+      todayStr = new Intl.DateTimeFormat("en-CA", {
+        timeZone: userTimezone,
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      }).format(now);
     } catch {
-      todayStr = now.toISOString().slice(0, 10);
+      todayStr = data?.clientDate || now.toISOString().slice(0, 10);
     }
-
-    const startOfToday = new Date(`${todayStr}T00:00:00.000Z`);
-    const endOfToday = new Date(`${todayStr}T23:59:59.999Z`);
 
     const [profileRes, checkinRes] = await Promise.all([
       supabaseAdmin
@@ -500,12 +524,11 @@ export const getDailyStreakStatus = createServerFn({ method: "GET" })
         .eq("id", userId)
         .maybeSingle(),
       supabaseAdmin
-        .from("xp_log")
-        .select("id, amount, created_at")
+        .from("onboarding_daily_usage")
+        .select("usage_date")
         .eq("user_id", userId)
-        .eq("source", "daily_checkin")
-        .gte("created_at", startOfToday.toISOString())
-        .lte("created_at", endOfToday.toISOString())
+        .eq("usage_date", todayStr)
+        .contains("features_used", ["daily_streak_checkin"])
         .limit(1),
     ]);
 

@@ -2,7 +2,7 @@
 
 <img src="src/assets/learnify-logo.png" alt="Learnify AI Logo" width="180" style="margin-bottom: 12px; filter: drop-shadow(0 4px 12px rgba(99, 102, 241, 0.25));" />
 
-# Learnify AI 6.8.0
+# Learnify AI 6.9.0
 
 **The AI-Native Learning & Career Operating System**
 
@@ -23,6 +23,13 @@
 ## 🎯 What is Learnify AI?
 
 Learnify AI is a **full-stack, AI-powered learning and career growth platform** that integrates intelligent tutoring, 11-in-1 career studio tools, autonomous AI agents, gamification, and creator economy tools into one seamless experience.
+
+### 🌟 What's New in Learnify AI 6.9.0
+* 🔥 **Hardened Daily Streak & XP Gamification Engine**: Added timezone-aware daily check-in calculation (`Intl.DateTimeFormat` with Indian Standard Time / client timezone), preventing midnight UTC offset streak drops. Integrated automated streak freeze protection (`streak_freeze`), milestone bonus grants (+50 XP at 7d, +100 XP at 14d, +250 XP at 30d, +1000 XP at 100d), and synchronized dashboard progress.
+* ✍️ **Enhanced Community Feed & Rich Text Editor**: Integrated MS Word-level formatting with multi-color highlighter (`@tiptap/extension-highlight`), ordered & bullet lists, code blocks, quotes, and reaction stickers. Added dedicated "Liked by" modal listing members who liked a post, and fixed PostgREST relation bindings.
+* 🧾 **Streamlined Pricing & Thermal Receipt Ledger**: Removed redundant "Build Your Plan" calculator and stacked billing toggles. Connected dynamic plan display to `pricing_plans` table respecting admin visibility (`active !== false && is_hidden !== true`), enabling full control to show/hide any plan (including Free).
+* 🌿 **Interview Prep Studio Brand Alignment**: Aligned mock interview setup steps, job role chips, AI interviewers, and CTA buttons to Learnify AI's signature brand green palette (`#347A3D`, `#245F30`, `#174422`).
+* 📊 **Truthful Foundation Cohort Metrics & Docs**: Replaced legacy marketing metrics with real foundation numbers (55+ Registered Foundation Engineers, 50+ Roadmaps) across About and Canonical Config; modernized AI Credits documentation with accurate action costs and tier quotas.
 
 ### 🌟 What's New in Learnify AI 6.8.0
 * 🚀 **Vercel Build Optimization & Nitro SSR Memory Resolution**: Externalized client-only libraries (`monaco-editor`, `xlsx`, `exceljs`, `jspdf`, `sql.js`, `sandpack`) from SSR, transitioned 3.3MB raw HTML shaders to on-demand browser dynamic imports, eliminated heavy Shiki WebAssembly bundle in favor of zero-WASM `highlight.js`, and unified Motion/Framer-Motion engines. Slashed SSR modules by **92%** (from 9,121 to 761), eliminating the exit code 134 out-of-memory crash.
