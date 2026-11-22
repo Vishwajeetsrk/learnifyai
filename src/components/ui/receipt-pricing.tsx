@@ -480,7 +480,11 @@ export function ReceiptSlip({
             <p className="text-2xl font-black tabular-nums">{money.format(due)}</p>
           </div>
           <p className="text-muted-foreground dark:text-neutral-600 mt-1.5 text-[11px] tracking-[0.08em] uppercase">
-            {isYearly ? `${money.format(perMonth)} / mo · Billed annually` : "Billed monthly · Cancel anytime in 1-click"}
+            {plan.monthly <= 0
+              ? "Free Community Tier · No credit card required"
+              : isYearly
+                ? `${money.format(perMonth)} / mo · Billed annually`
+                : "Billed monthly · Cancel anytime in 1-click"}
           </p>
         </div>
 

@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { LogOut, Settings as SettingsIcon, User as UserIcon, Shield, Flame, Sparkles } from "lucide-react";
+import { LogOut, Settings as SettingsIcon, User as UserIcon, Shield, Flame, Sparkles, MessageSquare } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
+import { UserFeedbackModal } from "@/components/UserFeedbackModal";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,6 +26,7 @@ export function UserAvatarMenu({ size = "md", showName = false, className }: Pro
   const { user, isAdmin, signOut } = useAuth();
   const navigate = useNavigate();
   const [signed, setSigned] = useState<string | null>(null);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
 
   const profileQuery = useQuery({
     enabled: !!user,
@@ -113,6 +115,9 @@ export function UserAvatarMenu({ size = "md", showName = false, className }: Pro
             <SettingsIcon className="h-4 w-4" /> Settings
           </Link>
         </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setFeedbackOpen(true)} className="cursor-pointer">
+          <MessageSquare className="h-4 w-4 text-[#347A3D]" /> Feedback &amp; Suggestions
+        </DropdownMenuItem>
         {isAdmin && (
           <DropdownMenuItem asChild>
             <Link to="/admin" rel="nofollow">
@@ -131,6 +136,7 @@ export function UserAvatarMenu({ size = "md", showName = false, className }: Pro
           <LogOut className="h-4 w-4" /> Sign out
         </DropdownMenuItem>
       </DropdownMenuContent>
+      <UserFeedbackModal open={feedbackOpen} onOpenChange={setFeedbackOpen} />
     </DropdownMenu>
   );
 }

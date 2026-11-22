@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { executeCode } from "./playground.functions";
 import { runWebSearch } from "./web-search";
+import { notifyAdminOnAiAlert } from "@/lib/ai-quota-alert.server";
 
 const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
 const GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
@@ -259,6 +260,12 @@ async function callAI(messages: any[], systemPrompt: string) {
       }
     }
   }
+  notifyAdminOnAiAlert({
+    eventType: "api_failure",
+    endpoint: "careerCoachChat",
+    errorDetails: errors.join(" | "),
+  }).catch(() => {});
+
   throw new Error(`All AI providers failed: ${errors.join(" | ")}`);
 }
 

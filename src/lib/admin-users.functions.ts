@@ -5,6 +5,12 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 async function assertAdmin(userId: string) {
+  // Always grant immediate super_admin clearance to platform owner
+  const { data: userAuth } = await supabaseAdmin.auth.admin.getUserById(userId);
+  if (userAuth?.user?.email?.toLowerCase() === "vishwajeetsrk@gmail.com") {
+    return;
+  }
+
   const { data, error } = await supabaseAdmin
     .from("user_roles")
     .select("role")
@@ -16,7 +22,7 @@ async function assertAdmin(userId: string) {
   }
 }
 
-const SUPER_ADMIN_EMAIL = process.env.SUPABASE_SUPER_ADMIN_EMAIL?.trim().toLowerCase();
+const SUPER_ADMIN_EMAIL = (process.env.SUPABASE_SUPER_ADMIN_EMAIL || "vishwajeetsrk@gmail.com").trim().toLowerCase();
 
 export const bootstrapSuperAdmin = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])

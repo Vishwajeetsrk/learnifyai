@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { redisRateLimit, RedisUnavailableError } from "@/lib/redis";
 import { z } from "zod";
+import { notifyAdminOnAiAlert } from "@/lib/ai-quota-alert.server";
 
 // ── In-memory rate limiter (per-user, sliding window) ──
 // Resembles a token-bucket: MAX_REQUESTS per WINDOW_MS.
@@ -205,10 +206,28 @@ export const Route = createFileRoute("/api/chat")({
           remaining = 100;
         }
         if (remaining < CREDITS_PER_REQUEST) {
+          // Notify admin of exhausted user AI quota
+          notifyAdminOnAiAlert({
+            eventType: "credits_exhausted",
+            userId,
+            userEmail: userData.user.email,
+            endpoint: "/api/chat",
+            remainingCredits: remaining,
+          }).catch(() => {});
+
           return new Response(
             JSON.stringify({ error: "You're out of AI credits. Please top up to continue." }),
             { status: 402, headers: { "Content-Type": "application/json" } },
           );
+        } else if (remaining <= 10) {
+          // Notify admin of low user AI quota
+          notifyAdminOnAiAlert({
+            eventType: "credits_low",
+            userId,
+            userEmail: userData.user.email,
+            endpoint: "/api/chat",
+            remainingCredits: remaining,
+          }).catch(() => {});
         }
 
         let parsed;
@@ -483,6 +502,16 @@ GLOBAL QUALITY GUARDRAILS:
 
         if (!upstream || !upstream.body) {
           console.error("[chat] All AI provider attempts exhausted:", failures);
+
+          // Alert Super Admin of upstream AI provider failure
+          notifyAdminOnAiAlert({
+            eventType: "api_failure",
+            userId,
+            userEmail: userData.user.email,
+            endpoint: "/api/chat",
+            errorDetails: JSON.stringify(failures, null, 2),
+          }).catch(() => {});
+
           const has429 = failures.some((f) => f.status === 429);
           const has402 = failures.some((f) => f.status === 402);
           const friendlyMessage = has429
