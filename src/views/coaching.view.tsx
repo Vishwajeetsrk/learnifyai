@@ -840,50 +840,18 @@ export default function CoachingDashboard() {
         {/* Top Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20 mb-2">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-[#347A3D] dark:text-emerald-400 border border-emerald-500/20 mb-2">
               <Sparkles className="w-3.5 h-3.5" />
               <span>Executive Coaching Studio 5.0</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-display font-semibold tracking-tight text-foreground">
-              <HighlightText text="Coaching & Mentorship Studio" className="rounded-lg bg-linear-to-r from-emerald-500/15 via-primary/15 to-purple-500/15 px-2 py-0.5 text-2xl sm:text-3xl font-bold dark:from-emerald-500/25 dark:to-purple-500/25" />
+              <HighlightText text="Coaching & Mentorship Studio" className="rounded-lg bg-emerald-500/15 px-2 py-0.5 text-2xl sm:text-3xl font-bold dark:bg-emerald-500/25" />
             </h1>
             <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
               Direct 1-on-1 mentorship with Staff & Principal Engineers, plus our 10-Role AI Coaching Agent Studio with real-time tool calling and code execution.
             </p>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <Button
-              variant={activeTab === "book_call" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setActiveTab("book_call")}
-              className="gap-2"
-            >
-              <Calendar className="w-4 h-4" />
-              <span>Book 1:1 Call</span>
-            </Button>
-            <Button
-              variant={activeTab === "ai_studio" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setActiveTab("ai_studio")}
-              className="gap-2"
-            >
-              <Bot className="w-4 h-4" />
-              <span>AI Coach Studio</span>
-            </Button>
-            <Button
-              variant={activeTab === "my_sessions" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setActiveTab("my_sessions")}
-              className="gap-2"
-            >
-              <Clock className="w-4 h-4" />
-              <span>My Sessions</span>
-              {localBookings.length > 0 && (
-                <Badge variant="secondary" className="text-[10px] py-0 px-1 font-bold">
-                  {localBookings.length}
-                </Badge>
-              )}
-            </Button>
+          <div className="flex items-center gap-2">
             <Button
               variant="outline"
               size="sm"
@@ -891,10 +859,10 @@ export default function CoachingDashboard() {
                 setEditCoachForm(coachProfile);
                 setIsEditProfileOpen(true);
               }}
-              className="gap-1.5 border-primary/30 text-primary hover:bg-primary/10"
+              className="gap-1.5 border-[#347A3D]/30 text-[#347A3D] dark:text-emerald-400 hover:bg-emerald-500/10"
             >
               <Edit3 className="w-4 h-4" />
-              <span className="hidden sm:inline">Edit Rates</span>
+              <span>Edit Coach Rates</span>
             </Button>
           </div>
         </div>
@@ -904,26 +872,26 @@ export default function CoachingDashboard() {
           <button
             className={`pb-3 text-sm font-medium border-b-2 transition-colors shrink-0 snap-start flex items-center gap-2 ${
               activeTab === "book_call"
-                ? "border-primary text-foreground font-semibold"
+                ? "border-[#347A3D] text-foreground font-semibold"
                 : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
             onClick={() => setActiveTab("book_call")}
           >
-            <Calendar className="h-4 w-4 text-indigo-500" />
+            <Calendar className="h-4 w-4 text-[#347A3D]" />
             <span>1:1 Live Booking</span>
           </button>
 
           <button
             className={`pb-3 text-sm font-medium border-b-2 transition-colors shrink-0 snap-start flex items-center gap-2 ${
               activeTab === "ai_studio"
-                ? "border-primary text-foreground font-semibold"
+                ? "border-[#347A3D] text-foreground font-semibold"
                 : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
             onClick={() => setActiveTab("ai_studio")}
           >
-            <Bot className="h-4 w-4 text-purple-500" />
+            <Bot className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
             <span>10-Role AI Studio & Messenger</span>
-            <Badge variant="outline" className="text-[10px] bg-purple-500/10 text-purple-600 border-purple-500/20 py-0 px-1.5 font-bold">
+            <Badge variant="outline" className="text-[10px] bg-emerald-500/10 text-emerald-600 border-emerald-500/20 py-0 px-1.5 font-bold">
               HOT
             </Badge>
           </button>
@@ -931,7 +899,7 @@ export default function CoachingDashboard() {
           <button
             className={`pb-3 text-sm font-medium border-b-2 transition-colors shrink-0 snap-start flex items-center gap-2 ${
               activeTab === "my_sessions"
-                ? "border-primary text-foreground font-semibold"
+                ? "border-[#347A3D] text-foreground font-semibold"
                 : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
             onClick={() => setActiveTab("my_sessions")}
@@ -948,7 +916,7 @@ export default function CoachingDashboard() {
           <button
             className={`pb-3 text-sm font-medium border-b-2 transition-colors shrink-0 snap-start flex items-center gap-2 ${
               activeTab === "roadmaps"
-                ? "border-primary text-foreground font-semibold"
+                ? "border-[#347A3D] text-foreground font-semibold"
                 : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
             onClick={() => setActiveTab("roadmaps")}
@@ -1239,26 +1207,7 @@ export default function CoachingDashboard() {
 
         {/* ============ EXPERIENCE 2: 10-ROLE AI STUDIO & MESSENGER 2.0 ============ */}
         {activeTab === "ai_studio" && (
-          <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b">
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                    10-Role AI Coaching Agent Studio & Direct Messenger 2.0
-                  </span>
-                  <Badge variant="outline" className="text-[10px] bg-primary/10 text-primary border-primary/20 py-0 px-1 font-bold">
-                    Social Messenger 2.0
-                  </Badge>
-                  <span className="inline-flex items-center gap-1 text-[10px] text-emerald-500 font-semibold font-mono">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> 10 AI Mentors Available
-                  </span>
-                </div>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  Direct, social 1-on-1 conversations with 10 specialized AI mentors. Real streaming, layered memory, live artifacts & interactive drills.
-                </p>
-              </div>
-            </div>
-
+          <div className="space-y-4">
             <AiMentorMessenger
               user={user}
               contacts={contacts}

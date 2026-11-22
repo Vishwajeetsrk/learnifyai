@@ -43,17 +43,17 @@ function BotAvatar({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "h-9 w-9 rounded-full bg-gradient-to-tr from-violet-600 via-primary to-cyan-500 p-[1.5px] shrink-0 shadow-lg relative flex items-center justify-center",
+        "h-9 w-9 rounded-full bg-gradient-to-tr from-[#174422] via-[#245F30] to-emerald-500 p-[1.5px] shrink-0 shadow-lg relative flex items-center justify-center",
         className,
       )}
     >
       <div className="h-full w-full rounded-full bg-slate-950 flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(139,92,246,0.4),transparent_70%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(52,122,61,0.4),transparent_70%)]" />
 
         <svg
           viewBox="0 0 24 24"
           fill="none"
-          className="h-4.5 w-4.5 text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]"
+          className="h-4.5 w-4.5 text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]"
         >
           <rect
             x="4"
@@ -173,16 +173,24 @@ export function GlobalSupportAgent() {
 
   const isAdminRoute = path.startsWith("/admin");
   const isStudioRoute = path.startsWith("/studio");
-  const isCareerRoute = path.startsWith("/career-studio") || path.startsWith("/resume-builder") || path.startsWith("/portfolio-builder");
-  const isCourseRoute = path.startsWith("/courses/") || path.startsWith("/course/");
+  const clientPath = typeof window !== "undefined" ? window.location.pathname : path;
+  const isCareerRoute =
+    path.includes("career-studio") ||
+    path.includes("resume-builder") ||
+    path.includes("portfolio-builder") ||
+    clientPath.includes("career-studio") ||
+    clientPath.includes("resume-builder");
+  const isCourseRoute = path.includes("/courses/") || path.includes("/course/") || clientPath.includes("/courses/");
   const isLeft = isStudioRoute; // Studio keeps left, admin stays right to avoid blocking sidebar
 
-  const clientPath = typeof window !== "undefined" ? window.location.pathname : path;
   const isCoachingRoute =
-    path.startsWith("/coaching") ||
-    path.startsWith("/coaches") ||
+    path.includes("coaching") ||
+    path.includes("coaches") ||
     clientPath.includes("coaching") ||
     clientPath.includes("coaches");
+  const isInterviewRoute =
+    path.includes("interview") ||
+    clientPath.includes("interview");
 
   const toggleMinimize = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -193,22 +201,23 @@ export function GlobalSupportAgent() {
     });
   };
 
-  if (isCoachingRoute) return null;
+  // Hide entirely in full-screen coaching, mentor messenger, or active mock interviews to prevent obstructing interactions
+  if (isCoachingRoute || isInterviewRoute) return null;
   if (!user || !user.email) return null;
 
-  // When minimized, show a tiny unobtrusive floating pill
+  // When minimized or on dense career pages, show a tiny unobtrusive floating pill offset above bottom nav
   if (minimized && !open) {
     return (
-      <div className={cn("fixed z-40", isCourseRoute || isCareerRoute ? "bottom-24 md:bottom-20 right-4" : "bottom-4", isLeft ? "left-4" : "right-4")}>
+      <div className={cn("fixed z-40", isCourseRoute || isCareerRoute ? "bottom-24 md:bottom-20 right-4" : "bottom-20 md:bottom-6", isLeft ? "left-4" : "right-4")}>
         <button
           onClick={() => {
             setMinimized(false);
             localStorage.setItem("learnify_support_minimized", "false");
           }}
-          className="px-2.5 py-1 text-[11px] font-medium rounded-full bg-card/90 border shadow-md hover:bg-card flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition cursor-pointer backdrop-blur"
+          className="px-2.5 py-1 text-[11px] font-medium rounded-full bg-card/90 border border-emerald-500/30 shadow-md hover:bg-card flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition cursor-pointer backdrop-blur"
           title="Show Support Assistant"
         >
-          <Bot className="h-3.5 w-3.5 text-primary" />
+          <Bot className="h-3.5 w-3.5 text-[#347A3D]" />
           <span>Support</span>
         </button>
       </div>
@@ -223,9 +232,7 @@ export function GlobalSupportAgent() {
       dragElastic={0.1}
       className={cn(
         "fixed z-40 flex-col pointer-events-auto flex",
-        isCourseRoute
-          ? "bottom-24 md:bottom-24"
-          : isCareerRoute
+        isCourseRoute || isCareerRoute
           ? "bottom-24 md:bottom-20"
           : "bottom-20 md:bottom-6",
         isLeft ? "left-4 md:left-6 items-start" : "right-4 md:right-6 items-end",
@@ -233,10 +240,10 @@ export function GlobalSupportAgent() {
       style={{ touchAction: "none" }}
     >
       {open ? (
-        <div className="w-96 max-w-[calc(100vw-2rem)] h-[550px] max-h-[calc(100vh-8rem)] bg-card border rounded-2xl shadow-2xl flex flex-col overflow-hidden mb-3 animate-in fade-in slide-in-from-bottom-5 duration-200">
+        <div className="w-96 max-w-[calc(100vw-2rem)] h-[550px] max-h-[calc(100vh-8rem)] bg-card border border-emerald-500/20 rounded-2xl shadow-2xl flex flex-col overflow-hidden mb-3 animate-in fade-in slide-in-from-bottom-5 duration-200">
           {/* Header */}
           <header
-            className="bg-gradient-to-r from-violet-600 via-primary to-fuchsia-600 text-primary-foreground px-4 py-3 flex items-center justify-between shrink-0 shadow-sm relative overflow-hidden cursor-grab active:cursor-grabbing"
+            className="bg-gradient-to-r from-[#174422] via-[#245F30] to-[#347A3D] text-white px-4 py-3 flex items-center justify-between shrink-0 shadow-sm relative overflow-hidden cursor-grab active:cursor-grabbing"
             onPointerDown={(e) => dragControls.start(e)}
           >
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.1),transparent_60%)] pointer-events-none" />
@@ -451,7 +458,7 @@ export function GlobalSupportAgent() {
               size="icon"
               onClick={send}
               disabled={!input.trim() || busy}
-              className="shrink-0 rounded-xl h-[38px] w-[38px] bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600"
+              className="shrink-0 rounded-xl h-[38px] w-[38px] bg-gradient-to-r from-[#245F30] to-[#347A3D] hover:from-[#174422] hover:to-[#245F30] text-white"
             >
               {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
             </Button>
@@ -461,12 +468,12 @@ export function GlobalSupportAgent() {
         <div
           className={cn("flex flex-col gap-2 group/widget", isLeft ? "items-start" : "items-end")}
         >
-          {/* A small premium greeting pill that glows and bounces */}
+          {/* A small premium greeting pill */}
           <div
-            className="bg-card/95 border shadow-xl rounded-2xl py-1.5 px-3 flex items-center gap-2 border-primary/30 backdrop-blur-md animate-bounce duration-[3000ms] cursor-pointer hover:border-primary transition"
+            className="bg-card/95 border shadow-xl rounded-2xl py-1.5 px-3 flex items-center gap-2 border-emerald-500/30 backdrop-blur-md cursor-pointer hover:border-emerald-500 transition"
             onClick={() => setOpen(true)}
           >
-            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse shrink-0 shadow-[0_0_8px_rgba(16,185,129,0.6)]" />
+            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse shrink-0 shadow-[0_0_8px_rgba(52,122,61,0.6)]" />
             <div className="text-left leading-tight pr-1">
               <div className="text-[10px] font-bold text-foreground">Learnify Support</div>
               <div className="text-[8px] text-muted-foreground">Online Assistant</div>
@@ -482,11 +489,10 @@ export function GlobalSupportAgent() {
           </div>
           <button
             onClick={() => setOpen(true)}
-            className="h-14 w-14 rounded-full bg-gradient-to-tr from-violet-600 via-primary to-fuchsia-500 text-primary-foreground shadow-2xl flex items-center justify-center hover:scale-110 transition-all duration-300 group relative border border-white/10 cursor-pointer"
+            className="h-13 w-13 rounded-full bg-gradient-to-tr from-[#174422] via-[#245F30] to-[#347A3D] text-white shadow-xl flex items-center justify-center hover:scale-105 transition-all duration-300 group relative border border-emerald-400/20 cursor-pointer"
             title="Open Help & Support"
           >
-            <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-violet-500 via-primary to-fuchsia-500 animate-ping opacity-20 group-hover:opacity-30" />
-            <BotAvatar className="h-11 w-11 border border-white/10" />
+            <BotAvatar className="h-10 w-10 border border-white/10" />
           </button>
         </div>
       )}

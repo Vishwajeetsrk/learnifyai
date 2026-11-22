@@ -44,7 +44,7 @@ const DEFAULT_EVENTS: EventRow[] = [
     id: "evt-1",
     title: "Next.js 15 & React 19 Live Workshop",
     description:
-      "Build full-stack AI SaaS apps with TanStack Start, React 19, Supabase, and Cashfree payments.",
+      "Build full-stack AI SaaS apps with TanStack Start, React 19, Supabase, and Razorpay payments.",
     starts_at: "2026-08-15T18:00:00Z",
     location: "Online (Discord Live Channel)",
     rsvp_url: "https://discord.gg/learnifyai",

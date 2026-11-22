@@ -288,34 +288,33 @@ export function AgentChat({
         </div>
       )}
 
-      <div className="flex-1 overflow-y-auto space-y-4 p-4">
+      <div className="flex-1 overflow-y-auto space-y-4 p-3 sm:p-4">
         {messages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-center py-12">
+          <div className="flex flex-col items-center justify-center min-h-[300px] py-6 sm:py-8 text-center max-w-lg mx-auto">
             <div
               className={cn(
-                "w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg mb-4",
+                "w-10 h-10 rounded-xl flex items-center justify-center shadow-sm mb-3",
                 agentColor,
               )}
             >
               {agentIcon}
             </div>
-            <h3 className="text-lg font-bold mb-1">{agentName}</h3>
-            <p className="text-sm text-muted-foreground max-w-md mb-6">{placeholder}</p>
-            <div className="grid gap-2 w-full max-w-md">
+            <h3 className="text-base font-bold mb-1">{agentName}</h3>
+            <p className="text-xs text-muted-foreground max-w-sm mb-4 leading-relaxed">{placeholder}</p>
+            <div className="flex flex-wrap items-center justify-center gap-2 w-full">
               {suggestions.map((s, i) => (
-                <Button
+                <button
                   key={i}
-                  variant="outline"
-                  className="justify-start text-xs h-auto py-2.5 px-4 rounded-xl border-dashed hover:border-primary/50 hover:bg-accent/50 text-left"
+                  className="inline-flex items-center gap-1.5 text-xs py-1.5 px-3 rounded-full border border-border/80 bg-card hover:border-[#347A3D]/40 hover:bg-emerald-500/5 text-foreground transition text-left cursor-pointer shadow-2xs"
                   onClick={() => {
                     setInput(s.prompt);
                     handleSend(s.prompt);
                   }}
                   disabled={loading}
                 >
-                  <Sparkles className="h-3.5 w-3.5 mr-2 shrink-0 text-primary" />
-                  {s.label}
-                </Button>
+                  <Sparkles className="h-3 w-3 text-[#347A3D] dark:text-emerald-400 shrink-0" />
+                  <span>{s.label}</span>
+                </button>
               ))}
             </div>
           </div>

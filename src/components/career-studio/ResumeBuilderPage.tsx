@@ -1812,10 +1812,10 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
     <Wrapper>
       <div className="max-w-7xl mx-auto p-4 sm:p-6 space-y-5">
         {/* Header & Version Manager */}
-        <div className="flex items-center justify-between flex-wrap gap-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-indigo-50 dark:bg-indigo-950/30 rounded-xl border border-indigo-100 dark:border-indigo-800/50">
-              <FileText className="h-5 w-5 text-indigo-600" />
+            <div className="p-2.5 bg-emerald-50 dark:bg-emerald-950/30 rounded-xl border border-emerald-200 dark:border-emerald-800/50">
+              <FileText className="h-5 w-5 text-[#347A3D] dark:text-emerald-400" />
             </div>
             <div>
               <h2 className="text-xl font-bold">Resume Builder Studio</h2>
@@ -1846,7 +1846,7 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
             <div className="flex items-center gap-1.5 bg-muted/40 p-1 rounded-xl border">
               <History className="h-3.5 w-3.5 text-muted-foreground ml-1.5" />
               <select
-                className="bg-transparent text-xs font-bold focus:outline-none cursor-pointer pr-2"
+                className="bg-transparent text-xs font-bold focus:outline-none cursor-pointer pr-2 max-w-[120px] sm:max-w-none truncate"
                 value={activeDraftId}
                 onChange={(e) => loadDraft(e.target.value)}
               >
@@ -1859,63 +1859,66 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
               <button
                 type="button"
                 onClick={saveNewDraft}
-                className="px-2.5 py-1 rounded-lg bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 transition cursor-pointer flex items-center gap-1"
+                className="px-2.5 py-1 rounded-lg bg-[#347A3D] text-white text-xs font-bold hover:bg-[#245F30] transition cursor-pointer flex items-center gap-1"
               >
-                <Plus className="h-3 w-3" /> Save Draft
+                <Plus className="h-3 w-3" /> Save
               </button>
             </div>
 
-            {/* Undo / Redo Shortcuts */}
-            <div className="flex items-center gap-1 bg-muted/40 p-1 rounded-xl border">
+            {/* Undo / Redo Shortcuts (Hidden on very narrow mobile to save space) */}
+            <div className="hidden md:flex items-center gap-1 bg-muted/40 p-1 rounded-xl border">
               <button
                 onClick={handleUndo}
                 title="Undo (Ctrl+Z)"
                 className="px-2 py-1 rounded-lg text-xs font-bold hover:bg-muted transition cursor-pointer flex items-center gap-1 text-muted-foreground hover:text-foreground"
               >
-                ↩ Undo <span className="text-[9px] opacity-60 font-mono">(Ctrl+Z)</span>
+                ↩ Undo
               </button>
               <button
                 onClick={handleRedo}
                 title="Redo (Ctrl+Y)"
                 className="px-2 py-1 rounded-lg text-xs font-bold hover:bg-muted transition cursor-pointer flex items-center gap-1 text-muted-foreground hover:text-foreground"
               >
-                ↪ Redo <span className="text-[9px] opacity-60 font-mono">(Ctrl+Y)</span>
+                ↪ Redo
               </button>
             </div>
 
             <button
               onClick={resetToSampleTemplate}
-              className="px-3 py-1.5 rounded-xl border bg-muted/40 hover:bg-muted text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
+              className="hidden sm:flex px-3 py-1.5 rounded-xl border bg-muted/40 hover:bg-muted text-xs font-bold transition items-center gap-1.5 cursor-pointer"
             >
-              <FileText className="h-3.5 w-3.5 text-blue-500" /> Sample Resume
+              <FileText className="h-3.5 w-3.5 text-emerald-600" /> Sample
             </button>
             <button
               onClick={resetToAtsTemplate}
-              className="px-3 py-1.5 rounded-xl border bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800/50 hover:bg-amber-100 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
+              className="px-3 py-1.5 rounded-xl border bg-emerald-50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800/50 hover:bg-emerald-100 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
             >
-              <Sparkles className="h-3.5 w-3.5 text-amber-500" /> ATS Sample Resume
+              <Sparkles className="h-3.5 w-3.5 text-[#347A3D]" /> ATS Sample
             </button>
           </div>
         </div>
 
         {/* Navigation Tabs & Exports */}
-        <div className="flex items-center justify-between flex-wrap gap-3 border-b pb-3">
-          <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 border-b pb-3">
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 max-w-full scrollbar-none flex-nowrap">
             {[
-              { id: "content", label: "Content Editor", icon: Edit3 },
-              { id: "design", label: "Design & Layout", icon: Palette },
-              { id: "ai", label: "AI Pro Tools", icon: Sparkles },
-              { id: "cover", label: "AI Cover Letter", icon: Mail },
+              { id: "content", label: "Content", icon: Edit3 },
+              { id: "design", label: "Design", icon: Palette },
+              { id: "ai", label: "AI Tools", icon: Sparkles },
+              { id: "cover", label: "Cover Letter", icon: Mail },
             ].map((tab) => {
               const IconComp = tab.icon;
               return (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id as any)}
+                  onClick={() => {
+                    setActiveTab(tab.id as any);
+                    setMobilePane("editor");
+                  }}
                   className={cn(
-                    "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition cursor-pointer",
-                    activeTab === tab.id
-                      ? "bg-primary text-primary-foreground shadow-sm"
+                    "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition cursor-pointer shrink-0",
+                    activeTab === tab.id && mobilePane === "editor"
+                      ? "bg-[#347A3D] text-white shadow-xs"
                       : "bg-muted/40 text-muted-foreground hover:bg-muted",
                   )}
                 >
@@ -1924,51 +1927,42 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                 </button>
               );
             })}
+            {/* Mobile-dedicated preview tab button */}
+            <button
+              type="button"
+              onClick={() => setMobilePane("preview")}
+              className={cn(
+                "xl:hidden flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition cursor-pointer shrink-0 border border-emerald-500/40",
+                mobilePane === "preview"
+                  ? "bg-[#347A3D] text-white shadow-xs"
+                  : "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
+              )}
+            >
+              <Eye className="h-3.5 w-3.5" />
+              Preview ({liveAts.score}%)
+            </button>
           </div>
 
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-xs text-muted-foreground font-bold hidden sm:inline">Export:</span>
+          <div className="flex items-center gap-2 flex-wrap justify-end">
+            <span className="text-xs text-muted-foreground font-bold hidden md:inline">Export:</span>
             <button
               onClick={handleDownloadPdfDirect}
-              className="px-3 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+              className="px-3 py-1.5 rounded-full bg-[#347A3D] hover:bg-[#245F30] text-white text-xs font-bold transition flex items-center gap-1 cursor-pointer shadow-xs"
             >
               <Download className="h-3 w-3" /> PDF
             </button>
             <button
               onClick={handleDownloadWord}
-              className="px-3 py-1.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+              className="px-3 py-1.5 rounded-full bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold transition flex items-center gap-1 cursor-pointer"
             >
-              <Download className="h-3 w-3" /> Word (.docx)
+              <Download className="h-3 w-3" /> Word
             </button>
             <button
               onClick={handleDownloadTxt}
-              className="px-3 py-1.5 rounded-full bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+              className="px-3 py-1.5 rounded-full bg-muted hover:bg-muted/80 text-foreground text-xs font-bold transition flex items-center gap-1 cursor-pointer border"
             >
-              <Download className="h-3 w-3" /> Text (.txt)
+              <Download className="h-3 w-3" /> Text
             </button>
-            {/* Mobile View Switcher (Editor vs Preview) */}
-            <div className="flex xl:hidden items-center bg-muted p-1 rounded-xl border">
-              <button
-                type="button"
-                onClick={() => setMobilePane("editor")}
-                className={cn(
-                  "px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer flex items-center gap-1",
-                  mobilePane === "editor" ? "bg-card text-foreground shadow-xs" : "text-muted-foreground",
-                )}
-              >
-                <Edit3 className="h-3 w-3" /> Edit
-              </button>
-              <button
-                type="button"
-                onClick={() => setMobilePane("preview")}
-                className={cn(
-                  "px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer flex items-center gap-1",
-                  mobilePane === "preview" ? "bg-card text-foreground shadow-xs" : "text-muted-foreground",
-                )}
-              >
-                <Eye className="h-3 w-3" /> Preview ({liveAts.score}%)
-              </button>
-            </div>
           </div>
         </div>
 

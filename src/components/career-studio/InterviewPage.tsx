@@ -734,7 +734,7 @@ function DeviceTroubleshooterModal({
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-lg rounded-3xl border border-slate-700/80 bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 p-6 shadow-2xl text-slate-100"
+        className="relative w-[94vw] max-w-md max-h-[85vh] overflow-y-auto rounded-3xl border border-slate-700/80 bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 p-4 sm:p-6 shadow-2xl text-slate-100"
         style={{ animation: "dialog-in 0.25s ease-out" }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -911,33 +911,39 @@ function DeviceTroubleshooterModal({
           <div className="space-y-3.5 text-xs">
             <div className="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-200 space-y-2">
               <p className="font-bold flex items-center gap-1.5 text-emerald-300 text-sm">
-                <Info className="h-4 w-4" /> How to allow browser access:
+                <Info className="h-4 w-4" /> Quick Permission Checklist:
               </p>
               <div className="space-y-2 text-[11px] text-slate-300">
-                <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800">
-                  <p className="font-bold text-white mb-1">Chrome / Edge / Brave:</p>
-                  <ol className="list-decimal list-inside space-y-0.5 text-slate-300">
-                    <li>Click the <b>tune/lock icon (⚙️ / 🔒)</b> on the left of your address bar.</li>
+                <details className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 cursor-pointer" open>
+                  <summary className="font-bold text-white hover:text-emerald-300 transition">
+                    Chrome / Edge / Brave (Recommended)
+                  </summary>
+                  <ol className="list-decimal list-inside space-y-1 text-slate-300 mt-2 pl-1">
+                    <li>Click the tune/lock settings icon on the left of your address bar.</li>
                     <li>Toggle <b>Camera</b> and <b>Microphone</b> to <b>Allow</b>.</li>
-                    <li>Click <b>Re-detect Devices</b> below to reconnect.</li>
+                    <li>Tap <b>Re-detect Devices</b> below to reconnect.</li>
                   </ol>
-                </div>
+                </details>
 
-                <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800">
-                  <p className="font-bold text-white mb-1">Safari (macOS / iOS):</p>
-                  <ol className="list-decimal list-inside space-y-0.5 text-slate-300">
-                    <li>Choose <b>Safari &gt; Settings for This Website</b>.</li>
+                <details className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 cursor-pointer">
+                  <summary className="font-bold text-white hover:text-emerald-300 transition">
+                    Safari (macOS / iOS)
+                  </summary>
+                  <ol className="list-decimal list-inside space-y-1 text-slate-300 mt-2 pl-1">
+                    <li>Choose <b>Safari &gt; Settings for This Website</b> (or AA button on iOS).</li>
                     <li>Change <b>Camera</b> and <b>Microphone</b> to <b>Allow</b>.</li>
                   </ol>
-                </div>
+                </details>
 
-                <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800">
-                  <p className="font-bold text-white mb-1">Firefox:</p>
-                  <ol className="list-decimal list-inside space-y-0.5 text-slate-300">
-                    <li>Click the permissions shield on the left of the address bar.</li>
-                    <li>Clear the "Blocked" status for Camera / Microphone.</li>
+                <details className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 cursor-pointer">
+                  <summary className="font-bold text-white hover:text-emerald-300 transition">
+                    Firefox
+                  </summary>
+                  <ol className="list-decimal list-inside space-y-1 text-slate-300 mt-2 pl-1">
+                    <li>Click the permissions icon on the left of your address bar.</li>
+                    <li>Clear any blocked status for Camera and Microphone.</li>
                   </ol>
-                </div>
+                </details>
               </div>
             </div>
 

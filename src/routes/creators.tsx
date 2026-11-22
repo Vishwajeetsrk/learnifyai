@@ -42,7 +42,7 @@ const perks = [
     id: "payouts",
     icon: DollarSign,
     title: "Direct Payouts",
-    desc: "Get paid to your wallet. Withdraw anytime via Cashfree (UPI or bank).",
+    desc: "Get paid to your wallet. Withdraw anytime via direct bank transfer or UPI.",
   },
   {
     id: "audience",

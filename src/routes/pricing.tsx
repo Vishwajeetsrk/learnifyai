@@ -477,7 +477,7 @@ const FAQ_ITEMS: { q: string; a: string; category: string }[] = [
   },
   {
     q: "Is my payment information secure?",
-    a: "Absolutely. Payments are processed securely through Razorpay (primary) and Cashfree (secondary), PCI-DSS certified payment gateways. We never store your card or UPI credentials.",
+    a: "Absolutely. Payments are processed securely through Razorpay, a RBI-authorized and PCI-DSS Level 1 compliant payment aggregator. We never store your card, UPI PIN, or bank credentials.",
     category: "Billing",
   },
   {
@@ -1712,7 +1712,7 @@ function PricingPage() {
                 id: "payment-methods",
                 tab: "UPI & Cards",
                 q: "What payment methods are supported in India?",
-                a: "We support instant UPI (Google Pay, PhonePe, Paytm, BHIM), all major Credit/Debit Cards (Visa, Mastercard, RuPay), and NetBanking from 50+ Indian banks via Cashfree and Razorpay.",
+                a: "We support instant UPI (Google Pay, PhonePe, Paytm, BHIM), all major Credit/Debit Cards (Visa, Mastercard, RuPay), NetBanking from 50+ Indian banks, and supported international credit cards via Razorpay.",
               },
               {
                 id: "gst-invoices",
@@ -2041,7 +2041,7 @@ function PricingCard({
 
           <div className="mt-3 text-center">
             <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider flex items-center justify-center gap-1.5">
-              <Check className="h-3 h-3 text-emerald-500" /> Secure 256-bit Checkout &middot; Razorpay &amp; Cashfree
+              <Check className="h-3 h-3 text-emerald-500" /> Secure 256-bit Checkout &middot; Razorpay (RBI Regulated)
             </span>
           </div>
         </div>

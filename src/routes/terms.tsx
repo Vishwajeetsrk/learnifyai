@@ -26,7 +26,7 @@ export const Route = createFileRoute("/terms")({
 <p>By accessing Learnify AI ("the Platform"), you agree to be bound by these Terms of Service in compliance with the Consumer Protection (E-Commerce) Rules 2020 and Information Technology Act 2000 of India. Disputes shall be subject to the exclusive jurisdiction of the Courts in India.</p>
 
 <h2>2. Subscriptions & Payment Processing</h2>
-<p>Recurring and one-time payments for Pro (₹199/mo), Career Pro (₹499/mo), and Enterprise plans are securely processed via Razorpay (primary payment gateway) and Cashfree (secondary payment gateway) in accordance with applicable Reserve Bank of India (RBI) directives. Subscriptions auto-renew periodically until cancelled via your Billing & Payments Dashboard.</p>
+<p>Recurring and one-time payments for Pro (₹199/mo), Career Pro (₹499/mo), and Enterprise plans are securely processed via Razorpay (RBI-authorized payment aggregator, PCI-DSS Level 1 compliant) in accordance with applicable Reserve Bank of India (RBI) directives. Subscriptions auto-renew periodically until cancelled via your Billing & Payments Dashboard.</p>
 
 <h2>3. Pricing & Currency</h2>
 <p>All prices listed on the Platform are in Indian Rupees (INR ₹). In accordance with Learnify AI commercial policy, invoices and payment receipts are issued electronically immediately upon successful transaction completion.</p>

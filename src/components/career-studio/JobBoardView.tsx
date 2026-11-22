@@ -357,16 +357,18 @@ export function JobBoardView({ userSkills = "" }: { userSkills?: string }) {
               </CardContent>
 
               {/* Action Footer */}
-              <div className="px-5 py-3 bg-muted/20 border-t border-border flex items-center justify-between text-xs">
-                <span className="text-[11px] text-muted-foreground">Posted {job.postedAt}</span>
+              <div className="px-5 py-3.5 bg-muted/20 border-t border-border flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 text-xs">
+                <span className="text-[11px] text-muted-foreground self-start sm:self-center">
+                  Posted {job.postedAt}
+                </span>
                 <a
                   href={job.applyUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-1.5 font-semibold text-primary hover:underline hover:text-primary/80 transition-colors"
+                  className="h-11 sm:h-9 px-4 rounded-xl bg-[#347A3D] hover:bg-[#245F30] text-white font-semibold inline-flex items-center justify-center gap-2 shadow-xs transition cursor-pointer"
                 >
                   Apply on {job.source}
-                  <ExternalLink className="h-3 w-3" />
+                  <ExternalLink className="h-3.5 w-3.5" />
                 </a>
               </div>
             </Card>

@@ -45,7 +45,7 @@ export const DEFAULT_LEARNIFY_CARDS: readonly FaqCard[] = Object.freeze([
     id: "pricing-billing",
     tab: "Pricing",
     q: "How does Learnify AI billing work?",
-    a: "We offer straightforward pricing with zero hidden fees. Single courses start at ₹99, Career Pro subscriptions provide unlimited access to all 50+ templates, interactive Scrimba workshops, and high-DPI verified credentials. All transactions are processed in Indian Rupees (INR ₹) via Cashfree and Razorpay with 18% GST tax invoices.",
+    a: "We offer straightforward pricing with zero hidden fees. Single courses start at ₹99, Career Pro subscriptions provide unlimited access to all 50+ templates, interactive Scrimba workshops, and high-DPI verified credentials. All transactions are processed in Indian Rupees (INR ₹) securely via Razorpay with 18% GST tax invoices.",
   }),
   Object.freeze({
     id: "certification",

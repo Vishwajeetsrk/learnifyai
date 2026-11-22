@@ -517,7 +517,7 @@ function DocsPage() {
                 <FeatureCard
                   icon={<WalletIcon />}
                   title="Wallet & Payments"
-                  description="Cashfree-powered wallet with UPI/card/netbanking top-ups, course purchases, creator payouts, and downloadable invoices."
+                  description="Razorpay-powered wallet with UPI/card/netbanking top-ups, course purchases, creator payouts, and downloadable invoices."
                   points={[
                     "UPI, Card, Net Banking & EMI support",
                     "Download GST-compliant invoices as PDF",
@@ -686,7 +686,7 @@ function DocsPage() {
                 </div>
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   Learnify AI empowers instructors, software developers, and industry experts to
-                  host free or paid courses with automated Cashfree payouts.
+                  host free or paid courses with automated UPI and bank payouts.
                 </p>
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="p-5 rounded-xl border bg-card/70 space-y-2">
@@ -816,7 +816,7 @@ function DocsPage() {
                     <ul className="text-xs space-y-1.5 text-muted-foreground">
                       {[
                         "Custom session rates (e.g. ₹999/hr)",
-                        "80% direct payout split via Cashfree",
+                        "80% direct payout split to creator wallet",
                         "Priority booking calendar integration",
                       ].map((p) => (
                         <li key={p} className="flex items-center gap-2">

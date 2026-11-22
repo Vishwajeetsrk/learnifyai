@@ -647,7 +647,7 @@ function CreatorWithdrawSection({ balance }: { balance: number }) {
     setSubmitting(true);
     try {
       await processPayout({ data: { amountInr: n, method, destination: dest.trim() } });
-      toast.success("Withdrawal processed via Cashfree Payouts");
+      toast.success("Withdrawal request submitted successfully");
       setOpen(false);
       setDest("");
       qc.invalidateQueries({ queryKey: ["my-withdrawals"] });
@@ -681,7 +681,7 @@ function CreatorWithdrawSection({ balance }: { balance: number }) {
             <ArrowDownToLine className="h-4 w-4 text-primary" /> Creator withdrawals
           </h3>
           <p className="text-xs text-muted-foreground mt-1">
-            Withdraw earnings via Cashfree (UPI or bank). Available: <b>{inr(balance)}</b>
+            Withdraw earnings directly to your bank account or UPI ID. Available: <b>{inr(balance)}</b>
           </p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
@@ -757,9 +757,8 @@ function CreatorWithdrawSection({ balance }: { balance: number }) {
               </div>
             </div>
             <DialogFooter>
-              <Button onClick={submit} disabled={submitting}>
-                {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Withdraw via
-                Cashfree
+              <Button onClick={submit} disabled={submitting} className="bg-[#347A3D] hover:bg-[#245F30] text-white">
+                {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Submit Withdrawal Request
               </Button>
             </DialogFooter>
           </DialogContent>

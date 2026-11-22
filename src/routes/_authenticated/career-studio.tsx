@@ -207,17 +207,17 @@ function CareerStudioHub() {
   return (
     <AppShell>
       {/* ── Header ── */}
-      <div className="bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 px-4 md:px-8 py-4 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(255,255,255,0.07),transparent_60%)] pointer-events-none" />
+      <div className="bg-gradient-to-br from-slate-900 via-emerald-950/70 to-slate-900 border-b border-emerald-800/40 px-4 md:px-8 py-4 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(52,122,61,0.15),transparent_60%)] pointer-events-none" />
         <div className="max-w-7xl mx-auto flex items-center justify-between relative">
           {/* Current tool indicator */}
           <div className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-xl bg-white/20 flex items-center justify-center">
-              <ActiveIcon className="h-5 w-5 text-white" />
+            <div className="h-9 w-9 rounded-xl bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center">
+              <ActiveIcon className="h-5 w-5 text-emerald-300" />
             </div>
             <div>
               <h1 className="font-bold text-lg text-white leading-tight">Career Studio</h1>
-              <p className="text-[11px] text-blue-200 font-medium">{activeTabInfo.label}</p>
+              <p className="text-[11px] text-emerald-300/80 font-medium">{activeTabInfo.label}</p>
             </div>
           </div>
 
@@ -767,7 +767,7 @@ function LinkedInOptimizerView() {
             onClick={handleAutoFillAccount}
             className="px-3 py-1.5 rounded-full text-xs font-bold bg-muted/60 hover:bg-muted text-foreground border border-border transition flex items-center gap-1.5 cursor-pointer"
           >
-            <UserCheck className="h-3.5 w-3.5 text-blue-600" /> Auto-Fill Account Profile
+            <UserCheck className="h-3.5 w-3.5 text-[#347A3D] dark:text-emerald-400" /> Auto-Fill Account Profile
           </button>
           <div className="h-4 w-[1px] bg-border mx-1 hidden sm:block" />
           {(["edit", "preview", "posts"] as const).map((s) => (
@@ -777,7 +777,7 @@ function LinkedInOptimizerView() {
               className={cn(
                 "px-4 py-1.5 rounded-full text-xs font-bold capitalize transition-all border cursor-pointer",
                 activeSection === s
-                  ? "bg-blue-600 text-white border-blue-600 shadow-sm"
+                  ? "bg-[#347A3D] text-white border-[#347A3D] shadow-sm"
                   : "bg-muted/40 border-border text-muted-foreground hover:bg-muted",
               )}
             >
@@ -819,7 +819,7 @@ function LinkedInOptimizerView() {
                       className="h-20 w-20 rounded-full border-4 border-card object-cover shadow-xl"
                     />
                   ) : (
-                    <div className="h-20 w-20 rounded-full border-4 border-card bg-gradient-to-br from-blue-600 to-indigo-600 text-white flex items-center justify-center font-black text-2xl shadow-xl">
+                    <div className="h-20 w-20 rounded-full border-4 border-card bg-gradient-to-br from-[#174422] to-[#347A3D] text-white flex items-center justify-center font-black text-2xl shadow-xl">
                       {name?.charAt(0) || "?"}
                     </div>
                   )}
@@ -1262,7 +1262,7 @@ function LinkedInOptimizerView() {
             <button
               onClick={handleGeneratePosts}
               disabled={generating === "posts"}
-              className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-extrabold text-sm flex items-center justify-center gap-2 hover:opacity-95 active:scale-[0.98] transition shadow-lg shadow-blue-500/20 disabled:opacity-60 cursor-pointer"
+              className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-[#245F30] to-[#347A3D] hover:from-[#174422] hover:to-[#245F30] text-white font-extrabold text-sm flex items-center justify-center gap-2 hover:opacity-95 active:scale-[0.98] transition shadow-lg shadow-emerald-950/20 disabled:opacity-60 cursor-pointer"
             >
               {generating === "posts" ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -1302,7 +1302,7 @@ function LinkedInOptimizerView() {
                       className="h-28 w-28 rounded-full border-4 border-card object-cover shadow-2xl"
                     />
                   ) : (
-                    <div className="h-28 w-28 rounded-full border-4 border-card bg-gradient-to-br from-blue-600 to-indigo-600 text-white flex items-center justify-center font-black text-4xl shadow-2xl">
+                    <div className="h-28 w-28 rounded-full border-4 border-card bg-gradient-to-br from-[#174422] to-[#347A3D] text-white flex items-center justify-center font-black text-4xl shadow-2xl">
                       {name?.charAt(0) || "?"}
                     </div>
                   )}
@@ -2950,38 +2950,50 @@ function SkillGapView() {
       {/* SINGLE ROLE VIEW MODE */}
       {viewMode === "single" && (
         <Card className="p-4 sm:p-6 rounded-2xl border shadow-sm space-y-6">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b pb-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 bg-blue-500/10 text-blue-600 rounded-xl">
-                <TargetIcon className="h-5.5 w-5.5" />
-              </div>
-              <div>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <h3 className="font-black text-lg text-foreground">{selectedRole} Readiness</h3>
-                  <select
-                    value={selectedRole}
-                    onChange={(e) => setSelectedRole(e.target.value)}
-                    className="text-xs font-bold h-8 px-2.5 rounded-lg border border-input bg-background cursor-pointer"
-                  >
-                    {Object.keys(BASE_ROLE_REQUIREMENTS).map((role) => (
-                      <option key={role} value={role}>
-                        {role} ({calculateRoleScore(role)}%)
-                      </option>
-                    ))}
-                  </select>
+          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 border-b pb-4">
+            <div className="flex items-center gap-3 w-full lg:w-auto justify-between lg:justify-start">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-xl">
+                  <TargetIcon className="h-5.5 w-5.5" />
                 </div>
-                <p className="text-xs text-muted-foreground font-semibold mt-1">
-                  {currentReqs.filter((r) => masteredSkills.includes(r.skill)).length}/{currentReqs.length} skills mastered
-                </p>
+                <div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className="font-black text-base sm:text-lg text-foreground">{selectedRole} Readiness</h3>
+                    <select
+                      value={selectedRole}
+                      onChange={(e) => setSelectedRole(e.target.value)}
+                      className="text-xs font-bold h-8 px-2.5 rounded-lg border border-input bg-background cursor-pointer max-w-[180px] sm:max-w-none truncate"
+                    >
+                      {Object.keys(BASE_ROLE_REQUIREMENTS).map((role) => (
+                        <option key={role} value={role}>
+                          {role} ({calculateRoleScore(role)}%)
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <p className="text-xs text-muted-foreground font-semibold mt-1">
+                    {currentReqs.filter((r) => masteredSkills.includes(r.skill)).length}/{currentReqs.length} skills mastered
+                  </p>
+                </div>
+              </div>
+
+              {/* Mobile-only compact score badge */}
+              <div className="sm:hidden px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-center shrink-0">
+                <div className="text-lg font-black text-emerald-600 dark:text-emerald-400">
+                  {overallScore}%
+                </div>
+                <div className="text-[8px] font-extrabold text-muted-foreground uppercase">
+                  Score
+                </div>
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2.5 flex-wrap w-full sm:w-auto justify-end">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={selectAll}
-                className="text-xs h-8 font-bold gap-1"
+                className="text-xs h-8 font-bold gap-1 flex-1 sm:flex-none"
               >
                 <Check className="h-3.5 w-3.5 text-emerald-500" /> Select All
               </Button>
@@ -2989,12 +3001,13 @@ function SkillGapView() {
                 variant="outline"
                 size="sm"
                 onClick={clearAllForRole}
-                className="text-xs h-8 font-bold gap-1"
+                className="text-xs h-8 font-bold gap-1 flex-1 sm:flex-none"
               >
                 <X className="h-3.5 w-3.5 text-rose-500" /> Clear Role
               </Button>
-              <div className="px-4 py-2 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 border border-indigo-500/20 rounded-xl text-center">
-                <div className="text-xl font-black text-indigo-600 dark:text-indigo-400">
+              {/* Desktop / tablet score card */}
+              <div className="hidden sm:block px-4 py-2 bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border border-emerald-500/30 rounded-xl text-center shrink-0">
+                <div className="text-xl font-black text-emerald-600 dark:text-emerald-400">
                   {overallScore}/100
                 </div>
                 <div className="text-[9px] font-extrabold text-muted-foreground uppercase tracking-wider">
@@ -4316,7 +4329,7 @@ function GuidesDocsView() {
         </div>
       </div>
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredGuides.map((guide, i) => (
           <motion.div
             key={i}
@@ -4326,16 +4339,16 @@ function GuidesDocsView() {
           >
             <Card
               onClick={() => setSelectedKey(guide.title)}
-              className="rounded-2xl border shadow-sm p-6 space-y-4 hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer group"
+              className="rounded-2xl border shadow-sm p-5 sm:p-6 space-y-4 hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer group"
             >
               <div className="flex items-center gap-3">
                 <div
-                  className={`w-10 h-10 rounded-xl ${guide.color} flex items-center justify-center group-hover:scale-110 transition-transform`}
+                  className={`w-11 h-11 rounded-xl ${guide.color} flex items-center justify-center group-hover:scale-110 transition-transform shrink-0`}
                 >
-                  {React.createElement(guide.icon as any, { className: "w-5 h-5" })}
+                  {React.createElement(guide.icon as any, { className: "w-5.5 h-5.5" })}
                 </div>
                 <div>
-                  <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
                     {guide.level}
                   </p>
                   <h3 className="font-bold text-base group-hover:text-primary transition-colors">
@@ -4344,15 +4357,15 @@ function GuidesDocsView() {
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-2">
-                <div className="p-2 bg-muted/60 rounded-lg text-center">
-                  <p className="text-[8px] font-bold text-muted-foreground uppercase">Timeline</p>
-                  <p className="text-xs font-bold">{guide.duration}</p>
+                <div className="p-2.5 bg-muted/60 rounded-xl text-center">
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">Timeline</p>
+                  <p className="text-xs sm:text-sm font-bold mt-0.5">{guide.duration}</p>
                 </div>
-                <div className="p-2 bg-emerald-50 dark:bg-emerald-950/30 rounded-lg text-center">
-                  <p className="text-[8px] font-bold text-emerald-600 dark:text-emerald-400 uppercase">
-                    Salary
+                <div className="p-2.5 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-500/20 rounded-xl text-center">
+                  <p className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wide">
+                    Salary Range
                   </p>
-                  <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                  <p className="text-xs sm:text-sm font-bold text-emerald-700 dark:text-emerald-400 mt-0.5">
                     {guide.salary}
                   </p>
                 </div>
@@ -4362,8 +4375,11 @@ function GuidesDocsView() {
                   <SkillBadge key={s} skill={s} variant="secondary" size="sm" />
                 ))}
               </div>
-              <div className="pt-2 text-xs font-bold text-primary flex items-center justify-end gap-1 group-hover:translate-x-1 transition-transform">
-                View Full Roadmap <ArrowRight className="h-3.5 w-3.5" />
+              <div className="pt-2 border-t border-border/50 flex items-center justify-between">
+                <span className="text-xs text-muted-foreground font-medium hidden sm:inline">2026 Curriculum</span>
+                <span className="h-10 px-4 rounded-xl bg-primary text-primary-foreground text-xs font-bold inline-flex items-center justify-center gap-1.5 shadow-xs w-full sm:w-auto">
+                  View Full Roadmap <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
+                </span>
               </div>
             </Card>
           </motion.div>
